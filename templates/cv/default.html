@@ -103,7 +103,7 @@
   .section { margin-bottom: 18px; }
 
   .section-title {
-    font-size: 6.5pt;
+    font-size: 8pt;
     font-weight: 700;
     letter-spacing: 1.8px;
     text-transform: uppercase;
@@ -238,11 +238,34 @@
 
   /* ── PRINT ── */
   @media print {
-    body { background: white; }
-    .page { margin: 0; box-shadow: none; }
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    html, body { margin: 0; padding: 0; background: white; }
+    body { font-size: 8.5pt; }
+    .page {
+      margin: 0;
+      box-shadow: none;
+      width: 210mm;
+    }
+    .header { padding: 12px 20px; }
+    .header-name h1 { font-size: 18pt; }
+    .header-name h2 { font-size: 9pt; margin-top: 3px; }
+    .sidebar { padding: 12px 12px; }
+    .main { padding: 12px 18px; }
+    .section { margin-bottom: 12px; }
+    .section-title { padding-bottom: 3px; margin-bottom: 7px; }
+    .entry { margin-bottom: 10px; }
+    .summary { padding: 7px 10px; margin-bottom: 12px; }
+    .skills-group { margin-bottom: 6px; }
+    .edu-entry { margin-bottom: 6px; }
+    .lang-row { margin-bottom: 3px; }
+    .pub-entry { margin-bottom: 5px; }
+    .tag { font-size: 6.5pt; padding: 1px 5px; }
   }
 
-  @page { size: A4; margin: 0; }
+  @page { size: A4 portrait; margin: 0; }
 </style>
 </head>
 <body>

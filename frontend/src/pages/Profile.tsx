@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { api } from '../api'
 import type {
   Profile, Experience, Education, Publication, Grant,
@@ -9,13 +9,32 @@ import BulletListEditor from '../components/BulletListEditor'
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children, sectionKey, onSave, savedKey, saving }: {
+  title: string
+  children: React.ReactNode
+  sectionKey: string
+  onSave: (key: string) => void
+  savedKey: string | null
+  saving: boolean
+}) {
   const [open, setOpen] = useState(true)
+  const isSaved = savedKey === sectionKey
   return (
     <div className="card">
       <div className="section-header" style={{ cursor: 'pointer' }} onClick={() => setOpen(o => !o)}>
         <span className="section-title">{title}</span>
-        <span style={{ color: 'var(--muted)', fontSize: 18 }}>{open ? '▾' : '▸'}</span>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }} onClick={e => e.stopPropagation()}>
+          {isSaved && <span className="success-msg" style={{ fontSize: 'var(--fs-xs)' }}>Saved!</span>}
+          <button
+            className="btn-secondary"
+            style={{ padding: '3px 10px', fontSize: 'var(--fs-xs)' }}
+            disabled={saving}
+            onClick={() => onSave(sectionKey)}
+          >
+            Save
+          </button>
+          <span style={{ color: 'var(--muted)', fontSize: 18 }}>{open ? '▾' : '▸'}</span>
+        </div>
       </div>
       {open && <div>{children}</div>}
     </div>
@@ -207,38 +226,66 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [savedSection, setSavedSection] = useState<string | null>(null)
   const [error, setError] = useState('')
+  // Always-current profile ref: updated synchronously in set(), so save() never reads stale state
+  // (fixes race where TagInput onBlur fires just before the Save button click)
+  const latestProfile = useRef<Profile | null>(null)
 
-  useEffect(() => { api.getProfile().then(setProfile).catch(e => setError(e.message)) }, [])
+  useEffect(() => {
+    api.getProfile().then(p => {
+      setProfile(p)
+      latestProfile.current = p
+    }).catch(e => setError(e.message))
+  }, [])
 
   const save = useCallback(async () => {
-    if (!profile) return
+    const p = latestProfile.current
+    if (!p) return
     setSaving(true); setError(''); setSaved(false)
     try {
-      await api.putProfile(profile)
+      await api.putProfile(p)
       setSaved(true)
       setTimeout(() => setSaved(false), 2500)
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e))
     } finally { setSaving(false) }
-  }, [profile])
+  }, [])
+
+  const saveSection = useCallback(async (sectionKey: string) => {
+    const p = latestProfile.current
+    if (!p) return
+    setSaving(true); setError('')
+    try {
+      await api.putProfile(p)
+      setSavedSection(sectionKey)
+      setTimeout(() => setSavedSection(null), 2500)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e))
+    } finally { setSaving(false) }
+  }, [])
 
   if (!profile) return <div style={{ padding: 32, color: 'var(--muted)' }}>{error || 'Loading…'}</div>
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function applyPath(obj: any, parts: string[], value: unknown): any {
+    if (parts.length === 0) return value
+    const [head, ...tail] = parts
+    return { ...obj, [head]: applyPath(obj[head] ?? {}, tail, value) }
+  }
+
   const set = (path: string, value: unknown) => {
+    const parts = path.split('.')
     setProfile(prev => {
       if (!prev) return prev
-      const next = { ...prev }
-      const parts = path.split('.')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let obj: any = next
-      for (let i = 0; i < parts.length - 1; i++) {
-        obj[parts[i]] = { ...obj[parts[i]] }
-        obj = obj[parts[i]]
-      }
-      obj[parts[parts.length - 1]] = value
+      const next = applyPath(prev, parts, value) as Profile
+      latestProfile.current = next  // keep ref in sync synchronously
       return next
     })
+    // Also update ref immediately so save() reads the right value even before re-render
+    if (latestProfile.current) {
+      latestProfile.current = applyPath(latestProfile.current, parts, value) as Profile
+    }
   }
 
   return (
@@ -255,7 +302,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Personal */}
-      <Section title="Personal Info">
+      <Section title="Personal Info" sectionKey="personal" onSave={saveSection} savedKey={savedSection} saving={saving}>
         <div className="row">
           <Field label="Full name"><input type="text" value={profile.personal.name} onChange={e => set('personal.name', e.target.value)} /></Field>
           <Field label="Professional title"><input type="text" value={profile.personal.professional_title} onChange={e => set('personal.professional_title', e.target.value)} /></Field>
@@ -277,7 +324,7 @@ export default function ProfilePage() {
       </Section>
 
       {/* Narrative */}
-      <Section title="Narrative & Career Goals">
+      <Section title="Narrative & Career Goals" sectionKey="narrative" onSave={saveSection} savedKey={savedSection} saving={saving}>
         <Field label="What kind of role do you want?"><textarea value={profile.narrative.target_roles_description} onChange={e => set('narrative.target_roles_description', e.target.value)} style={{ minHeight: 100 }} /></Field>
         <Field label="Target industries"><TagInput value={profile.narrative.target_industries} onChange={v => set('narrative.target_industries', v)} /></Field>
         <Field label="What differentiates you?"><textarea value={profile.narrative.differentiation} onChange={e => set('narrative.differentiation', e.target.value)} /></Field>
@@ -288,7 +335,7 @@ export default function ProfilePage() {
       </Section>
 
       {/* Experience */}
-      <Section title="Experience">
+      <Section title="Experience" sectionKey="experience" onSave={saveSection} savedKey={savedSection} saving={saving}>
         {profile.experience.map((exp, i) => (
           <ExperienceCard
             key={exp.id || i}
@@ -311,7 +358,7 @@ export default function ProfilePage() {
       </Section>
 
       {/* Education */}
-      <Section title="Education">
+      <Section title="Education" sectionKey="education" onSave={saveSection} savedKey={savedSection} saving={saving}>
         {profile.education.map((edu, i) => (
           <EducationCard
             key={i}
@@ -328,7 +375,7 @@ export default function ProfilePage() {
       </Section>
 
       {/* Academic */}
-      <Section title="Academic Background">
+      <Section title="Academic Background" sectionKey="academic" onSave={saveSection} savedKey={savedSection} saving={saving}>
         <Field label="Research areas"><TagInput value={profile.academic.research_areas} onChange={v => set('academic.research_areas', v)} /></Field>
         <Field label="Neural / brain analysis methods"><TagInput value={profile.academic.methods.neural_analyses} onChange={v => set('academic.methods.neural_analyses', v)} /></Field>
         <Field label="Computational modelling methods"><TagInput value={profile.academic.methods.computational_modelling} onChange={v => set('academic.methods.computational_modelling', v)} /></Field>
@@ -356,7 +403,7 @@ export default function ProfilePage() {
       </Section>
 
       {/* Publications */}
-      <Section title="Publications">
+      <Section title="Publications" sectionKey="publications" onSave={saveSection} savedKey={savedSection} saving={saving}>
         {profile.publications.map((pub, i) => (
           <PublicationCard
             key={i}
@@ -371,7 +418,7 @@ export default function ProfilePage() {
       </Section>
 
       {/* Grants */}
-      <Section title="Grants & Fellowships">
+      <Section title="Grants & Fellowships" sectionKey="grants" onSave={saveSection} savedKey={savedSection} saving={saving}>
         {profile.grants.map((g, i) => (
           <GrantCard
             key={i}
@@ -384,7 +431,7 @@ export default function ProfilePage() {
       </Section>
 
       {/* Teaching */}
-      <Section title="Teaching">
+      <Section title="Teaching" sectionKey="teaching" onSave={saveSection} savedKey={savedSection} saving={saving}>
         <Field label="Subjects you can teach"><TagInput value={profile.teaching.subjects_to_teach} onChange={v => set('teaching.subjects_to_teach', v)} /></Field>
         <Field label="Student supervision"><textarea value={profile.teaching.student_supervision} onChange={e => set('teaching.student_supervision', e.target.value)} /></Field>
         <Field label="Mentoring"><textarea value={profile.teaching.mentoring} onChange={e => set('teaching.mentoring', e.target.value)} /></Field>
@@ -433,7 +480,7 @@ export default function ProfilePage() {
       </Section>
 
       {/* Skills */}
-      <Section title="Skills">
+      <Section title="Skills" sectionKey="skills" onSave={saveSection} savedKey={savedSection} saving={saving}>
         <Field label="Programming — production"><TagInput value={profile.skills.programming.production} onChange={v => set('skills.programming.production', v)} /></Field>
         <Field label="Programming — research / academic"><TagInput value={profile.skills.programming.research} onChange={v => set('skills.programming.research', v)} /></Field>
         <Field label="Visualisation"><TagInput value={profile.skills.visualization} onChange={v => set('skills.visualization', v)} /></Field>
@@ -466,7 +513,7 @@ export default function ProfilePage() {
       </Section>
 
       {/* Work Preferences */}
-      <Section title="Work Preferences">
+      <Section title="Work Preferences" sectionKey="preferences" onSave={saveSection} savedKey={savedSection} saving={saving}>
         <Field label="Commute radius (cities)"><TagInput value={profile.work_preferences.commute_radius} onChange={v => set('work_preferences.commute_radius', v)} /></Field>
         <Field label="Remote / hybrid / on-site">
           <select value={profile.work_preferences.remote_hybrid} onChange={e => set('work_preferences.remote_hybrid', e.target.value)}>

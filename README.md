@@ -8,6 +8,7 @@ AI-powered career assistant — generate tailored CVs and (in future phases) dis
 
 - [uv](https://docs.astral.sh/uv/) — Python package manager
 - Python 3.11+ (uv installs this automatically on first run)
+- Node.js 18+ — for the frontend dev server
 
 ---
 
@@ -17,11 +18,28 @@ AI-powered career assistant — generate tailored CVs and (in future phases) dis
 git clone <repo>
 cd job-coach
 uv sync
+cd frontend && npm install && cd ..
 ```
 
 ---
 
-## Generate a CV
+## Run the web app
+
+```bash
+# Terminal 1 — backend API
+uv run uvicorn app.main:app --reload
+
+# Terminal 2 — frontend dev server
+cd frontend && npm run dev
+```
+
+Open **http://localhost:5173** in your browser.
+
+On first run, go to **Settings** and enter your [OpenRouter](https://openrouter.ai) API key. This is saved locally to `config.json` (gitignored).
+
+---
+
+## Generate a CV (CLI)
 
 The career profile lives in `profile/profile.json`. Run the script to render it as a print-ready HTML file.
 
@@ -39,12 +57,14 @@ uv run python scripts/generate_cv.py --job "Company Role Name"
 uv run python scripts/generate_cv.py --lang nl --job "UGent Data Scientist"
 ```
 
-## AI-tailor a CV for a specific job
+## AI-tailor a CV for a specific job (CLI)
 
-Requires an Anthropic API key. Create a `.env` file in the project root:
+Requires an OpenRouter API key. Set it via the Settings page (preferred), or create `config.json` manually:
 
-```
-ANTHROPIC_API_KEY=sk-ant-...
+```json
+{
+  "openrouter_api_key": "sk-or-..."
+}
 ```
 
 Then run:
@@ -59,7 +79,7 @@ uv run python scripts/tailor_cv.py --url https://... --lang nl
 uv run python scripts/tailor_cv.py --url https://... --job "ugent-lecturer"
 ```
 
-Claude reads the job posting, selects the most relevant experience from your profile, rewrites the summary and responsibility bullets to match the role's language, and saves the result to `output/<job-slug>/cv_<lang>.html`.
+The AI reads the job posting, selects the most relevant experience from your profile, rewrites the summary and responsibility bullets to match the role's language, and saves the result to `output/<job-slug>/cv_<lang>.html`.
 
 ---
 
@@ -88,11 +108,13 @@ output/
 2. In `profile/profile.json`, set `"include_photo": true` under `cv_design_preferences`
 3. Re-run either script — the photo is embedded directly in the HTML
 
+Alternatively, upload via the **Settings** page in the web UI.
+
 ---
 
 ## Edit your profile
 
-Open `profile/profile.json` in any text editor. Sections include `personal`, `narrative`, `experience`, `education`, `skills`, `publications`, and more. See `CLAUDE.md` for the full schema reference.
+Use the **Profile** page in the web UI, or open `profile/profile.json` directly in any text editor. Sections include `personal`, `narrative`, `experience`, `education`, `skills`, `publications`, and more. See `CLAUDE.md` for the full schema reference.
 
 ---
 
@@ -102,7 +124,6 @@ See `CLAUDE.md` for the full plan. Upcoming phases:
 
 | Phase | Description |
 |-------|-------------|
-| 4 | Web UI — browser-based profile editor and CV generator |
 | 5 | Job scrapers — automatically collect listings from `sources.yaml` |
 | 6 | Job matching — Claude scores and ranks jobs against your profile |
 | 7 | Cloud deployment — share the app with non-technical users |

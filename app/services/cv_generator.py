@@ -27,6 +27,7 @@ class TailoringPlan:
     adjusted_responsibilities: dict[str, list[str]]
     highlighted_skills: list[str]
     tailoring_notes: str
+    include_publications: bool = True
 
 
 _TOOL = {
@@ -39,7 +40,7 @@ _TOOL = {
             "required": [
                 "job_title", "employer", "slug", "summary",
                 "selected_experience_ids", "adjusted_responsibilities",
-                "highlighted_skills", "tailoring_notes",
+                "highlighted_skills", "tailoring_notes", "include_publications",
             ],
             "properties": {
                 "job_title": {
@@ -56,7 +57,7 @@ _TOOL = {
                 },
                 "summary": {
                     "type": "string",
-                    "description": "3-4 sentence professional summary tailored to this role",
+                    "description": "Professional summary tailored to this role, max 5 sentences, first person",
                 },
                 "selected_experience_ids": {
                     "type": "array",
@@ -77,10 +78,16 @@ _TOOL = {
                     "type": "string",
                     "description": "Brief explanation of the tailoring choices made",
                 },
+                "include_publications": {
+                    "type": "boolean",
+                    "description": "Set to true only for academic/research/university roles. Set to false for all industry, data engineering, commercial, or technology roles where peer-reviewed publications are not part of the hiring criteria.",
+                },
             },
         },
     },
 }
+
+_LANG_NAMES = {"en": "English", "nl": "Dutch (Nederlands)"}
 
 
 def fetch_job_description(url: str) -> str:
@@ -97,7 +104,7 @@ def fetch_job_description(url: str) -> str:
     return soup.get_text(separator="\n", strip=True)
 
 
-def tailor(profile: dict, job_url: str, api_key: str, model: str) -> TailoringPlan:
+def tailor(profile: dict, job_url: str, api_key: str, model: str, lang: str = "en") -> TailoringPlan:
     """
     Call an LLM via OpenRouter to produce a CV tailoring plan for a given job URL.
 
@@ -106,10 +113,12 @@ def tailor(profile: dict, job_url: str, api_key: str, model: str) -> TailoringPl
         job_url:  Public URL of the job posting
         api_key:  OpenRouter API key
         model:    OpenRouter model string, e.g. 'anthropic/claude-sonnet-4-6'
+        lang:     Output language code ('en' or 'nl')
 
     Returns:
         TailoringPlan with all fields needed to render a tailored CV
     """
+    lang_name = _LANG_NAMES.get(lang, "English")
     job_text = fetch_job_description(job_url)
 
     client = OpenAI(
@@ -126,11 +135,15 @@ def tailor(profile: dict, job_url: str, api_key: str, model: str) -> TailoringPl
                 "content": (
                     "You are an expert career coach helping tailor CVs to specific job openings.\n\n"
                     "Rules:\n"
+                    f"- Write ALL generated text (summary, responsibility bullets) in {lang_name}\n"
+                    "- Write the summary in first person (I, my)\n"
+                    "- Professional summary: maximum 4 sentences, direct and specific to this role\n"
                     "- Select only experience entries that are genuinely relevant to the role\n"
                     "- Rewrite responsibility bullets to mirror the language of the job description, but only honestly\n"
-                    "- The summary must be 3-4 sentences, direct and specific to this role\n"
                     "- Do not invent skills or experience not present in the profile\n"
-                    "- Keep bullets concise (one line each)\n\n"
+                    "- Keep bullets concise (one line each)\n"
+                    "- Publications section: set include_publications=true ONLY for research/academic/university roles; set false for industry, tech, or data engineering roles\n"
+                    "- Use the experience relevance notes in the profile to decide which entries best match the role type\n\n"
                     f"CANDIDATE PROFILE:\n{json.dumps(profile, ensure_ascii=False, indent=2)}"
                 ),
             },
@@ -159,7 +172,46 @@ def tailor(profile: dict, job_url: str, api_key: str, model: str) -> TailoringPl
         adjusted_responsibilities=d["adjusted_responsibilities"],
         highlighted_skills=d["highlighted_skills"],
         tailoring_notes=d["tailoring_notes"],
+        include_publications=d.get("include_publications", True),
     )
+
+
+def _date_sort_key(entry: dict) -> tuple[int, int]:
+    """Return sort key; current roles sort above past roles, ordered by start date."""
+    end = str(entry.get("end_date") or entry.get("end") or "").strip()
+    is_current = not end or end.lower() in ("present", "current", "now", "heden", "nu")
+    if is_current:
+        for field in ("start_date", "start"):
+            val = str(entry.get(field) or "").strip()
+            if not val:
+                continue
+            parts = re.split(r"[-/]", val)
+            try:
+                year = int(parts[0])
+                month = int(parts[1]) if len(parts) > 1 else 0
+                return (9000 + year - 2000, month)
+            except (ValueError, IndexError):
+                continue
+        return (9999, 99)
+    for field in ("end_date", "end", "end_year"):
+        val = str(entry.get(field) or "").strip()
+        if not val:
+            continue
+        parts = re.split(r"[-/]", val)
+        try:
+            return (int(parts[0]), int(parts[1]) if len(parts) > 1 else 0)
+        except (ValueError, IndexError):
+            continue
+    for field in ("start_date", "start"):
+        val = str(entry.get(field) or "").strip()
+        if not val:
+            continue
+        parts = re.split(r"[-/]", val)
+        try:
+            return (int(parts[0]), int(parts[1]) if len(parts) > 1 else 0)
+        except (ValueError, IndexError):
+            continue
+    return (0, 0)
 
 
 def apply_tailoring(profile: dict, plan: TailoringPlan) -> dict:
@@ -176,6 +228,11 @@ def apply_tailoring(profile: dict, plan: TailoringPlan) -> dict:
         if eid in plan.adjusted_responsibilities:
             entry["responsibilities"] = plan.adjusted_responsibilities[eid]
         filtered.append(entry)
+
+    filtered.sort(key=_date_sort_key, reverse=True)
     p["experience"] = filtered
+
+    if not plan.include_publications:
+        p["publications"] = []
 
     return p

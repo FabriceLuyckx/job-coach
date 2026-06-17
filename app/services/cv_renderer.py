@@ -30,7 +30,7 @@ LABELS: dict[str, dict[str, str]] = {
         "visualisation": "Visualisation", "cloud_devops": "Cloud & DevOps",
         "big_data": "Big Data", "databases": "Databases", "languages": "Languages",
         "education": "Education", "grants": "Grants & Fellowships",
-        "experience": "Experience", "publications": "Selected Publications",
+        "experience": "Career Path", "publications": "Selected Publications",
         "present": "Present",
     },
     "nl": {
@@ -38,7 +38,7 @@ LABELS: dict[str, dict[str, str]] = {
         "visualisation": "Visualisatie", "cloud_devops": "Cloud & DevOps",
         "big_data": "Big Data", "databases": "Databases", "languages": "Talen",
         "education": "Opleiding", "grants": "Beurzen & Fellowships",
-        "experience": "Werkervaring", "publications": "Selectie Publicaties",
+        "experience": "Loopbaan", "publications": "Selectie Publicaties",
         "present": "Heden",
     },
 }
