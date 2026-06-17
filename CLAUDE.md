@@ -7,7 +7,7 @@ An AI-powered career assistant with two main pipelines:
 1. **CV Generator** — Build tailored CVs from a career profile, targeted at specific job openings
 2. **Job Scout** — Scrape, filter, and score job listings against the user's profile
 
-The app runs locally first, designed for easy cloud deployment. AI is powered by the Anthropic Claude API. The UI is browser-based and should be usable by non-technical people.
+The app runs locally first, designed for easy cloud deployment. AI is powered via OpenRouter (routing to Anthropic Claude models). The UI is browser-based and should be usable by non-technical people.
 
 ---
 
@@ -19,11 +19,12 @@ The app runs locally first, designed for easy cloud deployment. AI is powered by
 | `sources.yaml` | Started | Two sources: Euraxess (RSS), IMEC (HTML) |
 | `templates/cv/default.html` | Done | Two-column Jinja2 CV template with language support and photo slot |
 | `scripts/generate_cv.py` | Done | CLI: `--lang`, `--job`, photo support, job-slug output dirs |
-| `app/services/cv_generator.py` | Done | `tailor()` + `apply_tailoring()` — called by CLI and future API |
+| `app/services/cv_generator.py` | Done | `tailor()` + `apply_tailoring()` — called by CLI and API |
 | `app/services/cv_renderer.py` | Done | Shared Jinja2 utilities (LABELS, filters, photo) |
 | `scripts/tailor_cv.py` | Done | CLI: fetch URL → Claude → tailored HTML |
-| FastAPI backend | Not started | Phase 4 |
-| React frontend | Not started | Phase 4 |
+| `app/db.py` | Done | SQLite setup: `cv_history` table (Phase 4), `jobs` table (Phase 5) |
+| FastAPI backend | Done | Phase 4 — all endpoints live |
+| React frontend | Done | Phase 4 — Profile editor, CV Generator, Settings, Jobs placeholder |
 | Job scrapers | Not started | Phase 5 |
 | Job matching | Not started | Phase 6 |
 | Cloud deployment | Not started | Phase 7 |
@@ -40,7 +41,7 @@ The app runs locally first, designed for easy cloud deployment. AI is powered by
 | Frontend | React (TypeScript) | Simple SPA, served by FastAPI locally |
 | Profile data | `profile/profile.json` | Human-readable, version-controllable |
 | Jobs data | SQLite → PostgreSQL | SQLite locally, Postgres for cloud |
-| AI | Anthropic Claude API | `claude-sonnet-4-6` or later |
+| AI | OpenRouter → Anthropic Claude | Model: `anthropic/claude-sonnet-4-6`; key stored in `config.json` |
 | CV output | HTML → PDF (browser print) | Jinja2 templates, no external deps |
 | Local run | uvicorn | `uvicorn app.main:app --reload` |
 | Cloud (future) | Railway (backend) + Vercel (frontend) | Phase 6 |
@@ -66,31 +67,37 @@ job-coach/
 │   └── generate_cv.py            # CLI: profile.json → CV HTML
 ├── sources.yaml                  # Job scraping sources config
 ├── jobs/
-│   └── jobs.db                   # SQLite job database (Phase 5)
-├── app/                          # FastAPI backend (Phase 4+)
+│   └── jobs.db                   # SQLite database: cv_history + jobs tables
+├── app/                          # FastAPI backend
 │   ├── main.py
+│   ├── config.py                 # Persistent config (config.json) for API key & model
+│   ├── db.py                     # SQLite setup: init_db(), get_db()
 │   ├── api/
 │   │   ├── profile.py            # Profile CRUD endpoints
-│   │   ├── cv.py                 # CV generation endpoints
-│   │   └── jobs.py               # Job listing endpoints
-│   ├── services/
-│   │   ├── cv_generator.py       # Claude-powered tailored CV generation
-│   │   ├── job_matcher.py        # Job scoring/filtering via Claude
-│   │   └── scrapers/
-│   │       ├── base.py           # Abstract scraper class
-│   │       ├── rss.py            # Generic RSS/Atom feed scraper
-│   │       └── html.py           # Custom HTML scraper (BeautifulSoup)
-│   └── models/
-│       ├── profile.py            # Pydantic models for profile data
-│       └── job.py                # Job data model
-├── frontend/                     # React app (Phase 4+)
+│   │   ├── cv.py                 # CV generation, history, preview endpoints
+│   │   ├── settings.py           # Settings + photo upload endpoints
+│   │   └── jobs.py               # Job listing endpoints (Phase 5)
+│   └── services/
+│       ├── cv_generator.py       # OpenRouter-powered tailored CV generation
+│       ├── cv_renderer.py        # Shared Jinja2 utilities
+│       ├── job_matcher.py        # Job scoring/filtering via Claude (Phase 6)
+│       └── scrapers/             # Job scrapers (Phase 5)
+│           ├── base.py
+│           ├── rss.py
+│           └── html.py
+├── frontend/                     # React + TypeScript SPA (Vite)
 │   └── src/
 │       ├── pages/
 │       │   ├── Profile.tsx       # View/edit career profile
-│       │   ├── CVGenerator.tsx   # Paste job description → generate CV
-│       │   └── Jobs.tsx          # Browse and filter scraped jobs
-│       └── components/
-├── .env                          # API keys — never commit
+│       │   ├── CVGenerator.tsx   # Paste job URL → generate CV + history
+│       │   ├── Jobs.tsx          # Browse and filter scraped jobs (Phase 5)
+│       │   └── Settings.tsx      # OpenRouter API key, model, photo
+│       ├── components/
+│       │   ├── TagInput.tsx
+│       │   └── BulletListEditor.tsx
+│       ├── api.ts                # Typed API client
+│       └── types.ts              # TypeScript models for profile data
+├── config.json                   # API keys & model — never commit
 ├── pyproject.toml                # uv-managed dependencies
 ├── CLAUDE.md                     # This file
 └── README.md
@@ -176,41 +183,64 @@ output/
 
 **CLI**:
 ```bash
-# Set ANTHROPIC_API_KEY in .env first
+# Set openrouter_api_key via the Settings page (saved to config.json) or:
+#   echo '{"openrouter_api_key":"sk-or-..."}' > config.json
 uv run python scripts/tailor_cv.py --url https://example.com/jobs/123
 uv run python scripts/tailor_cv.py --url https://... --lang nl
 # → output/<slug>/cv_<lang>.html
 ```
 
-**Model**: `claude-sonnet-4-6`.
+**AI provider**: OpenRouter (`https://openrouter.ai/api/v1`), using OpenAI SDK.  
+**Default model**: `anthropic/claude-sonnet-4-6` (configurable via Settings page or `config.json`).
 
 ---
 
-### Phase 4 — Profile Web UI
+### Phase 4 — Profile Web UI ✅ Complete
 
 **Goal**: Browser-based interface to view and edit the career profile without touching JSON directly.
 
 **Features**:
 - View all profile sections in a clean, readable UI
 - Inline editing of any field (text, lists, dates)
-- Add new sections or custom questions
-- Configure Anthropic API key (stored in `.env`, shown masked in UI)
-- Trigger CV generation and download from the browser
-- Auto-save to `profile/profile.json` on change
+- Configure OpenRouter API key (stored in `config.json`, shown masked in UI)
+- Trigger CV generation and preview from the browser
+- History of previously generated CVs (persisted in `jobs/jobs.db`)
+- Photo upload/delete via settings
 
-**Key API endpoints**:
+**API endpoints**:
 ```
-GET  /api/profile          Return full profile JSON
-PUT  /api/profile          Save updated profile JSON
-GET  /api/settings         Return app settings (API key masked)
-PUT  /api/settings         Update settings
-POST /api/cv/generate      Generate tailored CV (wraps Phase 3 script)
+GET  /api/profile              Return full profile JSON
+PUT  /api/profile              Save updated profile JSON
+GET  /api/settings             Return app settings (API key masked)
+PUT  /api/settings             Update settings (key, model)
+POST /api/settings/photo       Upload profile photo
+GET  /api/settings/photo       Return photo as base64 data URI
+DELETE /api/settings/photo     Remove photo
+POST /api/cv/generate          Generate tailored CV → saves HTML + history row
+GET  /api/cv/history           Return all generated CVs, newest first
+GET  /api/cv/preview/{slug}    Return CV HTML for browser preview
+```
+
+**cv_history table** (`jobs/jobs.db`):
+```
+id              TEXT PRIMARY KEY (UUID)
+slug            TEXT
+job_title       TEXT
+employer        TEXT
+job_url         TEXT
+lang            TEXT
+tailoring_notes TEXT
+created_at      TEXT (ISO 8601)
 ```
 
 **Run locally**:
 ```bash
+# Terminal 1 — backend
 uvicorn app.main:app --reload
-# Navigate to http://localhost:8000
+
+# Terminal 2 — frontend dev server
+cd frontend && npm run dev
+# Frontend: http://localhost:5173  Backend: http://localhost:8000
 ```
 
 ---
@@ -315,21 +345,21 @@ sources:
 ## Configuration
 
 ### API key setup
-Create a `.env` file in the project root (never commit this file):
-```
-ANTHROPIC_API_KEY=sk-ant-...
-DATABASE_URL=sqlite:///./jobs/jobs.db
-PORT=8000
+Configure via the Settings page in the web UI — the key is saved to `config.json` (gitignored).
+
+For CLI use without the web UI, create `config.json` manually:
+```json
+{
+  "openrouter_api_key": "sk-or-...",
+  "openrouter_model": "anthropic/claude-sonnet-4-6"
+}
 ```
 
-Or configure the API key via the UI settings page (Phase 4+).
-
-### Environment variables reference
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `ANTHROPIC_API_KEY` | Anthropic Claude API key | Required for AI features |
-| `DATABASE_URL` | SQLite path or PostgreSQL URL | `sqlite:///./jobs/jobs.db` |
-| `PORT` | FastAPI listening port | `8000` |
+### config.json reference
+| Key | Description | Default |
+|-----|-------------|---------|
+| `openrouter_api_key` | OpenRouter API key (get one at openrouter.ai) | Required for AI features |
+| `openrouter_model` | Model string passed to OpenRouter | `anthropic/claude-sonnet-4-6` |
 
 ---
 

@@ -1,22 +1,33 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --accent: #1B3A6B;
+  /* Palette */
+  --accent:     #1B3A6B;
   --accent-mid: #2A5298;
-  --bg: #f4f6fa;
-  --surface: #ffffff;
-  --border: #dde3ef;
-  --text: #1e1e1e;
-  --muted: #5a6070;
-  --danger: #c0392b;
-  --success: #27ae60;
-  --radius: 6px;
-  --shadow: 0 1px 4px rgba(0,0,0,0.10);
+  --highlight:  #d97706;   /* amber — use for callouts, warnings, emphasis */
+  --bg:         #f4f6fa;
+  --surface:    #ffffff;
+  --border:     #dde3ef;
+  --text:       #1e1e1e;
+  --muted:      #5a6070;
+  --danger:     #c0392b;
+  --success:    #27ae60;
+  --radius:     6px;
+  --shadow:     0 1px 4px rgba(0,0,0,0.10);
+
+  /* Font sizes */
+  --fs-xs:   11px;  /* meta labels, badges */
+  --fs-sm:   12px;  /* secondary text, captions */
+  --fs-base: 14px;  /* body text */
+  --fs-md:   15px;  /* slightly emphasized body */
+  --fs-lg:   17px;  /* card headings, subheadings */
+  --fs-xl:   20px;  /* section labels */
+  --fs-2xl:  22px;  /* page titles */
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 14px;
+  font-size: var(--fs-base);
   color: var(--text);
   background: var(--bg);
   line-height: 1.5;
@@ -28,7 +39,7 @@ a:hover { text-decoration: underline; }
 button {
   cursor: pointer;
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--fs-base);
   border: none;
   border-radius: var(--radius);
   padding: 7px 14px;
@@ -58,7 +69,7 @@ button:disabled { opacity: 0.5; cursor: default; }
 input[type="text"], input[type="email"], input[type="tel"], input[type="url"],
 input[type="number"], input[type="password"], select, textarea {
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--fs-base);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 7px 10px;
@@ -73,7 +84,7 @@ input:focus, select:focus, textarea:focus {
 }
 textarea { resize: vertical; min-height: 80px; }
 
-label { font-size: 13px; font-weight: 500; color: var(--muted); display: block; margin-bottom: 4px; }
+label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display: block; margin-bottom: 4px; }
 
 .field { margin-bottom: 14px; }
 .field:last-child { margin-bottom: 0; }
@@ -95,7 +106,7 @@ label { font-size: 13px; font-weight: 500; color: var(--muted); display: block; 
 }
 
 .section-title {
-  font-size: 15px;
+  font-size: var(--fs-md);
   font-weight: 600;
   color: var(--accent);
 }
@@ -130,8 +141,25 @@ label { font-size: 13px; font-weight: 500; color: var(--muted); display: block; 
 }
 .tag button:hover { opacity: 1; }
 
-.error-msg { color: var(--danger); font-size: 13px; margin-top: 6px; }
-.success-msg { color: var(--success); font-size: 13px; margin-top: 6px; }
+.error-msg { color: var(--danger); font-size: var(--fs-sm); margin-top: 6px; }
+.success-msg { color: var(--success); font-size: var(--fs-sm); margin-top: 6px; }
+
+.callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+.callout-highlight {
+  background: rgba(217, 119, 6, 0.08);
+  border: 1px solid var(--highlight);
+  color: var(--text);
+}
+.callout-highlight .callout-icon { color: var(--highlight); font-size: var(--fs-lg); line-height: 1; flex-shrink: 0; margin-top: 1px; }
+.callout-highlight a { color: var(--highlight); font-weight: 500; text-decoration: underline; }
 
 .spinner {
   display: inline-block;

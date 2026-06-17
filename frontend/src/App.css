@@ -58,7 +58,7 @@
 }
 
 .page-title {
-  font-size: 22px;
+  font-size: var(--fs-2xl);
   font-weight: 700;
   color: var(--accent);
   margin-bottom: 24px;

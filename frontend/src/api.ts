@@ -11,6 +11,32 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json()
 }
 
+export interface CVResult {
+  history_id: string
+  slug: string
+  job_title: string
+  employer: string
+  tailoring_notes: string
+  summary: string
+  preview_url: string
+  job_url: string
+  lang: string
+  has_plan: boolean
+}
+
+export interface CvHistoryEntry {
+  id: string
+  slug: string
+  job_title: string
+  employer: string
+  job_url: string | null
+  lang: string
+  tailoring_notes: string | null
+  summary: string | null
+  has_plan: boolean
+  created_at: string
+}
+
 export const api = {
   // Profile
   getProfile: () => request<Profile>('/profile'),
@@ -21,16 +47,34 @@ export const api = {
       body: JSON.stringify(p),
     }),
 
-  // CV
-  generateCV: (url: string, lang: string) =>
-    request<{ slug: string; job_title: string; employer: string; tailoring_notes: string; preview_url: string }>(
-      '/cv/generate',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, lang }),
-      }
-    ),
+  // CV generation (async)
+  startGenerateCV: (url: string, lang: string) =>
+    request<{ job_id: string }>('/cv/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, lang }),
+    }),
+
+  getCVJobStatus: (jobId: string) =>
+    request<{ status: string; result?: CVResult; error?: string }>(`/cv/status/${jobId}`),
+
+  getCVHistory: () => request<CvHistoryEntry[]>('/cv/history'),
+
+  deleteCVHistory: (id: string) =>
+    request<{ ok: boolean }>(`/cv/history/${id}`, { method: 'DELETE' }),
+
+  rerenderCV: (id: string, summary?: string) =>
+    request<{ ok: boolean }>(`/cv/rerender/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ summary }),
+    }),
+
+  getCVSummary: (id: string) =>
+    request<{ summary: string }>(`/cv/summary/${id}`),
+
+  generateCVSummary: (id: string) =>
+    request<{ summary: string }>(`/cv/summary/${id}/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }),
 
   // Settings
   getSettings: () =>

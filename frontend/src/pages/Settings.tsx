@@ -149,6 +149,12 @@ export default function SettingsPage() {
             {OPENROUTER_MODELS.map(m => <option key={m} value={m}>{m}</option>)}
             <option value="__custom__">Custom model ID…</option>
           </select>
+          <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--muted)', marginTop: 5 }}>
+            Active: <strong>{settings.openrouter_model}</strong>
+            {(model !== '__custom__' ? model : customModel) !== settings.openrouter_model && (
+              <span style={{ color: 'var(--highlight)', marginLeft: 8 }}>● unsaved change</span>
+            )}
+          </p>
         </div>
         {(model === '__custom__' || isCustomModel) && (
           <div className="field">

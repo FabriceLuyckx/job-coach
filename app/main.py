@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -6,8 +7,16 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from app.api import profile, cv, settings
+from app import db
 
-app = FastAPI(title="Job Coach")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    db.init_db()
+    yield
+
+
+app = FastAPI(title="Job Coach", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
