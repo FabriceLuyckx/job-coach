@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ personal.name }} – CV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue:        #1B3A6B;
+    --blue-mid:    #2A5298;
+    --text:        #1E1E1E;
+    --muted:       #5A5A5A;
+    --sidebar-bg:  #F2F5FB;
+    --border:      #D8E0EF;
+    --white:       #FFFFFF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 9pt;
+    color: var(--text);
+    line-height: 1.5;
+    background: #d0d5e0;
+  }
+
+  /* ── PAGE ── */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    background: var(--white);
+    margin: 20px auto;
+    display: grid;
+    grid-template-columns: 65mm 1fr;
+    grid-template-rows: auto 1fr;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  }
+
+  /* ── HEADER ── */
+  .header {
+    grid-column: 1 / -1;
+    background: var(--blue);
+    color: var(--white);
+    padding: 22px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+  }
+
+  .header-name h1 {
+    font-size: 22pt;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    line-height: 1.1;
+  }
+
+  .header-name h2 {
+    font-size: 10.5pt;
+    font-weight: 300;
+    opacity: 0.85;
+    margin-top: 5px;
+    letter-spacing: 0.2px;
+  }
+
+  .header-contact {
+    text-align: right;
+    font-size: 8pt;
+    opacity: 0.9;
+    line-height: 2;
+    white-space: nowrap;
+  }
+
+  .header-contact a { color: var(--white); text-decoration: none; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background: var(--sidebar-bg);
+    padding: 22px 18px;
+    border-right: 1px solid var(--border);
+  }
+
+  /* ── PHOTO ── */
+  .photo {
+    display: block;
+    width: 50mm;
+    height: 50mm;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 2px solid var(--border);
+    margin: 0 auto 16px;
+  }
+
+  /* ── MAIN ── */
+  .main {
+    padding: 22px 26px;
+  }
+
+  /* ── SECTION TITLES ── */
+  .section { margin-bottom: 18px; }
+
+  .section-title {
+    font-size: 6.5pt;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--blue);
+    border-bottom: 1.5px solid var(--blue);
+    padding-bottom: 4px;
+    margin-bottom: 10px;
+  }
+
+  /* ── LINKS ── */
+  .link-item { margin-bottom: 6px; }
+
+  .link-label {
+    display: block;
+    font-size: 7pt;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 1px;
+  }
+
+  .link-item a {
+    font-size: 8pt;
+    color: var(--blue-mid);
+    text-decoration: none;
+    word-break: break-all;
+  }
+
+  /* ── SKILL TAGS ── */
+  .skills-group { margin-bottom: 9px; }
+
+  .skills-group-label {
+    font-size: 7pt;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    margin-bottom: 4px;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+  }
+
+  .tag {
+    background: var(--blue);
+    color: var(--white);
+    font-size: 7pt;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .tag.secondary { background: var(--blue-mid); }
+
+  /* ── LANGUAGE BARS ── */
+  .lang-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 8.5pt;
+  }
+
+  .lang-dots { display: flex; gap: 3px; }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+
+  .dot.on { background: var(--blue); }
+
+  /* ── EDUCATION (sidebar) ── */
+  .edu-entry { margin-bottom: 9px; }
+
+  .edu-degree  { font-weight: 600; font-size: 8.5pt; line-height: 1.3; }
+  .edu-field   { font-size: 8pt; color: var(--muted); font-style: italic; }
+  .edu-institution { font-size: 8pt; color: var(--blue); font-weight: 500; }
+  .edu-year    { font-size: 7.5pt; color: var(--muted); }
+
+  /* ── GRANTS ── */
+  .grant-entry { font-size: 8pt; margin-bottom: 5px; line-height: 1.4; }
+  .grant-year  { font-weight: 600; color: var(--blue); }
+
+  /* ── SUMMARY ── */
+  .summary {
+    font-size: 9pt;
+    line-height: 1.65;
+    color: var(--text);
+    margin-bottom: 18px;
+    padding: 11px 14px;
+    background: var(--sidebar-bg);
+    border-left: 3px solid var(--blue);
+  }
+
+  /* ── EXPERIENCE ENTRIES ── */
+  .entry { margin-bottom: 15px; }
+
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .entry-title   { font-size: 10pt; font-weight: 600; color: var(--text); }
+  .entry-date    { font-size: 7.5pt; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+
+  .entry-employer {
+    font-size: 8.5pt;
+    color: var(--blue);
+    font-weight: 500;
+    margin-top: 1px;
+    margin-bottom: 5px;
+  }
+
+  .entry-body       { font-size: 8.5pt; color: var(--text); }
+  .entry-body ul    { padding-left: 13px; }
+  .entry-body li    { margin-bottom: 2px; }
+
+  .entry-body .achievements { margin-top: 4px; padding-left: 13px; }
+  .entry-body .achievements li::marker { content: "▸ "; color: var(--blue); }
+
+  /* ── PUBLICATIONS ── */
+  .pub-entry  { margin-bottom: 7px; font-size: 8pt; line-height: 1.45; }
+  .pub-title  { font-style: italic; }
+  .pub-journal { color: var(--blue); font-weight: 500; }
+
+  /* ── PRINT ── */
+  @media print {
+    body { background: white; }
+    .page { margin: 0; box-shadow: none; }
+  }
+
+  @page { size: A4; margin: 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-name">
+      <h1>{{ personal.name }}</h1>
+      <h2>{{ personal.professional_title }}</h2>
+    </div>
+    <div class="header-contact">
+      <div>{{ personal.location.city }}, {{ personal.location.country }}</div>
+      <div><a href="mailto:{{ personal.email }}">{{ personal.email }}</a></div>
+      <div>{{ personal.phone }}</div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    {% if photo %}
+    <img src="{{ photo }}" class="photo" alt="{{ personal.name }}" data-section="photo">
+    {% endif %}
+
+    <div class="section" data-section="links">
+      <div class="section-title">{{ labels.links }}</div>
+      {% if personal.links.linkedin %}
+      <div class="link-item">
+        <span class="link-label">LinkedIn</span>
+        <a href="{{ personal.links.linkedin }}">{{ personal.links.linkedin | strip_scheme }}</a>
+      </div>
+      {% endif %}
+      {% if personal.links.github %}
+      <div class="link-item">
+        <span class="link-label">GitHub</span>
+        <a href="{{ personal.links.github }}">{{ personal.links.github | strip_scheme }}</a>
+      </div>
+      {% endif %}
+      {% if personal.links.google_scholar %}
+      <div class="link-item">
+        <span class="link-label">Google Scholar</span>
+        <a href="{{ personal.links.google_scholar }}">scholar.google.com</a>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="section" data-section="skills">
+      <div class="section-title">{{ labels.skills }}</div>
+
+      <div class="skills-group">
+        <div class="skills-group-label">{{ labels.programming }}</div>
+        <div class="tags">
+          {% for l in skills.programming.production %}<span class="tag">{{ l }}</span>{% endfor %}
+          {% for l in skills.programming.research %}<span class="tag secondary">{{ l }}</span>{% endfor %}
+        </div>
+      </div>
+
+      <div class="skills-group">
+        <div class="skills-group-label">{{ labels.visualisation }}</div>
+        <div class="tags">
+          {% for t in skills.visualization %}<span class="tag">{{ t }}</span>{% endfor %}
+        </div>
+      </div>
+
+      <div class="skills-group">
+        <div class="skills-group-label">{{ labels.cloud_devops }}</div>
+        <div class="tags">
+          <span class="tag">AWS</span>
+          {% for t in skills.cloud_devops.tools %}<span class="tag">{{ t }}</span>{% endfor %}
+        </div>
+      </div>
+
+      <div class="skills-group">
+        <div class="skills-group-label">{{ labels.big_data }}</div>
+        <div class="tags">
+          {% for t in skills.big_data %}<span class="tag">{{ t }}</span>{% endfor %}
+        </div>
+      </div>
+
+      <div class="skills-group">
+        <div class="skills-group-label">{{ labels.databases }}</div>
+        <div class="tags">
+          {% for t in skills.databases %}<span class="tag">{{ t }}</span>{% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="section" data-section="languages">
+      <div class="section-title">{{ labels.languages }}</div>
+      {% for lang_item in skills.languages %}
+      <div class="lang-row">
+        <span>{{ lang_item.language }}</span>
+        <div class="lang-dots">
+          {% for i in range(5) %}<div class="dot {% if i < lang_item.level %}on{% endif %}"></div>{% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="section" data-section="education">
+      <div class="section-title">{{ labels.education }}</div>
+      {% for edu in education %}
+      {% if edu.degree != "High School" %}
+      <div class="edu-entry">
+        <div class="edu-degree">{{ edu.degree }}</div>
+        <div class="edu-field">{{ edu.field }}</div>
+        <div class="edu-institution">{{ edu.institution }}</div>
+        <div class="edu-year">
+          {{ edu.start_year }}–{{ edu.end_year }}{% if edu.distinction %} · {{ edu.distinction }}{% endif %}
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="section" data-section="grants">
+      <div class="section-title">{{ labels.grants }}</div>
+      {% for grant in grants %}
+      <div class="grant-entry">
+        <span class="grant-year">
+          {%- if grant.year %}{{ grant.year }}
+          {%- else %}{{ grant.year_start }}–{{ grant.year_end }}
+          {%- endif %}</span>
+        &nbsp;{{ grant.name }}
+      </div>
+      {% endfor %}
+    </div>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <div class="summary" data-section="summary">{{ narrative.target_roles_description }}</div>
+
+    <div class="section" data-section="experience">
+      <div class="section-title">{{ labels.experience }}</div>
+      {% for job in experience %}
+      <div class="entry">
+        <div class="entry-header">
+          <span class="entry-title">{{ job.title }}</span>
+          <span class="entry-date">
+            {{ job.start_date | format_date }} –
+            {% if job.end_date %}{{ job.end_date | format_date }}{% else %}{{ labels.present }}{% endif %}
+          </span>
+        </div>
+        <div class="entry-employer">{{ job.employer }} &middot; {{ job.location }}</div>
+        <div class="entry-body">
+          <ul>
+            {% for r in job.responsibilities %}<li>{{ r }}</li>{% endfor %}
+          </ul>
+          {% if job.achievements %}
+          <ul class="achievements">
+            {% for a in job.achievements %}<li>{{ a }}</li>{% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="section" data-section="publications">
+      <div class="section-title">{{ labels.publications }}</div>
+      {% for pub in publications %}
+      <div class="pub-entry">
+        {{ pub.authors | join(', ') }} ({{ pub.year }}).
+        <span class="pub-title">{{ pub.title }}.</span>
+        <span class="pub-journal">{{ pub.journal }}</span>
+        {%- if pub.volume %}, {{ pub.volume }}
+          {%- if pub.issue %}({{ pub.issue }}){% endif %}
+          {%- if pub.pages %}, {{ pub.pages }}{% endif %}
+        {%- endif %}.
+      </div>
+      {% endfor %}
+    </div>
+
+  </main>
+
+</div>
+</body>
+</html>
