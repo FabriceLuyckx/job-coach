@@ -20,12 +20,14 @@ PDF export:
 
 import argparse
 import json
+import os
 import sys
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
+from app import config as app_config
 from app.services.cv_generator import apply_tailoring, tailor
 from app.services.cv_renderer import (
     LABELS,
@@ -50,12 +52,17 @@ def main() -> None:
 
     profile = json.loads(PROFILE_PATH.read_text(encoding="utf-8"))
 
+    cfg = app_config.load()
+    api_key = os.environ.get("OPENROUTER_API_KEY") or cfg.get("openrouter_api_key", "")
+    model = cfg.get("openrouter_model", "anthropic/claude-sonnet-4-6")
+    if not api_key:
+        print("\nConfiguration error: OpenRouter API key not set.")
+        print("Set it via the Settings page or in config.json (openrouter_api_key).")
+        sys.exit(1)
+
     print(f"Fetching job description from {args.url} …")
     try:
-        plan = tailor(profile, args.url)
-    except EnvironmentError as e:
-        print(f"\nConfiguration error:\n{e}")
-        sys.exit(1)
+        plan = tailor(profile, args.url, api_key, model)
     except Exception as e:
         print(f"\nFailed to fetch or process job URL: {e}")
         sys.exit(1)
