@@ -1,0 +1,65 @@
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar-nav {
+  width: 180px;
+  flex-shrink: 0;
+  background: var(--accent);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 10;
+}
+
+.nav-logo {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  padding: 0 20px 24px;
+  letter-spacing: 0.3px;
+}
+
+.sidebar-nav a {
+  display: block;
+  padding: 10px 20px;
+  color: rgba(255,255,255,0.75);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sidebar-nav a:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  text-decoration: none;
+}
+
+.sidebar-nav a.active {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border-left-color: rgba(255,255,255,0.8);
+}
+
+.nav-spacer { flex: 1; }
+
+.app-content {
+  margin-left: 180px;
+  flex: 1;
+  padding: 28px 32px;
+  max-width: 1200px;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 24px;
+}
