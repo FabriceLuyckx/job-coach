@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
-import { api, type CvHistoryEntry, type CVResult } from '../api'
+import { api, type CvHistoryEntry, type CVResult, type CVPlan, type CVPlanRole } from '../api'
+import BulletListEditor from '../components/BulletListEditor'
 
 const SECTIONS = [
   { key: 'summary', label: 'Summary' },
@@ -20,42 +21,46 @@ const JOB_ID_KEY = 'cv_pending_job_id'
 
 // ─── Shared editor panel ──────────────────────────────────────────────────────
 
-function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate }: {
+function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate, onLangUpdate }: {
   result: CVResult
   hasPhoto: boolean
   onSummaryUpdate?: (summary: string) => void
+  onLangUpdate?: (lang: string) => void
 }) {
   const [result, setResult] = useState(initialResult)
-  const [summary, setSummary] = useState(initialResult.summary ?? '')
-  const [summaryDirty, setSummaryDirty] = useState(false)
+  const [plan, setPlan] = useState<CVPlan | null>(null)
+  const [planDirty, setPlanDirty] = useState(false)
   const [visible, setVisible] = useState<Record<SectionKey, boolean>>(ALL_VISIBLE)
   const [previewKey, setPreviewKey] = useState(0)
   const [refreshing, setRefreshing] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [updating, setUpdating] = useState(false)
+  const [relanging, setRelanging] = useState(false)
+  const [pendingLang, setPendingLang] = useState<string | null>(null)
+  const [regenerating, setRegenerating] = useState(false)
+  const [regenPrompt, setRegenPrompt] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState('')
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  const prevPreviewKey = useRef(previewKey)
+  const summaryRef = useRef<HTMLTextAreaElement>(null)
 
-  // Fetch summary from backend on mount if state is empty (handles old entries with NULL in DB)
-  useEffect(() => {
-    if (summary) return
-    api.getCVSummary(result.history_id)
-      .then(r => { if (r.summary && !summaryDirty) setSummary(r.summary) })
-      .catch(() => {})
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  function wrapSummary(marker: string) {
+    const el = summaryRef.current
+    if (!el || !plan) return
+    const s = el.selectionStart, e = el.selectionEnd
+    const v = plan.summary
+    setSummary(v.slice(0, s) + marker + v.slice(s, e) + marker + v.slice(e))
+    requestAnimationFrame(() => { el.focus(); el.setSelectionRange(s + marker.length, e + marker.length) })
+  }
 
-  // After updateFromProfile reloads the iframe, re-fetch the fresh summary
-  useEffect(() => {
-    if (previewKey === prevPreviewKey.current) return
-    prevPreviewKey.current = previewKey
-    if (!summary) {
-      api.getCVSummary(result.history_id)
-        .then(r => { if (r.summary) setSummary(r.summary) })
-        .catch(() => {})
-    }
-  }, [previewKey, result.history_id, summary])
+  // Load the editable AI content (summary + per-role bullets) for the current language.
+  function loadPlan() {
+    api.getCVPlan(result.history_id)
+      .then(p => { setPlan(p); setPlanDirty(false) })
+      .catch(() => setPlan(null))  // plan-less legacy entry → editor shows a hint
+  }
+
+  useEffect(loadPlan, [result.history_id])
 
   function applyVisibility() {
     const d = iframeRef.current?.contentDocument
@@ -71,15 +76,50 @@ function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate }: {
     applyVisibility()
   }
 
+  // ── Plan editing ──
+  function setSummary(text: string) {
+    setPlan(prev => prev && { ...prev, summary: text })
+    setPlanDirty(true)
+  }
+
+  function setRole(id: string, patch: Partial<CVPlanRole>) {
+    setPlan(prev => prev && { ...prev, roles: prev.roles.map(r => r.id === id ? { ...r, ...patch } : r) })
+    setPlanDirty(true)
+  }
+
+  function planPayload(p: CVPlan) {
+    return { summary: p.summary, roles: p.roles.map(({ id, bullets }) => ({ id, bullets })) }
+  }
+
+  async function saveEdits() {
+    if (!plan) return
+    setError('')
+    setSaving(true)
+    try {
+      await api.putCVPlan(result.history_id, planPayload(plan))
+      setPlanDirty(false)
+      setResult(prev => ({ ...prev, summary: plan.summary }))
+      onSummaryUpdate?.(plan.summary)
+      setPreviewKey(k => k + 1)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setSaving(false)
+    }
+  }
+
   async function refreshPreview() {
     setError('')
     setRefreshing(true)
     try {
-      if (summaryDirty) {
-        await api.rerenderCV(result.history_id, summary)
-        setResult(prev => ({ ...prev, summary }))
-        setSummaryDirty(false)
-        onSummaryUpdate?.(summary)
+      if (planDirty && plan) {
+        await api.putCVPlan(result.history_id, planPayload(plan))
+        setPlanDirty(false)
+        onSummaryUpdate?.(plan.summary)
+      } else if (result.has_plan) {
+        // Re-render from the stored plan so profile/design edits (e.g. accent
+        // colour) are baked in — cheap, no AI call.
+        await api.rerenderCV(result.history_id)
       }
       setPreviewKey(k => k + 1)
     } catch (e: unknown) {
@@ -93,9 +133,9 @@ function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate }: {
     setError('')
     setUpdating(true)
     try {
-      await api.rerenderCV(result.history_id, summaryDirty ? summary : undefined)
-      if (summaryDirty) { setSummaryDirty(false); onSummaryUpdate?.(summary) }
-      setSummary('')  // clear so the useEffect above re-fetches fresh summary after reload
+      await api.rerenderCV(result.history_id)
+      if (!result.has_plan) setResult(prev => ({ ...prev, has_plan: true }))  // re-tailor stored a plan
+      loadPlan()
       setPreviewKey(k => k + 1)
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e))
@@ -104,13 +144,57 @@ function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate }: {
     }
   }
 
+  async function changeLang(newLang: string) {
+    if (newLang === result.lang || relanging) return
+    setError('')
+    setRelanging(true)
+    setPendingLang(newLang)  // reflect the choice in the dropdown immediately
+    try {
+      const r = await api.relangCV(result.history_id, newLang)
+      setResult(prev => ({
+        ...prev, lang: r.lang, slug: r.slug, preview_url: r.preview_url,
+        summary: r.summary, tailoring_notes: r.tailoring_notes, has_plan: true,
+      }))
+      onLangUpdate?.(r.lang)
+      onSummaryUpdate?.(r.summary)
+      loadPlan()
+      setPreviewKey(k => k + 1)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setRelanging(false)
+      setPendingLang(null)
+    }
+  }
+
+  async function regenerate(keepEdits: boolean) {
+    setRegenPrompt(false)
+    setError('')
+    setRegenerating(true)
+    try {
+      const r = await api.regenerateCV(result.history_id, keepEdits)
+      setResult(prev => ({
+        ...prev, slug: r.slug, preview_url: r.preview_url,
+        summary: r.summary, tailoring_notes: r.tailoring_notes, has_plan: true,
+      }))
+      onSummaryUpdate?.(r.summary)
+      loadPlan()
+      setPreviewKey(k => k + 1)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setRegenerating(false)
+    }
+  }
+
   async function generateSummary() {
     setError('')
     setGenerating(true)
     try {
       const r = await api.generateCVSummary(result.history_id)
-      setSummary(r.summary)
-      setSummaryDirty(false)
+      setPlan(prev => prev && { ...prev, summary: r.summary })
+      setResult(prev => ({ ...prev, summary: r.summary }))
+      onSummaryUpdate?.(r.summary)
       setPreviewKey(k => k + 1)
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e))
@@ -119,8 +203,9 @@ function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate }: {
     }
   }
 
-  function printPDF() {
-    window.open(result.preview_url + '?print=1', '_blank')
+  function downloadPDF() {
+    // preview_url is /api/cv/preview/<slug>/<lang>; the PDF route mirrors it.
+    window.open(result.preview_url.replace('/preview/', '/pdf/'), '_blank')
   }
 
   function toggleSection(key: SectionKey, show: boolean) {
@@ -134,6 +219,32 @@ function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate }: {
     <div style={{ padding: 16 }}>
       {error && <p className="error-msg" style={{ marginBottom: 12 }}>{error}</p>}
 
+      {regenPrompt && (
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+          onClick={() => setRegenPrompt(false)}
+        >
+          <div className="card" style={{ maxWidth: 440, margin: 0 }} onClick={e => e.stopPropagation()}>
+            <div className="section-title" style={{ marginBottom: 10 }}>Regenerate this CV</div>
+            <p style={{ fontSize: 'var(--fs-base)', color: 'var(--text)', lineHeight: 1.6, marginBottom: 16 }}>
+              Re-run the AI for the <strong>{result.lang === 'nl' ? 'Dutch' : 'English'}</strong> version. Keep your edited
+              summary and bullet points, or start fresh?
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <button className="btn-primary" onClick={() => regenerate(true)}>
+                Keep my edits, regenerate the rest
+              </button>
+              <button className="btn-secondary" onClick={() => regenerate(false)}>
+                Regenerate everything (discard my edits)
+              </button>
+              <button className="btn-secondary" onClick={() => setRegenPrompt(false)} style={{ alignSelf: 'flex-start', marginTop: 4 }}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Job info strip */}
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap', marginBottom: 12 }}>
         <span style={{ fontWeight: 700, fontSize: 'var(--fs-lg)' }}>{result.job_title}</span>
@@ -144,6 +255,24 @@ function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate }: {
             View listing ↗
           </a>
         )}
+        <label style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 'var(--fs-sm)', color: 'var(--muted)' }}>
+          {relanging && <span className="spinner" />}
+          {relanging
+            ? `Translating to ${pendingLang === 'nl' ? 'Dutch' : 'English'}…`
+            : 'Language'}
+          <select
+            value={pendingLang ?? result.lang}
+            disabled={relanging || !result.job_url}
+            onChange={e => changeLang(e.target.value)}
+            title={result.job_url
+              ? 'Regenerate this CV in another language (re-runs the AI, ~30s)'
+              : 'No job URL stored, so the language cannot be changed'}
+            style={{ padding: '3px 6px', fontSize: 'var(--fs-sm)' }}
+          >
+            <option value="en">English</option>
+            <option value="nl">Dutch</option>
+          </select>
+        </label>
       </div>
 
       {/* Tailoring notes — full width above preview */}
@@ -177,6 +306,59 @@ function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate }: {
           style={{ width: '100%', height: '100vh', border: 'none', display: 'block' }}
           title="CV Preview"
         />
+        {(relanging || regenerating) && (
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 9,
+            background: 'rgba(255,255,255,0.75)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12,
+            color: 'var(--text)', fontSize: 'var(--fs-md)', fontWeight: 500,
+          }}>
+            <span className="spinner" />
+            {relanging
+              ? `Translating CV to ${pendingLang === 'nl' ? 'Dutch' : 'English'}…`
+              : 'Regenerating CV…'}
+            <span style={{ color: 'var(--muted)', fontSize: 'var(--fs-sm)', fontWeight: 400 }}>
+              Re-running the AI — this takes about 30 seconds.
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Primary actions — kept directly under the preview so they're never buried */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+        <button
+          className="btn-primary"
+          onClick={refreshPreview}
+          disabled={refreshing}
+          title={planDirty ? 'Save edits and reload the preview' : 'Reload the CV preview'}
+        >
+          {refreshing ? 'Refreshing…' : planDirty ? 'Save & Refresh' : 'Refresh Preview'}
+        </button>
+        <button
+          className="btn-secondary"
+          onClick={updateFromProfile}
+          disabled={updating || (!result.has_plan && !result.job_url)}
+          title={result.has_plan
+            ? "Re-render this CV from the stored tailoring plan using your latest profile data"
+            : result.job_url
+              ? "Re-tailor this CV from the job listing using your latest profile data (calls the AI)"
+              : "No tailoring plan or job URL stored — generate a new CV instead"}
+        >
+          {updating ? 'Updating…' : 'Update from Profile'}
+        </button>
+        <button
+          className="btn-secondary"
+          onClick={() => setRegenPrompt(true)}
+          disabled={regenerating || relanging || !result.job_url}
+          title={result.job_url
+            ? "Re-run the AI to re-tailor this CV in its current language"
+            : "No job URL stored, so this CV can't be regenerated"}
+        >
+          {regenerating ? 'Regenerating…' : '✦ Regenerate'}
+        </button>
+        <button className="btn-secondary" onClick={downloadPDF}>
+          Download PDF
+        </button>
       </div>
 
       {/* Section toggles */}
@@ -215,56 +397,84 @@ function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate }: {
         </div>
       )}
 
-      {/* Professional Summary */}
-      <div style={{ marginBottom: 14 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-          <div style={{ fontSize: 'var(--fs-xs)', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-            Professional Summary
-            {summaryDirty && <span style={{ color: 'var(--highlight)', marginLeft: 8, fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>● unsaved</span>}
+      {/* AI-generated content editor */}
+      {plan ? (
+        <div style={{ marginBottom: 14, border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 14 }}>
+          <div style={{ fontSize: 'var(--fs-sm)', fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>
+            Edit generated content
+            {planDirty && <span style={{ color: 'var(--highlight)', marginLeft: 8, fontWeight: 400 }}>● unsaved</span>}
           </div>
-          <button
-            className="btn-secondary"
-            onClick={generateSummary}
-            disabled={generating}
-            style={{ padding: '3px 8px', fontSize: 'var(--fs-xs)' }}
-            title="Ask the AI to write a new summary based on your profile and this job"
-          >
-            {generating ? 'Generating…' : '✦ AI Summary'}
-          </button>
-        </div>
-        <textarea
-          value={summary}
-          onChange={e => { setSummary(e.target.value); setSummaryDirty(true) }}
-          rows={5}
-          style={{ width: '100%', boxSizing: 'border-box' }}
-          placeholder="Loading…"
-        />
-      </div>
+          <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--muted)', marginBottom: 14 }}>
+            Edit the summary and bullet points below; <strong>Save all edits</strong> applies everything at once.
+            Select text and press <strong>⌘/Ctrl+B</strong> or <strong>⌘/Ctrl+I</strong> to make it bold or italic.
+            Drag the <span style={{ fontSize: 13 }}>⠿</span> handle to reorder bullets.
+          </div>
 
-      {/* Actions */}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        <button
-          className="btn-primary"
-          onClick={refreshPreview}
-          disabled={refreshing}
-          title={summaryDirty ? 'Save summary edits and reload the preview' : 'Reload the CV preview'}
-        >
-          {refreshing ? 'Refreshing…' : summaryDirty ? 'Apply & Refresh' : 'Refresh Preview'}
-        </button>
-        <button
-          className="btn-secondary"
-          onClick={updateFromProfile}
-          disabled={updating || !result.has_plan}
-          title={result.has_plan
-            ? "Re-render this CV from the stored tailoring plan using your latest profile data"
-            : "Re-generate this CV from scratch to enable profile-based updates"}
-        >
-          {updating ? 'Updating…' : 'Update from Profile'}
-        </button>
-        <button className="btn-secondary" onClick={printPDF}>
-          Print / PDF
-        </button>
-      </div>
+          {/* Professional summary */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <div style={{ fontSize: 'var(--fs-xs)', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                Professional Summary
+              </div>
+              <button
+                className="btn-secondary"
+                onClick={generateSummary}
+                disabled={generating}
+                style={{ padding: '3px 8px', fontSize: 'var(--fs-xs)' }}
+                title="Ask the AI to write a new summary based on your profile and this job"
+              >
+                {generating ? 'Generating…' : '✦ AI Summary'}
+              </button>
+            </div>
+            <textarea
+              ref={summaryRef}
+              value={plan.summary}
+              onChange={e => setSummary(e.target.value)}
+              onKeyDown={e => {
+                if (!(e.metaKey || e.ctrlKey)) return
+                if (e.key === 'b' || e.key === 'B') { e.preventDefault(); wrapSummary('**') }
+                else if (e.key === 'i' || e.key === 'I') { e.preventDefault(); wrapSummary('*') }
+              }}
+              rows={5}
+              style={{ width: '100%', boxSizing: 'border-box' }}
+            />
+          </div>
+
+          {/* Per-role bullets (max 4 each), in CV order */}
+          {plan.roles.map(role => (
+            <div key={role.id} style={{ marginBottom: 16, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div style={{ fontSize: 'var(--fs-sm)', fontWeight: 600, color: 'var(--text)' }}>
+                  {role.title}{role.employer && <span style={{ color: 'var(--muted)', fontWeight: 400 }}> · {role.employer}</span>}
+                </div>
+                <span style={{ fontSize: 'var(--fs-xs)', color: role.bullets.length > 4 ? 'var(--highlight)' : 'var(--muted)' }}>
+                  {role.bullets.length}/4 bullets
+                </span>
+              </div>
+              <BulletListEditor value={role.bullets} onChange={v => setRole(role.id, { bullets: v })} placeholder="Bullet point…" reorder format />
+            </div>
+          ))}
+
+          {/* Prominent save bar — covers the whole editor (summary + all jobs) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--border)' }}>
+            <button
+              className="btn-primary"
+              onClick={saveEdits}
+              disabled={saving || !planDirty}
+              style={{ padding: '8px 18px' }}
+            >
+              {saving ? 'Saving…' : 'Save all edits'}
+            </button>
+            <span style={{ fontSize: 'var(--fs-sm)', color: planDirty ? 'var(--highlight)' : 'var(--muted)' }}>
+              {planDirty ? 'Unsaved changes — saves the summary and all job bullets.' : 'All edits saved.'}
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className="callout" style={{ marginBottom: 14 }}>
+          <span>Editing isn't available for this CV yet — click <strong>Regenerate</strong> to create an editable tailoring plan.</span>
+        </div>
+      )}
     </div>
   )
 }
@@ -352,7 +562,14 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
 
   useEffect(() => {
     const pendingId = localStorage.getItem(JOB_ID_KEY)
-    if (pendingId) { setLoading(true); startPolling(pendingId) }
+    if (pendingId) {
+      // Launched from "Accept" on the Job Suggestions page — show which URL is
+      // being generated, then poll its progress.
+      const pendingUrl = localStorage.getItem('cv_pending_job_url')
+      if (pendingUrl) setUrl(pendingUrl)
+      localStorage.removeItem('cv_pending_job_url')
+      setLoading(true); startPolling(pendingId)
+    }
     return stopPolling
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -428,12 +645,13 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
 
 // ─── History slot ─────────────────────────────────────────────────────────────
 
-function CVHistorySlot({ entry: initialEntry, hasPhoto, onDelete }: {
+function CVHistorySlot({ entry: initialEntry, hasPhoto, onDelete, initialExpanded = false }: {
   entry: CvHistoryEntry
   hasPhoto: boolean
   onDelete: (id: string) => void
+  initialExpanded?: boolean
 }) {
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(initialExpanded)
   const [entry, setEntry] = useState(initialEntry)
 
   const result: CVResult = {
@@ -487,6 +705,7 @@ function CVHistorySlot({ entry: initialEntry, hasPhoto, onDelete }: {
             result={result}
             hasPhoto={hasPhoto}
             onSummaryUpdate={s => setEntry(prev => ({ ...prev, summary: s }))}
+            onLangUpdate={l => setEntry(prev => ({ ...prev, lang: l }))}
           />
         </div>
       )}
@@ -501,11 +720,22 @@ export default function CVGeneratorPage() {
   const [history, setHistory] = useState<CvHistoryEntry[]>([])
   const [hasPhoto, setHasPhoto] = useState(false)
   const [newSlotResultId, setNewSlotResultId] = useState<string | null>(null)
+  // Set when arriving from "Open CV" on the Job Suggestions page — the matching
+  // history entry (by job_url) is auto-expanded.
+  const [openEntryId, setOpenEntryId] = useState<string | null>(null)
 
   useEffect(() => {
-    api.getCVHistory().then(setHistory).catch(() => {})
     api.getPhoto().then(r => setHasPhoto(r.exists)).catch(() => {})
     if (localStorage.getItem(JOB_ID_KEY)) setShowNew(true)
+    const openUrl = localStorage.getItem('cv_open_url')
+    localStorage.removeItem('cv_open_url')
+    api.getCVHistory().then(h => {
+      setHistory(h)
+      if (openUrl) {
+        const match = h.find(e => e.job_url === openUrl)
+        if (match) setOpenEntryId(match.id)
+      }
+    }).catch(() => {})
   }, [])
 
   function onGenerated(entry: CvHistoryEntry) {
@@ -555,6 +785,7 @@ export default function CVGeneratorPage() {
               entry={entry}
               hasPhoto={hasPhoto}
               onDelete={onDelete}
+              initialExpanded={entry.id === openEntryId}
             />
           ))}
         </div>

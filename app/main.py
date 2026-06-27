@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-from app.api import profile, cv, settings
+from app.api import profile, cv, settings, jobs
 from app import db
 
 
@@ -28,6 +28,7 @@ app.add_middleware(
 app.include_router(profile.router)
 app.include_router(cv.router)
 app.include_router(settings.router)
+app.include_router(jobs.router)
 
 FRONTEND_DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 

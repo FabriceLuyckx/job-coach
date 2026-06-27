@@ -32,6 +32,12 @@ export default function SettingsPage() {
     openrouter_api_key_set: boolean
     openrouter_api_key_preview: string
     openrouter_model: string
+    cv_prompt: string
+    cv_prompt_default: string
+    scan_extract_prompt: string
+    scan_extract_prompt_default: string
+    scan_filter_prompt: string
+    scan_filter_prompt_default: string
   } | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [photo, setPhoto] = useState<{ exists: boolean; data_uri: string | null } | null>(null)
@@ -39,8 +45,11 @@ export default function SettingsPage() {
   const [apiKey, setApiKey] = useState('')
   const [model, setModel] = useState('')
   const [customModel, setCustomModel] = useState('')
+  const [cvPrompt, setCvPrompt] = useState('')
+  const [scanExtract, setScanExtract] = useState('')
+  const [scanFilter, setScanFilter] = useState('')
 
-  const [saving, setSaving] = useState(false)
+  const [busy, setBusy] = useState<'connection' | 'prompt' | 'scan_extract' | 'scan_filter' | 'prefs' | null>(null)
   const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
   const [photoUploading, setPhotoUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -51,6 +60,9 @@ export default function SettingsPage() {
       setProfile(p)
       setPhoto(ph)
       setModel(s.openrouter_model)
+      setCvPrompt(s.cv_prompt)
+      setScanExtract(s.scan_extract_prompt)
+      setScanFilter(s.scan_filter_prompt)
       if (!OPENROUTER_MODELS.includes(s.openrouter_model)) setCustomModel(s.openrouter_model)
     }).catch(e => setMsg({ type: 'err', text: e.message }))
   }, [])
@@ -61,7 +73,7 @@ export default function SettingsPage() {
   }
 
   async function saveOpenRouter() {
-    setSaving(true)
+    setBusy('connection')
     try {
       const effectiveModel = model === '__custom__' ? customModel : model
       await api.putSettings({ ...(apiKey ? { openrouter_api_key: apiKey } : {}), openrouter_model: effectiveModel })
@@ -71,18 +83,31 @@ export default function SettingsPage() {
       flash('ok', 'Saved!')
     } catch (e: unknown) {
       flash('err', e instanceof Error ? e.message : String(e))
-    } finally { setSaving(false) }
+    } finally { setBusy(null) }
+  }
+
+  async function savePrompt(busyKey: 'prompt' | 'scan_extract' | 'scan_filter',
+                            data: { cv_prompt?: string; scan_extract_prompt?: string; scan_filter_prompt?: string }) {
+    setBusy(busyKey)
+    try {
+      await api.putSettings(data)
+      const fresh = await api.getSettings()
+      setSettings(fresh)
+      flash('ok', 'Prompt saved!')
+    } catch (e: unknown) {
+      flash('err', e instanceof Error ? e.message : String(e))
+    } finally { setBusy(null) }
   }
 
   async function saveVisualPrefs() {
     if (!profile) return
-    setSaving(true)
+    setBusy('prefs')
     try {
       await api.putProfile(profile)
       flash('ok', 'Visual preferences saved!')
     } catch (e: unknown) {
       flash('err', e instanceof Error ? e.message : String(e))
-    } finally { setSaving(false) }
+    } finally { setBusy(null) }
   }
 
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -167,9 +192,91 @@ export default function SettingsPage() {
             />
           </div>
         )}
-        <button className="btn-primary" onClick={saveOpenRouter} disabled={saving}>
-          {saving && <span className="spinner" />}Save connection
+        <button className="btn-primary" onClick={saveOpenRouter} disabled={busy === 'connection'}>
+          {busy === 'connection' && <span className="spinner" />}Save connection
         </button>
+      </div>
+
+      {/* CV Generator prompt */}
+      <div className="card">
+        <div className="section-title" style={{ marginBottom: 14 }}>CV Generator — Tailoring Prompt</div>
+        <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 14, lineHeight: 1.5 }}>
+          Sent to the AI on the <strong>CV Generator</strong> tab when tailoring a CV. Your profile and the
+          job listing are added automatically below this. Use <code>{'{lang_name}'}</code> where the output
+          language should appear.
+        </p>
+        <textarea
+          value={cvPrompt}
+          onChange={e => setCvPrompt(e.target.value)}
+          rows={14}
+          style={{ width: '100%', boxSizing: 'border-box', fontFamily: 'monospace', fontSize: 12, lineHeight: 1.5 }}
+        />
+        <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+          <button className="btn-primary" onClick={() => savePrompt('prompt', { cv_prompt: cvPrompt })} disabled={busy === 'prompt'}>
+            {busy === 'prompt' && <span className="spinner" />}Save prompt
+          </button>
+          <button
+            className="btn-secondary"
+            onClick={() => settings && setCvPrompt(settings.cv_prompt_default)}
+            disabled={busy === 'prompt' || cvPrompt === settings.cv_prompt_default}
+          >
+            Reset to default
+          </button>
+        </div>
+      </div>
+
+      {/* Job Suggestions — link extraction prompt */}
+      <div className="card">
+        <div className="section-title" style={{ marginBottom: 14 }}>Job Suggestions — Link Extraction Prompt</div>
+        <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 14, lineHeight: 1.5 }}>
+          Used on the <strong>Job Suggestions</strong> tab to pick which of a page's links are real job
+          openings. The list of links found on the page is added automatically below this.
+        </p>
+        <textarea
+          value={scanExtract}
+          onChange={e => setScanExtract(e.target.value)}
+          rows={8}
+          style={{ width: '100%', boxSizing: 'border-box', fontFamily: 'monospace', fontSize: 12, lineHeight: 1.5 }}
+        />
+        <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+          <button className="btn-primary" onClick={() => savePrompt('scan_extract', { scan_extract_prompt: scanExtract })} disabled={busy === 'scan_extract'}>
+            {busy === 'scan_extract' && <span className="spinner" />}Save prompt
+          </button>
+          <button
+            className="btn-secondary"
+            onClick={() => settings && setScanExtract(settings.scan_extract_prompt_default)}
+            disabled={busy === 'scan_extract' || scanExtract === settings.scan_extract_prompt_default}
+          >
+            Reset to default
+          </button>
+        </div>
+      </div>
+
+      {/* Job Suggestions — relevance filter prompt */}
+      <div className="card">
+        <div className="section-title" style={{ marginBottom: 14 }}>Job Suggestions — Relevance Filter Prompt</div>
+        <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 14, lineHeight: 1.5 }}>
+          Used on the <strong>Job Suggestions</strong> tab to decide which new openings match you. The
+          relevant parts of your profile are added automatically below this.
+        </p>
+        <textarea
+          value={scanFilter}
+          onChange={e => setScanFilter(e.target.value)}
+          rows={8}
+          style={{ width: '100%', boxSizing: 'border-box', fontFamily: 'monospace', fontSize: 12, lineHeight: 1.5 }}
+        />
+        <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+          <button className="btn-primary" onClick={() => savePrompt('scan_filter', { scan_filter_prompt: scanFilter })} disabled={busy === 'scan_filter'}>
+            {busy === 'scan_filter' && <span className="spinner" />}Save prompt
+          </button>
+          <button
+            className="btn-secondary"
+            onClick={() => settings && setScanFilter(settings.scan_filter_prompt_default)}
+            disabled={busy === 'scan_filter' || scanFilter === settings.scan_filter_prompt_default}
+          >
+            Reset to default
+          </button>
+        </div>
       </div>
 
       {/* Photo */}
@@ -255,8 +362,8 @@ export default function SettingsPage() {
             placeholder="e.g. Minimalist"
           />
         </div>
-        <button className="btn-primary" onClick={saveVisualPrefs} disabled={saving}>
-          {saving && <span className="spinner" />}Save preferences
+        <button className="btn-primary" onClick={saveVisualPrefs} disabled={busy === 'prefs'}>
+          {busy === 'prefs' && <span className="spinner" />}Save preferences
         </button>
       </div>
     </div>

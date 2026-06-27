@@ -6,6 +6,8 @@ from fastapi import APIRouter, HTTPException, UploadFile, File
 from pydantic import BaseModel
 
 from app import config
+from app.services.cv_generator import DEFAULT_CV_PROMPT
+from app.services.job_scanner import DEFAULT_EXTRACT_PROMPT, DEFAULT_SCAN_PROMPT
 from app.services.cv_renderer import ROOT
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
@@ -17,6 +19,9 @@ ALLOWED_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
 class SettingsIn(BaseModel):
     openrouter_api_key: str | None = None
     openrouter_model: str | None = None
+    cv_prompt: str | None = None
+    scan_extract_prompt: str | None = None
+    scan_filter_prompt: str | None = None
 
 
 @router.get("")
@@ -27,6 +32,12 @@ def get_settings():
         "openrouter_api_key_set": bool(key),
         "openrouter_api_key_preview": f"...{key[-4:]}" if len(key) > 4 else ("set" if key else ""),
         "openrouter_model": cfg.get("openrouter_model", ""),
+        "cv_prompt": cfg.get("cv_prompt") or DEFAULT_CV_PROMPT,
+        "cv_prompt_default": DEFAULT_CV_PROMPT,
+        "scan_extract_prompt": cfg.get("scan_extract_prompt") or DEFAULT_EXTRACT_PROMPT,
+        "scan_extract_prompt_default": DEFAULT_EXTRACT_PROMPT,
+        "scan_filter_prompt": cfg.get("scan_filter_prompt") or DEFAULT_SCAN_PROMPT,
+        "scan_filter_prompt_default": DEFAULT_SCAN_PROMPT,
     }
 
 
