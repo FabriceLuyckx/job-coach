@@ -12,6 +12,7 @@ dependencies = [
     "fastapi>=0.110.0",
     "uvicorn[standard]>=0.29.0",
     "python-multipart>=0.0.9",
+    "playwright>=1.60.0",
 ]
 
 [project.scripts]

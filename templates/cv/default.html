@@ -3,18 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Open any link in a new tab so clicking one in the preview iframe doesn't
+     navigate (and break) the embedded preview. -->
+<base target="_blank">
 <title>{{ personal.name }} – CV</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  {# Accent colour from cv_design_preferences (Settings → CV Visual Preferences);
+     falls back to the default dark blue. Lighter shades derived via color-mix. #}
+  {% set accent = cv_design_preferences.accent_color | default('#1B3A6B', true) %}
   :root {
-    --blue:        #1B3A6B;
-    --blue-mid:    #2A5298;
+    --blue:        {{ accent }};
+    --blue-mid:    color-mix(in srgb, {{ accent }} 70%, white);
     --text:        #1E1E1E;
     --muted:       #5A5A5A;
-    --sidebar-bg:  #F2F5FB;
-    --border:      #D8E0EF;
+    --sidebar-bg:  color-mix(in srgb, {{ accent }} 7%, white);
+    --border:      color-mix(in srgb, {{ accent }} 22%, white);
     --white:       #FFFFFF;
+
+    /* Layout geometry — shared by screen + print so both stay in sync */
+    --header-h:  28mm;   /* fixed header band height            */
+    --sidebar-w: 65mm;   /* fixed sidebar width                 */
+    --gutter:     6mm;   /* gap between sidebar and main column  */
+    --top-gap:    4mm;   /* gap between header and main content  */
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,27 +39,32 @@
     background: #d0d5e0;
   }
 
-  /* ── PAGE ── */
-  .page {
+  /* ── DOCUMENT ──
+     The header and sidebar are taken out of flow (absolute on screen,
+     fixed on print) so the main column can paginate cleanly underneath
+     them. A single grid container could not break across pages — which
+     was the cause of the broken multi-page PDFs. */
+  .doc {
+    position: relative;
     width: 210mm;
     min-height: 297mm;
     background: var(--white);
     margin: 20px auto;
-    display: grid;
-    grid-template-columns: 65mm 1fr;
-    grid-template-rows: auto 1fr;
     box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    overflow: hidden;
   }
 
   /* ── HEADER ── */
   .header {
-    grid-column: 1 / -1;
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: var(--header-h);
     background: var(--blue);
     color: var(--white);
-    padding: 22px 28px;
+    padding: 0 28px;
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: center;
     gap: 20px;
   }
 
@@ -78,10 +95,20 @@
 
   /* ── SIDEBAR ── */
   .sidebar {
+    position: absolute;
+    top: var(--header-h);
+    left: 0; bottom: 0;
+    width: var(--sidebar-w);
     background: var(--sidebar-bg);
-    padding: 22px 18px;
+    padding: 16px 16px;
     border-right: 1px solid var(--border);
+    overflow: hidden;
   }
+
+  /* Empty colour band that repeats on every printed page so the left column
+     stays visually consistent. The sidebar CONTENT is drawn once (page 1)
+     on top of it — see the print rules. Hidden on screen. */
+  .sidebar-band { display: none; }
 
   /* ── PHOTO ── */
   .photo {
@@ -96,7 +123,8 @@
 
   /* ── MAIN ── */
   .main {
-    padding: 22px 26px;
+    margin-left: var(--sidebar-w);
+    padding: calc(var(--header-h) + var(--top-gap)) 26px 22px calc(var(--gutter) + 6px);
   }
 
   /* ── SECTION TITLES ── */
@@ -157,8 +185,6 @@
     padding: 2px 6px;
     border-radius: 3px;
   }
-
-  .tag.secondary { background: var(--blue-mid); }
 
   /* ── LANGUAGE BARS ── */
   .lang-row {
@@ -228,48 +254,115 @@
   .entry-body ul    { padding-left: 13px; }
   .entry-body li    { margin-bottom: 2px; }
 
-  .entry-body .achievements { margin-top: 4px; padding-left: 13px; }
-  .entry-body .achievements li::marker { content: "▸ "; color: var(--blue); }
-
   /* ── PUBLICATIONS ── */
   .pub-entry  { margin-bottom: 7px; font-size: 8pt; line-height: 1.45; }
   .pub-title  { font-style: italic; }
   .pub-journal { color: var(--blue); font-weight: 500; }
 
-  /* ── PRINT ── */
+  /* ── PRINT ──
+     Chromium positions `position: fixed` relative to the page CONTENT box
+     (inside the @page margins) and repeats those elements on every page.
+
+     Page 1 has NO margin so the header and the left colour band bleed to the
+     paper edges — like the on-screen preview, no white frame. Continuation
+     pages get a top margin so overflowing text starts with breathing room
+     instead of looking cut off at the very top edge. */
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
   @media print {
     * {
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
     html, body { margin: 0; padding: 0; background: white; }
-    body { font-size: 8.5pt; }
-    .page {
+    body { font-size: 8.5pt; orphans: 2; widows: 2; }
+
+    .doc {
+      position: relative;   /* containing block for the absolute sidebar */
+      width: auto;
+      min-height: 0;
       margin: 0;
       box-shadow: none;
-      width: 210mm;
+      overflow: visible;
     }
-    .header { padding: 12px 20px; }
-    .header-name h1 { font-size: 18pt; }
-    .header-name h2 { font-size: 9pt; margin-top: 3px; }
-    .sidebar { padding: 12px 12px; }
-    .main { padding: 12px 18px; }
-    .section { margin-bottom: 12px; }
-    .section-title { padding-bottom: 3px; margin-bottom: 7px; }
-    .entry { margin-bottom: 10px; }
-    .summary { padding: 7px 10px; margin-bottom: 12px; }
-    .skills-group { margin-bottom: 6px; }
-    .edu-entry { margin-bottom: 6px; }
-    .lang-row { margin-bottom: 3px; }
-    .pub-entry { margin-bottom: 5px; }
-    .tag { font-size: 6.5pt; padding: 1px 5px; }
-  }
 
-  @page { size: A4 portrait; margin: 0; }
+    /* Header: in flow → appears once, at the top of page 1, full content width.
+       z-index keeps it above the colour band, which now starts at top: 0. */
+    .header {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: var(--header-h);
+    }
+
+    /* Colour band: fixed → repeats on every page, spanning the full content
+       height (top: 0 to bottom: 0) so the left column never stops where the
+       sidebar text ends. Sits behind the header on page 1 (z-index). */
+    .sidebar-band {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0; bottom: 0;
+      z-index: 0;
+      width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+    }
+
+    /* Sidebar content: absolute → drawn once on page 1, on top of the band */
+    .sidebar {
+      position: absolute;
+      top: var(--header-h);
+      left: 0; bottom: auto;
+      z-index: 1;
+      width: var(--sidebar-w);
+      padding: 12px 12px;
+      background: transparent;
+      border-right: 0;
+    }
+
+    /* Main: flows in the content box, clearing the sidebar on every page.
+       box-decoration-break: clone makes the top padding repeat on EVERY page
+       fragment, so continuation pages get top breathing room while the header
+       and colour band still bleed to the very top edge (page margin is 0). */
+    .main {
+      position: relative;
+      z-index: 1;
+      margin-left: calc(var(--sidebar-w) + var(--gutter));
+      padding: 11mm 12mm 12mm 0;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+    }
+
+    /* Compact sidebar so all of it (incl. Grants) fits one page height.
+       The content is absolute (page 1 only); if it overflows it spills onto
+       page 2, so keep it tight. */
+    .sidebar { padding: 10px 12px; }
+    .sidebar .section { margin-bottom: 9px; }
+    .sidebar .section-title { padding-bottom: 3px; margin-bottom: 6px; }
+    .skills-group { margin-bottom: 5px; }
+    .edu-entry, .grant-entry { margin-bottom: 4px; }
+    .lang-row { margin-bottom: 3px; }
+    .tag { font-size: 6.5pt; padding: 1px 5px; }
+
+    /* MAIN column may split across pages between bullets and between sections,
+       but never in the middle of a single bullet/line. The job title + employer
+       stay attached to the start of their bullets (no stranded heading). */
+    .entry-body li, .pub-entry, .edu-entry, .lang-row { break-inside: avoid; }
+    .section-title, .entry-header, .entry-employer { break-after: avoid; }
+    .summary { break-inside: avoid; }
+
+    /* SIDEBAR breaks only between whole sections: if a section won't fit, the
+       entire section moves to the next page (no half-section splits). */
+    .sidebar .section, .grant-entry { break-inside: avoid; }
+  }
 </style>
 </head>
 <body>
-<div class="page">
+<div class="doc">
 
   <!-- HEADER -->
   <header class="header">
@@ -283,6 +376,9 @@
       <div>{{ personal.phone }}</div>
     </div>
   </header>
+
+  <!-- Repeating colour band (print only) — sits behind the sidebar content -->
+  <div class="sidebar-band" aria-hidden="true"></div>
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
@@ -320,7 +416,7 @@
         <div class="skills-group-label">{{ labels.programming }}</div>
         <div class="tags">
           {% for l in skills.programming.production %}<span class="tag">{{ l }}</span>{% endfor %}
-          {% for l in skills.programming.research %}<span class="tag secondary">{{ l }}</span>{% endfor %}
+          {% for l in skills.programming.research %}<span class="tag">{{ l }}</span>{% endfor %}
         </div>
       </div>
 
@@ -400,7 +496,7 @@
   <!-- MAIN CONTENT -->
   <main class="main">
 
-    <div class="summary" data-section="summary">{{ narrative.target_roles_description }}</div>
+    <div class="summary" data-section="summary">{{ narrative.target_roles_description | richtext }}</div>
 
     <div class="section" data-section="experience">
       <div class="section-title">{{ labels.experience }}</div>
@@ -416,13 +512,8 @@
         <div class="entry-employer">{{ job.employer }} &middot; {{ job.location }}</div>
         <div class="entry-body">
           <ul>
-            {% for r in job.responsibilities %}<li>{{ r }}</li>{% endfor %}
+            {% for r in job.responsibilities %}<li>{{ r | richtext }}</li>{% endfor %}
           </ul>
-          {% if job.achievements %}
-          <ul class="achievements">
-            {% for a in job.achievements %}<li>{{ a }}</li>{% endfor %}
-          </ul>
-          {% endif %}
         </div>
       </div>
       {% endfor %}

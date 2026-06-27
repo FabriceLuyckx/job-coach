@@ -5,27 +5,27 @@
 An AI-powered career assistant with two main pipelines:
 
 1. **CV Generator** — Build tailored CVs from a career profile, targeted at specific job openings
-2. **Job Scout** — Scrape, filter, and score job listings against the user's profile
+2. **Job Suggestions** — Scan user-added job-listing pages, AI-filter new openings against the profile, and accept/reject them (accept generates a tailored CV)
 
 The app runs locally first, designed for easy cloud deployment. AI is powered via OpenRouter (routing to Anthropic Claude models). The UI is browser-based and should be usable by non-technical people.
 
 ---
 
-## Current State (as of 2026-06-17)
+## Current State (as of 2026-06-23)
 
 | Artifact | Status | Notes |
 |----------|--------|-------|
 | `profile/profile.json` | Done | Full structured career data from questionnaire |
-| `sources.yaml` | Started | Two sources: Euraxess (RSS), IMEC (HTML) |
 | `templates/cv/default.html` | Done | Two-column Jinja2 CV template with language support and photo slot |
 | `scripts/generate_cv.py` | Done | CLI: `--lang`, `--job`, photo support, job-slug output dirs |
 | `app/services/cv_generator.py` | Done | `tailor()` + `apply_tailoring()` — called by CLI and API |
 | `app/services/cv_renderer.py` | Done | Shared Jinja2 utilities (LABELS, filters, photo) |
+| `app/services/job_scanner.py` | Done | Phase 5 — extract openings from a page + profile-filter new ones |
 | `scripts/tailor_cv.py` | Done | CLI: fetch URL → Claude → tailored HTML |
-| `app/db.py` | Done | SQLite setup: `cv_history` table (Phase 4), `jobs` table (Phase 5) |
-| FastAPI backend | Done | Phase 4 — all endpoints live |
-| React frontend | Done | Phase 4 — Profile editor, CV Generator, Settings, Jobs placeholder |
-| Job scrapers | Not started | Phase 5 |
+| `app/db.py` | Done | SQLite: `cv_history` (P4), `job_sources` + `job_openings` (P5) |
+| FastAPI backend | Done | Phases 4–5 — all endpoints live |
+| React frontend | Done | Phases 4–5 — Profile editor, CV Generator, Job Suggestions, Settings |
+| Job Suggestions | Done | Phase 5 — user-added sources, AI scan + filter, accept/reject |
 | Job matching | Not started | Phase 6 |
 | Cloud deployment | Not started | Phase 7 |
 
@@ -42,7 +42,7 @@ The app runs locally first, designed for easy cloud deployment. AI is powered vi
 | Profile data | `profile/profile.json` | Human-readable, version-controllable |
 | Jobs data | SQLite → PostgreSQL | SQLite locally, Postgres for cloud |
 | AI | OpenRouter → Anthropic Claude | Model: `anthropic/claude-sonnet-4-6`; key stored in `config.json` |
-| CV output | HTML → PDF (browser print) | Jinja2 templates, no external deps |
+| CV output | HTML → PDF (headless Chromium) | Jinja2 templates; PDF rendered server-side via Playwright |
 | Local run | uvicorn | `uvicorn app.main:app --reload` |
 | Cloud (future) | Railway (backend) + Vercel (frontend) | Phase 6 |
 
@@ -65,9 +65,8 @@ job-coach/
 │       └── cv_nl.html
 ├── scripts/
 │   └── generate_cv.py            # CLI: profile.json → CV HTML
-├── sources.yaml                  # Job scraping sources config
 ├── jobs/
-│   └── jobs.db                   # SQLite database: cv_history + jobs tables
+│   └── jobs.db                   # SQLite: cv_history, job_sources, job_openings
 ├── app/                          # FastAPI backend
 │   ├── main.py
 │   ├── config.py                 # Persistent config (config.json) for API key & model
@@ -76,21 +75,18 @@ job-coach/
 │   │   ├── profile.py            # Profile CRUD endpoints
 │   │   ├── cv.py                 # CV generation, history, preview endpoints
 │   │   ├── settings.py           # Settings + photo upload endpoints
-│   │   └── jobs.py               # Job listing endpoints (Phase 5)
+│   │   └── jobs.py               # Job sources, scan, accept/reject (Phase 5)
 │   └── services/
 │       ├── cv_generator.py       # OpenRouter-powered tailored CV generation
 │       ├── cv_renderer.py        # Shared Jinja2 utilities
-│       ├── job_matcher.py        # Job scoring/filtering via Claude (Phase 6)
-│       └── scrapers/             # Job scrapers (Phase 5)
-│           ├── base.py
-│           ├── rss.py
-│           └── html.py
+│       ├── job_scanner.py        # Extract openings from a page + profile-filter (Phase 5)
+│       └── job_matcher.py        # Job scoring/filtering via Claude (Phase 6)
 ├── frontend/                     # React + TypeScript SPA (Vite)
 │   └── src/
 │       ├── pages/
 │       │   ├── Profile.tsx       # View/edit career profile
 │       │   ├── CVGenerator.tsx   # Paste job URL → generate CV + history
-│       │   ├── Jobs.tsx          # Browse and filter scraped jobs (Phase 5)
+│       │   ├── Jobs.tsx          # Job sources, AI suggestions, accept/reject (Phase 5)
 │       │   └── Settings.tsx      # OpenRouter API key, model, photo
 │       ├── components/
 │       │   ├── TagInput.tsx
@@ -219,6 +215,7 @@ DELETE /api/settings/photo     Remove photo
 POST /api/cv/generate          Generate tailored CV → saves HTML + history row
 GET  /api/cv/history           Return all generated CVs, newest first
 GET  /api/cv/preview/{slug}    Return CV HTML for browser preview
+GET  /api/cv/pdf/{slug}/{lang} Render CV to a real PDF (headless Chromium) for download
 ```
 
 **cv_history table** (`jobs/jobs.db`):
@@ -245,54 +242,54 @@ cd frontend && npm run dev
 
 ---
 
-### Phase 5 — Job Scrapers
+### Phase 5 — Job Suggestions ✅ Complete
 
-**Goal**: Automatically collect job listings from sources defined in `sources.yaml`.
+**Goal**: Watch user-added job-listing pages and surface openings that match the profile, without re-paying for pages already seen.
 
-**Features**:
-- Per-source scraper (RSS or HTML, driven by `sources.yaml`)
-- URL-based deduplication
-- Store scraped jobs in SQLite with full metadata
-- Manual trigger from UI or a CLI script
+**User flow** (Job Suggestions page):
+1. Add job-listing page URLs one by one (stored in `job_sources`).
+2. **Find new listings** scans every source. Per source: read the page's actual `<a href>` links, have the LLM pick which are real openings, dedup against `job_openings` by URL, then AI-filter only the genuinely new ones against the profile (also detecting each posting's language). Last-scan time shows beside the button (`jobs_last_scan` in config.json).
+3. Interesting openings show as **Suggestions** (info left, Accept/red-Reject right) with a one-line reason and detected language; the rest are stored as `seen` (dedup memory only).
+4. **Accept** → marks `accepted`, kicks off CV generation from its URL in the *detected language* (reuses `cv.start_generation`), and hands off to the CV Generator (via `cv_pending_job_id` + `cv_pending_job_url` localStorage keys) which shows the build and the URL used. **Reject** greys it out.
+5. **History** keeps accepted + rejected openings (full info, recency-first; rejected greyed). Accepted rows have **Open CV** (deep-links to the matching CV via `cv_open_url` → matched by `job_url`) and can still be rejected.
 
-**Job data model** (SQLite table `jobs`):
+**Reading the page**: `fetch_listing_links()` uses httpx and falls back to a headless Playwright render when a page yields too few links (JS-built boards). The LLM only ever returns URLs that were actually on the page (hallucination guard). Verify a source with `uv run python scripts/scan_debug.py --url <page>`.
+
+**Token-cost design**: link extraction carries no profile context; the expensive profile-filter call runs only on new openings and is skipped entirely when a scan finds nothing new.
+
+**Editable prompts** (Settings, labelled by tab): the link-extraction and relevance-filter prompts (`scan_extract_prompt`, `scan_filter_prompt`) mirror the CV Generator prompt.
+
+**Key files**:
+- `app/services/job_scanner.py` — `fetch_listing_links()`, `extract_openings()`, `filter_openings()` (returns `{url: {reason, lang}}`); `DEFAULT_EXTRACT_PROMPT`, `DEFAULT_SCAN_PROMPT`
+- `app/api/jobs.py` — source CRUD, threaded `/scan`, `/last-scan`, openings list, accept/reject
+- `frontend/src/pages/Jobs.tsx` — sources, scan, suggestions, history; `scripts/scan_debug.py` — verification CLI
+
+**API endpoints**:
 ```
-id             TEXT PRIMARY KEY (UUID)
-source         TEXT  (name from sources.yaml)
-title          TEXT
-employer       TEXT
-location       TEXT
-url            TEXT UNIQUE
-posted_date    TEXT (ISO 8601)
-description    TEXT (full raw text)
-fetched_at     TEXT (ISO 8601 timestamp)
-match_score    REAL  (null until scored in Phase 6)
-interested     INT   (null=unseen, 1=interested, 0=not interested)
+GET    /api/jobs/sources                List watched sources
+POST   /api/jobs/sources                Add a source {url} (name derived from host)
+DELETE /api/jobs/sources/{id}           Remove a source
+POST   /api/jobs/scan                   Async scan of all sources → {scan_id}
+GET    /api/jobs/scan/status/{scan_id}  Poll scan status
+GET    /api/jobs/last-scan              Last scan timestamp
+GET    /api/jobs/openings               Suggested + decided openings, newest first
+POST   /api/jobs/openings/{id}/accept   Mark accepted + generate CV → {cv_job_id, job_url, lang}
+POST   /api/jobs/openings/{id}/reject   Mark rejected (also works from History)
 ```
 
-**Scrapers to build**:
-1. `scrapers/rss.py` — Generic RSS/Atom parser; covers Euraxess and any other feed
-2. `scrapers/html.py` — BeautifulSoup-based; customised per source using CSS selectors from `sources.yaml`
-
-**Extending `sources.yaml` for HTML sources**:
-```yaml
-sources:
-  - name: IMEC
-    type: html
-    url: https://www.imec.be/en/work-at-imec/jobs
-    selectors:
-      job_list: ".job-card"
-      title: ".job-title"
-      employer: "IMEC"  # static string for single-employer sites
-      link: "a[href]"
-      date: ".posted-date"
+**Data model** (SQLite):
+```
+job_sources:  id, url (UNIQUE), name, created_at
+job_openings: id, url (UNIQUE), title, source_url,
+              status (seen|suggested|accepted|rejected),
+              reason, lang, cv_slug, created_at, decided_at
 ```
 
 ---
 
 ### Phase 6 — Job Matching & Filtering
 
-**Goal**: Score and surface the most relevant jobs from the scraped database.
+**Goal**: Add explicit 0–10 scoring/ranking on top of the Phase 5 suggestions (which already AI-filter openings against the profile).
 
 **Features**:
 - Claude scores each unscored job against the career profile
@@ -383,19 +380,11 @@ For CLI use without the web UI, create `config.json` manually:
 
 The `experience[].relevance` object has four keys (`teaching`, `research`, `leadership`, `interdisciplinarity`) used by Claude when generating tailored CVs for different job types.
 
-### sources.yaml schema
-```yaml
-sources:
-  - name: string            # Display name
-    type: rss | html        # Scraper type
-    url: string             # Feed URL or listing page URL
-    selectors:              # Only required for type: html
-      job_list: string      # CSS selector for job card container
-      title: string         # CSS selector for job title (relative to job card)
-      employer: string      # CSS selector or static string
-      link: string          # CSS selector for detail link
-      date: string          # CSS selector for posted date (optional)
-```
+### Job sources
+
+Sources are added by the user via the Job Suggestions page and stored in the
+`job_sources` table (no config file). Each is just a listing-page URL; the
+scanner reads the page directly. (The legacy `sources.yaml` is no longer used.)
 
 ---
 
@@ -411,7 +400,7 @@ sources:
 Human-readable, version-controllable with git, easy to inspect and edit directly, and trivial to pass to an LLM as context. The profile changes infrequently and doesn't need a relational database.
 
 **Why HTML → PDF for CVs?**
-Fully automatable, exact visual control via CSS, no external dependencies or accounts required, and the user can open the file in any editor for manual tweaks before printing. Figma would require manual updates for every tailored variant and a Figma account.
+Fully automatable, exact visual control via CSS, no accounts required, and the user can open the file in any editor for manual tweaks. PDFs are rendered server-side with headless Chromium (Playwright) rather than the browser's print dialog: the print dialog paginated the two-column layout badly (header on its own page, clipped content, edge margins). The template uses a fixed, repeating sidebar with the main column flowing across pages so multi-page CVs export cleanly. Figma would require manual updates for every tailored variant and a Figma account.
 
 **Why Claude for AI features?**
 Best-in-class long-form text generation and document understanding. The user already uses it daily. Keeping a single provider avoids credential management complexity.

@@ -10,7 +10,7 @@ Called by:
 import copy
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import httpx
 from bs4 import BeautifulSoup
@@ -28,6 +28,14 @@ class TailoringPlan:
     highlighted_skills: list[str]
     tailoring_notes: str
     include_publications: bool = True
+    # Deprecated: achievements are now folded into adjusted_responsibilities
+    # (one combined bullet list per role). Kept so older stored plans that still
+    # carry this key continue to deserialize; it is no longer rendered.
+    adjusted_achievements: dict[str, list[str]] = field(default_factory=dict)
+    # For non-English CVs: {english sidebar string → translation}. Covers the
+    # static sidebar text (education degrees/fields, distinctions, grant names,
+    # language names) that isn't part of the editable per-role content.
+    sidebar_translations: dict[str, str] = field(default_factory=dict)
 
 
 _TOOL = {
@@ -40,6 +48,7 @@ _TOOL = {
             "required": [
                 "job_title", "employer", "slug", "summary",
                 "selected_experience_ids", "adjusted_responsibilities",
+                "sidebar_translations",
                 "highlighted_skills", "tailoring_notes", "include_publications",
             ],
             "properties": {
@@ -66,8 +75,13 @@ _TOOL = {
                 },
                 "adjusted_responsibilities": {
                     "type": "object",
-                    "description": "Map of experience ID → rewritten responsibility bullets (2-4 per role)",
+                    "description": "Map of experience ID → up to 4 bullet points per role, in the target language, combining the most relevant responsibilities and achievements for this job",
                     "additionalProperties": {"type": "array", "items": {"type": "string"}},
+                },
+                "sidebar_translations": {
+                    "type": "object",
+                    "description": "For non-English CVs only: map each English sidebar string that should be translated — education fields of study, distinctions, grant/fellowship names, and language names like 'Dutch'/'English' — to its translation in the target language. Keep degree titles (e.g. 'Doctor of Philosophy (PhD)'), skill/tool names and most institution names in English (omit them). Return an empty object for English CVs.",
+                    "additionalProperties": {"type": "string"},
                 },
                 "highlighted_skills": {
                     "type": "array",
@@ -89,6 +103,23 @@ _TOOL = {
 
 _LANG_NAMES = {"en": "English", "nl": "Dutch (Nederlands)"}
 
+# Editable via Settings → "CV Generator Prompt". {lang_name} is substituted at
+# call time. The candidate profile JSON is appended automatically after this.
+DEFAULT_CV_PROMPT = """You are an expert career coach helping tailor CVs to specific job openings.
+
+Rules:
+- Write ALL generated text (summary, responsibility bullets) in {lang_name}
+- Write the summary in first person (I, my)
+- Professional summary: maximum 4 sentences, direct and specific to this role
+- Select only experience entries that are genuinely relevant to the role
+- For each selected role, write a SINGLE list of at most 4 bullet points that combines its most relevant responsibilities and achievements for this job, in adjusted_responsibilities
+- For non-English CVs, also translate the static sidebar text (education fields of study, distinctions, grant names, language names) via sidebar_translations; keep degree titles (e.g. "Doctor of Philosophy (PhD)", "Master's Degree"), skill/tool names and institution names in English
+- Mirror the language of the job description, but only honestly
+- Do not invent skills or experience not present in the profile
+- Keep bullets concise (one line each); never more than 4 per role
+- Publications section: set include_publications=true ONLY for research/academic/university roles; set false for industry, tech, or data engineering roles
+- Use the experience relevance notes in the profile to decide which entries best match the role type"""
+
 
 def fetch_job_description(url: str) -> str:
     r = httpx.get(
@@ -104,7 +135,10 @@ def fetch_job_description(url: str) -> str:
     return soup.get_text(separator="\n", strip=True)
 
 
-def tailor(profile: dict, job_url: str, api_key: str, model: str, lang: str = "en") -> TailoringPlan:
+def tailor(
+    profile: dict, job_url: str, api_key: str, model: str,
+    lang: str = "en", prompt: str | None = None,
+) -> TailoringPlan:
     """
     Call an LLM via OpenRouter to produce a CV tailoring plan for a given job URL.
 
@@ -114,12 +148,15 @@ def tailor(profile: dict, job_url: str, api_key: str, model: str, lang: str = "e
         api_key:  OpenRouter API key
         model:    OpenRouter model string, e.g. 'anthropic/claude-sonnet-4-6'
         lang:     Output language code ('en' or 'nl')
+        prompt:   System instructions (DEFAULT_CV_PROMPT if None); {lang_name} is substituted
 
     Returns:
         TailoringPlan with all fields needed to render a tailored CV
     """
     lang_name = _LANG_NAMES.get(lang, "English")
     job_text = fetch_job_description(job_url)
+
+    instructions = (prompt or DEFAULT_CV_PROMPT).replace("{lang_name}", lang_name)
 
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
@@ -133,17 +170,7 @@ def tailor(profile: dict, job_url: str, api_key: str, model: str, lang: str = "e
             {
                 "role": "system",
                 "content": (
-                    "You are an expert career coach helping tailor CVs to specific job openings.\n\n"
-                    "Rules:\n"
-                    f"- Write ALL generated text (summary, responsibility bullets) in {lang_name}\n"
-                    "- Write the summary in first person (I, my)\n"
-                    "- Professional summary: maximum 4 sentences, direct and specific to this role\n"
-                    "- Select only experience entries that are genuinely relevant to the role\n"
-                    "- Rewrite responsibility bullets to mirror the language of the job description, but only honestly\n"
-                    "- Do not invent skills or experience not present in the profile\n"
-                    "- Keep bullets concise (one line each)\n"
-                    "- Publications section: set include_publications=true ONLY for research/academic/university roles; set false for industry, tech, or data engineering roles\n"
-                    "- Use the experience relevance notes in the profile to decide which entries best match the role type\n\n"
+                    f"{instructions}\n\n"
                     f"CANDIDATE PROFILE:\n{json.dumps(profile, ensure_ascii=False, indent=2)}"
                 ),
             },
@@ -163,45 +190,33 @@ def tailor(profile: dict, job_url: str, api_key: str, model: str, lang: str = "e
     d = json.loads(tool_call.function.arguments)
     slug = re.sub(r"[^a-z0-9]+", "-", d["slug"].lower()).strip("-")
 
+    # Hard cap at 4 bullets per role regardless of what the model returns.
+    bullets = {eid: list(b)[:4] for eid, b in d["adjusted_responsibilities"].items()}
+
     return TailoringPlan(
         job_title=d["job_title"],
         employer=d["employer"],
         slug=slug,
         summary=d["summary"],
         selected_experience_ids=d["selected_experience_ids"],
-        adjusted_responsibilities=d["adjusted_responsibilities"],
+        adjusted_responsibilities=bullets,
         highlighted_skills=d["highlighted_skills"],
         tailoring_notes=d["tailoring_notes"],
         include_publications=d.get("include_publications", True),
+        sidebar_translations=d.get("sidebar_translations", {}) or {},
     )
 
 
-def _date_sort_key(entry: dict) -> tuple[int, int]:
-    """Return sort key; current roles sort above past roles, ordered by start date."""
+def _is_active(entry: dict) -> bool:
+    """A role is active if flagged is_current or it has no end date."""
+    if entry.get("is_current"):
+        return True
     end = str(entry.get("end_date") or entry.get("end") or "").strip()
-    is_current = not end or end.lower() in ("present", "current", "now", "heden", "nu")
-    if is_current:
-        for field in ("start_date", "start"):
-            val = str(entry.get(field) or "").strip()
-            if not val:
-                continue
-            parts = re.split(r"[-/]", val)
-            try:
-                year = int(parts[0])
-                month = int(parts[1]) if len(parts) > 1 else 0
-                return (9000 + year - 2000, month)
-            except (ValueError, IndexError):
-                continue
-        return (9999, 99)
-    for field in ("end_date", "end", "end_year"):
-        val = str(entry.get(field) or "").strip()
-        if not val:
-            continue
-        parts = re.split(r"[-/]", val)
-        try:
-            return (int(parts[0]), int(parts[1]) if len(parts) > 1 else 0)
-        except (ValueError, IndexError):
-            continue
+    return not end or end.lower() in ("present", "current", "now", "heden", "nu")
+
+
+def _start_key(entry: dict) -> tuple[int, int]:
+    """(year, month) of the start date, for descending sort. Missing → 0."""
     for field in ("start_date", "start"):
         val = str(entry.get(field) or "").strip()
         if not val:
@@ -226,13 +241,50 @@ def apply_tailoring(profile: dict, plan: TailoringPlan) -> dict:
             continue
         entry = exp_by_id[eid]
         if eid in plan.adjusted_responsibilities:
-            entry["responsibilities"] = plan.adjusted_responsibilities[eid]
+            entry["responsibilities"] = plan.adjusted_responsibilities[eid][:4]
+        entry["achievements"] = []  # achievements are folded into the bullet list above
         filtered.append(entry)
 
-    filtered.sort(key=_date_sort_key, reverse=True)
-    p["experience"] = filtered
+    # Active roles first (in selected order); past roles below, newest start first.
+    active = [e for e in filtered if _is_active(e)]
+    past = sorted((e for e in filtered if not _is_active(e)), key=_start_key, reverse=True)
+    p["experience"] = active + past
 
     if not plan.include_publications:
         p["publications"] = []
 
+    # Translate static sidebar text (education, grants, languages) for non-English
+    # CVs. Only strings the model chose to translate are replaced; the rest stay.
+    tr = plan.sidebar_translations or {}
+    if tr:
+        def t(s):
+            return tr.get(s, s) if isinstance(s, str) else s
+        for edu in p.get("education", []):
+            # Degree titles stay in English everywhere (e.g. "Doctor of Philosophy
+            # (PhD)", "Master's Degree") — translations were awkward, and keeping
+            # them English also preserves the template's "hide High School" filter.
+            for k in ("field", "institution", "distinction"):
+                if edu.get(k):
+                    edu[k] = t(edu[k])
+        for grant in p.get("grants", []):
+            if grant.get("name"):
+                grant["name"] = t(grant["name"])
+        for lang_item in p.get("skills", {}).get("languages", []):
+            if lang_item.get("language"):
+                lang_item["language"] = t(lang_item["language"])
+
     return p
+
+
+if __name__ == "__main__":
+    # ponytail: self-check for the active-first / start-date ordering
+    exp = [
+        {"id": "a", "start_date": "2016-01", "end_date": "2016-06"},
+        {"id": "b", "start_date": "2023-03", "end_date": None, "is_current": True},
+        {"id": "c", "start_date": "2020-04", "end_date": "2021-11"},
+    ]
+    prof = {"narrative": {}, "experience": exp, "publications": [1]}
+    plan = TailoringPlan("t", "e", "s", "sum", ["a", "b", "c"], {}, [], "n")
+    order = [e["id"] for e in apply_tailoring(prof, plan)["experience"]]
+    assert order == ["b", "c", "a"], order  # active first, then newest start
+    print("ok", order)

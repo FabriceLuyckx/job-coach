@@ -10,7 +10,7 @@ export default function App() {
     <BrowserRouter>
       <div className="app-shell">
         <nav className="sidebar-nav">
-          <div className="nav-logo">Job Coach</div>
+          <div className="nav-logo">🎯 Job Coach</div>
           <NavLink to="/profile">Profile</NavLink>
           <NavLink to="/cv">CV Generator</NavLink>
           <NavLink to="/jobs">Job Suggestions</NavLink>

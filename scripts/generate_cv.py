@@ -8,8 +8,8 @@ Usage:
     uv run python scripts/generate_cv.py --job "UGent" --lang nl          # output/ugent/cv_nl.html
 
 PDF export:
-    Open the output file in Chrome → Cmd+P → Save as PDF
-    → Paper: A4 · Margins: None · Background graphics: ON
+    Use the "Download PDF" button in the web app for a correctly paginated PDF
+    (rendered server-side with headless Chromium).
 
 For AI-tailored CVs (adapted to a specific job description), use scripts/tailor_cv.py instead.
 """
@@ -61,7 +61,7 @@ def main() -> None:
     out_path.write_text(html, encoding="utf-8")
 
     print(f"Done → {out_path.relative_to(ROOT)}")
-    print("PDF: Chrome → Cmd+P → Save as PDF → A4 · no margins · background graphics ON")
+    print('PDF: use the "Download PDF" button in the web app for a paginated PDF.')
 
 
 if __name__ == "__main__":

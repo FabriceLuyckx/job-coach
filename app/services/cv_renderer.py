@@ -8,10 +8,12 @@ Used by:
 """
 
 import base64
+import html as html_lib
 import re
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
+from markupsafe import Markup
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 PROFILE_PATH = ROOT / "profile" / "profile.json"
@@ -61,6 +63,15 @@ def strip_scheme(url: str) -> str:
     return re.sub(r"^https?://(www\.)?", "", url).rstrip("/")
 
 
+def richtext(value: str) -> Markup:
+    """Render lightweight inline markup: **bold** and *italic*. HTML-escapes the
+    text first, so user content can't inject markup, then adds <strong>/<em>."""
+    s = html_lib.escape(value or "")
+    s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)        # **bold**
+    s = re.sub(r"(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)", r"<em>\1</em>", s)  # *italic*
+    return Markup(s)
+
+
 def load_photo() -> str | None:
     """Return a base64 data URI for profile/photo.{jpg,jpeg,png,webp}, or None."""
     for ext in ("jpg", "jpeg", "png", "webp"):
@@ -76,4 +87,5 @@ def build_env() -> Environment:
     env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
     env.filters["format_date"] = format_date
     env.filters["strip_scheme"] = strip_scheme
+    env.filters["richtext"] = richtext
     return env

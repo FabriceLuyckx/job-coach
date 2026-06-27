@@ -18,6 +18,7 @@ AI-powered career assistant — generate tailored CVs and (in future phases) dis
 git clone <repo>
 cd job-coach
 uv sync
+uv run playwright install chromium   # one-time: headless browser for PDF export
 cd frontend && npm install && cd ..
 ```
 
@@ -36,6 +37,42 @@ cd frontend && npm run dev
 Open **http://localhost:5173** in your browser.
 
 On first run, go to **Settings** and enter your [OpenRouter](https://openrouter.ai) API key. This is saved locally to `config.json` (gitignored).
+
+### Customise the CV-tailoring prompt
+
+The **Settings** page has a **CV Generator Prompt** editor — the instructions the
+AI follows when tailoring a CV. Edit and save it to change tone, rules, or
+emphasis; use `{lang_name}` where the output language should appear. Your profile
+and the job listing are appended automatically. **Reset to default** restores the
+built-in prompt.
+
+### Edit a generated CV
+
+Every generated CV has an **Edit generated content** panel below the preview. You
+can edit the professional summary and each role's bullet points (up to 4 per job),
+drag the ⠿ handle to reorder bullets within a job, and apply formatting by
+selecting text and pressing **⌘/Ctrl+B** (bold) or **⌘/Ctrl+I** (italic).
+Click **Save all edits** to apply everything at once and re-render.
+
+Edits are stored **per language**, so switching the **Language** dropdown back and
+forth keeps each language's edits intact. **Regenerate** opens a prompt with three
+choices:
+- **Keep my edits, regenerate the rest** — preserves your summary, role selection
+  and bullets, refreshing only the rest (e.g. picking up new sidebar translations).
+- **Regenerate everything** — a fresh AI version, discarding manual edits.
+- **Cancel**.
+
+### Re-tailor an existing CV
+
+On any generated CV:
+- **Update from Profile** re-renders it with your latest profile data (cheap — no
+  AI call when a tailoring plan is stored).
+- **Regenerate** re-runs the AI to fully re-tailor and re-translate the CV in its
+  current language — use this to pick up profile edits or fix any untranslated text.
+- The **Language** dropdown re-tailors the CV into the other language.
+
+The summary and each role's bullet points are written in the CV's language by the
+AI; switching language or regenerating translates them.
 
 ---
 
@@ -96,11 +133,15 @@ output/
 
 ## Export to PDF
 
-1. Open the `.html` file in **Chrome** or **Firefox**
-2. Press `Cmd+P` (Mac) or `Ctrl+P` (Windows)
-3. Set **Destination** → Save as PDF
-4. **Paper size**: A4 · **Margins**: None · **Background graphics**: ON
-5. Save
+In the web app, click **Download PDF** on a generated CV. The PDF is rendered
+server-side with headless Chromium (Playwright), so it comes out correctly
+paginated — full-width header, a repeating sidebar, and the main column flowing
+across pages. This needs the one-time `uv run playwright install chromium` from
+Setup above.
+
+> The old "open the HTML and Cmd+P → Save as PDF" route still works for the CLI
+> output files, but the browser's print dialog handles the two-column layout
+> poorly across pages — prefer the **Download PDF** button.
 
 ## Add a photo
 
@@ -118,12 +159,29 @@ Use the **Profile** page in the web UI, or open `profile/profile.json` directly 
 
 ---
 
+## Job Suggestions
+
+The **Job Suggestions** page watches job-listing pages and surfaces openings that fit your profile:
+
+1. **Add sources** — paste the URL of any job-listing page (e.g. a careers or vacancies page) and click **Add**. Add as many as you like.
+2. **Find new listings** — scans each source. It reads the page's actual links (rendering JS-heavy pages in a headless browser when needed), ignores openings seen on a previous scan, and asks the AI to judge only the *new* ones against your profile (goals, role type, location, language). The profile filter is skipped entirely when nothing new is found, and the last-scan time shows next to the button.
+3. **Accept / Reject** — each suggestion can be rejected (greyed out in History) or accepted. **Accepting generates a tailored CV from the job URL — in the posting's language — and takes you straight to the CV Generator**, which shows the URL it's building from.
+
+Accepted and rejected openings stay in the **History** list, newest first (rejected greyed). Accepted entries have **Open CV** to jump to the generated CV, and can still be rejected.
+
+You can edit the two scanner prompts (link extraction, relevance filter) on the **Settings** page, and verify a source from the CLI:
+
+```bash
+uv run python scripts/scan_debug.py --url https://example.com/jobs
+```
+
+---
+
 ## Project roadmap
 
 See `CLAUDE.md` for the full plan. Upcoming phases:
 
 | Phase | Description |
 |-------|-------------|
-| 5 | Job scrapers — automatically collect listings from `sources.yaml` |
 | 6 | Job matching — Claude scores and ranks jobs against your profile |
 | 7 | Cloud deployment — share the app with non-technical users |
