@@ -28,6 +28,11 @@ class TailoringPlan:
     highlighted_skills: list[str]
     tailoring_notes: str
     include_publications: bool = True
+    # Teaching: shown on the CV only when relevant to the role (e.g. lecturer /
+    # academic / training jobs). When included, teaching_summary is a compact
+    # one-line blurb in the target language; empty otherwise.
+    include_teaching: bool = False
+    teaching_summary: str = ""
     # Deprecated: achievements are now folded into adjusted_responsibilities
     # (one combined bullet list per role). Kept so older stored plans that still
     # carry this key continue to deserialize; it is no longer rendered.
@@ -50,6 +55,7 @@ _TOOL = {
                 "selected_experience_ids", "adjusted_responsibilities",
                 "sidebar_translations",
                 "highlighted_skills", "tailoring_notes", "include_publications",
+                "include_teaching", "teaching_summary",
             ],
             "properties": {
                 "job_title": {
@@ -96,6 +102,14 @@ _TOOL = {
                     "type": "boolean",
                     "description": "Set to true only for academic/research/university roles. Set to false for all industry, data engineering, commercial, or technology roles where peer-reviewed publications are not part of the hiring criteria.",
                 },
+                "include_teaching": {
+                    "type": "boolean",
+                    "description": "Set to true only when teaching/lecturing/training/supervision is relevant to the role (e.g. lecturer, teaching assistant, academic, or jobs that value training others). Set to false otherwise.",
+                },
+                "teaching_summary": {
+                    "type": "string",
+                    "description": "When include_teaching is true, a compact ONE-LINE teaching summary in the target language drawn from the profile's teaching data (formal teaching, guest lectures, supervision) — e.g. 'Guest lecturer at UGent and AMS; tutorials at Oxford; supervised multiple students'. Empty string when include_teaching is false.",
+                },
             },
         },
     },
@@ -118,6 +132,7 @@ Rules:
 - Do not invent skills or experience not present in the profile
 - Keep bullets concise (one line each); never more than 4 per role
 - Publications section: set include_publications=true ONLY for research/academic/university roles; set false for industry, tech, or data engineering roles
+- Teaching section: set include_teaching=true ONLY when teaching/lecturing/training/supervision matters for the role; when true, write teaching_summary as a single compact line in {lang_name} drawn from the profile's teaching data; otherwise set include_teaching=false and teaching_summary=""
 - Use the experience relevance notes in the profile to decide which entries best match the role type"""
 
 
@@ -203,6 +218,8 @@ def tailor(
         highlighted_skills=d["highlighted_skills"],
         tailoring_notes=d["tailoring_notes"],
         include_publications=d.get("include_publications", True),
+        include_teaching=d.get("include_teaching", False),
+        teaching_summary=d.get("teaching_summary", "") or "",
         sidebar_translations=d.get("sidebar_translations", {}) or {},
     )
 
@@ -252,6 +269,13 @@ def apply_tailoring(profile: dict, plan: TailoringPlan) -> dict:
 
     if not plan.include_publications:
         p["publications"] = []
+
+    # Teaching renders from teaching.cv_summary (a compact one-liner). When the
+    # role doesn't warrant teaching, set it empty so the template guard hides it;
+    # otherwise use the model's tailored summary. Setting the key (even to "")
+    # also overrides the template's generic-CV fallback line.
+    p.setdefault("teaching", {})
+    p["teaching"]["cv_summary"] = plan.teaching_summary if plan.include_teaching else ""
 
     # Translate static sidebar text (education, grants, languages) for non-English
     # CVs. Only strings the model chose to translate are replaced; the rest stay.

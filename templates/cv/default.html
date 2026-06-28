@@ -554,6 +554,16 @@
     </div>
     {% endif %}
 
+    {# Teaching: tailored CVs set teaching.cv_summary (may be "" to hide it);
+       the generic full-profile CV falls back to a deterministic compact line. #}
+    {% set teaching_text = teaching.cv_summary if teaching.cv_summary is defined else (teaching | teaching_line) %}
+    {% if teaching_text %}
+    <div class="section" data-section="teaching">
+      <div class="section-title">{{ labels.teaching }}</div>
+      <div class="pub-entry">{{ teaching_text | richtext }}</div>
+    </div>
+    {% endif %}
+
     {% if certifications %}
     <div class="section" data-section="certifications">
       <div class="section-title">{{ labels.certifications }}</div>

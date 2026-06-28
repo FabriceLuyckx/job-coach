@@ -34,7 +34,7 @@ LABELS: dict[str, dict[str, str]] = {
         "education": "Education", "grants": "Grants & Fellowships",
         "experience": "Career Path", "publications": "Selected Publications",
         "projects": "Projects", "certifications": "Certifications",
-        "awards": "Awards", "present": "Present",
+        "awards": "Awards", "teaching": "Teaching", "present": "Present",
     },
     "nl": {
         "links": "Links", "skills": "Vaardigheden", "programming": "Programmeren",
@@ -43,7 +43,7 @@ LABELS: dict[str, dict[str, str]] = {
         "education": "Opleiding", "grants": "Beurzen & Fellowships",
         "experience": "Loopbaan", "publications": "Selectie Publicaties",
         "projects": "Projecten", "certifications": "Certificaten",
-        "awards": "Onderscheidingen", "present": "Heden",
+        "awards": "Onderscheidingen", "teaching": "Onderwijs", "present": "Heden",
     },
 }
 
@@ -74,6 +74,35 @@ def richtext(value: str) -> Markup:
     return Markup(s)
 
 
+def teaching_line(teaching) -> str:
+    """Build a compact one-line teaching summary from structured teaching data.
+
+    Used as the generic-CV fallback when no AI-tailored `teaching.cv_summary` is
+    present. Returns '' when there is nothing to show (so the template hides the
+    section). For tailored CVs, cv_summary takes precedence in the template.
+    """
+    if not isinstance(teaching, dict):
+        return ""
+    parts: list[str] = []
+    for f in teaching.get("formal_experience") or []:
+        typ = (f.get("type") or "").strip()
+        inst = (f.get("institution") or "").strip()
+        if typ and inst:
+            parts.append(f"{typ} at {inst}")
+        elif typ or inst:
+            parts.append(typ or inst)
+    insts: list[str] = []
+    for g in teaching.get("guest_lectures") or []:
+        inst = (g.get("institution") or "").strip()
+        if inst and inst not in insts:
+            insts.append(inst)
+    if insts:
+        parts.append("Guest lectures at " + ", ".join(insts))
+    if (teaching.get("student_supervision") or "").strip():
+        parts.append("student supervision")
+    return " · ".join(parts)
+
+
 def load_photo() -> str | None:
     """Return a base64 data URI for profile/photo.{jpg,jpeg,png,webp}, or None."""
     for ext in ("jpg", "jpeg", "png", "webp"):
@@ -90,4 +119,5 @@ def build_env() -> Environment:
     env.filters["format_date"] = format_date
     env.filters["strip_scheme"] = strip_scheme
     env.filters["richtext"] = richtext
+    env.filters["teaching_line"] = teaching_line
     return env
