@@ -421,42 +421,14 @@
     <div class="section" data-section="skills">
       <div class="section-title">{{ labels.skills }}</div>
 
+      {% for g in skills.groups %}{% if g['items'] %}
       <div class="skills-group">
-        <div class="skills-group-label">{{ labels.programming }}</div>
+        <div class="skills-group-label">{{ g['label'] }}</div>
         <div class="tags">
-          {% for l in skills.programming.production %}<span class="tag">{{ l }}</span>{% endfor %}
-          {% for l in skills.programming.research %}<span class="tag">{{ l }}</span>{% endfor %}
+          {% for t in g['items'] %}<span class="tag">{{ t }}</span>{% endfor %}
         </div>
       </div>
-
-      <div class="skills-group">
-        <div class="skills-group-label">{{ labels.visualisation }}</div>
-        <div class="tags">
-          {% for t in skills.visualization %}<span class="tag">{{ t }}</span>{% endfor %}
-        </div>
-      </div>
-
-      <div class="skills-group">
-        <div class="skills-group-label">{{ labels.cloud_devops }}</div>
-        <div class="tags">
-          <span class="tag">AWS</span>
-          {% for t in skills.cloud_devops.tools %}<span class="tag">{{ t }}</span>{% endfor %}
-        </div>
-      </div>
-
-      <div class="skills-group">
-        <div class="skills-group-label">{{ labels.big_data }}</div>
-        <div class="tags">
-          {% for t in skills.big_data %}<span class="tag">{{ t }}</span>{% endfor %}
-        </div>
-      </div>
-
-      <div class="skills-group">
-        <div class="skills-group-label">{{ labels.databases }}</div>
-        <div class="tags">
-          {% for t in skills.databases %}<span class="tag">{{ t }}</span>{% endfor %}
-        </div>
-      </div>
+      {% endif %}{% endfor %}
     </div>
 
     <div class="section" data-section="languages">

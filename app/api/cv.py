@@ -14,7 +14,7 @@ from app import config, db
 from app.services.cv_generator import (
     DEFAULT_CV_PROMPT, TailoringPlan, apply_tailoring, tailor, _is_active, _start_key,
 )
-from app.services.cv_renderer import LABELS, OUTPUT_DIR, PROFILE_PATH, build_env, load_photo
+from app.services.cv_renderer import LABELS, OUTPUT_DIR, PROFILE_PATH, build_env, load_photo, load_profile
 
 router = APIRouter(prefix="/api/cv", tags=["cv"])
 
@@ -105,7 +105,7 @@ def _current_html(slug: str, lang: str) -> str | None:
         if lang in plans:
             plan = TailoringPlan(**plans[lang])
             plan.slug = slug
-            profile = json.loads(PROFILE_PATH.read_text(encoding="utf-8"))
+            profile = load_profile()
             html = _render_html(plan, profile, lang)
             out_dir = OUTPUT_DIR / slug
             out_dir.mkdir(parents=True, exist_ok=True)
@@ -128,7 +128,7 @@ def _run_generation(job_id: str, url: str, lang: str) -> None:
         if not PROFILE_PATH.exists():
             raise ValueError("profile.json not found")
 
-        profile = json.loads(PROFILE_PATH.read_text(encoding="utf-8"))
+        profile = load_profile()
         prompt = cfg.get("cv_prompt") or DEFAULT_CV_PROMPT
         plan = tailor(profile, url, api_key, model, lang, prompt)
         slug = _render_and_save(plan, profile, lang)
@@ -239,7 +239,7 @@ def rerender_cv(id: str, body: RerenderRequest):
             _persist_plans(id, lang, plans)
         plan = TailoringPlan(**plan_data)
         plan.slug = row["slug"]
-        profile = json.loads(PROFILE_PATH.read_text(encoding="utf-8"))
+        profile = load_profile()
         _render_and_save(plan, profile, lang)
     elif row.get("job_url"):
         # No stored plan (older entry) but we have the URL: re-tailor so profile
@@ -268,7 +268,7 @@ def _retailor(id: str, row: dict, lang: str, keep_edits: bool = False) -> dict:
     if not PROFILE_PATH.exists():
         raise HTTPException(500, "profile.json not found")
 
-    profile = json.loads(PROFILE_PATH.read_text(encoding="utf-8"))
+    profile = load_profile()
     prompt = cfg.get("cv_prompt") or DEFAULT_CV_PROMPT
     plan = tailor(profile, row["job_url"], api_key, model, lang, prompt)
     plan.slug = row["slug"]  # keep slug so history identity is stable
@@ -351,7 +351,7 @@ def get_plan(id: str):
         raise HTTPException(500, "profile.json not found")
 
     plan = TailoringPlan(**plans[lang])
-    profile = json.loads(PROFILE_PATH.read_text(encoding="utf-8"))
+    profile = load_profile()
     exp_by_id = {e["id"]: e for e in profile.get("experience", [])}
     selected = [exp_by_id[eid] for eid in plan.selected_experience_ids if eid in exp_by_id]
     # Same ordering the CV uses: active roles first (selected order), then past
@@ -390,7 +390,7 @@ def put_plan(id: str, body: PlanEdit):
     plans[lang] = asdict(plan)
     _persist_plans(id, lang, plans)
 
-    profile = json.loads(PROFILE_PATH.read_text(encoding="utf-8"))
+    profile = load_profile()
     plan.slug = row["slug"]
     _render_and_save(plan, profile, lang)
     return {"ok": True, "summary": plan.summary}
@@ -447,7 +447,7 @@ def generate_cv_summary(id: str):
     if not PROFILE_PATH.exists():
         raise HTTPException(500, "profile.json not found")
 
-    profile = json.loads(PROFILE_PATH.read_text(encoding="utf-8"))
+    profile = load_profile()
     lang = row["lang"]
     lang_name = {"en": "English", "nl": "Dutch (Nederlands)"}.get(lang, "English")
 

@@ -59,6 +59,38 @@ def _verify_openrouter_key(key: str) -> None:
         raise HTTPException(400, f"OpenRouter key check failed (HTTP {r.status_code}).")
 
 
+@router.get("/openrouter-usage")
+def openrouter_usage():
+    """Live credit balance + usage for the stored key. Both reads are zero-cost
+    (no tokens spent): /api/v1/credits gives the account balance, /api/v1/key the
+    per-key usage/limit as a fallback. Normalised so the UI degrades gracefully."""
+    cfg = config.load()
+    key = cfg.get("openrouter_api_key", "")
+    if not key:
+        raise HTTPException(400, "No OpenRouter API key set.")
+    headers = {"Authorization": f"Bearer {key}"}
+    out: dict = {"ok": True, "balance": None, "usage": None, "remaining": None, "is_free_tier": None}
+    try:
+        kr = httpx.get("https://openrouter.ai/api/v1/key", headers=headers, timeout=10)
+        if kr.status_code in (401, 403):
+            raise HTTPException(400, "OpenRouter rejected this API key (invalid or revoked).")
+        if kr.status_code == 200:
+            d = kr.json().get("data", {}) or {}
+            out["usage"] = d.get("usage")
+            out["remaining"] = d.get("limit_remaining")
+            out["is_free_tier"] = d.get("is_free_tier")
+        cr = httpx.get("https://openrouter.ai/api/v1/credits", headers=headers, timeout=10)
+        if cr.status_code == 200:
+            c = cr.json().get("data", {}) or {}
+            tc, tu = c.get("total_credits"), c.get("total_usage")
+            if tc is not None and tu is not None:
+                out["balance"] = round(tc - tu, 4)
+                out["usage"] = round(tu, 4)
+    except httpx.HTTPError as e:
+        raise HTTPException(502, f"Could not reach OpenRouter: {e}")
+    return out
+
+
 @router.put("")
 def put_settings(body: SettingsIn):
     updates = {k: v for k, v in body.model_dump().items() if v is not None}

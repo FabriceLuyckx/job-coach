@@ -1,6 +1,8 @@
 import { useRef, useState, useEffect } from 'react'
 import { api, type CvHistoryEntry, type CVResult, type CVPlan, type CVPlanRole } from '../api'
 import BulletListEditor from '../components/BulletListEditor'
+import Button from '../components/Button'
+import SaveButton from '../components/SaveButton'
 
 const SECTIONS = [
   { key: 'summary', label: 'Summary' },
@@ -33,7 +35,6 @@ function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate, onLangUpda
   const [visible, setVisible] = useState<Record<SectionKey, boolean>>(ALL_VISIBLE)
   const [previewKey, setPreviewKey] = useState(0)
   const [refreshing, setRefreshing] = useState(false)
-  const [saving, setSaving] = useState(false)
   const [updating, setUpdating] = useState(false)
   const [relanging, setRelanging] = useState(false)
   const [pendingLang, setPendingLang] = useState<string | null>(null)
@@ -91,21 +92,14 @@ function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate, onLangUpda
     return { summary: p.summary, roles: p.roles.map(({ id, bullets }) => ({ id, bullets })) }
   }
 
+  // Throws on failure so the SaveButton surfaces the error.
   async function saveEdits() {
     if (!plan) return
-    setError('')
-    setSaving(true)
-    try {
-      await api.putCVPlan(result.history_id, planPayload(plan))
-      setPlanDirty(false)
-      setResult(prev => ({ ...prev, summary: plan.summary }))
-      onSummaryUpdate?.(plan.summary)
-      setPreviewKey(k => k + 1)
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : String(e))
-    } finally {
-      setSaving(false)
-    }
+    await api.putCVPlan(result.history_id, planPayload(plan))
+    setPlanDirty(false)
+    setResult(prev => ({ ...prev, summary: plan.summary }))
+    onSummaryUpdate?.(plan.summary)
+    setPreviewKey(k => k + 1)
   }
 
   async function refreshPreview() {
@@ -231,15 +225,15 @@ function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate, onLangUpda
               summary and bullet points, or start fresh?
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <button className="btn-primary" onClick={() => regenerate(true)}>
+              <Button variant="primary" onClick={() => regenerate(true)}>
                 Keep my edits, regenerate the rest
-              </button>
-              <button className="btn-secondary" onClick={() => regenerate(false)}>
+              </Button>
+              <Button variant="secondary" onClick={() => regenerate(false)}>
                 Regenerate everything (discard my edits)
-              </button>
-              <button className="btn-secondary" onClick={() => setRegenPrompt(false)} style={{ alignSelf: 'flex-start', marginTop: 4 }}>
+              </Button>
+              <Button variant="secondary" onClick={() => setRegenPrompt(false)} style={{ alignSelf: 'flex-start', marginTop: 4 }}>
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -326,18 +320,19 @@ function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate, onLangUpda
 
       {/* Primary actions — kept directly under the preview so they're never buried */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
-        <button
-          className="btn-primary"
+        <Button
+          variant="primary"
           onClick={refreshPreview}
-          disabled={refreshing}
+          busy={refreshing}
           title={planDirty ? 'Save edits and reload the preview' : 'Reload the CV preview'}
         >
           {refreshing ? 'Refreshing…' : planDirty ? 'Save & Refresh' : 'Refresh Preview'}
-        </button>
-        <button
-          className="btn-secondary"
+        </Button>
+        <Button
+          variant="secondary"
           onClick={updateFromProfile}
-          disabled={updating || (!result.has_plan && !result.job_url)}
+          busy={updating}
+          disabled={!result.has_plan && !result.job_url}
           title={result.has_plan
             ? "Re-render this CV from the stored tailoring plan using your latest profile data"
             : result.job_url
@@ -345,9 +340,9 @@ function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate, onLangUpda
               : "No tailoring plan or job URL stored — generate a new CV instead"}
         >
           {updating ? 'Updating…' : 'Update from Profile'}
-        </button>
-        <button
-          className="btn-secondary"
+        </Button>
+        <Button
+          variant="secondary"
           onClick={() => setRegenPrompt(true)}
           disabled={regenerating || relanging || !result.job_url}
           title={result.job_url
@@ -355,10 +350,10 @@ function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate, onLangUpda
             : "No job URL stored, so this CV can't be regenerated"}
         >
           {regenerating ? 'Regenerating…' : '✦ Regenerate'}
-        </button>
-        <button className="btn-secondary" onClick={downloadPDF}>
+        </Button>
+        <Button variant="secondary" onClick={downloadPDF}>
           Download PDF
-        </button>
+        </Button>
       </div>
 
       {/* Section toggles */}
@@ -416,15 +411,15 @@ function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate, onLangUpda
               <div style={{ fontSize: 'var(--fs-xs)', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 Professional Summary
               </div>
-              <button
-                className="btn-secondary"
+              <Button
+                variant="secondary"
                 onClick={generateSummary}
-                disabled={generating}
+                busy={generating}
                 style={{ padding: '3px 8px', fontSize: 'var(--fs-xs)' }}
                 title="Ask the AI to write a new summary based on your profile and this job"
               >
                 {generating ? 'Generating…' : '✦ AI Summary'}
-              </button>
+              </Button>
             </div>
             <textarea
               ref={summaryRef}
@@ -457,14 +452,7 @@ function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate, onLangUpda
 
           {/* Prominent save bar — covers the whole editor (summary + all jobs) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--border)' }}>
-            <button
-              className="btn-primary"
-              onClick={saveEdits}
-              disabled={saving || !planDirty}
-              style={{ padding: '8px 18px' }}
-            >
-              {saving ? 'Saving…' : 'Save all edits'}
-            </button>
+            <SaveButton dirty={planDirty} onSave={saveEdits} idleLabel="Save all edits" />
             <span style={{ fontSize: 'var(--fs-sm)', color: planDirty ? 'var(--highlight)' : 'var(--muted)' }}>
               {planDirty ? 'Unsaved changes — saves the summary and all job bullets.' : 'All edits saved.'}
             </span>
@@ -598,11 +586,7 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
           {loading && <span className="spinner" />}
           {headerLabel}
         </div>
-        <button
-          onClick={e => { e.stopPropagation(); stopPolling(); onClose() }}
-          style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: 18, padding: '0 2px', lineHeight: 1, flexShrink: 0 }}
-          title="Close"
-        >×</button>
+        <Button variant="ghost" icon title="Close" onClick={e => { e.stopPropagation(); stopPolling(); onClose() }}>×</Button>
       </SlotHeader>
 
       {expanded && (
@@ -629,10 +613,9 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
                     <option value="nl">Dutch</option>
                   </select>
                 </div>
-                <button className="btn-primary" onClick={generate} disabled={loading || !url.trim()}>
-                  {loading && <span className="spinner" />}
+                <Button variant="primary" onClick={generate} busy={loading} disabled={!url.trim()}>
                   {loading ? (loadingMsg || 'Generating…') : 'Generate CV'}
-                </button>
+                </Button>
               </div>
               {error && <p className="error-msg" style={{ marginTop: 10 }}>{error}</p>}
             </div>
@@ -691,11 +674,7 @@ function CVHistorySlot({ entry: initialEntry, hasPhoto, onDelete, initialExpande
             Listing ↗
           </a>
         )}
-        <button
-          onClick={e => { e.stopPropagation(); onDelete(entry.id) }}
-          style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: 18, padding: '0 2px', lineHeight: 1, flexShrink: 0 }}
-          title="Remove"
-        >×</button>
+        <Button variant="ghost" icon title="Remove" onClick={e => { e.stopPropagation(); onDelete(entry.id) }}>×</Button>
       </SlotHeader>
 
       {expanded && (
@@ -765,7 +744,7 @@ export default function CVGeneratorPage() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <h1 className="page-title" style={{ margin: 0 }}>CV Generator</h1>
         {!showNew && (
-          <button className="btn-primary" onClick={() => setShowNew(true)}>+ New CV</button>
+          <Button variant="primary" onClick={() => setShowNew(true)}>+ New CV</Button>
         )}
       </div>
 

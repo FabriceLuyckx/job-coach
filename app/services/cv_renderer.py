@@ -9,6 +9,7 @@ Used by:
 
 import base64
 import html as html_lib
+import json
 import re
 from pathlib import Path
 
@@ -26,26 +27,98 @@ MONTH_ABBR = {
     "09": "Sep", "10": "Oct", "11": "Nov", "12": "Dec",
 }
 
+# Section titles only — per-skill-group headings now come from the profile data
+# (skills.groups[].label), so the old fixed group label keys were removed.
 LABELS: dict[str, dict[str, str]] = {
     "en": {
-        "links": "Links", "skills": "Skills", "programming": "Programming",
-        "visualisation": "Visualisation", "cloud_devops": "Cloud & DevOps",
-        "big_data": "Big Data", "databases": "Databases", "languages": "Languages",
+        "links": "Links", "skills": "Skills", "languages": "Languages",
         "education": "Education", "grants": "Grants & Fellowships",
         "experience": "Career Path", "publications": "Selected Publications",
         "projects": "Projects", "certifications": "Certifications",
         "awards": "Awards", "teaching": "Teaching", "present": "Present",
     },
     "nl": {
-        "links": "Links", "skills": "Vaardigheden", "programming": "Programmeren",
-        "visualisation": "Visualisatie", "cloud_devops": "Cloud & DevOps",
-        "big_data": "Big Data", "databases": "Databases", "languages": "Talen",
+        "links": "Links", "skills": "Vaardigheden", "languages": "Talen",
         "education": "Opleiding", "grants": "Beurzen & Fellowships",
         "experience": "Loopbaan", "publications": "Selectie Publicaties",
         "projects": "Projecten", "certifications": "Certificaten",
         "awards": "Onderscheidingen", "teaching": "Onderwijs", "present": "Heden",
     },
 }
+
+# Star-rating proficiency scale shared by the language editor and normalization.
+CEFR_LABELS: dict[int, str] = {
+    1: "A1 Beginner", 2: "A2 Elementary", 3: "B1 Intermediate",
+    4: "B2/C1 Advanced", 5: "C2 Native / Fluent",
+}
+
+# Generic editable groups seeded when a profile has no skills data at all.
+DEFAULT_SKILL_GROUPS: list[dict] = [
+    {"label": "Technical skills", "items": []},
+    {"label": "Tools & software", "items": []},
+    {"label": "Soft skills", "items": []},
+]
+
+
+def _groups_from_legacy(skills: dict) -> list[dict]:
+    """Convert the old fixed skill categories into named groups (non-empty only)."""
+    groups: list[dict] = []
+    prog = skills.get("programming") or {}
+    prog_items = list(prog.get("production") or []) + list(prog.get("research") or [])
+    if prog_items:
+        groups.append({"label": "Programming", "items": prog_items})
+    if skills.get("visualization"):
+        groups.append({"label": "Visualisation", "items": list(skills["visualization"])})
+    cloud = skills.get("cloud_devops") or {}
+    cloud_items = ["AWS " + a for a in (cloud.get("aws") or [])] + list(cloud.get("tools") or [])
+    if cloud_items:
+        groups.append({"label": "Cloud & DevOps", "items": cloud_items})
+    if skills.get("databases"):
+        groups.append({"label": "Databases", "items": list(skills["databases"])})
+    if skills.get("big_data"):
+        groups.append({"label": "Big data", "items": list(skills["big_data"])})
+    if skills.get("ml_statistical"):
+        groups.append({"label": "ML / Statistical", "items": list(skills["ml_statistical"])})
+    if skills.get("current_tools"):
+        groups.append({"label": "Tools", "items": list(skills["current_tools"])})
+    return groups
+
+
+def normalize_skills(skills: dict | None) -> dict:
+    """Return skills in the generic {groups, languages} shape.
+
+    Idempotent: if a `groups` key is already present it is left untouched (covers
+    already-migrated saves, including a deliberately empty list). Otherwise the old
+    fixed categories are converted; if there is no legacy data either, generic
+    editable groups are seeded so any new user has something to fill in.
+    """
+    skills = dict(skills or {})
+
+    languages: list[dict] = []
+    for l in skills.get("languages") or []:
+        if not isinstance(l, dict):
+            continue
+        level = l.get("level") or 0
+        languages.append({
+            "language": l.get("language", ""),
+            "level": level,
+            "label": l.get("label") or CEFR_LABELS.get(level, ""),
+        })
+
+    if "groups" in skills:
+        groups = skills.get("groups") or []
+    else:
+        groups = _groups_from_legacy(skills) or [dict(g) for g in DEFAULT_SKILL_GROUPS]
+
+    return {"groups": groups, "languages": languages}
+
+
+def load_profile(path: Path = PROFILE_PATH) -> dict:
+    """Read profile.json and normalize its skills to the groups+languages shape, so
+    legacy and migrated files both render and edit identically."""
+    profile = json.loads(path.read_text(encoding="utf-8"))
+    profile["skills"] = normalize_skills(profile.get("skills"))
+    return profile
 
 
 def slugify(text: str) -> str:

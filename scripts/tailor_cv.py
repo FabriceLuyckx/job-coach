@@ -36,6 +36,7 @@ from app.services.cv_renderer import (
     ROOT,
     build_env,
     load_photo,
+    load_profile,
 )
 
 
@@ -50,7 +51,7 @@ def main() -> None:
     parser.add_argument("--template", default="default.html")
     args = parser.parse_args()
 
-    profile = json.loads(PROFILE_PATH.read_text(encoding="utf-8"))
+    profile = load_profile()
 
     cfg = app_config.load()
     api_key = os.environ.get("OPENROUTER_API_KEY") or cfg.get("openrouter_api_key", "")

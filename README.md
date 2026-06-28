@@ -189,6 +189,12 @@ goes:
 - **Job matching & letters** — not printed; powers job suggestions and (soon)
   motivational letters. (Work Preferences.)
 
+**Skills** are organised into named groups you control — add a group with any heading
+that fits your field (e.g. *Technical skills*, *Clinical skills*, *Design tools*) and tag
+it with the relevant skills; each non-empty group is printed on your CV. **Languages** use
+a clickable 1–5 star rating (CEFR scale) instead of a typed level. Older profiles using the
+previous fixed skill categories are migrated automatically on load.
+
 Publications use a single **APA citation** field plus an optional short description.
 See `CLAUDE.md` for the full schema reference.
 
