@@ -175,7 +175,22 @@ Alternatively, upload via the **Settings** page in the web UI.
 
 ## Edit your profile
 
-Use the **Profile** page in the web UI, or open `profile/profile.json` directly in any text editor. Sections include `personal`, `narrative`, `experience`, `education`, `skills`, `publications`, and more. See `CLAUDE.md` for the full schema reference.
+Use the **Profile** page in the web UI, or open `profile/profile.json` directly in any text editor.
+
+The Profile page is organised into **core** sections that are always shown — Personal
+Info, Professional Summary, Experience, Skills, Education, and Work Preferences — and
+**optional** sections you add on demand via **+ Add a section** (Projects,
+Certifications, Awards, Publications, Grants, Academic Background, Teaching, and Career
+preferences & AI context). Each section carries a small badge showing where its data
+goes:
+
+- **On your CV** — printed on the generated CV.
+- **Helps the AI** — not printed; guides how the AI tailors your CV.
+- **Job matching & letters** — not printed; powers job suggestions and (soon)
+  motivational letters. (Work Preferences.)
+
+Publications use a single **APA citation** field plus an optional short description.
+See `CLAUDE.md` for the full schema reference.
 
 ---
 
