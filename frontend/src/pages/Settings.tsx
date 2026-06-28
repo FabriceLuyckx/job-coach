@@ -79,8 +79,9 @@ export default function SettingsPage() {
       await api.putSettings({ ...(apiKey ? { openrouter_api_key: apiKey } : {}), openrouter_model: effectiveModel })
       const fresh = await api.getSettings()
       setSettings(fresh)
+      const verified = !!apiKey
       setApiKey('')
-      flash('ok', 'Saved!')
+      flash('ok', verified ? 'Key verified — saved!' : 'Saved!')
     } catch (e: unknown) {
       flash('err', e instanceof Error ? e.message : String(e))
     } finally { setBusy(null) }
