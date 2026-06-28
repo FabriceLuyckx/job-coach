@@ -14,13 +14,33 @@ AI-powered career assistant — generate tailored CVs and (in future phases) dis
 
 ## Setup
 
+**macOS — one command:**
+
 ```bash
 git clone <repo>
 cd job-coach
-uv sync
-uv run playwright install chromium   # one-time: headless browser for PDF export
-cd frontend && npm install && cd ..
+./setup.sh
 ```
+
+`setup.sh` installs Homebrew, uv, and Node if they're missing, then installs all
+backend and frontend dependencies, the headless browser for PDF export, and
+seeds your local `profile/profile.json` and `config.json` from the committed
+`*.example` files. (Linux/Windows aren't scripted yet — use the manual steps below.)
+
+**Manual setup (or non-macOS)** — what `setup.sh` does, step by step:
+
+```bash
+uv sync                              # backend deps (installs Python 3.11 too)
+uv run playwright install chromium   # one-time: headless browser for PDF export
+cd frontend && npm install && cd ..  # frontend deps
+cp profile/profile.example.json profile/profile.json   # starter profile
+cp config.json.example config.json                     # local config
+```
+
+> `profile/profile.json` and `config.json` are gitignored — they hold your
+> personal data and API key. Both are seeded from the committed
+> `*.example` templates above; edit them freely. See `CLAUDE.md` for the full
+> profile schema.
 
 ---
 

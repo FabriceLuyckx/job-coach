@@ -216,14 +216,27 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Job Coach — generated output and local-only data
 output/
 jobs/
-profile/
 .venv/
+
+# Local config and personal profile data (seeded from the *.example files).
+# Ignore everything in profile/ EXCEPT the committed sample. Note: use
+# `profile/*` (not `profile/`) so the negation below can re-include a file —
+# git can't re-include anything once its parent directory itself is excluded.
 config.json
-profile/photo.*
+profile/*
+!profile/profile.example.json
+
+# Frontend build artifacts
 frontend/node_modules/
 frontend/dist/
+frontend/*.tsbuildinfo
+
+# JetBrains IDE files
+.idea/
 
 AI_CV_summary.*
 sources.yaml

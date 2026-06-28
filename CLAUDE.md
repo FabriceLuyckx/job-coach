@@ -51,7 +51,8 @@ The app runs locally first, designed for easy cloud deployment. AI is powered vi
 ```
 job-coach/
 ├── profile/
-│   ├── profile.json              # Career data source of truth
+│   ├── profile.example.json      # Sanitized sample profile (committed; seeds profile.json)
+│   ├── profile.json              # Career data source of truth (gitignored — personal)
 │   └── photo.jpg                 # Optional CV photo (jpg/jpeg/png/webp accepted)
 ├── templates/
 │   └── cv/
@@ -93,7 +94,9 @@ job-coach/
 │       │   └── BulletListEditor.tsx
 │       ├── api.ts                # Typed API client
 │       └── types.ts              # TypeScript models for profile data
-├── config.json                   # API keys & model — never commit
+├── setup.sh                      # One-command macOS dev setup (deps + seed config/profile)
+├── config.json.example           # Template for config.json (committed)
+├── config.json                   # API keys & model — never commit (gitignored)
 ├── pyproject.toml                # uv-managed dependencies
 ├── CLAUDE.md                     # This file
 └── README.md
@@ -384,7 +387,7 @@ The `experience[].relevance` object has four keys (`teaching`, `research`, `lead
 
 Sources are added by the user via the Job Suggestions page and stored in the
 `job_sources` table (no config file). Each is just a listing-page URL; the
-scanner reads the page directly. (The legacy `sources.yaml` is no longer used.)
+scanner reads the page directly.
 
 ---
 
