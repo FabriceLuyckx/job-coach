@@ -2,6 +2,7 @@ import base64
 import shutil
 from pathlib import Path
 
+import httpx
 from fastapi import APIRouter, HTTPException, UploadFile, File
 from pydantic import BaseModel
 
@@ -41,9 +42,30 @@ def get_settings():
     }
 
 
+def _verify_openrouter_key(key: str) -> None:
+    """Zero-cost validity check: GET /api/v1/key returns the key's metadata
+    without spending any tokens. Raises HTTPException on a bad/unreachable key."""
+    try:
+        r = httpx.get(
+            "https://openrouter.ai/api/v1/key",
+            headers={"Authorization": f"Bearer {key}"},
+            timeout=10,
+        )
+    except httpx.HTTPError as e:
+        raise HTTPException(502, f"Could not reach OpenRouter to validate the key: {e}")
+    if r.status_code in (401, 403):
+        raise HTTPException(400, "OpenRouter rejected this API key (invalid or revoked).")
+    if r.status_code != 200:
+        raise HTTPException(400, f"OpenRouter key check failed (HTTP {r.status_code}).")
+
+
 @router.put("")
 def put_settings(body: SettingsIn):
     updates = {k: v for k, v in body.model_dump().items() if v is not None}
+    # Validate a newly supplied key before persisting it, so a bad key is
+    # caught here rather than on the first CV generation / job scan.
+    if updates.get("openrouter_api_key"):
+        _verify_openrouter_key(updates["openrouter_api_key"])
     config.save(updates)
     return {"ok": True}
 
