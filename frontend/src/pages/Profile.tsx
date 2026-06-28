@@ -463,7 +463,7 @@ export default function ProfilePage() {
         )
       case 'teaching':
         return (
-          <Section key={k} title="Teaching" badge="ai" help="Not printed on your CV — helps the AI tailor and match teaching roles." onHide={onHide}>
+          <Section key={k} title="Teaching" badge="cv" help="Shown on your CV as a compact line when the role is teaching-related — the AI includes it only when relevant. Also helps tailoring & matching." onHide={onHide}>
             <Field label="Subjects you can teach"><TagInput value={pf.teaching.subjects_to_teach} onChange={v => set('teaching.subjects_to_teach', v)} /></Field>
             <Field label="Student supervision"><textarea value={pf.teaching.student_supervision} onChange={e => set('teaching.student_supervision', e.target.value)} /></Field>
             <Field label="Mentoring"><textarea value={pf.teaching.mentoring} onChange={e => set('teaching.mentoring', e.target.value)} /></Field>
