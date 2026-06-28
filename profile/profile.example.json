@@ -1,0 +1,303 @@
+{
+  "meta": {
+    "version": "1.0",
+    "last_updated": "2026-01-01",
+    "schema": "career-profile-v1"
+  },
+  "personal": {
+    "name": "Jane Doe",
+    "location": {
+      "city": "Springfield",
+      "country": "Exampleland"
+    },
+    "email": "jane.doe@example.com",
+    "phone": "+10000000000",
+    "links": {
+      "github": "https://github.com/janedoe",
+      "linkedin": "https://www.linkedin.com/in/janedoe",
+      "google_scholar": ""
+    },
+    "professional_title": "Data Scientist",
+    "keywords": [
+      "Data Analysis",
+      "Machine Learning",
+      "Communication"
+    ]
+  },
+  "narrative": {
+    "target_roles_description": "I enjoy roles where I can keep learning, work closely with people, and turn data into clear stories. I like coaching teammates and presenting results to non-technical audiences.",
+    "target_industries": [
+      "Research institutions",
+      "Educational institutions",
+      "Technology companies"
+    ],
+    "differentiation": "I combine a research background with hands-on engineering experience, which lets me apply data science across very different domains.",
+    "problems_enjoyed": "Building new data products with visible results, and learning new technologies to solve them.",
+    "topics_to_teach": [
+      "Data science",
+      "Statistics"
+    ],
+    "research_themes": "Applying modern statistical and machine-learning methods to understand human behaviour and improve decision-making.",
+    "work_to_avoid": "Purely administrative roles with no hands-on contribution, or work focused solely on maximising revenue."
+  },
+  "experience": [
+    {
+      "id": "acme-data-lead",
+      "title": "Data Team Lead",
+      "employer": "Acme Analytics",
+      "location": "Springfield, Exampleland",
+      "start_date": "2023-01",
+      "end_date": null,
+      "is_current": true,
+      "full_time": true,
+      "team_size": {
+        "min": 3,
+        "max": 6
+      },
+      "reporting_structure": "Reports to the Head of Engineering",
+      "responsibilities": [
+        "Lead a small team building and maintaining data pipelines",
+        "Coordinate data exchanges between teams and stakeholders",
+        "Mentor engineers and set technical direction"
+      ],
+      "technical_difficulty": "Managing role with technical oversight rather than hands-on implementation.",
+      "impact": "Enabled reliable, reusable data resources across the organisation.",
+      "technologies": [
+        "Python",
+        "SQL",
+        "AWS"
+      ],
+      "mentored": true,
+      "mentoring_detail": "Team of engineers spanning junior to senior profiles.",
+      "presentations": [
+        "internal"
+      ],
+      "achievements": [
+        "Set up a new data team and onboarded its members.",
+        "Standardised the team's pipelines and reporting."
+      ],
+      "relevance": {
+        "teaching": "Requires translating technical concepts for non-technical stakeholders.",
+        "research": null,
+        "leadership": "Built and led a new data team end to end.",
+        "interdisciplinarity": null
+      }
+    },
+    {
+      "id": "globex-data-engineer",
+      "title": "Data Engineer",
+      "employer": "Globex Corp",
+      "location": "Springfield, Exampleland",
+      "start_date": "2020-04",
+      "end_date": "2022-12",
+      "is_current": false,
+      "full_time": true,
+      "team_size": 4,
+      "reporting_structure": "Part of the engineering team",
+      "responsibilities": [
+        "Build pipelines for large-scale data ingestion",
+        "Aggregate data and build dashboards for reporting",
+        "Run ad hoc analyses for requests across departments"
+      ],
+      "technical_difficulty": "Maintaining streaming pipelines processing millions of datapoints.",
+      "impact": "Grew quickly from a junior to a core team member.",
+      "technologies": [
+        "Python",
+        "PySpark",
+        "Kafka"
+      ],
+      "mentored": false,
+      "presentations": [
+        "internal"
+      ],
+      "achievements": [
+        "Co-developed the A/B testing system and its underlying statistics."
+      ],
+      "relevance": {
+        "teaching": "Translated data questions into clear insights for non-technical audiences.",
+        "research": "Built an A/B testing framework including reporting and statistics.",
+        "leadership": "Took initiative to diagnose and fix pipeline failures.",
+        "interdisciplinarity": "Collaborated across product and marketing teams."
+      }
+    }
+  ],
+  "education": [
+    {
+      "degree": "Doctor of Philosophy (PhD)",
+      "field": "Data Science",
+      "institution": "Example University",
+      "location": "Springfield, Exampleland",
+      "start_year": 2016,
+      "end_year": 2020,
+      "distinction": null
+    },
+    {
+      "degree": "Master's Degree",
+      "field": "Statistics",
+      "institution": "Example University",
+      "location": "Springfield, Exampleland",
+      "start_year": 2014,
+      "end_year": 2016,
+      "distinction": "With distinction"
+    }
+  ],
+  "academic": {
+    "research_areas": [
+      "Machine Learning",
+      "Statistical Modelling"
+    ],
+    "methods": {
+      "neural_analyses": [],
+      "computational_modelling": [
+        "Regression models",
+        "Bayesian inference"
+      ]
+    },
+    "datasets_tools": {
+      "data_types": [
+        "Behavioural data",
+        "Time series"
+      ],
+      "tools": [
+        "Python"
+      ]
+    },
+    "interdisciplinary_work": [
+      "Applying machine learning across domains"
+    ],
+    "collaborators": [
+      {
+        "name": "John Smith",
+        "affiliation": "Example University"
+      }
+    ]
+  },
+  "publications": [
+    {
+      "authors": [
+        "Doe, J.",
+        "Smith, J."
+      ],
+      "year": 2020,
+      "title": "An example publication title",
+      "journal": "Journal of Examples",
+      "volume": "1",
+      "issue": "1",
+      "pages": "1-10"
+    }
+  ],
+  "grants": [
+    {
+      "year": 2018,
+      "year_start": null,
+      "year_end": null,
+      "name": "Example Research Scholarship"
+    }
+  ],
+  "teaching": {
+    "formal_experience": [
+      {
+        "type": "Tutorial teaching",
+        "course": "Introduction to Statistics",
+        "institution": "Example University",
+        "years": "2018-2019",
+        "description": "Tutored small groups and reviewed student work."
+      }
+    ],
+    "guest_lectures": [
+      {
+        "course": "Applied Data Science",
+        "institution": "Example University"
+      }
+    ],
+    "subjects_to_teach": [
+      "Data Science",
+      "Statistics"
+    ],
+    "student_supervision": "Supervised undergraduate students on data analysis projects.",
+    "mentoring": "Mentored junior colleagues and interns.",
+    "educational_materials": "Created interactive notebooks to illustrate statistical concepts."
+  },
+  "skills": {
+    "programming": {
+      "production": [
+        "Python"
+      ],
+      "research": [
+        "R"
+      ]
+    },
+    "languages": [
+      {
+        "language": "English",
+        "level": 5,
+        "label": "Fluent"
+      },
+      {
+        "language": "Spanish",
+        "level": 3,
+        "label": "Intermediate"
+      }
+    ],
+    "cloud_devops": {
+      "aws": [
+        "EC2",
+        "S3"
+      ],
+      "tools": [
+        "git",
+        "Docker"
+      ]
+    },
+    "visualization": [
+      "matplotlib",
+      "seaborn",
+      "plotly"
+    ],
+    "databases": [
+      "PostgreSQL",
+      "MySQL"
+    ],
+    "big_data": [
+      "PySpark",
+      "Kafka"
+    ],
+    "ml_statistical": [
+      "Regression modelling",
+      "Machine learning",
+      "Bayesian inference",
+      "A/B testing & statistics"
+    ],
+    "current_tools": [
+      "Jupyter Notebooks"
+    ]
+  },
+  "work_preferences": {
+    "commute_radius": [
+      "Springfield"
+    ],
+    "remote_hybrid": "Hybrid",
+    "institution_type_preference": "No strong preference",
+    "research_vs_teaching": "Both if possible",
+    "leadership_interest": "Yes, but not exclusively administrative",
+    "salary_current_gross": 0,
+    "salary_mobility_budget": 0,
+    "schedule": "Full-time",
+    "language_preferences": [
+      "English"
+    ],
+    "relocation": "Open to discussion"
+  },
+  "cv_design_preferences": {
+    "style": "Minimalist",
+    "aesthetic": "Modern tech",
+    "font_type": "Sans-serif",
+    "layout": "Two-column",
+    "spacing": "Spacious",
+    "accent_color": "#1B3A6B",
+    "include_photo": false,
+    "format_style": "Executive-style",
+    "typography": "Contemporary",
+    "paper_size": "A4"
+  }
+}
