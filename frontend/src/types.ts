@@ -17,6 +17,7 @@ export interface Personal {
   phone: string
   links: Links
   professional_title: string
+  headline?: string
   keywords: string[]
 }
 
@@ -96,13 +97,29 @@ export interface Academic {
 }
 
 export interface Publication {
-  authors: string[]
-  year: number
-  title: string
-  journal: string
-  volume?: string
-  issue?: string
-  pages?: string
+  /** Full pre-formatted APA reference, e.g. "Doe, J. (2020). Title. Journal, 1(2), 3-4." */
+  citation: string
+  /** Optional one-line note about the work's significance. */
+  description?: string
+}
+
+export interface Project {
+  name: string
+  description: string
+  url?: string
+  technologies: string[]
+}
+
+export interface Certification {
+  name: string
+  issuer: string
+  year?: number | null
+}
+
+export interface Award {
+  name: string
+  year?: number | null
+  description?: string
 }
 
 export interface Grant {
@@ -196,4 +213,8 @@ export interface Profile {
   skills: Skills
   work_preferences: WorkPreferences
   cv_design_preferences: CVDesignPreferences
+  // Optional sections — absent on older profiles; always treat as [] when missing.
+  projects?: Project[]
+  certifications?: Certification[]
+  awards?: Award[]
 }

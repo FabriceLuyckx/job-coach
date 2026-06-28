@@ -199,7 +199,10 @@ uv run python scripts/tailor_cv.py --url https://... --lang nl
 **Goal**: Browser-based interface to view and edit the career profile without touching JSON directly.
 
 **Features**:
-- View all profile sections in a clean, readable UI
+- Profile editor split into always-visible **core** sections (Personal, Summary,
+  Experience, Skills, Education, Work Preferences) and **optional** sections added via
+  **+ Add a section**; each section badged by where its data goes (On your CV / Helps
+  the AI / Job matching & letters)
 - Inline editing of any field (text, lists, dates)
 - Configure OpenRouter API key (stored in `config.json`, shown masked in UI)
 - Trigger CV generation and preview from the browser
@@ -369,13 +372,16 @@ For CLI use without the web UI, create `config.json` manually:
 | Key | Description |
 |-----|-------------|
 | `meta` | Schema version and last-updated date |
-| `personal` | Name, contact details, links, title, keywords |
+| `personal` | Name, contact details, links, title, keywords, optional `headline` tagline |
 | `narrative` | Career goals, target industries, differentiation, topics to avoid |
 | `experience[]` | Work history with responsibilities, achievements, technologies, and relevance tags |
 | `education[]` | Academic history (degree, field, institution, years, distinction) |
 | `academic` | Research areas, methods, datasets/tools, collaborators |
-| `publications[]` | Peer-reviewed papers (APA-style fields) |
+| `publications[]` | Selected publications — each a full APA `citation` string + optional `description` |
 | `grants[]` | Fellowships and scholarships |
+| `projects[]` | (optional) Notable projects — `name`, `description`, `url?`, `technologies[]` |
+| `certifications[]` | (optional) Professional certifications — `name`, `issuer`, `year?` |
+| `awards[]` | (optional) Non-academic honours — `name`, `year?`, `description?` |
 | `teaching` | Formal teaching, guest lectures, supervision, mentoring, materials |
 | `skills` | Programming, languages, cloud, visualization, databases, big data, ML |
 | `work_preferences` | Location, remote/hybrid, salary, schedule, language, relocation |

@@ -83,6 +83,13 @@
     letter-spacing: 0.2px;
   }
 
+  .header-headline {
+    font-size: 8pt;
+    font-weight: 300;
+    opacity: 0.8;
+    margin-top: 3px;
+  }
+
   .header-contact {
     text-align: right;
     font-size: 8pt;
@@ -258,6 +265,7 @@
   .pub-entry  { margin-bottom: 7px; font-size: 8pt; line-height: 1.45; }
   .pub-title  { font-style: italic; }
   .pub-journal { color: var(--blue); font-weight: 500; }
+  .pub-note   { color: var(--muted); font-style: italic; }
 
   /* ── PRINT ──
      Chromium positions `position: fixed` relative to the page CONTENT box
@@ -369,6 +377,7 @@
     <div class="header-name">
       <h1>{{ personal.name }}</h1>
       <h2>{{ personal.professional_title }}</h2>
+      {% if personal.headline %}<div class="header-headline">{{ personal.headline }}</div>{% endif %}
     </div>
     <div class="header-contact">
       <div>{{ personal.location.city }}, {{ personal.location.country }}</div>
@@ -519,20 +528,53 @@
       {% endfor %}
     </div>
 
+    {% if projects %}
+    <div class="section" data-section="projects">
+      <div class="section-title">{{ labels.projects }}</div>
+      {% for proj in projects %}
+      <div class="entry">
+        <div class="entry-header">
+          <span class="entry-title">{{ proj.name }}</span>
+        </div>
+        {% if proj.description %}<div class="entry-body">{{ proj.description | richtext }}</div>{% endif %}
+        {% if proj.technologies %}<div class="entry-employer">{{ proj.technologies | join(' · ') }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if publications %}
     <div class="section" data-section="publications">
       <div class="section-title">{{ labels.publications }}</div>
       {% for pub in publications %}
       <div class="pub-entry">
-        {{ pub.authors | join(', ') }} ({{ pub.year }}).
-        <span class="pub-title">{{ pub.title }}.</span>
-        <span class="pub-journal">{{ pub.journal }}</span>
-        {%- if pub.volume %}, {{ pub.volume }}
-          {%- if pub.issue %}({{ pub.issue }}){% endif %}
-          {%- if pub.pages %}, {{ pub.pages }}{% endif %}
-        {%- endif %}.
+        {{ pub.citation | richtext }}{% if pub.description %} <span class="pub-note">{{ pub.description }}</span>{% endif %}
       </div>
       {% endfor %}
     </div>
+    {% endif %}
+
+    {% if certifications %}
+    <div class="section" data-section="certifications">
+      <div class="section-title">{{ labels.certifications }}</div>
+      {% for cert in certifications %}
+      <div class="pub-entry">
+        {{ cert.name }}{% if cert.issuer %} — <span class="pub-journal">{{ cert.issuer }}</span>{% endif %}{% if cert.year %}, {{ cert.year }}{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if awards %}
+    <div class="section" data-section="awards">
+      <div class="section-title">{{ labels.awards }}</div>
+      {% for award in awards %}
+      <div class="pub-entry">
+        {% if award.year %}<span class="grant-year">{{ award.year }}</span>&nbsp;{% endif %}{{ award.name }}{% if award.description %} — {{ award.description }}{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
 
   </main>
 

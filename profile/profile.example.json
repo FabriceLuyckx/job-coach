@@ -18,6 +18,7 @@
       "google_scholar": ""
     },
     "professional_title": "Data Scientist",
+    "headline": "Turning messy data into clear decisions",
     "keywords": [
       "Data Analysis",
       "Machine Learning",
@@ -174,16 +175,30 @@
   },
   "publications": [
     {
-      "authors": [
-        "Doe, J.",
-        "Smith, J."
-      ],
-      "year": 2020,
-      "title": "An example publication title",
-      "journal": "Journal of Examples",
-      "volume": "1",
-      "issue": "1",
-      "pages": "1-10"
+      "citation": "Doe, J., & Smith, J. (2020). An example publication title. Journal of Examples, 1(1), 1-10.",
+      "description": "A short note on why this work matters."
+    }
+  ],
+  "projects": [
+    {
+      "name": "Example Dashboard",
+      "description": "An open-source dashboard that visualises public data.",
+      "url": "https://github.com/janedoe/example-dashboard",
+      "technologies": ["Python", "Plotly"]
+    }
+  ],
+  "certifications": [
+    {
+      "name": "AWS Certified Data Analytics",
+      "issuer": "Amazon Web Services",
+      "year": 2022
+    }
+  ],
+  "awards": [
+    {
+      "name": "Employee of the Year",
+      "year": 2021,
+      "description": "Recognised for cross-team impact."
     }
   ],
   "grants": [

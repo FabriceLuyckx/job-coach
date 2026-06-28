@@ -33,7 +33,8 @@ LABELS: dict[str, dict[str, str]] = {
         "big_data": "Big Data", "databases": "Databases", "languages": "Languages",
         "education": "Education", "grants": "Grants & Fellowships",
         "experience": "Career Path", "publications": "Selected Publications",
-        "present": "Present",
+        "projects": "Projects", "certifications": "Certifications",
+        "awards": "Awards", "present": "Present",
     },
     "nl": {
         "links": "Links", "skills": "Vaardigheden", "programming": "Programmeren",
@@ -41,7 +42,8 @@ LABELS: dict[str, dict[str, str]] = {
         "big_data": "Big Data", "databases": "Databases", "languages": "Talen",
         "education": "Opleiding", "grants": "Beurzen & Fellowships",
         "experience": "Loopbaan", "publications": "Selectie Publicaties",
-        "present": "Heden",
+        "projects": "Projecten", "certifications": "Certificaten",
+        "awards": "Onderscheidingen", "present": "Heden",
     },
 }
 

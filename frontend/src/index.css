@@ -144,6 +144,61 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 .error-msg { color: var(--danger); font-size: var(--fs-sm); margin-top: 6px; }
 .success-msg { color: var(--success); font-size: var(--fs-sm); margin-top: 6px; }
 
+/* ── Profile section header: large chevron on the LEFT, then title + badge ── */
+.section-head-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+
+.section-chevron {
+  font-size: 20px;
+  line-height: 1;
+  color: var(--accent);
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* Small pill that tells the user where a section's data goes. */
+.section-badge {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.badge-cv   { background: #e7f0ff; color: #1B3A6B; }
+.badge-ai   { background: #f1ecff; color: #5b3aa6; }
+.badge-jobs { background: #fdecd8; color: #9a5b00; }
+
+/* One-line helper under a section header. */
+.section-help { font-size: var(--fs-sm); color: var(--muted); margin: -4px 0 12px; line-height: 1.45; }
+
+/* "Add a section" picker. */
+.add-section { position: relative; margin-bottom: 16px; }
+.add-section-menu {
+  position: absolute;
+  z-index: 20;
+  margin-top: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  min-width: 240px;
+  padding: 6px;
+}
+.add-section-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-size: var(--fs-base);
+}
+.add-section-menu button:hover:not(:disabled) { background: #eef2fa; }
+.add-section-menu .menu-empty { padding: 8px 10px; color: var(--muted); font-size: var(--fs-sm); }
+
 .callout {
   display: flex;
   align-items: flex-start;
