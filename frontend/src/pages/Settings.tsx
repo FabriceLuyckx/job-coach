@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { api } from '../api'
 import type { Profile } from '../types'
+import Button from '../components/Button'
+import SaveButton from '../components/SaveButton'
 
 const FONT_OPTIONS = [
   { value: 'Sans-serif', label: 'Sans-serif (current default — Inter)' },
@@ -27,6 +29,10 @@ const OPENROUTER_MODELS = [
   'mistralai/mistral-large',
 ]
 
+const fmtUsd = (n: number | null | undefined) => (n == null ? '—' : `$${n.toFixed(2)}`)
+
+interface Usage { balance: number | null; usage: number | null; remaining: number | null }
+
 export default function SettingsPage() {
   const [settings, setSettings] = useState<{
     openrouter_api_key_set: boolean
@@ -41,6 +47,8 @@ export default function SettingsPage() {
   } | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [photo, setPhoto] = useState<{ exists: boolean; data_uri: string | null } | null>(null)
+  const [usage, setUsage] = useState<Usage | null>(null)
+  const [usageErr, setUsageErr] = useState(false)
 
   const [apiKey, setApiKey] = useState('')
   const [model, setModel] = useState('')
@@ -48,11 +56,17 @@ export default function SettingsPage() {
   const [cvPrompt, setCvPrompt] = useState('')
   const [scanExtract, setScanExtract] = useState('')
   const [scanFilter, setScanFilter] = useState('')
+  const [savedPrefs, setSavedPrefs] = useState('')  // JSON snapshot of cv_design_preferences
 
-  const [busy, setBusy] = useState<'connection' | 'prompt' | 'scan_extract' | 'scan_filter' | 'prefs' | null>(null)
   const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
   const [photoUploading, setPhotoUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+
+  function loadUsage() {
+    api.getOpenrouterUsage()
+      .then(u => { setUsage(u); setUsageErr(false) })
+      .catch(() => { setUsage(null); setUsageErr(true) })
+  }
 
   useEffect(() => {
     Promise.all([api.getSettings(), api.getProfile(), api.getPhoto()]).then(([s, p, ph]) => {
@@ -63,7 +77,9 @@ export default function SettingsPage() {
       setCvPrompt(s.cv_prompt)
       setScanExtract(s.scan_extract_prompt)
       setScanFilter(s.scan_filter_prompt)
+      setSavedPrefs(JSON.stringify(p.cv_design_preferences))
       if (!OPENROUTER_MODELS.includes(s.openrouter_model)) setCustomModel(s.openrouter_model)
+      if (s.openrouter_api_key_set) loadUsage()
     }).catch(e => setMsg({ type: 'err', text: e.message }))
   }, [])
 
@@ -72,43 +88,24 @@ export default function SettingsPage() {
     if (type === 'ok') setTimeout(() => setMsg(null), 2500)
   }
 
+  // Save handlers throw on error so the SaveButton surfaces it.
   async function saveOpenRouter() {
-    setBusy('connection')
-    try {
-      const effectiveModel = model === '__custom__' ? customModel : model
-      await api.putSettings({ ...(apiKey ? { openrouter_api_key: apiKey } : {}), openrouter_model: effectiveModel })
-      const fresh = await api.getSettings()
-      setSettings(fresh)
-      const verified = !!apiKey
-      setApiKey('')
-      flash('ok', verified ? 'Key verified — saved!' : 'Saved!')
-    } catch (e: unknown) {
-      flash('err', e instanceof Error ? e.message : String(e))
-    } finally { setBusy(null) }
+    const effectiveModel = model === '__custom__' ? customModel : model
+    await api.putSettings({ ...(apiKey ? { openrouter_api_key: apiKey } : {}), openrouter_model: effectiveModel })
+    setSettings(await api.getSettings())
+    setApiKey('')
+    loadUsage()
   }
 
-  async function savePrompt(busyKey: 'prompt' | 'scan_extract' | 'scan_filter',
-                            data: { cv_prompt?: string; scan_extract_prompt?: string; scan_filter_prompt?: string }) {
-    setBusy(busyKey)
-    try {
-      await api.putSettings(data)
-      const fresh = await api.getSettings()
-      setSettings(fresh)
-      flash('ok', 'Prompt saved!')
-    } catch (e: unknown) {
-      flash('err', e instanceof Error ? e.message : String(e))
-    } finally { setBusy(null) }
+  async function savePrompt(data: { cv_prompt?: string; scan_extract_prompt?: string; scan_filter_prompt?: string }) {
+    await api.putSettings(data)
+    setSettings(await api.getSettings())
   }
 
   async function saveVisualPrefs() {
     if (!profile) return
-    setBusy('prefs')
-    try {
-      await api.putProfile(profile)
-      flash('ok', 'Visual preferences saved!')
-    } catch (e: unknown) {
-      flash('err', e instanceof Error ? e.message : String(e))
-    } finally { setBusy(null) }
+    await api.putProfile(profile)
+    setSavedPrefs(JSON.stringify(profile.cv_design_preferences))
   }
 
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -117,8 +114,7 @@ export default function SettingsPage() {
     setPhotoUploading(true)
     try {
       await api.uploadPhoto(file)
-      const ph = await api.getPhoto()
-      setPhoto(ph)
+      setPhoto(await api.getPhoto())
       flash('ok', 'Photo uploaded!')
     } catch (e: unknown) {
       flash('err', e instanceof Error ? e.message : String(e))
@@ -139,6 +135,9 @@ export default function SettingsPage() {
   if (!settings || !profile) return <div style={{ padding: 32, color: 'var(--muted)' }}>Loading…</div>
 
   const isCustomModel = !OPENROUTER_MODELS.includes(settings.openrouter_model)
+  const pendingModel = model !== '__custom__' ? model : customModel
+  const connectionDirty = !!apiKey || pendingModel !== settings.openrouter_model
+  const prefsDirty = JSON.stringify(profile.cv_design_preferences) !== savedPrefs
 
   return (
     <div style={{ maxWidth: 640 }}>
@@ -148,10 +147,21 @@ export default function SettingsPage() {
       {/* OpenRouter */}
       <div className="card">
         <div className="section-title" style={{ marginBottom: 14 }}>OpenRouter Connection</div>
-        <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 14, lineHeight: 1.5 }}>
+        <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 10, lineHeight: 1.5 }}>
           OpenRouter routes requests to Claude, GPT-4, and other models via one API key.
           Get yours at <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">openrouter.ai/keys</a>.
         </p>
+        {settings.openrouter_api_key_set && (
+          <div className="credit-line">
+            {usage ? (
+              <>
+                <span>Balance: <strong>{fmtUsd(usage.balance ?? usage.remaining)}</strong></span>
+                {usage.usage != null && <span>· Used: <strong>{fmtUsd(usage.usage)}</strong></span>}
+              </>
+            ) : usageErr ? <span>Balance unavailable</span> : <span>Loading balance…</span>}
+            <a href="https://openrouter.ai/settings/credits" target="_blank" rel="noreferrer">Manage credits ↗</a>
+          </div>
+        )}
         <div className="field">
           <label>API key</label>
           {settings.openrouter_api_key_set && (
@@ -177,9 +187,7 @@ export default function SettingsPage() {
           </select>
           <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--muted)', marginTop: 5 }}>
             Active: <strong>{settings.openrouter_model}</strong>
-            {(model !== '__custom__' ? model : customModel) !== settings.openrouter_model && (
-              <span style={{ color: 'var(--highlight)', marginLeft: 8 }}>● unsaved change</span>
-            )}
+            {connectionDirty && <span style={{ color: 'var(--highlight)', marginLeft: 8 }}>● unsaved change</span>}
           </p>
         </div>
         {(model === '__custom__' || isCustomModel) && (
@@ -193,9 +201,7 @@ export default function SettingsPage() {
             />
           </div>
         )}
-        <button className="btn-primary" onClick={saveOpenRouter} disabled={busy === 'connection'}>
-          {busy === 'connection' && <span className="spinner" />}Save connection
-        </button>
+        <SaveButton dirty={connectionDirty} onSave={saveOpenRouter} idleLabel="Save connection" />
       </div>
 
       {/* CV Generator prompt */}
@@ -213,16 +219,14 @@ export default function SettingsPage() {
           style={{ width: '100%', boxSizing: 'border-box', fontFamily: 'monospace', fontSize: 12, lineHeight: 1.5 }}
         />
         <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
-          <button className="btn-primary" onClick={() => savePrompt('prompt', { cv_prompt: cvPrompt })} disabled={busy === 'prompt'}>
-            {busy === 'prompt' && <span className="spinner" />}Save prompt
-          </button>
-          <button
-            className="btn-secondary"
-            onClick={() => settings && setCvPrompt(settings.cv_prompt_default)}
-            disabled={busy === 'prompt' || cvPrompt === settings.cv_prompt_default}
+          <SaveButton dirty={cvPrompt !== settings.cv_prompt} onSave={() => savePrompt({ cv_prompt: cvPrompt })} idleLabel="Save prompt" />
+          <Button
+            variant="secondary"
+            onClick={() => setCvPrompt(settings.cv_prompt_default)}
+            disabled={cvPrompt === settings.cv_prompt_default}
           >
             Reset to default
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -240,16 +244,14 @@ export default function SettingsPage() {
           style={{ width: '100%', boxSizing: 'border-box', fontFamily: 'monospace', fontSize: 12, lineHeight: 1.5 }}
         />
         <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
-          <button className="btn-primary" onClick={() => savePrompt('scan_extract', { scan_extract_prompt: scanExtract })} disabled={busy === 'scan_extract'}>
-            {busy === 'scan_extract' && <span className="spinner" />}Save prompt
-          </button>
-          <button
-            className="btn-secondary"
-            onClick={() => settings && setScanExtract(settings.scan_extract_prompt_default)}
-            disabled={busy === 'scan_extract' || scanExtract === settings.scan_extract_prompt_default}
+          <SaveButton dirty={scanExtract !== settings.scan_extract_prompt} onSave={() => savePrompt({ scan_extract_prompt: scanExtract })} idleLabel="Save prompt" />
+          <Button
+            variant="secondary"
+            onClick={() => setScanExtract(settings.scan_extract_prompt_default)}
+            disabled={scanExtract === settings.scan_extract_prompt_default}
           >
             Reset to default
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -267,16 +269,14 @@ export default function SettingsPage() {
           style={{ width: '100%', boxSizing: 'border-box', fontFamily: 'monospace', fontSize: 12, lineHeight: 1.5 }}
         />
         <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
-          <button className="btn-primary" onClick={() => savePrompt('scan_filter', { scan_filter_prompt: scanFilter })} disabled={busy === 'scan_filter'}>
-            {busy === 'scan_filter' && <span className="spinner" />}Save prompt
-          </button>
-          <button
-            className="btn-secondary"
-            onClick={() => settings && setScanFilter(settings.scan_filter_prompt_default)}
-            disabled={busy === 'scan_filter' || scanFilter === settings.scan_filter_prompt_default}
+          <SaveButton dirty={scanFilter !== settings.scan_filter_prompt} onSave={() => savePrompt({ scan_filter_prompt: scanFilter })} idleLabel="Save prompt" />
+          <Button
+            variant="secondary"
+            onClick={() => setScanFilter(settings.scan_filter_prompt_default)}
+            disabled={scanFilter === settings.scan_filter_prompt_default}
           >
             Reset to default
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -298,11 +298,11 @@ export default function SettingsPage() {
             style={{ display: 'none' }}
             onChange={handlePhotoUpload}
           />
-          <button className="btn-secondary" onClick={() => fileRef.current?.click()} disabled={photoUploading}>
-            {photoUploading ? 'Uploading…' : photo?.exists ? 'Replace photo' : 'Upload photo'}
-          </button>
+          <Button variant="secondary" busy={photoUploading} onClick={() => fileRef.current?.click()}>
+            {photo?.exists ? 'Replace photo' : 'Upload photo'}
+          </Button>
           {photo?.exists && (
-            <button className="btn-danger" onClick={handlePhotoDelete} disabled={photoUploading}>Remove</button>
+            <Button variant="danger" onClick={handlePhotoDelete} disabled={photoUploading}>Remove</Button>
           )}
         </div>
         <div className="field" style={{ marginTop: 14 }}>
@@ -363,9 +363,7 @@ export default function SettingsPage() {
             placeholder="e.g. Minimalist"
           />
         </div>
-        <button className="btn-primary" onClick={saveVisualPrefs} disabled={busy === 'prefs'}>
-          {busy === 'prefs' && <span className="spinner" />}Save preferences
-        </button>
+        <SaveButton dirty={prefsDirty} onSave={saveVisualPrefs} idleLabel="Save preferences" />
       </div>
     </div>
   )

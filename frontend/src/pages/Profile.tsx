@@ -1,12 +1,23 @@
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { api } from '../api'
 import type {
   Profile, Experience, Education, Publication, Grant,
-  FormalTeaching, GuestLecture, Collaborator, LanguageSkill,
+  FormalTeaching, GuestLecture, Collaborator,
   Project,
 } from '../types'
 import TagInput from '../components/TagInput'
 import BulletListEditor from '../components/BulletListEditor'
+import Button from '../components/Button'
+import SaveButton from '../components/SaveButton'
+import RemoveButton from '../components/RemoveButton'
+import StarRating from '../components/StarRating'
+
+// Proficiency scale shown beneath the language stars (CEFR). The label is stored
+// on each language for export but derived from the star count, never typed.
+const CEFR_LABELS: Record<number, string> = {
+  1: 'A1 Beginner', 2: 'A2 Elementary', 3: 'B1 Intermediate',
+  4: 'B2/C1 Advanced', 5: 'C2 Native / Fluent',
+}
 
 // ── badges: tell the user where a section's data actually goes ───────────────
 type BadgeKind = 'cv' | 'ai' | 'jobs'
@@ -18,12 +29,13 @@ const BADGES: Record<BadgeKind, { label: string; cls: string }> = {
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
-function Section({ title, badge, help, children, onHide, defaultOpen = true }: {
+function Section({ title, badge, help, children, dirty, onSave, defaultOpen = true }: {
   title: string
   badge?: BadgeKind
   help?: string
   children: React.ReactNode
-  onHide?: () => void
+  dirty?: boolean
+  onSave?: () => Promise<void>
   defaultOpen?: boolean
 }) {
   const [open, setOpen] = useState(defaultOpen)
@@ -35,9 +47,7 @@ function Section({ title, badge, help, children, onHide, defaultOpen = true }: {
           <span className="section-title">{title}</span>
           {badge && <span className={`section-badge ${BADGES[badge].cls}`}>{BADGES[badge].label}</span>}
         </div>
-        {onHide && (
-          <button className="btn-secondary" style={{ padding: '4px 10px', fontSize: 'var(--fs-sm)' }} onClick={onHide}>Hide</button>
-        )}
+        {onSave && <SaveButton dirty={!!dirty} onSave={onSave} />}
       </div>
       {open && (
         <div>
@@ -78,7 +88,7 @@ function ItemCard({ summary, italic, open, setOpen, onRemove, children }: {
             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           }}>{summary}</span>
         </div>
-        <button className="btn-danger" style={{ flexShrink: 0, padding: '4px 10px' }} onClick={onRemove}>Remove</button>
+        <RemoveButton onClick={onRemove} />
       </div>
       {open && <div>{children}</div>}
     </div>
@@ -232,7 +242,6 @@ function GrantCard({ grant, onChange, onRemove }: { grant: Grant; onChange: (g: 
               checked={range}
               onChange={e => {
                 setRange(e.target.checked)
-                // keep the data shape consistent with the chosen mode
                 if (e.target.checked) onChange({ ...grant, year: null })
                 else onChange({ ...grant, year_start: null, year_end: null })
               }}
@@ -248,17 +257,21 @@ function GrantCard({ grant, onChange, onRemove }: { grant: Grant; onChange: (g: 
             <Field label="Year"><input type="number" value={grant.year ?? ''} onChange={e => set('year', e.target.value ? +e.target.value : null)} /></Field>
           )}
         </div>
-        <button className="btn-danger" style={{ marginTop: 20 }} onClick={onRemove}>×</button>
+        <div style={{ marginTop: 20 }}><RemoveButton onClick={onRemove} /></div>
       </div>
     </div>
   )
 }
 
-// ── Optional-section registry ────────────────────────────────────────────────
+// ── Section keys & dirty-tracking slices ─────────────────────────────────────
 
 type OptionalKey =
   | 'projects' | 'certifications' | 'awards'
   | 'publications' | 'grants' | 'academic' | 'teaching' | 'career_context'
+
+type SectionKey =
+  | 'personal' | 'summary' | 'experience' | 'skills' | 'education' | 'work_preferences'
+  | OptionalKey
 
 const OPTIONAL_ORDER: OptionalKey[] = [
   'projects', 'certifications', 'awards',
@@ -274,6 +287,61 @@ const OPTIONAL_LABELS: Record<OptionalKey, string> = {
   academic: 'Academic Background',
   teaching: 'Teaching',
   career_context: 'Career preferences & AI context',
+}
+
+// The non-summary narrative fields that make up "Career preferences & AI context".
+function careerContext(p: Profile) {
+  const n = p.narrative
+  return {
+    target_industries: n.target_industries,
+    differentiation: n.differentiation,
+    problems_enjoyed: n.problems_enjoyed,
+    topics_to_teach: n.topics_to_teach,
+    research_themes: n.research_themes,
+    work_to_avoid: n.work_to_avoid,
+  }
+}
+
+// The profile slice a given section owns — used for per-section dirty checks.
+function sliceFor(p: Profile, key: SectionKey): unknown {
+  switch (key) {
+    case 'personal': return p.personal
+    case 'summary': return p.narrative.target_roles_description
+    case 'experience': return p.experience
+    case 'skills': return p.skills
+    case 'education': return p.education
+    case 'work_preferences': return p.work_preferences
+    case 'projects': return p.projects ?? []
+    case 'certifications': return p.certifications ?? []
+    case 'awards': return p.awards ?? []
+    case 'publications': return p.publications
+    case 'grants': return p.grants
+    case 'academic': return p.academic
+    case 'teaching': return p.teaching
+    case 'career_context': return careerContext(p)
+  }
+}
+
+// Build a save payload: the last-saved baseline with only `key`'s fields taken
+// from the current edits — so saving one section never persists another's
+// unsaved changes.
+function mergeSection(base: Profile, key: SectionKey, cur: Profile): Profile {
+  switch (key) {
+    case 'personal': return { ...base, personal: cur.personal }
+    case 'experience': return { ...base, experience: cur.experience }
+    case 'skills': return { ...base, skills: cur.skills }
+    case 'education': return { ...base, education: cur.education }
+    case 'work_preferences': return { ...base, work_preferences: cur.work_preferences }
+    case 'publications': return { ...base, publications: cur.publications }
+    case 'grants': return { ...base, grants: cur.grants }
+    case 'academic': return { ...base, academic: cur.academic }
+    case 'teaching': return { ...base, teaching: cur.teaching }
+    case 'projects': return { ...base, projects: cur.projects ?? [] }
+    case 'certifications': return { ...base, certifications: cur.certifications ?? [] }
+    case 'awards': return { ...base, awards: cur.awards ?? [] }
+    case 'summary': return { ...base, narrative: { ...base.narrative, target_roles_description: cur.narrative.target_roles_description } }
+    case 'career_context': return { ...base, narrative: { ...base.narrative, ...careerContext(cur) } }
+  }
 }
 
 function optionalHasData(p: Profile, k: OptionalKey): boolean {
@@ -306,37 +374,23 @@ function optionalHasData(p: Profile, k: OptionalKey): boolean {
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [savedProfile, setSavedProfile] = useState<Profile | null>(null)  // last persisted snapshot
   const [shown, setShown] = useState<Set<OptionalKey>>(new Set())
   const [menuOpen, setMenuOpen] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
-  // Always-current profile ref: updated synchronously in set(), so save() never reads stale state
-  // (fixes race where TagInput onBlur fires just before the Save button click)
+  // Always-current profile ref: updated synchronously in set(), so a save never reads
+  // stale state (fixes race where TagInput onBlur fires just before a Save click).
   const latestProfile = useRef<Profile | null>(null)
 
   useEffect(() => {
     api.getProfile().then(p => {
       setProfile(p)
+      setSavedProfile(p)
       latestProfile.current = p
-      // An optional section starts visible only if it already has data.
       const s = new Set<OptionalKey>()
       OPTIONAL_ORDER.forEach(k => { if (optionalHasData(p, k)) s.add(k) })
       setShown(s)
     }).catch(e => setError(e.message))
-  }, [])
-
-  const save = useCallback(async () => {
-    const p = latestProfile.current
-    if (!p) return
-    setSaving(true); setError(''); setSaved(false)
-    try {
-      await api.putProfile(p)
-      setSaved(true)
-      setTimeout(() => setSaved(false), 2500)
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : String(e))
-    } finally { setSaving(false) }
   }, [])
 
   if (!profile) return <div style={{ padding: 32, color: 'var(--muted)' }}>{error || 'Loading…'}</div>
@@ -353,7 +407,7 @@ export default function ProfilePage() {
     setProfile(prev => {
       if (!prev) return prev
       const next = applyPath(prev, parts, value) as Profile
-      latestProfile.current = next  // keep ref in sync synchronously
+      latestProfile.current = next
       return next
     })
     if (latestProfile.current) {
@@ -365,8 +419,27 @@ export default function ProfilePage() {
   // nested renderOptional() closure, so use this provably-non-null const everywhere.
   const pf: Profile = profile
 
+  const dirty = (key: SectionKey): boolean =>
+    !!savedProfile && JSON.stringify(sliceFor(pf, key)) !== JSON.stringify(sliceFor(savedProfile, key))
+
+  async function saveSection(key: SectionKey) {
+    const cur = latestProfile.current
+    if (!cur || !savedProfile) return
+    const payload = mergeSection(savedProfile, key, cur)
+    await api.putProfile(payload)
+    setSavedProfile(payload)
+  }
+
+  async function saveAll() {
+    const cur = latestProfile.current
+    if (!cur) return
+    await api.putProfile(cur)
+    setSavedProfile(cur)
+  }
+
+  const anyDirty = !!savedProfile && JSON.stringify(pf) !== JSON.stringify(savedProfile)
+
   const addSection = (k: OptionalKey) => { setShown(prev => new Set(prev).add(k)); setMenuOpen(false) }
-  const hideSection = (k: OptionalKey) => setShown(prev => { const s = new Set(prev); s.delete(k); return s })
 
   const projects = pf.projects ?? []
   const certifications = pf.certifications ?? []
@@ -375,74 +448,74 @@ export default function ProfilePage() {
 
   // ── optional-section renderers ──
   function renderOptional(k: OptionalKey): React.ReactNode {
-    const onHide = () => hideSection(k)
+    const save = { dirty: dirty(k), onSave: () => saveSection(k) }
     switch (k) {
       case 'projects':
         return (
-          <Section key={k} title="Projects" badge="cv" help="Optional. Notable projects or side work — shown on your CV." onHide={onHide}>
+          <Section key={k} title="Projects" badge="cv" help="Optional. Notable projects or side work — shown on your CV." {...save}>
             {projects.map((p, i) => (
               <ProjectCard key={i} proj={p}
                 onChange={u => { const next = [...projects]; next[i] = u; set('projects', next) }}
                 onRemove={() => set('projects', projects.filter((_, idx) => idx !== i))} />
             ))}
-            <button className="btn-secondary" onClick={() => set('projects', [...projects, { name: '', description: '', url: '', technologies: [] }])}>+ Add project</button>
+            <Button variant="secondary" onClick={() => set('projects', [...projects, { name: '', description: '', url: '', technologies: [] }])}>+ Add project</Button>
           </Section>
         )
       case 'certifications':
         return (
-          <Section key={k} title="Certifications" badge="cv" help="Optional. Professional certifications — shown on your CV." onHide={onHide}>
+          <Section key={k} title="Certifications" badge="cv" help="Optional. Professional certifications — shown on your CV." {...save}>
             {certifications.map((c, i) => (
               <div key={i} className="row" style={{ marginBottom: 8, alignItems: 'flex-end' }}>
                 <Field label="Name"><input type="text" value={c.name} onChange={e => { const next = [...certifications]; next[i] = { ...c, name: e.target.value }; set('certifications', next) }} /></Field>
                 <Field label="Issuer"><input type="text" value={c.issuer} onChange={e => { const next = [...certifications]; next[i] = { ...c, issuer: e.target.value }; set('certifications', next) }} /></Field>
                 <Field label="Year"><input type="number" value={c.year ?? ''} onChange={e => { const next = [...certifications]; next[i] = { ...c, year: e.target.value ? +e.target.value : null }; set('certifications', next) }} /></Field>
-                <button className="btn-danger" style={{ flexShrink: 0, padding: '7px 10px', marginBottom: 14 }} onClick={() => set('certifications', certifications.filter((_, idx) => idx !== i))}>×</button>
+                <RemoveButton onClick={() => set('certifications', certifications.filter((_, idx) => idx !== i))} />
               </div>
             ))}
-            <button className="btn-secondary" onClick={() => set('certifications', [...certifications, { name: '', issuer: '', year: null }])}>+ Add certification</button>
+            <Button variant="secondary" onClick={() => set('certifications', [...certifications, { name: '', issuer: '', year: null }])}>+ Add certification</Button>
           </Section>
         )
       case 'awards':
         return (
-          <Section key={k} title="Awards" badge="cv" help="Optional. Honours and awards (non-academic) — shown on your CV." onHide={onHide}>
+          <Section key={k} title="Awards" badge="cv" help="Optional. Honours and awards (non-academic) — shown on your CV." {...save}>
             {awards.map((a, i) => (
               <div key={i} className="card" style={{ marginBottom: 8, padding: '12px 18px' }}>
                 <div className="row" style={{ alignItems: 'flex-end' }}>
                   <Field label="Name"><input type="text" value={a.name} onChange={e => { const next = [...awards]; next[i] = { ...a, name: e.target.value }; set('awards', next) }} /></Field>
                   <Field label="Year"><input type="number" value={a.year ?? ''} onChange={e => { const next = [...awards]; next[i] = { ...a, year: e.target.value ? +e.target.value : null }; set('awards', next) }} /></Field>
-                  <button className="btn-danger" style={{ flexShrink: 0, padding: '7px 10px', marginBottom: 14 }} onClick={() => set('awards', awards.filter((_, idx) => idx !== i))}>×</button>
+                  <RemoveButton onClick={() => set('awards', awards.filter((_, idx) => idx !== i))} />
                 </div>
                 <Field label="Description (optional)"><input type="text" value={a.description ?? ''} onChange={e => { const next = [...awards]; next[i] = { ...a, description: e.target.value || undefined }; set('awards', next) }} /></Field>
               </div>
             ))}
-            <button className="btn-secondary" onClick={() => set('awards', [...awards, { name: '', year: null, description: '' }])}>+ Add award</button>
+            <Button variant="secondary" onClick={() => set('awards', [...awards, { name: '', year: null, description: '' }])}>+ Add award</Button>
           </Section>
         )
       case 'publications':
         return (
-          <Section key={k} title="Publications" badge="cv" help="For academic/research roles. Paste the full APA citation; the AI can drop this section for non-academic jobs." onHide={onHide}>
+          <Section key={k} title="Publications" badge="cv" help="For academic/research roles. Paste the full APA citation; the AI can drop this section for non-academic jobs." {...save}>
             {pf.publications.map((pub, i) => (
               <PublicationCard key={i} pub={pub}
                 onChange={u => { const next = [...pf.publications]; next[i] = u; set('publications', next) }}
                 onRemove={() => set('publications', pf.publications.filter((_, idx) => idx !== i))} />
             ))}
-            <button className="btn-secondary" onClick={() => set('publications', [...pf.publications, { citation: '', description: '' }])}>+ Add publication</button>
+            <Button variant="secondary" onClick={() => set('publications', [...pf.publications, { citation: '', description: '' }])}>+ Add publication</Button>
           </Section>
         )
       case 'grants':
         return (
-          <Section key={k} title="Grants & Fellowships" badge="cv" help="For academic/research roles — shown in the CV sidebar." onHide={onHide}>
+          <Section key={k} title="Grants & Fellowships" badge="cv" help="For academic/research roles — shown in the CV sidebar." {...save}>
             {pf.grants.map((g, i) => (
               <GrantCard key={i} grant={g}
                 onChange={u => { const next = [...pf.grants]; next[i] = u; set('grants', next) }}
                 onRemove={() => set('grants', pf.grants.filter((_, idx) => idx !== i))} />
             ))}
-            <button className="btn-secondary" onClick={() => set('grants', [...pf.grants, { year: null, year_start: null, year_end: null, name: '' } as Grant])}>+ Add grant</button>
+            <Button variant="secondary" onClick={() => set('grants', [...pf.grants, { year: null, year_start: null, year_end: null, name: '' } as Grant])}>+ Add grant</Button>
           </Section>
         )
       case 'academic':
         return (
-          <Section key={k} title="Academic Background" badge="ai" help="Not printed on your CV — helps the AI tailor and match research-oriented roles." onHide={onHide}>
+          <Section key={k} title="Academic Background" badge="ai" help="Not printed on your CV — helps the AI tailor and match research-oriented roles." {...save}>
             <Field label="Research areas"><TagInput value={pf.academic.research_areas} onChange={v => set('academic.research_areas', v)} /></Field>
             <Field label="Neural / brain analysis methods"><TagInput value={pf.academic.methods.neural_analyses} onChange={v => set('academic.methods.neural_analyses', v)} /></Field>
             <Field label="Computational modelling methods"><TagInput value={pf.academic.methods.computational_modelling} onChange={v => set('academic.methods.computational_modelling', v)} /></Field>
@@ -454,16 +527,16 @@ export default function ProfilePage() {
                 <div key={i} className="row" style={{ marginBottom: 8 }}>
                   <input type="text" value={c.name} placeholder="Name" onChange={e => { const next = [...pf.academic.collaborators]; next[i] = { ...c, name: e.target.value }; set('academic.collaborators', next) }} />
                   <input type="text" value={c.affiliation} placeholder="Affiliation" onChange={e => { const next = [...pf.academic.collaborators]; next[i] = { ...c, affiliation: e.target.value }; set('academic.collaborators', next) }} />
-                  <button className="btn-danger" style={{ flexShrink: 0, padding: '7px 10px' }} onClick={() => set('academic.collaborators', pf.academic.collaborators.filter((_, idx) => idx !== i))}>×</button>
+                  <RemoveButton onClick={() => set('academic.collaborators', pf.academic.collaborators.filter((_, idx) => idx !== i))} />
                 </div>
               ))}
-              <button className="btn-secondary" onClick={() => set('academic.collaborators', [...pf.academic.collaborators, { name: '', affiliation: '' } as Collaborator])}>+ Add collaborator</button>
+              <Button variant="secondary" onClick={() => set('academic.collaborators', [...pf.academic.collaborators, { name: '', affiliation: '' } as Collaborator])}>+ Add collaborator</Button>
             </Field>
           </Section>
         )
       case 'teaching':
         return (
-          <Section key={k} title="Teaching" badge="cv" help="Shown on your CV as a compact line when the role is teaching-related — the AI includes it only when relevant. Also helps tailoring & matching." onHide={onHide}>
+          <Section key={k} title="Teaching" badge="cv" help="Shown on your CV as a compact line when the role is teaching-related — the AI includes it only when relevant. Also helps tailoring & matching." {...save}>
             <Field label="Subjects you can teach"><TagInput value={pf.teaching.subjects_to_teach} onChange={v => set('teaching.subjects_to_teach', v)} /></Field>
             <Field label="Student supervision"><textarea value={pf.teaching.student_supervision} onChange={e => set('teaching.student_supervision', e.target.value)} /></Field>
             <Field label="Mentoring"><textarea value={pf.teaching.mentoring} onChange={e => set('teaching.mentoring', e.target.value)} /></Field>
@@ -480,26 +553,26 @@ export default function ProfilePage() {
                     <Field label="Years"><input type="text" value={t.years} onChange={e => { const next = [...pf.teaching.formal_experience]; next[i] = { ...t, years: e.target.value }; set('teaching.formal_experience', next) }} /></Field>
                   </div>
                   <Field label="Description"><textarea value={t.description} onChange={e => { const next = [...pf.teaching.formal_experience]; next[i] = { ...t, description: e.target.value }; set('teaching.formal_experience', next) }} /></Field>
-                  <button className="btn-danger" onClick={() => set('teaching.formal_experience', pf.teaching.formal_experience.filter((_, idx) => idx !== i))}>Remove</button>
+                  <RemoveButton onClick={() => set('teaching.formal_experience', pf.teaching.formal_experience.filter((_, idx) => idx !== i))} />
                 </div>
               ))}
-              <button className="btn-secondary" onClick={() => set('teaching.formal_experience', [...pf.teaching.formal_experience, { type: '', course: '', institution: '', years: '', description: '' } as FormalTeaching])}>+ Add</button>
+              <Button variant="secondary" onClick={() => set('teaching.formal_experience', [...pf.teaching.formal_experience, { type: '', course: '', institution: '', years: '', description: '' } as FormalTeaching])}>+ Add</Button>
             </Field>
             <Field label="Guest lectures">
               {pf.teaching.guest_lectures.map((g, i) => (
                 <div key={i} className="row" style={{ marginBottom: 8 }}>
                   <input type="text" value={g.course} placeholder="Course" onChange={e => { const next = [...pf.teaching.guest_lectures]; next[i] = { ...g, course: e.target.value }; set('teaching.guest_lectures', next) }} />
                   <input type="text" value={g.institution} placeholder="Institution" onChange={e => { const next = [...pf.teaching.guest_lectures]; next[i] = { ...g, institution: e.target.value }; set('teaching.guest_lectures', next) }} />
-                  <button className="btn-danger" style={{ flexShrink: 0, padding: '7px 10px' }} onClick={() => set('teaching.guest_lectures', pf.teaching.guest_lectures.filter((_, idx) => idx !== i))}>×</button>
+                  <RemoveButton onClick={() => set('teaching.guest_lectures', pf.teaching.guest_lectures.filter((_, idx) => idx !== i))} />
                 </div>
               ))}
-              <button className="btn-secondary" onClick={() => set('teaching.guest_lectures', [...pf.teaching.guest_lectures, { course: '', institution: '' } as GuestLecture])}>+ Add</button>
+              <Button variant="secondary" onClick={() => set('teaching.guest_lectures', [...pf.teaching.guest_lectures, { course: '', institution: '' } as GuestLecture])}>+ Add</Button>
             </Field>
           </Section>
         )
       case 'career_context':
         return (
-          <Section key={k} title="Career preferences & AI context" badge="ai" help="Not printed on your CV — guides how the AI tailors your CV and suggestions." onHide={onHide}>
+          <Section key={k} title="Career preferences & AI context" badge="ai" help="Not printed on your CV — guides how the AI tailors your CV and suggestions." {...save}>
             <Field label="Target industries"><TagInput value={pf.narrative.target_industries} onChange={v => set('narrative.target_industries', v)} /></Field>
             <Field label="What differentiates you?"><textarea value={pf.narrative.differentiation} onChange={e => set('narrative.differentiation', e.target.value)} /></Field>
             <Field label="Problems you enjoy solving"><textarea value={pf.narrative.problems_enjoyed} onChange={e => set('narrative.problems_enjoyed', e.target.value)} /></Field>
@@ -517,8 +590,7 @@ export default function ProfilePage() {
 
       {/* ── CORE ── */}
 
-      {/* Personal */}
-      <Section title="Personal Info" badge="cv" help="Your name, contact details and links — shown at the top of every CV.">
+      <Section title="Personal Info" badge="cv" help="Your name, contact details and links — shown at the top of every CV." dirty={dirty('personal')} onSave={() => saveSection('personal')}>
         <div className="row">
           <Field label="Full name"><input type="text" value={pf.personal.name} onChange={e => set('personal.name', e.target.value)} /></Field>
           <Field label="Professional title"><input type="text" value={pf.personal.professional_title} onChange={e => set('personal.professional_title', e.target.value)} /></Field>
@@ -540,13 +612,11 @@ export default function ProfilePage() {
         </div>
       </Section>
 
-      {/* Professional summary (the CV summary line) */}
-      <Section title="Professional Summary" badge="cv" help="2–4 sentences shown at the top of your CV. When tailoring for a job, the AI rewrites this; what you put here is your default.">
+      <Section title="Professional Summary" badge="cv" help="2–4 sentences shown at the top of your CV. When tailoring for a job, the AI rewrites this; what you put here is your default." dirty={dirty('summary')} onSave={() => saveSection('summary')}>
         <Field label="Summary"><textarea value={pf.narrative.target_roles_description} onChange={e => set('narrative.target_roles_description', e.target.value)} style={{ minHeight: 100 }} /></Field>
       </Section>
 
-      {/* Experience */}
-      <Section title="Experience" badge="cv" help="Your roles, newest first. The bullet points become the body of your CV.">
+      <Section title="Experience" badge="cv" help="Your roles, newest first. The bullet points become the body of your CV." dirty={dirty('experience')} onSave={() => saveSection('experience')}>
         {pf.experience.map((exp, i) => (
           <ExperienceCard
             key={exp.id || i}
@@ -555,44 +625,43 @@ export default function ProfilePage() {
             onRemove={() => set('experience', pf.experience.filter((_, idx) => idx !== i))}
           />
         ))}
-        <button className="btn-secondary" onClick={() => set('experience', [...pf.experience, {
+        <Button variant="secondary" onClick={() => set('experience', [...pf.experience, {
           id: `job-${Date.now()}`, title: '', employer: '', location: '', start_date: '',
           end_date: null, is_current: false, full_time: true, team_size: 1,
           reporting_structure: '', responsibilities: [], technical_difficulty: '',
           impact: '', technologies: [], mentored: false, presentations: [],
           achievements: [], relevance: { teaching: null, research: null, leadership: null, interdisciplinarity: null },
-        }])}>+ Add job</button>
+        }])}>+ Add job</Button>
       </Section>
 
-      {/* Skills */}
-      <Section title="Skills" badge="cv" help="Grouped skill tags shown in your CV sidebar.">
-        <Field label="Programming — production"><TagInput value={pf.skills.programming.production} onChange={v => set('skills.programming.production', v)} /></Field>
-        <Field label="Programming — research / academic"><TagInput value={pf.skills.programming.research} onChange={v => set('skills.programming.research', v)} /></Field>
-        <Field label="Visualisation"><TagInput value={pf.skills.visualization} onChange={v => set('skills.visualization', v)} /></Field>
-        <Field label="AWS services"><TagInput value={pf.skills.cloud_devops.aws} onChange={v => set('skills.cloud_devops.aws', v)} /></Field>
-        <Field label="DevOps tools"><TagInput value={pf.skills.cloud_devops.tools} onChange={v => set('skills.cloud_devops.tools', v)} /></Field>
-        <Field label="Databases"><TagInput value={pf.skills.databases} onChange={v => set('skills.databases', v)} /></Field>
-        <Field label="Big data"><TagInput value={pf.skills.big_data} onChange={v => set('skills.big_data', v)} /></Field>
-        <Field label="ML / Statistical"><TagInput value={pf.skills.ml_statistical} onChange={v => set('skills.ml_statistical', v)} /></Field>
-        <Field label="Current tools"><TagInput value={pf.skills.current_tools} onChange={v => set('skills.current_tools', v)} /></Field>
-        <Field label="Languages">
+      <Section title="Skills" badge="cv" help="Group your skills under any headings that fit your field (e.g. Technical skills, Clinical skills, Design tools) — each group with content shows on your CV." dirty={dirty('skills')} onSave={() => saveSection('skills')}>
+        {pf.skills.groups.map((g, i) => (
+          <div key={i} className="card" style={{ marginBottom: 10, padding: '12px 18px' }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+              <input type="text" value={g.label} placeholder="Group name (e.g. Technical skills)" style={{ fontWeight: 600 }}
+                onChange={e => { const next = [...pf.skills.groups]; next[i] = { ...g, label: e.target.value }; set('skills.groups', next) }} />
+              <RemoveButton title="Remove group" onClick={() => set('skills.groups', pf.skills.groups.filter((_, idx) => idx !== i))} />
+            </div>
+            <TagInput value={g.items} onChange={v => { const next = [...pf.skills.groups]; next[i] = { ...g, items: v }; set('skills.groups', next) }} placeholder="Add a skill and press Enter" />
+          </div>
+        ))}
+        <Button variant="secondary" onClick={() => set('skills.groups', [...pf.skills.groups, { label: '', items: [] }])}>+ Add skill group</Button>
+
+        <div style={{ marginTop: 20 }}>
+          <label style={{ fontWeight: 600, color: 'var(--accent)', fontSize: 13, marginBottom: 4, display: 'block' }}>Languages</label>
           {pf.skills.languages.map((l, i) => (
             <div key={i} className="row" style={{ marginBottom: 8, alignItems: 'center' }}>
               <input type="text" value={l.language} placeholder="Language" onChange={e => { const next = [...pf.skills.languages]; next[i] = { ...l, language: e.target.value }; set('skills.languages', next) }} />
-              <input type="text" value={l.label} placeholder="Label (e.g. Fluent)" onChange={e => { const next = [...pf.skills.languages]; next[i] = { ...l, label: e.target.value }; set('skills.languages', next) }} />
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <label style={{ marginBottom: 2 }}>Level (1–5)</label>
-                <input type="number" min={1} max={5} value={l.level} style={{ width: 70 }} onChange={e => { const next = [...pf.skills.languages]; next[i] = { ...l, level: +e.target.value }; set('skills.languages', next) }} />
-              </div>
-              <button className="btn-danger" style={{ flexShrink: 0, padding: '7px 10px', marginTop: 18 }} onClick={() => set('skills.languages', pf.skills.languages.filter((_, idx) => idx !== i))}>×</button>
+              <StarRating value={l.level} onChange={n => { const next = [...pf.skills.languages]; next[i] = { ...l, level: n, label: CEFR_LABELS[n] ?? '' }; set('skills.languages', next) }} />
+              <RemoveButton onClick={() => set('skills.languages', pf.skills.languages.filter((_, idx) => idx !== i))} />
             </div>
           ))}
-          <button className="btn-secondary" onClick={() => set('skills.languages', [...pf.skills.languages, { language: '', level: 3, label: '' } as LanguageSkill])}>+ Add language</button>
-        </Field>
+          <div className="skill-scale-legend">★ A1 Beginner · ★★ A2 Elementary · ★★★ B1 Intermediate · ★★★★ B2/C1 Advanced · ★★★★★ C2 Native/Fluent</div>
+          <Button variant="secondary" onClick={() => set('skills.languages', [...pf.skills.languages, { language: '', level: 3, label: CEFR_LABELS[3] }])}>+ Add language</Button>
+        </div>
       </Section>
 
-      {/* Education */}
-      <Section title="Education" badge="cv" help="Degrees, newest first — shown in your CV sidebar.">
+      <Section title="Education" badge="cv" help="Degrees, newest first — shown in your CV sidebar." dirty={dirty('education')} onSave={() => saveSection('education')}>
         {pf.education.map((edu, i) => (
           <EducationCard
             key={i}
@@ -601,13 +670,12 @@ export default function ProfilePage() {
             onRemove={() => set('education', pf.education.filter((_, idx) => idx !== i))}
           />
         ))}
-        <button className="btn-secondary" onClick={() => set('education', [...pf.education, {
+        <Button variant="secondary" onClick={() => set('education', [...pf.education, {
           degree: '', field: '', institution: '', location: '', start_year: new Date().getFullYear(), end_year: null, distinction: null,
-        }])}>+ Add education</button>
+        }])}>+ Add education</Button>
       </Section>
 
-      {/* Work Preferences (core — drives job matching & motivational letters) */}
-      <Section title="Work Preferences" badge="jobs" help="Not shown on your CV — helps the Job Coach tailor suggested jobs and write motivational letters (coming soon).">
+      <Section title="Work Preferences" badge="jobs" help="Not shown on your CV — helps the Job Coach tailor suggested jobs and write motivational letters (coming soon)." dirty={dirty('work_preferences')} onSave={() => saveSection('work_preferences')}>
         <Field label="Commute radius (cities)"><TagInput value={pf.work_preferences.commute_radius} onChange={v => set('work_preferences.commute_radius', v)} /></Field>
         <Field label="Remote / hybrid / on-site">
           <select value={pf.work_preferences.remote_hybrid} onChange={e => set('work_preferences.remote_hybrid', e.target.value)}>
@@ -634,7 +702,7 @@ export default function ProfilePage() {
       {/* Add a section */}
       {hidden.length > 0 && (
         <div className="add-section">
-          <button className="btn-secondary" onClick={() => setMenuOpen(o => !o)}>+ Add a section {menuOpen ? '▴' : '▾'}</button>
+          <Button variant="secondary" onClick={() => setMenuOpen(o => !o)}>+ Add a section {menuOpen ? '▴' : '▾'}</Button>
           {menuOpen && (
             <div className="add-section-menu">
               {hidden.map(k => (
@@ -645,6 +713,8 @@ export default function ProfilePage() {
         </div>
       )}
 
+      {error && <p className="error-msg" style={{ marginBottom: 8 }}>{error}</p>}
+
       <div
         style={{
           position: 'sticky', bottom: 0, marginTop: 16,
@@ -654,14 +724,10 @@ export default function ProfilePage() {
           borderRadius: 'var(--radius)',
         }}
       >
-        {saved && <span className="success-msg">Saved!</span>}
-        {error && <span className="error-msg">{error}</span>}
         <span style={{ color: 'var(--muted)', fontSize: 'var(--fs-sm)' }}>
-          Saves every section of your pf.
+          Save individual sections above, or save everything at once.
         </span>
-        <button className="btn-primary" onClick={save} disabled={saving}>
-          {saving && <span className="spinner" />}{saving ? 'Saving…' : 'Save profile'}
-        </button>
+        <SaveButton dirty={anyDirty} onSave={saveAll} idleLabel="Save all" savedLabel="All saved" />
       </div>
     </div>
   )

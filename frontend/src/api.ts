@@ -174,6 +174,8 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     }),
+  getOpenrouterUsage: () =>
+    request<{ ok: boolean; balance: number | null; usage: number | null; remaining: number | null; is_free_tier: boolean | null }>('/settings/openrouter-usage'),
 
   // Photo
   getPhoto: () => request<{ exists: boolean; data_uri: string | null }>('/settings/photo'),

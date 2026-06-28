@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api, type JobSource, type JobOpening } from '../api'
+import Button from '../components/Button'
+import RemoveButton from '../components/RemoveButton'
 
 // Must match JOB_ID_KEY in CVGenerator.tsx — the CV Generator picks up these
 // pending keys on mount: it polls the in-progress generation and shows its URL.
@@ -127,7 +129,7 @@ export default function JobsPage() {
             placeholder="https://example.com/jobs"
             style={{ flex: 1 }}
           />
-          <button className="btn-secondary" onClick={addSource}>+ Add</button>
+          <Button variant="secondary" onClick={addSource}>+ Add</Button>
         </div>
         {sources.length === 0 && (
           <div style={{ color: 'var(--muted)', fontSize: 13 }}>No sources yet.</div>
@@ -135,13 +137,13 @@ export default function JobsPage() {
         {sources.map(s => (
           <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
             <a href={s.url} target="_blank" rel="noreferrer" style={{ flex: 1 }}>{s.name}</a>
-            <button className="btn-danger" style={{ padding: '4px 10px' }} title="Remove" onClick={() => removeSource(s.id)}>✕</button>
+            <RemoveButton onClick={() => removeSource(s.id)} />
           </div>
         ))}
         <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button className="btn-primary" onClick={refresh} disabled={scanning || sources.length === 0}>
-            {scanning ? <><span className="spinner" /> Scanning…</> : '🔍 Find new listings'}
-          </button>
+          <Button variant="primary" onClick={refresh} busy={scanning} disabled={sources.length === 0}>
+            {scanning ? 'Scanning…' : '🔍 Find new listings'}
+          </Button>
           <span style={{ color: 'var(--muted)', fontSize: 13 }}>
             {scanMsg && !scanning ? scanMsg + ' · ' : ''}
             {lastScan ? `Last scan: ${new Date(lastScan).toLocaleString()}` : 'Never scanned'}
@@ -168,13 +170,13 @@ export default function JobsPage() {
             {o.reason && <div style={{ fontSize: 13, marginTop: 6 }}>{o.reason}</div>}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 }}>
-            <button className="btn-primary" onClick={() => accept(o)} disabled={busy === o.id}
+            <Button variant="primary" onClick={() => accept(o)} busy={busy === o.id}
               title="Generates a tailored CV for this job and opens it in the CV Generator">
               ✓ Accept → generate CV
-            </button>
-            <button className="btn-danger" onClick={() => reject(o)} disabled={busy === o.id}>
+            </Button>
+            <Button variant="danger" onClick={() => reject(o)} disabled={busy === o.id}>
               ✕ Reject
-            </button>
+            </Button>
           </div>
         </div>
       ))}
@@ -199,8 +201,8 @@ export default function JobsPage() {
                 </div>
                 {!rejected && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 }}>
-                    <button className="btn-secondary" onClick={() => openCV(o)}>Open CV</button>
-                    <button className="btn-danger" onClick={() => reject(o)} disabled={busy === o.id}>✕ Reject</button>
+                    <Button variant="secondary" onClick={() => openCV(o)}>Open CV</Button>
+                    <Button variant="danger" onClick={() => reject(o)} disabled={busy === o.id}>✕ Reject</Button>
                   </div>
                 )}
               </div>

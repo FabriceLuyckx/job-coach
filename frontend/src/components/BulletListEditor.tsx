@@ -1,4 +1,6 @@
 import { useRef, useState } from 'react'
+import Button from './Button'
+import RemoveButton from './RemoveButton'
 
 interface Props {
   value: string[]
@@ -90,10 +92,10 @@ export default function BulletListEditor({ value, onChange, placeholder = 'Add i
             onKeyDown={e => onKeyDown(i, e)}
             placeholder={placeholder}
           />
-          <button type="button" className="btn-danger" style={{ flexShrink: 0, padding: '7px 10px' }} onClick={() => remove(i)}>×</button>
+          <RemoveButton onClick={() => remove(i)} />
         </div>
       ))}
-      <button type="button" className="btn-secondary" style={{ alignSelf: 'flex-start' }} onClick={add}>+ Add</button>
+      <Button variant="secondary" style={{ alignSelf: 'flex-start' }} onClick={add}>+ Add</Button>
     </div>
   )
 }

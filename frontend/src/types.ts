@@ -154,24 +154,19 @@ export interface Teaching {
 export interface LanguageSkill {
   language: string
   level: number
+  /** Auto-derived from the CEFR scale; kept for export, not edited directly. */
+  label?: string
+}
+
+/** A user-named group of skill tags, e.g. { label: "Design tools", items: [...] }. */
+export interface SkillGroup {
   label: string
+  items: string[]
 }
 
 export interface Skills {
-  programming: {
-    production: string[]
-    research: string[]
-  }
+  groups: SkillGroup[]
   languages: LanguageSkill[]
-  cloud_devops: {
-    aws: string[]
-    tools: string[]
-  }
-  visualization: string[]
-  databases: string[]
-  big_data: string[]
-  ml_statistical: string[]
-  current_tools: string[]
 }
 
 export interface WorkPreferences {

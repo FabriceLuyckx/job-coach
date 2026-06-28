@@ -296,6 +296,9 @@ def apply_tailoring(profile: dict, plan: TailoringPlan) -> dict:
         for lang_item in p.get("skills", {}).get("languages", []):
             if lang_item.get("language"):
                 lang_item["language"] = t(lang_item["language"])
+        for g in p.get("skills", {}).get("groups", []):
+            if g.get("label"):
+                g["label"] = t(g["label"])
 
     return p
 

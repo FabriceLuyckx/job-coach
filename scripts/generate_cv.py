@@ -25,6 +25,7 @@ from app.services.cv_renderer import (
     ROOT,
     build_env,
     load_photo,
+    load_profile,
     slugify,
 )
 
@@ -43,7 +44,7 @@ def main() -> None:
         print(f"Error: {PROFILE_PATH} not found")
         sys.exit(1)
 
-    profile = json.loads(PROFILE_PATH.read_text(encoding="utf-8"))
+    profile = load_profile()
     include_photo = profile.get("cv_design_preferences", {}).get("include_photo", False)
     photo_uri = load_photo() if include_photo else None
 

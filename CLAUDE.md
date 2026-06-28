@@ -383,7 +383,7 @@ For CLI use without the web UI, create `config.json` manually:
 | `certifications[]` | (optional) Professional certifications — `name`, `issuer`, `year?` |
 | `awards[]` | (optional) Non-academic honours — `name`, `year?`, `description?` |
 | `teaching` | Formal teaching, guest lectures, supervision, mentoring, materials |
-| `skills` | Programming, languages, cloud, visualization, databases, big data, ML |
+| `skills` | `groups[]` (user-named `{label, items[]}` skill groups, any field) + `languages[]` (`{language, level 1–5, label}`, CEFR star scale). Legacy fixed categories are auto-migrated to groups on load by `normalize_skills()`. |
 | `work_preferences` | Location, remote/hybrid, salary, schedule, language, relocation |
 | `cv_design_preferences` | Visual preferences for CV output |
 

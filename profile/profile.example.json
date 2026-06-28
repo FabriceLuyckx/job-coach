@@ -234,57 +234,35 @@
     "educational_materials": "Created interactive notebooks to illustrate statistical concepts."
   },
   "skills": {
-    "programming": {
-      "production": [
-        "Python"
-      ],
-      "research": [
-        "R"
-      ]
-    },
+    "groups": [
+      {
+        "label": "Programming",
+        "items": ["Python", "R", "SQL"]
+      },
+      {
+        "label": "Tools & software",
+        "items": ["git", "Docker", "Jupyter Notebooks"]
+      },
+      {
+        "label": "Data & visualisation",
+        "items": ["PostgreSQL", "matplotlib", "plotly"]
+      },
+      {
+        "label": "Soft skills",
+        "items": ["Communication", "Team leadership"]
+      }
+    ],
     "languages": [
       {
         "language": "English",
         "level": 5,
-        "label": "Fluent"
+        "label": "C2 Native / Fluent"
       },
       {
         "language": "Spanish",
         "level": 3,
-        "label": "Intermediate"
+        "label": "B1 Intermediate"
       }
-    ],
-    "cloud_devops": {
-      "aws": [
-        "EC2",
-        "S3"
-      ],
-      "tools": [
-        "git",
-        "Docker"
-      ]
-    },
-    "visualization": [
-      "matplotlib",
-      "seaborn",
-      "plotly"
-    ],
-    "databases": [
-      "PostgreSQL",
-      "MySQL"
-    ],
-    "big_data": [
-      "PySpark",
-      "Kafka"
-    ],
-    "ml_statistical": [
-      "Regression modelling",
-      "Machine learning",
-      "Bayesian inference",
-      "A/B testing & statistics"
-    ],
-    "current_tools": [
-      "Jupyter Notebooks"
     ]
   },
   "work_preferences": {
