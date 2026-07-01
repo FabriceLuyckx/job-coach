@@ -2,14 +2,12 @@
 
 import sqlite3
 from contextlib import contextmanager
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-DB_PATH = ROOT / "jobs" / "jobs.db"
+from app.paths import DB_PATH
 
 
 def init_db() -> None:
-    DB_PATH.parent.mkdir(exist_ok=True)
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     with get_db() as conn:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS cv_history (

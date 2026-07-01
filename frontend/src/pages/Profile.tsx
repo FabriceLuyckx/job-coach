@@ -642,7 +642,7 @@ export default function ProfilePage() {
                 onChange={e => { const next = [...pf.skills.groups]; next[i] = { ...g, label: e.target.value }; set('skills.groups', next) }} />
               <RemoveButton title="Remove group" onClick={() => set('skills.groups', pf.skills.groups.filter((_, idx) => idx !== i))} />
             </div>
-            <TagInput value={g.items} onChange={v => { const next = [...pf.skills.groups]; next[i] = { ...g, items: v }; set('skills.groups', next) }} placeholder="Add a skill and press Enter" />
+            <TagInput value={g.items} onChange={v => { const next = [...pf.skills.groups]; next[i] = { ...g, items: v }; set('skills.groups', next) }} placeholder="Add a skill and press Enter" maxLength={32} />
           </div>
         ))}
         <Button variant="secondary" onClick={() => set('skills.groups', [...pf.skills.groups, { label: '', items: [] }])}>+ Add skill group</Button>

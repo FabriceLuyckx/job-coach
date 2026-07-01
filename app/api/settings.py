@@ -9,11 +9,10 @@ from pydantic import BaseModel
 from app import config
 from app.services.cv_generator import DEFAULT_CV_PROMPT
 from app.services.job_scanner import DEFAULT_EXTRACT_PROMPT, DEFAULT_SCAN_PROMPT
-from app.services.cv_renderer import ROOT
+from app.paths import PHOTO_DIR
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
 
-PHOTO_DIR = ROOT / "profile"
 ALLOWED_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
 
 

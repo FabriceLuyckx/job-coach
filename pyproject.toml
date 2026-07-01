@@ -13,11 +13,20 @@ dependencies = [
     "uvicorn[standard]>=0.29.0",
     "python-multipart>=0.0.9",
     "playwright>=1.60.0",
+    "platformdirs>=4.0.0",
+]
+
+[project.optional-dependencies]
+# Tooling for building the downloadable desktop bundle (see packaging/).
+package = [
+    "pyinstaller>=6.0.0",
+    "pyinstaller-hooks-contrib>=2024.0",
 ]
 
 [project.scripts]
 generate-cv = "scripts.generate_cv:main"
 tailor-cv   = "scripts.tailor_cv:main"
+job-coach   = "app.desktop:main"
 
 [build-system]
 requires = ["hatchling"]

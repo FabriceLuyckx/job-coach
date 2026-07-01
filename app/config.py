@@ -1,10 +1,8 @@
 """Persistent app config stored in config.json (gitignored)."""
 
 import json
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-CONFIG_PATH = ROOT / "config.json"
+from app.paths import CONFIG_PATH
 
 _DEFAULTS = {
     "openrouter_api_key": "",

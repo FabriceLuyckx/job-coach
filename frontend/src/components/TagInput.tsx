@@ -4,13 +4,17 @@ interface Props {
   value: string[]
   onChange: (v: string[]) => void
   placeholder?: string
+  // Cap each entry's length. Used for skills, which render as fixed-width
+  // pills in the CV sidebar and must stay on a tidy line.
+  maxLength?: number
 }
 
-export default function TagInput({ value, onChange, placeholder = 'Add and press Enter' }: Props) {
+export default function TagInput({ value, onChange, placeholder = 'Add and press Enter', maxLength }: Props) {
   const [draft, setDraft] = useState('')
 
   function add() {
-    const trimmed = draft.trim()
+    let trimmed = draft.trim()
+    if (maxLength) trimmed = trimmed.slice(0, maxLength)
     if (trimmed && !value.includes(trimmed)) {
       onChange([...value, trimmed])
     }
@@ -41,7 +45,11 @@ export default function TagInput({ value, onChange, placeholder = 'Add and press
         onKeyDown={onKey}
         onBlur={add}
         placeholder={placeholder}
+        maxLength={maxLength}
       />
+      {maxLength && draft.length >= maxLength && (
+        <div className="field-hint">Keep skills short ({maxLength} characters max) so they fit the CV sidebar.</div>
+      )}
     </div>
   )
 }
