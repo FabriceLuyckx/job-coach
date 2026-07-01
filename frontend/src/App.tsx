@@ -3,6 +3,7 @@ import ProfilePage from './pages/Profile'
 import CVGeneratorPage from './pages/CVGenerator'
 import JobsPage from './pages/Jobs'
 import SettingsPage from './pages/Settings'
+import SetupBanner from './components/SetupBanner'
 import './App.css'
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
           <NavLink to="/settings">Settings</NavLink>
         </nav>
         <main className="app-content">
+          <SetupBanner />
           <Routes>
             <Route path="/" element={<Navigate to="/profile" replace />} />
             <Route path="/profile" element={<ProfilePage />} />

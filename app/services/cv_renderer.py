@@ -16,10 +16,17 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 from markupsafe import Markup
 
-ROOT = Path(__file__).resolve().parent.parent.parent
-PROFILE_PATH = ROOT / "profile" / "profile.json"
-TEMPLATES_DIR = ROOT / "templates" / "cv"
-OUTPUT_DIR = ROOT / "output"
+from app.paths import (  # noqa: E402  (re-exported for callers and scripts)
+    OUTPUT_DIR,
+    PHOTO_DIR,
+    PROFILE_PATH,
+    RESOURCE_DIR,
+    TEMPLATES_DIR,
+)
+
+# Kept for the CLIs that print output paths relative to the repo root. In a
+# source checkout RESOURCE_DIR is the repo root, so this is unchanged for them.
+ROOT = RESOURCE_DIR
 
 MONTH_ABBR = {
     "01": "Jan", "02": "Feb", "03": "Mar", "04": "Apr",
@@ -179,7 +186,7 @@ def teaching_line(teaching) -> str:
 def load_photo() -> str | None:
     """Return a base64 data URI for profile/photo.{jpg,jpeg,png,webp}, or None."""
     for ext in ("jpg", "jpeg", "png", "webp"):
-        path = ROOT / "profile" / f"photo.{ext}"
+        path = PHOTO_DIR / f"photo.{ext}"
         if path.exists():
             mime = "image/jpeg" if ext in ("jpg", "jpeg") else f"image/{ext}"
             data = base64.b64encode(path.read_bytes()).decode()

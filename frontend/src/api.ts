@@ -11,6 +11,15 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json()
 }
 
+export interface SetupStatus {
+  chromium_ready: boolean
+  installing: boolean
+  error: string | null
+}
+
+// First-run status of the one-time PDF-engine (Chromium) download.
+export const getSetupStatus = () => request<SetupStatus>('/setup/status')
+
 export interface CVResult {
   history_id: string
   slug: string

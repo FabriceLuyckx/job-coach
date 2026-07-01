@@ -40,12 +40,17 @@
   }
 
   /* ── DOCUMENT ──
-     The header and sidebar are taken out of flow (absolute on screen,
-     fixed on print) so the main column can paginate cleanly underneath
-     them. A single grid container could not break across pages — which
-     was the cause of the broken multi-page PDFs. */
+     ON SCREEN: a flex column (header + body), and the body is a flex ROW of
+     sidebar + main, both in normal flow. The page therefore grows to whichever
+     column is taller — the sidebar can no longer be clipped.
+     ON PRINT: this all collapses to block flow; the sidebar goes absolute and
+     the main column paginates underneath it (see @media print). A single grid
+     container could not break across pages — that's why print keeps its own
+     mechanism. */
   .doc {
     position: relative;
+    display: flex;
+    flex-direction: column;
     width: 210mm;
     min-height: 297mm;
     background: var(--white);
@@ -54,10 +59,17 @@
     overflow: hidden;
   }
 
-  /* ── HEADER ── */
+  /* Body row holds the two columns; flex:1 makes a short CV still fill the
+     full page height so the sidebar colour band reaches the bottom. */
+  .body {
+    display: flex;
+    align-items: stretch;
+    flex: 1 1 auto;
+  }
+
+  /* ── HEADER ── (normal flow block, full width, appears once at the top) */
   .header {
-    position: absolute;
-    top: 0; left: 0; right: 0;
+    flex: 0 0 var(--header-h);
     height: var(--header-h);
     background: var(--blue);
     color: var(--white);
@@ -100,16 +112,13 @@
 
   .header-contact a { color: var(--white); text-decoration: none; }
 
-  /* ── SIDEBAR ── */
+  /* ── SIDEBAR ── (screen: in-flow flex column, fixed width) */
   .sidebar {
-    position: absolute;
-    top: var(--header-h);
-    left: 0; bottom: 0;
+    flex: 0 0 var(--sidebar-w);
     width: var(--sidebar-w);
     background: var(--sidebar-bg);
     padding: 16px 16px;
     border-right: 1px solid var(--border);
-    overflow: hidden;
   }
 
   /* Empty colour band that repeats on every printed page so the left column
@@ -128,10 +137,11 @@
     margin: 0 auto 16px;
   }
 
-  /* ── MAIN ── */
+  /* ── MAIN ── (screen: in-flow flex column, fills remaining width) */
   .main {
-    margin-left: var(--sidebar-w);
-    padding: calc(var(--header-h) + var(--top-gap)) 26px 22px calc(var(--gutter) + 6px);
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: var(--top-gap) 26px 22px calc(var(--gutter) + 6px);
   }
 
   /* ── SECTION TITLES ── */
@@ -189,8 +199,15 @@
     color: var(--white);
     font-size: 7pt;
     font-weight: 500;
+    line-height: 1.35;
     padding: 2px 6px;
     border-radius: 3px;
+    /* Long labels (e.g. "Machine learning (classification, clustering,
+       valuation)") wrap inside the pill and break a too-long word rather
+       than overflowing the fixed-width sidebar. */
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   /* ── LANGUAGE BARS ── */
@@ -289,6 +306,7 @@
     body { font-size: 8.5pt; orphans: 2; widows: 2; }
 
     .doc {
+      display: block;       /* drop the screen flex; back to block flow */
       position: relative;   /* containing block for the absolute sidebar */
       width: auto;
       min-height: 0;
@@ -296,6 +314,10 @@
       box-shadow: none;
       overflow: visible;
     }
+
+    /* Body unwraps to plain block flow so the main column paginates and the
+       sidebar (below) can be absolutely positioned against .doc. */
+    .body { display: block; }
 
     /* Header: in flow → appears once, at the top of page 1, full content width.
        z-index keeps it above the colour band, which now starts at top: 0. */
@@ -388,6 +410,11 @@
 
   <!-- Repeating colour band (print only) — sits behind the sidebar content -->
   <div class="sidebar-band" aria-hidden="true"></div>
+
+  <!-- BODY: two columns. On screen both are in normal flow (flex row) so the
+       page grows to whichever column is taller. On print the sidebar goes
+       absolute and the main column paginates underneath (see print rules). -->
+  <div class="body">
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
@@ -559,6 +586,8 @@
     {% endif %}
 
   </main>
+
+  </div><!-- /.body -->
 
 </div>
 </body>

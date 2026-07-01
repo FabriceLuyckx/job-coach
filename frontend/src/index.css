@@ -144,6 +144,8 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   margin-top: 4px;
 }
 
+.field-hint { font-size: var(--fs-sm); color: var(--muted); margin-top: 5px; line-height: 1.4; }
+
 .tag {
   background: var(--accent);
   color: #fff;

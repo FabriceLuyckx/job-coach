@@ -1,23 +1,25 @@
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-from app.api import profile, cv, settings, jobs
-from app import db
+from app.api import profile, cv, settings, jobs, system
+from app import db, paths
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
+    paths.seed_data_dir()
     db.init_db()
     yield
 
 
 app = FastAPI(title="Job Coach", lifespan=lifespan)
 
+# CORS only matters for the Vite dev server (cross-origin on :5173). The packaged
+# app serves the frontend same-origin, where CORS is irrelevant.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -29,8 +31,9 @@ app.include_router(profile.router)
 app.include_router(cv.router)
 app.include_router(settings.router)
 app.include_router(jobs.router)
+app.include_router(system.router)
 
-FRONTEND_DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+FRONTEND_DIST = paths.FRONTEND_DIST
 
 if FRONTEND_DIST.exists():
     app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIST / "assets")), name="assets")

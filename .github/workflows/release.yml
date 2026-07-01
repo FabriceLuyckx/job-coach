@@ -1,0 +1,79 @@
+name: Release
+
+# Builds the double-click desktop bundles. Push a version tag (e.g. v0.1.0) to
+# cut a release; the Mac .dmg and Windows .zip are attached to the GitHub Release.
+# Trigger a dry run any time from the Actions tab (workflow_dispatch).
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            artifact: JobCoach-macos
+          - os: windows-latest
+            artifact: JobCoach-windows
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Install Python deps
+        run: pip install ".[package]"
+
+      - name: Build app bundle
+        run: pyinstaller packaging/jobcoach.spec
+
+      # To ship a warning-free app later, add code-signing/notarization here:
+      #  - macOS: codesign the .app, then `xcrun notarytool submit` + `stapler`.
+      #  - Windows: signtool / Azure Trusted Signing on dist/JobCoach/JobCoach.exe.
+
+      - name: Package (macOS .dmg)
+        if: runner.os == 'macOS'
+        run: >
+          hdiutil create -volname "Job Coach" -srcfolder "dist/JobCoach.app"
+          -ov -format UDZO "dist/JobCoach-macos.dmg"
+
+      - name: Package (Windows .zip)
+        if: runner.os == 'Windows'
+        run: Compress-Archive -Path dist/JobCoach/* -DestinationPath dist/JobCoach-windows.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: |
+            dist/*.dmg
+            dist/*.zip
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*

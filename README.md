@@ -4,7 +4,33 @@ AI-powered career assistant — generate tailored CVs and (in future phases) dis
 
 ---
 
-## Requirements
+## Download & run (no setup)
+
+For non-technical users. Grab the latest build from the
+[Releases](../../releases) page:
+
+- **macOS** — download `JobCoach-macos.dmg`, open it, drag **Job Coach** into
+  Applications, then launch it.
+- **Windows** — download `JobCoach-windows.zip`, unzip it anywhere, and run
+  `JobCoach.exe` (keep the small window it opens — closing it quits the app).
+
+The app opens in your default browser. On **first launch** it downloads a PDF
+engine one time (~150 MB) — a banner shows the progress and everything except
+PDF export works while it finishes. Then open **Settings** and paste your
+[OpenRouter](https://openrouter.ai) API key.
+
+All your data stays on your machine, in a standard per-user folder:
+- macOS: `~/Library/Application Support/JobCoach/`
+- Windows: `%APPDATA%\JobCoach\`
+
+> **First-launch security warning (unsigned app):** because the app isn't code-signed
+> yet, the OS will warn the first time. On **macOS**, right-click the app → **Open** →
+> **Open** (or run `xattr -dr com.apple.quarantine "/Applications/Job Coach.app"`).
+> On **Windows**, click **More info** → **Run anyway** on the SmartScreen prompt.
+
+---
+
+## Requirements (for development)
 
 - [uv](https://docs.astral.sh/uv/) — Python package manager
 - Python 3.11+ (uv installs this automatically on first run)
@@ -218,6 +244,42 @@ uv run python scripts/scan_debug.py --url https://example.com/jobs
 
 ---
 
+## Building a desktop release (maintainers)
+
+The downloadable apps are built with [PyInstaller](https://pyinstaller.org) from
+`packaging/jobcoach.spec`, which bundles the FastAPI backend, the built frontend,
+and the Playwright driver into a single double-click app. Chromium itself is
+downloaded on the user's first launch to keep the installer small.
+
+**Automated (recommended):** push a version tag and GitHub Actions builds both
+platforms and attaches them to a Release:
+
+```bash
+git tag v0.1.0 && git push --tags   # see .github/workflows/release.yml
+```
+
+**Local build** (produces `dist/JobCoach.app` on macOS, `dist/JobCoach/` on Windows):
+
+```bash
+cd frontend && npm run build && cd ..   # build the frontend into frontend/dist
+uv sync --extra package                 # installs PyInstaller
+uv run pyinstaller packaging/jobcoach.spec
+```
+
+You can also run the packaged launcher directly during development — it starts the
+server and opens your browser, exactly as the bundle does:
+
+```bash
+cd frontend && npm run build && cd ..
+uv run python -m app.desktop
+```
+
+Builds are unsigned for now; see the first-launch security note above. To ship a
+warning-free app, add code-signing/notarization to the CI workflow (macOS
+notarytool, Windows signtool / Azure Trusted Signing).
+
+---
+
 ## Project roadmap
 
 See `CLAUDE.md` for the full plan. Upcoming phases:
@@ -225,4 +287,4 @@ See `CLAUDE.md` for the full plan. Upcoming phases:
 | Phase | Description |
 |-------|-------------|
 | 6 | Job matching — Claude scores and ranks jobs against your profile |
-| 7 | Cloud deployment — share the app with non-technical users |
+| 7 | Desktop packaging — downloadable Mac/Windows apps (in progress) + optional cloud deployment |
