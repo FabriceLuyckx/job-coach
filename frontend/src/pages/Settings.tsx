@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
+import { SlidersHorizontal } from 'lucide-react'
 import { api } from '../api'
 import type { Profile } from '../types'
 import Button from '../components/Button'
 import SaveButton from '../components/SaveButton'
+import Collapsible from '../components/Collapsible'
+import { useToast } from '../components/Toast'
+import { useKeyStatus } from '../components/KeyStatus'
+import { errMsg } from '../lib/errors'
 
 const FONT_OPTIONS = [
   { value: 'Sans-serif', label: 'Sans-serif (current default — Inter)' },
@@ -33,7 +38,40 @@ const fmtUsd = (n: number | null | undefined) => (n == null ? '—' : `$${n.toFi
 
 interface Usage { balance: number | null; usage: number | null; remaining: number | null }
 
+/** One editable AI-prompt block (textarea + save + reset), used ×3 under Advanced. */
+function PromptEditor({ title, help, value, saved, defaultValue, rows = 8, onChange, onSave }: {
+  title: string
+  help: React.ReactNode
+  value: string
+  saved: string
+  defaultValue: string
+  rows?: number
+  onChange: (v: string) => void
+  onSave: () => Promise<void>
+}) {
+  return (
+    <div style={{ marginBottom: 'var(--space-6)' }}>
+      <div style={{ fontWeight: 600, marginBottom: 'var(--space-2)' }}>{title}</div>
+      <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{help}</p>
+      <textarea
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        rows={rows}
+        style={{ width: '100%', fontFamily: 'monospace', fontSize: 'var(--fs-sm)', lineHeight: 1.5 }}
+      />
+      <div style={{ display: 'flex', gap: 'var(--space-3)', marginTop: 'var(--space-3)' }}>
+        <SaveButton dirty={value !== saved} onSave={onSave} idleLabel="Save prompt" />
+        <Button variant="secondary" onClick={() => onChange(defaultValue)} disabled={value === defaultValue}>
+          Reset to default
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 export default function SettingsPage() {
+  const toast = useToast()
+  const { refresh: refreshKeyStatus } = useKeyStatus()
   const [settings, setSettings] = useState<{
     openrouter_api_key_set: boolean
     openrouter_api_key_preview: string
@@ -49,6 +87,7 @@ export default function SettingsPage() {
   const [photo, setPhoto] = useState<{ exists: boolean; data_uri: string | null } | null>(null)
   const [usage, setUsage] = useState<Usage | null>(null)
   const [usageErr, setUsageErr] = useState(false)
+  const [loadError, setLoadError] = useState('')
 
   const [apiKey, setApiKey] = useState('')
   const [model, setModel] = useState('')
@@ -58,9 +97,10 @@ export default function SettingsPage() {
   const [scanFilter, setScanFilter] = useState('')
   const [savedPrefs, setSavedPrefs] = useState('')  // JSON snapshot of cv_design_preferences
 
-  const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
   const [photoUploading, setPhotoUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+  const [importing, setImporting] = useState(false)
+  const backupRef = useRef<HTMLInputElement>(null)
 
   function loadUsage() {
     api.getOpenrouterUsage()
@@ -80,13 +120,8 @@ export default function SettingsPage() {
       setSavedPrefs(JSON.stringify(p.cv_design_preferences))
       if (!OPENROUTER_MODELS.includes(s.openrouter_model)) setCustomModel(s.openrouter_model)
       if (s.openrouter_api_key_set) loadUsage()
-    }).catch(e => setMsg({ type: 'err', text: e.message }))
+    }).catch(e => setLoadError(errMsg(e)))
   }, [])
-
-  function flash(type: 'ok' | 'err', text: string) {
-    setMsg({ type, text })
-    if (type === 'ok') setTimeout(() => setMsg(null), 2500)
-  }
 
   // Save handlers throw on error so the SaveButton surfaces it.
   async function saveOpenRouter() {
@@ -94,10 +129,16 @@ export default function SettingsPage() {
     await api.putSettings({ ...(apiKey ? { openrouter_api_key: apiKey } : {}), openrouter_model: effectiveModel })
     setSettings(await api.getSettings())
     setApiKey('')
+    refreshKeyStatus()
     loadUsage()
   }
 
   async function savePrompt(data: { cv_prompt?: string; scan_extract_prompt?: string; scan_filter_prompt?: string }) {
+    // The language placeholder is what makes non-English CVs work; catch its
+    // removal here with a clear message instead of a server round-trip.
+    if (data.cv_prompt !== undefined && !data.cv_prompt.includes('{lang_name}')) {
+      throw new Error('The prompt must contain the {lang_name} placeholder — it tells the AI which language to write in.')
+    }
     await api.putSettings(data)
     setSettings(await api.getSettings())
   }
@@ -115,9 +156,9 @@ export default function SettingsPage() {
     try {
       await api.uploadPhoto(file)
       setPhoto(await api.getPhoto())
-      flash('ok', 'Photo uploaded!')
-    } catch (e: unknown) {
-      flash('err', e instanceof Error ? e.message : String(e))
+      toast.success('Photo uploaded')
+    } catch (e) {
+      toast.error(errMsg(e))
     } finally { setPhotoUploading(false); if (fileRef.current) fileRef.current.value = '' }
   }
 
@@ -126,12 +167,43 @@ export default function SettingsPage() {
     try {
       await api.deletePhoto()
       setPhoto({ exists: false, data_uri: null })
-      flash('ok', 'Photo removed.')
-    } catch (e: unknown) {
-      flash('err', e instanceof Error ? e.message : String(e))
+      toast.success('Photo removed')
+    } catch (e) {
+      toast.error(errMsg(e))
     } finally { setPhotoUploading(false) }
   }
 
+  async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (backupRef.current) backupRef.current.value = ''
+    if (!file) return
+    if (!window.confirm(
+      'Restoring a backup replaces your profile, settings, job history and generated CVs ' +
+      'on this computer with the contents of the backup (your API key is kept). This ' +
+      'cannot be undone. Continue?'
+    )) return
+    setImporting(true)
+    try {
+      await api.importBackup(file)
+      toast.success('Backup restored — reloading…')
+      setTimeout(() => window.location.reload(), 900)
+    } catch (e) {
+      toast.error(errMsg(e))
+      setImporting(false)
+    }
+  }
+
+  if (loadError) {
+    return (
+      <div>
+        <h1 className="page-title">Settings</h1>
+        <div className="load-error">
+          <span style={{ flex: 1 }}>Couldn't load settings: {loadError}</span>
+          <Button variant="secondary" onClick={() => window.location.reload()}>Retry</Button>
+        </div>
+      </div>
+    )
+  }
   if (!settings || !profile) return <div style={{ padding: 32, color: 'var(--muted)' }}>Loading…</div>
 
   const isCustomModel = !OPENROUTER_MODELS.includes(settings.openrouter_model)
@@ -140,14 +212,13 @@ export default function SettingsPage() {
   const prefsDirty = JSON.stringify(profile.cv_design_preferences) !== savedPrefs
 
   return (
-    <div style={{ maxWidth: 640 }}>
+    <div>
       <h1 className="page-title">Settings</h1>
-      {msg && <p className={msg.type === 'ok' ? 'success-msg' : 'error-msg'} style={{ marginBottom: 16 }}>{msg.text}</p>}
 
       {/* OpenRouter */}
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 14 }}>OpenRouter Connection</div>
-        <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 10, lineHeight: 1.5 }}>
+        <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>OpenRouter Connection</div>
+        <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>
           OpenRouter routes requests to Claude, GPT-4, and other models via one API key.
           Get yours at <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">openrouter.ai/keys</a>.
         </p>
@@ -165,7 +236,7 @@ export default function SettingsPage() {
         <div className="field">
           <label>API key</label>
           {settings.openrouter_api_key_set && (
-            <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>
+            <p className="muted-sm" style={{ marginBottom: 6 }}>
               Currently set (ending {settings.openrouter_api_key_preview}). Enter a new key to replace it.
             </p>
           )}
@@ -185,7 +256,7 @@ export default function SettingsPage() {
             {OPENROUTER_MODELS.map(m => <option key={m} value={m}>{m}</option>)}
             <option value="__custom__">Custom model ID…</option>
           </select>
-          <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--muted)', marginTop: 5 }}>
+          <p className="field-hint">
             Active: <strong>{settings.openrouter_model}</strong>
             {connectionDirty && <span style={{ color: 'var(--highlight)', marginLeft: 8 }}>● unsaved change</span>}
           </p>
@@ -204,93 +275,17 @@ export default function SettingsPage() {
         <SaveButton dirty={connectionDirty} onSave={saveOpenRouter} idleLabel="Save connection" />
       </div>
 
-      {/* CV Generator prompt */}
-      <div className="card">
-        <div className="section-title" style={{ marginBottom: 14 }}>CV Generator — Tailoring Prompt</div>
-        <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 14, lineHeight: 1.5 }}>
-          Sent to the AI on the <strong>CV Generator</strong> tab when tailoring a CV. Your profile and the
-          job listing are added automatically below this. Use <code>{'{lang_name}'}</code> where the output
-          language should appear.
-        </p>
-        <textarea
-          value={cvPrompt}
-          onChange={e => setCvPrompt(e.target.value)}
-          rows={14}
-          style={{ width: '100%', boxSizing: 'border-box', fontFamily: 'monospace', fontSize: 12, lineHeight: 1.5 }}
-        />
-        <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
-          <SaveButton dirty={cvPrompt !== settings.cv_prompt} onSave={() => savePrompt({ cv_prompt: cvPrompt })} idleLabel="Save prompt" />
-          <Button
-            variant="secondary"
-            onClick={() => setCvPrompt(settings.cv_prompt_default)}
-            disabled={cvPrompt === settings.cv_prompt_default}
-          >
-            Reset to default
-          </Button>
-        </div>
-      </div>
-
-      {/* Job Suggestions — link extraction prompt */}
-      <div className="card">
-        <div className="section-title" style={{ marginBottom: 14 }}>Job Suggestions — Link Extraction Prompt</div>
-        <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 14, lineHeight: 1.5 }}>
-          Used on the <strong>Job Suggestions</strong> tab to pick which of a page's links are real job
-          openings. The list of links found on the page is added automatically below this.
-        </p>
-        <textarea
-          value={scanExtract}
-          onChange={e => setScanExtract(e.target.value)}
-          rows={8}
-          style={{ width: '100%', boxSizing: 'border-box', fontFamily: 'monospace', fontSize: 12, lineHeight: 1.5 }}
-        />
-        <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
-          <SaveButton dirty={scanExtract !== settings.scan_extract_prompt} onSave={() => savePrompt({ scan_extract_prompt: scanExtract })} idleLabel="Save prompt" />
-          <Button
-            variant="secondary"
-            onClick={() => setScanExtract(settings.scan_extract_prompt_default)}
-            disabled={scanExtract === settings.scan_extract_prompt_default}
-          >
-            Reset to default
-          </Button>
-        </div>
-      </div>
-
-      {/* Job Suggestions — relevance filter prompt */}
-      <div className="card">
-        <div className="section-title" style={{ marginBottom: 14 }}>Job Suggestions — Relevance Filter Prompt</div>
-        <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 14, lineHeight: 1.5 }}>
-          Used on the <strong>Job Suggestions</strong> tab to decide which new openings match you. The
-          relevant parts of your profile are added automatically below this.
-        </p>
-        <textarea
-          value={scanFilter}
-          onChange={e => setScanFilter(e.target.value)}
-          rows={8}
-          style={{ width: '100%', boxSizing: 'border-box', fontFamily: 'monospace', fontSize: 12, lineHeight: 1.5 }}
-        />
-        <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
-          <SaveButton dirty={scanFilter !== settings.scan_filter_prompt} onSave={() => savePrompt({ scan_filter_prompt: scanFilter })} idleLabel="Save prompt" />
-          <Button
-            variant="secondary"
-            onClick={() => setScanFilter(settings.scan_filter_prompt_default)}
-            disabled={scanFilter === settings.scan_filter_prompt_default}
-          >
-            Reset to default
-          </Button>
-        </div>
-      </div>
-
       {/* Photo */}
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 14 }}>Profile Photo</div>
+        <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>Profile Photo</div>
         {photo?.exists && photo.data_uri && (
           <img
             src={photo.data_uri}
             alt="Profile"
-            style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 6, marginBottom: 12, display: 'block', border: '2px solid var(--border)' }}
+            style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 'var(--radius-sm)', marginBottom: 'var(--space-3)', display: 'block', border: '2px solid var(--border)' }}
           />
         )}
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', flexWrap: 'wrap' }}>
           <input
             ref={fileRef}
             type="file"
@@ -302,11 +297,11 @@ export default function SettingsPage() {
             {photo?.exists ? 'Replace photo' : 'Upload photo'}
           </Button>
           {photo?.exists && (
-            <Button variant="danger" onClick={handlePhotoDelete} disabled={photoUploading}>Remove</Button>
+            <Button variant="ghost" className="btn-icon-danger" onClick={handlePhotoDelete} disabled={photoUploading}>Remove</Button>
           )}
         </div>
-        <div className="field" style={{ marginTop: 14 }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontWeight: 400, color: 'var(--text)' }}>
+        <div className="field" style={{ marginTop: 'var(--space-4)' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontWeight: 400, color: 'var(--ink)' }}>
             <input
               type="checkbox"
               checked={profile.cv_design_preferences.include_photo}
@@ -319,18 +314,19 @@ export default function SettingsPage() {
 
       {/* Visual preferences */}
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 14 }}>CV Visual Preferences</div>
+        <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>CV Visual Preferences</div>
         <div className="field">
           <label>Accent colour</label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
             {ACCENT_PRESETS.map(({ value, label }) => (
               <button
                 key={value}
                 type="button"
                 title={label}
+                aria-label={label}
                 onClick={() => setProfile({ ...profile, cv_design_preferences: { ...profile.cv_design_preferences, accent_color: value } })}
                 style={{
-                  width: 32, height: 32, borderRadius: '50%', background: value, border: `3px solid ${profile.cv_design_preferences.accent_color === value ? '#fff' : 'transparent'}`,
+                  width: 32, height: 32, borderRadius: '50%', background: value, border: `3px solid ${profile.cv_design_preferences.accent_color === value ? 'var(--surface)' : 'transparent'}`,
                   outline: profile.cv_design_preferences.accent_color === value ? `2px solid ${value}` : 'none',
                   cursor: 'pointer', padding: 0,
                 }}
@@ -355,7 +351,7 @@ export default function SettingsPage() {
           </select>
         </div>
         <div className="field">
-          <label>Style notes (for Claude)</label>
+          <label>Style notes (for the AI)</label>
           <input
             type="text"
             value={profile.cv_design_preferences.style}
@@ -365,6 +361,85 @@ export default function SettingsPage() {
         </div>
         <SaveButton dirty={prefsDirty} onSave={saveVisualPrefs} idleLabel="Save preferences" />
       </div>
+
+      {/* Backup & restore */}
+      <div className="card">
+        <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>Backup &amp; Restore</div>
+        <p className="help-text">
+          Move to a new computer or keep a safe copy of your work. <strong>Export</strong> downloads a
+          single <code>.zip</code> containing your profile &amp; photo, settings, job sources &amp;
+          history, and every generated CV. On the new machine, install Job Coach and use{' '}
+          <strong>Restore</strong> to load that file, then re-enter your OpenRouter API key.
+        </p>
+        <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', flexWrap: 'wrap' }}>
+          <Button onClick={() => { window.location.href = api.backupExportUrl }}>
+            Export backup (.zip)
+          </Button>
+          <input
+            ref={backupRef}
+            type="file"
+            accept=".zip,application/zip"
+            style={{ display: 'none' }}
+            onChange={handleImport}
+          />
+          <Button variant="secondary" busy={importing} onClick={() => backupRef.current?.click()}>
+            Restore from backup…
+          </Button>
+        </div>
+        <p className="help-text" style={{ marginTop: 'var(--space-3)', marginBottom: 0, fontSize: 'var(--fs-xs)' }}>
+          Restoring <strong>replaces</strong> your profile, job history and generated CVs with the
+          backup's contents — it does not merge. Your OpenRouter API key is never included in the
+          export and is left untouched on restore.
+        </p>
+      </div>
+
+      {/* Advanced — AI prompts, collapsed by default so they can't be broken casually */}
+      <Collapsible
+        title={
+          <span className="collapsible-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <SlidersHorizontal size={16} aria-hidden />
+            Advanced — AI prompts
+          </span>
+        }
+      >
+        <p className="help-text">
+          These are the exact instructions sent to the AI. The defaults work well — only edit
+          them if you want to change how CVs are written or how job listings are filtered.
+          You can always reset to the default.
+        </p>
+
+        <PromptEditor
+          title="CV Generator — tailoring prompt"
+          help={<>Sent when tailoring a CV. Your profile and the job listing are added automatically
+            below it. <code>{'{lang_name}'}</code> is replaced with the output language — it must stay in the prompt.</>}
+          value={cvPrompt}
+          saved={settings.cv_prompt}
+          defaultValue={settings.cv_prompt_default}
+          rows={14}
+          onChange={setCvPrompt}
+          onSave={() => savePrompt({ cv_prompt: cvPrompt })}
+        />
+
+        <PromptEditor
+          title="Job Suggestions — link extraction prompt"
+          help="Picks which of a page's links are real job openings. The list of links found on the page is added automatically below it."
+          value={scanExtract}
+          saved={settings.scan_extract_prompt}
+          defaultValue={settings.scan_extract_prompt_default}
+          onChange={setScanExtract}
+          onSave={() => savePrompt({ scan_extract_prompt: scanExtract })}
+        />
+
+        <PromptEditor
+          title="Job Suggestions — relevance filter prompt"
+          help="Decides which new openings match you. The relevant parts of your profile are added automatically below it."
+          value={scanFilter}
+          saved={settings.scan_filter_prompt}
+          defaultValue={settings.scan_filter_prompt_default}
+          onChange={setScanFilter}
+          onSave={() => savePrompt({ scan_filter_prompt: scanFilter })}
+        />
+      </Collapsible>
     </div>
   )
 }

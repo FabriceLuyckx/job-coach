@@ -6,9 +6,22 @@ from contextlib import contextmanager
 from app.paths import DB_PATH
 
 
+def _add_column(conn: sqlite3.Connection, table: str, column_ddl: str) -> None:
+    """ALTER TABLE ... ADD COLUMN that tolerates the column already existing but
+    still surfaces real failures (locked DB, disk full)."""
+    try:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column_ddl}")
+    except sqlite3.OperationalError as e:
+        if "duplicate column" not in str(e).lower():
+            raise
+
+
 def init_db() -> None:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     with get_db() as conn:
+        # WAL lets the background scan/generation threads write while foreground
+        # requests read, instead of tripping over "database is locked".
+        conn.execute("PRAGMA journal_mode=WAL")
         conn.execute("""
             CREATE TABLE IF NOT EXISTS cv_history (
                 id              TEXT PRIMARY KEY,
@@ -26,11 +39,8 @@ def init_db() -> None:
         # Migrate existing tables that may lack newer columns.
         # plans_json holds per-language tailoring plans: {"en": {...}, "nl": {...}}
         # so language switches and edits don't clobber each other.
-        for col, coltype in [("summary", "TEXT"), ("plan_json", "TEXT"), ("plans_json", "TEXT")]:
-            try:
-                conn.execute(f"ALTER TABLE cv_history ADD COLUMN {col} {coltype}")
-            except Exception:
-                pass
+        for col in ("summary TEXT", "plan_json TEXT", "plans_json TEXT"):
+            _add_column(conn, "cv_history", col)
 
         # Phase 5 — job sources the user adds, and openings the scan has seen.
         conn.execute("""
@@ -59,15 +69,12 @@ def init_db() -> None:
                 decided_at   TEXT
             )
         """)
-        try:
-            conn.execute("ALTER TABLE job_openings ADD COLUMN lang TEXT NOT NULL DEFAULT 'en'")
-        except Exception:
-            pass
+        _add_column(conn, "job_openings", "lang TEXT NOT NULL DEFAULT 'en'")
 
 
 @contextmanager
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=10)
     conn.row_factory = sqlite3.Row
     try:
         yield conn

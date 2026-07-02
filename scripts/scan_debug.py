@@ -10,14 +10,10 @@ ones it judged interesting with their reason + detected language.
 """
 
 import argparse
-import json
-from pathlib import Path
 
 from app import config
 from app.services import job_scanner
-from app.services.cv_renderer import PROFILE_PATH
-
-ROOT = Path(__file__).resolve().parent.parent
+from app.services.cv_renderer import load_profile
 
 
 def main() -> None:
@@ -26,9 +22,9 @@ def main() -> None:
     args = ap.parse_args()
 
     cfg = config.load()
-    api_key = cfg.get("openrouter_api_key", "")
-    model = cfg.get("openrouter_model", "anthropic/claude-sonnet-4-6")
-    if not api_key:
+    try:
+        api_key, model = config.require_llm(cfg)
+    except ValueError:
         raise SystemExit("Set openrouter_api_key in config.json / Settings first.")
 
     links = job_scanner.fetch_listing_links(args.url)
@@ -43,7 +39,7 @@ def main() -> None:
     for o in openings:
         print(f"    {o['title'][:60]!r:64} {o['url']}")
 
-    profile = json.loads(PROFILE_PATH.read_text(encoding="utf-8"))
+    profile = load_profile()
     matches = job_scanner.filter_openings(openings, profile, api_key, model,
                                           cfg.get("scan_filter_prompt") or None)
     print(f"\n[3] {len(matches)} judged interesting:")

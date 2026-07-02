@@ -1,5 +1,3 @@
-import base64
-import shutil
 from pathlib import Path
 
 import httpx
@@ -8,12 +6,30 @@ from pydantic import BaseModel
 
 from app import config
 from app.services.cv_generator import DEFAULT_CV_PROMPT
+from app.services.cv_renderer import PHOTO_EXTS, load_photo
 from app.services.job_scanner import DEFAULT_EXTRACT_PROMPT, DEFAULT_SCAN_PROMPT
 from app.paths import PHOTO_DIR
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
 
-ALLOWED_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
+ALLOWED_EXTS = {f".{ext}" for ext in PHOTO_EXTS}
+MAX_PHOTO_BYTES = 10 * 1024 * 1024
+
+# Magic-byte signatures so a renamed non-image can't be saved as the CV photo.
+_IMAGE_SIGNATURES = {
+    ".jpg": (b"\xff\xd8\xff",),
+    ".jpeg": (b"\xff\xd8\xff",),
+    ".png": (b"\x89PNG\r\n\x1a\n",),
+    ".webp": (b"RIFF",),  # + 'WEBP' at offset 8, checked separately
+}
+
+
+def _looks_like_image(suffix: str, head: bytes) -> bool:
+    if not any(head.startswith(sig) for sig in _IMAGE_SIGNATURES.get(suffix, ())):
+        return False
+    if suffix == ".webp":
+        return head[8:12] == b"WEBP"
+    return True
 
 
 class SettingsIn(BaseModel):
@@ -68,7 +84,7 @@ def openrouter_usage():
     if not key:
         raise HTTPException(400, "No OpenRouter API key set.")
     headers = {"Authorization": f"Bearer {key}"}
-    out: dict = {"ok": True, "balance": None, "usage": None, "remaining": None, "is_free_tier": None}
+    out: dict = {"balance": None, "usage": None, "remaining": None, "is_free_tier": None}
     try:
         kr = httpx.get("https://openrouter.ai/api/v1/key", headers=headers, timeout=10)
         if kr.status_code in (401, 403):
@@ -97,29 +113,37 @@ def put_settings(body: SettingsIn):
     # caught here rather than on the first CV generation / job scan.
     if updates.get("openrouter_api_key"):
         _verify_openrouter_key(updates["openrouter_api_key"])
+    # The tailoring prompt must keep its language placeholder, or every CV would
+    # silently come out in English regardless of the requested language.
+    if updates.get("cv_prompt") and "{lang_name}" not in updates["cv_prompt"]:
+        raise HTTPException(400, "The CV prompt must contain the {lang_name} placeholder.")
     config.save(updates)
     return {"ok": True}
 
 
 @router.post("/photo")
-async def upload_photo(file: UploadFile = File(...)):
-    suffix = Path(file.filename).suffix.lower()
+def upload_photo(file: UploadFile = File(...)):
+    suffix = Path(file.filename or "").suffix.lower()
     if suffix not in ALLOWED_EXTS:
-        raise HTTPException(400, f"Unsupported file type: {suffix}")
-    for ext in ("jpg", "jpeg", "png", "webp"):
+        raise HTTPException(400, f"Unsupported file type: {suffix or '(none)'}")
+    data = file.file.read(MAX_PHOTO_BYTES + 1)
+    if len(data) > MAX_PHOTO_BYTES:
+        raise HTTPException(400, "Photo is too large (max 10 MB).")
+    if not _looks_like_image(suffix, data[:16]):
+        raise HTTPException(400, "That file doesn't look like a valid JPEG/PNG/WebP image.")
+    for ext in PHOTO_EXTS:
         old = PHOTO_DIR / f"photo.{ext}"
         if old.exists():
             old.unlink()
     dest = PHOTO_DIR / f"photo{suffix}"
-    with dest.open("wb") as f:
-        shutil.copyfileobj(file.file, f)
+    dest.write_bytes(data)
     return {"ok": True, "filename": dest.name}
 
 
 @router.delete("/photo")
 def delete_photo():
     deleted = False
-    for ext in ("jpg", "jpeg", "png", "webp"):
+    for ext in PHOTO_EXTS:
         p = PHOTO_DIR / f"photo.{ext}"
         if p.exists():
             p.unlink()
@@ -129,10 +153,5 @@ def delete_photo():
 
 @router.get("/photo")
 def get_photo():
-    for ext in ("jpg", "jpeg", "png", "webp"):
-        p = PHOTO_DIR / f"photo.{ext}"
-        if p.exists():
-            mime = "image/jpeg" if ext in ("jpg", "jpeg") else f"image/{ext}"
-            data = base64.b64encode(p.read_bytes()).decode()
-            return {"exists": True, "data_uri": f"data:{mime};base64,{data}"}
-    return {"exists": False, "data_uri": None}
+    uri = load_photo()
+    return {"exists": uri is not None, "data_uri": uri}

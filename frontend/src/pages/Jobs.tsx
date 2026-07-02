@@ -1,14 +1,18 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Search, Inbox, RotateCcw, ExternalLink, Check, X } from 'lucide-react'
 import { api, type JobSource, type JobOpening } from '../api'
 import Button from '../components/Button'
 import RemoveButton from '../components/RemoveButton'
-
-// Must match JOB_ID_KEY in CVGenerator.tsx — the CV Generator picks up these
-// pending keys on mount: it polls the in-progress generation and shows its URL.
-const CV_JOB_KEY = 'cv_pending_job_id'
-const CV_JOB_URL_KEY = 'cv_pending_job_url'
-const CV_OPEN_URL_KEY = 'cv_open_url'  // open the existing CV whose job_url matches
+import Badge from '../components/Badge'
+import EmptyState from '../components/EmptyState'
+import CreditChip from '../components/CreditChip'
+import { useToast } from '../components/Toast'
+import { useKeyStatus } from '../components/KeyStatus'
+import { handoff } from '../lib/handoff'
+import { errMsg } from '../lib/errors'
+import { formatDateTime } from '../lib/format'
+import { usePoller } from '../lib/usePoller'
 
 function host(url: string): string {
   try { return new URL(url).hostname.replace('www.', '') } catch { return url }
@@ -16,166 +20,242 @@ function host(url: string): string {
 
 export default function JobsPage() {
   const navigate = useNavigate()
+  const toast = useToast()
+  const { keySet } = useKeyStatus()
   const [sources, setSources] = useState<JobSource[]>([])
   const [openings, setOpenings] = useState<JobOpening[]>([])
   const [lastScan, setLastScan] = useState<string | null>(null)
   const [newUrl, setNewUrl] = useState('')
   const [scanning, setScanning] = useState(false)
-  const [scanMsg, setScanMsg] = useState('')
-  const [error, setError] = useState('')
+  const [scanProgress, setScanProgress] = useState('')
+  const [sourceErrors, setSourceErrors] = useState<Record<string, string>>({})
+  const [loadError, setLoadError] = useState('')
   const [busy, setBusy] = useState<string | null>(null)
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const poller = usePoller()
 
-  function reloadOpenings() { api.getOpenings().then(setOpenings).catch(() => {}) }
-  useEffect(() => {
-    api.getJobSources().then(setSources).catch(() => {})
-    api.getLastScan().then(r => setLastScan(r.last_scan)).catch(() => {})
-    reloadOpenings()
-    return () => { if (pollRef.current) clearInterval(pollRef.current) }
+  const load = useCallback(() => {
+    setLoadError('')
+    Promise.all([api.getJobSources(), api.getOpenings(), api.getLastScan()])
+      .then(([s, o, l]) => { setSources(s); setOpenings(o); setLastScan(l.last_scan) })
+      .catch(e => setLoadError(errMsg(e)))
   }, [])
+
+  useEffect(load, [load])
+
+  function reloadOpenings() {
+    api.getOpenings().then(setOpenings).catch(e => toast.error(errMsg(e)))
+  }
 
   async function addSource() {
     const url = newUrl.trim()
     if (!url) return
-    setError('')
     try {
-      await api.addJobSource(url)
+      const added = await api.addJobSource(url)
       setNewUrl('')
-      api.getJobSources().then(setSources).catch(() => {})
+      setSources(s => [...s, added])
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e))
+      toast.error(errMsg(e))
     }
   }
 
   async function removeSource(id: string) {
-    await api.deleteJobSource(id).catch(() => {})
-    setSources(s => s.filter(x => x.id !== id))
-  }
-
-  async function refresh() {
-    setError(''); setScanning(true); setScanMsg('')
     try {
-      const { scan_id } = await api.startScan()
-      pollRef.current = setInterval(async () => {
-        try {
-          const s = await api.getScanStatus(scan_id)
-          if (s.status === 'done') {
-            clearInterval(pollRef.current!)
-            setScanning(false)
-            setScanMsg(s.found ? `Found ${s.found} new listing(s)` : 'No new listings')
-            reloadOpenings()
-            api.getLastScan().then(r => setLastScan(r.last_scan)).catch(() => {})
-          } else if (s.status === 'error') {
-            clearInterval(pollRef.current!)
-            setScanning(false); setScanMsg('')
-            setError(s.error ?? 'Scan failed')
-          }
-        } catch {
-          clearInterval(pollRef.current!)
-          setScanning(false); setScanMsg('')
-          setError('Scan failed — the server may have restarted.')
-        }
-      }, 2000)
+      await api.deleteJobSource(id)
+      setSources(s => s.filter(x => x.id !== id))
     } catch (e) {
-      setScanning(false); setScanMsg('')
-      setError(e instanceof Error ? e.message : String(e))
+      toast.error(errMsg(e))
     }
   }
 
-  async function accept(o: JobOpening) {
-    setBusy(o.id); setError('')
+  async function scan() {
+    setScanning(true)
+    setScanProgress('Starting…')
+    setSourceErrors({})
+    try {
+      const { scan_id } = await api.startScan()
+      poller.start(async () => {
+        try {
+          const s = await api.getScanStatus(scan_id)
+          if (s.status === 'running' && s.total) {
+            setScanProgress(`Scanning ${s.source ?? ''} (${s.current} of ${s.total})…`)
+            return false
+          }
+          if (s.status === 'done') {
+            setScanning(false)
+            setScanProgress('')
+            setSourceErrors(s.errors ?? {})
+            toast.success(s.found ? `Found ${s.found} new listing${s.found === 1 ? '' : 's'}` : 'No new listings found')
+            reloadOpenings()
+            api.getLastScan().then(r => setLastScan(r.last_scan)).catch(() => {})
+            return true
+          }
+          if (s.status === 'error') {
+            setScanning(false)
+            setScanProgress('')
+            toast.error(s.error ?? 'Scan failed')
+            return true
+          }
+          return false
+        } catch {
+          setScanning(false)
+          setScanProgress('')
+          toast.error('Scan failed — the server may have restarted.')
+          return true
+        }
+      })
+    } catch (e) {
+      setScanning(false)
+      setScanProgress('')
+      toast.error(errMsg(e))
+    }
+  }
+
+  async function accept(o: JobOpening, retry = false) {
+    setBusy(o.id)
     try {
       const { cv_job_id, job_url } = await api.acceptOpening(o.id)
       // Hand off to the CV Generator, which polls this pending job on mount.
-      localStorage.setItem(CV_JOB_KEY, cv_job_id)
-      localStorage.setItem(CV_JOB_URL_KEY, job_url)
+      handoff.setPendingJob(cv_job_id, job_url)
       navigate('/cv')
     } catch (e) {
       setBusy(null)
-      setError(e instanceof Error ? e.message : String(e))
+      toast.error(errMsg(e))
     }
+    if (retry) return
   }
 
   async function reject(o: JobOpening) {
     setBusy(o.id)
-    await api.rejectOpening(o.id).catch(() => {})
-    setBusy(null)
-    reloadOpenings()
+    try {
+      await api.rejectOpening(o.id)
+      reloadOpenings()
+      toast.info(`Rejected “${o.title}”`, {
+        action: {
+          label: 'Undo',
+          onClick: async () => {
+            try {
+              await api.restoreOpening(o.id)
+              reloadOpenings()
+            } catch (e) { toast.error(errMsg(e)) }
+          },
+        },
+      })
+    } catch (e) {
+      toast.error(errMsg(e))
+    } finally {
+      setBusy(null)
+    }
   }
 
   function openCV(o: JobOpening) {
-    localStorage.setItem(CV_OPEN_URL_KEY, o.url)
+    handoff.setOpenUrl(o.url)
     navigate('/cv')
   }
 
   const suggested = openings.filter(o => o.status === 'suggested')
   const decided = openings.filter(o => o.status !== 'suggested')
+  const failedSources = Object.entries(sourceErrors)
 
   return (
     <div>
-      <h1 className="page-title">Job Suggestions</h1>
+      <div className="page-head">
+        <h1 className="page-title">Job Suggestions</h1>
+        <CreditChip />
+      </div>
 
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div className="section-title" style={{ marginBottom: 10 }}>Sources</div>
-        <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 0 }}>
+      {loadError && (
+        <div className="load-error">
+          <span style={{ flex: 1 }}>Couldn't load this page: {loadError}</span>
+          <Button variant="secondary" onClick={load}>Retry</Button>
+        </div>
+      )}
+
+      <div className="card">
+        <div className="section-title" style={{ marginBottom: 'var(--space-2)' }}>Sources</div>
+        <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>
           Add job-listing pages to watch. Finding new listings scans each for openings
           and filters them against your profile.
         </p>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
           <input
             value={newUrl}
             onChange={e => setNewUrl(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addSource()}
             placeholder="https://example.com/jobs"
+            aria-label="Job listing page URL"
             style={{ flex: 1 }}
           />
-          <Button variant="secondary" onClick={addSource}>+ Add</Button>
+          <Button variant="secondary" onClick={addSource}>Add</Button>
         </div>
-        {sources.length === 0 && (
-          <div style={{ color: 'var(--muted)', fontSize: 13 }}>No sources yet.</div>
-        )}
+        {sources.length === 0 && <div className="muted-sm">No sources yet — paste a careers-page URL above.</div>}
         {sources.map(s => (
-          <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
+          <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', padding: '4px 0' }}>
             <a href={s.url} target="_blank" rel="noreferrer" style={{ flex: 1 }}>{s.name}</a>
-            <RemoveButton onClick={() => removeSource(s.id)} />
+            {sourceErrors[s.name] && (
+              <span className="muted-sm" style={{ color: 'var(--danger)' }}>couldn't be read</span>
+            )}
+            <RemoveButton onClick={() => removeSource(s.id)} title={`Remove ${s.name}`} />
           </div>
         ))}
-        <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Button variant="primary" onClick={refresh} busy={scanning} disabled={sources.length === 0}>
-            {scanning ? 'Scanning…' : '🔍 Find new listings'}
+        <div style={{ marginTop: 'var(--space-3)', display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+          <Button
+            variant="primary"
+            onClick={scan}
+            busy={scanning}
+            disabled={sources.length === 0 || keySet === false}
+            title={keySet === false ? 'Add your OpenRouter API key in Settings first' : undefined}
+          >
+            {!scanning && <Search size={15} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
+            {scanning ? (scanProgress || 'Scanning…') : 'Find new listings'}
           </Button>
-          <span style={{ color: 'var(--muted)', fontSize: 13 }}>
-            {scanMsg && !scanning ? scanMsg + ' · ' : ''}
-            {lastScan ? `Last scan: ${new Date(lastScan).toLocaleString()}` : 'Never scanned'}
+          <span className="muted-sm">
+            {lastScan ? `Last scan: ${formatDateTime(lastScan)}` : 'Never scanned'}
           </span>
         </div>
+        {keySet === false && (
+          <p className="muted-sm" style={{ marginTop: 'var(--space-2)' }}>
+            Scanning needs an OpenRouter API key — add one in Settings.
+          </p>
+        )}
+        {failedSources.length > 0 && (
+          <div className="load-error" style={{ marginTop: 'var(--space-3)', marginBottom: 0 }}>
+            <div style={{ flex: 1 }}>
+              {failedSources.map(([name, err]) => (
+                <div key={name}>Couldn't read <strong>{name}</strong> — {err}</div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {error && <p className="error-msg" style={{ marginBottom: 16 }}>{error}</p>}
-
-      <div className="section-title" style={{ marginBottom: 10 }}>Suggestions</div>
-      {suggested.length === 0 && (
-        <div style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 16 }}>
-          No pending suggestions. Add a source and find new listings.
+      <div className="section-title" style={{ marginBottom: 'var(--space-3)' }}>Suggestions</div>
+      {suggested.length === 0 ? (
+        <div style={{ marginBottom: 'var(--space-5)' }}>
+          <EmptyState icon={Inbox} title="No suggestions yet">
+            {sources.length === 0
+              ? 'Add a job-listing page above, then find new listings — openings that match your profile will appear here.'
+              : 'Run “Find new listings” — openings that match your profile will appear here with a short reason.'}
+          </EmptyState>
         </div>
-      )}
-      {suggested.map(o => (
-        <div key={o.id} className="card" style={{ marginBottom: 8, display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+      ) : suggested.map(o => (
+        <div key={o.id} className="card" style={{ marginBottom: 'var(--space-2)', display: 'flex', alignItems: 'flex-start', gap: 'var(--space-4)' }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 600 }}>
+            <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
               <a href={o.url} target="_blank" rel="noreferrer">{o.title}</a>
-              <span style={{ marginLeft: 8, fontSize: 11, color: 'var(--muted)', textTransform: 'uppercase' }}>{o.lang}</span>
+              <Badge variant="lang">{o.lang}</Badge>
             </div>
-            <div style={{ color: 'var(--muted)', fontSize: 12 }}>{host(o.source_url)}</div>
-            {o.reason && <div style={{ fontSize: 13, marginTop: 6 }}>{o.reason}</div>}
+            <div className="muted-sm">{host(o.source_url)}</div>
+            {o.reason && <div style={{ fontSize: 'var(--fs-sm)', marginTop: 'var(--space-2)' }}>{o.reason}</div>}
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', flexShrink: 0 }}>
             <Button variant="primary" onClick={() => accept(o)} busy={busy === o.id}
               title="Generates a tailored CV for this job and opens it in the CV Generator">
-              ✓ Accept → generate CV
+              <Check size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
+              Accept → generate CV
             </Button>
-            <Button variant="danger" onClick={() => reject(o)} disabled={busy === o.id}>
-              ✕ Reject
+            <Button variant="secondary" onClick={() => reject(o)} disabled={busy === o.id}>
+              <X size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
+              Reject
             </Button>
           </div>
         </div>
@@ -183,28 +263,49 @@ export default function JobsPage() {
 
       {decided.length > 0 && (
         <>
-          <div className="section-title" style={{ marginTop: 24, marginBottom: 10 }}>History</div>
+          <div className="section-title" style={{ marginTop: 'var(--space-6)', marginBottom: 'var(--space-3)' }}>History</div>
           {decided.map(o => {
             const rejected = o.status === 'rejected'
             return (
               <div key={o.id} className="card"
-                style={{ marginBottom: 6, opacity: rejected ? 0.5 : 1, display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+                style={{ marginBottom: 'var(--space-2)', opacity: rejected ? 0.55 : 1, display: 'flex', alignItems: 'flex-start', gap: 'var(--space-4)' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 500 }}>
-                    <span style={{ marginRight: 6 }}>{rejected ? '✕' : '✓'}</span>
+                  <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {rejected
+                      ? <X size={14} color="var(--muted)" aria-hidden />
+                      : <Check size={14} color="var(--success)" aria-hidden />}
                     <a href={o.url} target="_blank" rel="noreferrer">{o.title}</a>
                   </div>
-                  <div style={{ color: 'var(--muted)', fontSize: 12 }}>
+                  <div className="muted-sm">
                     {host(o.source_url)} · {rejected ? 'Rejected' : 'Accepted'}
                   </div>
-                  {o.reason && <div style={{ fontSize: 13, marginTop: 6 }}>{o.reason}</div>}
+                  {o.reason && <div style={{ fontSize: 'var(--fs-sm)', marginTop: 'var(--space-2)' }}>{o.reason}</div>}
                 </div>
-                {!rejected && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 }}>
-                    <Button variant="secondary" onClick={() => openCV(o)}>Open CV</Button>
-                    <Button variant="danger" onClick={() => reject(o)} disabled={busy === o.id}>✕ Reject</Button>
-                  </div>
-                )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', flexShrink: 0 }}>
+                  {rejected ? (
+                    <Button variant="ghost" onClick={async () => {
+                      try { await api.restoreOpening(o.id); reloadOpenings() } catch (e) { toast.error(errMsg(e)) }
+                    }}>
+                      <RotateCcw size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
+                      Restore
+                    </Button>
+                  ) : (
+                    <>
+                      <Button variant="secondary" onClick={() => openCV(o)}>
+                        <ExternalLink size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
+                        Open CV
+                      </Button>
+                      <Button variant="ghost" onClick={() => accept(o, true)} busy={busy === o.id}
+                        title="Run the CV generation for this opening again">
+                        <RotateCcw size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
+                        Regenerate CV
+                      </Button>
+                      <Button variant="ghost" className="btn-icon-danger" onClick={() => reject(o)} disabled={busy === o.id}>
+                        Reject
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
             )
           })}

@@ -28,6 +28,9 @@ from app.paths import (  # noqa: E402  (re-exported for callers and scripts)
 # source checkout RESOURCE_DIR is the repo root, so this is unchanged for them.
 ROOT = RESOURCE_DIR
 
+# Accepted CV-photo file extensions, shared by upload, serving, and backup.
+PHOTO_EXTS = ("jpg", "jpeg", "png", "webp")
+
 MONTH_ABBR = {
     "01": "Jan", "02": "Feb", "03": "Mar", "04": "Apr",
     "05": "May", "06": "Jun", "07": "Jul", "08": "Aug",
@@ -122,8 +125,18 @@ def normalize_skills(skills: dict | None) -> dict:
 
 def load_profile(path: Path = PROFILE_PATH) -> dict:
     """Read profile.json and normalize its skills to the groups+languages shape, so
-    legacy and migrated files both render and edit identically."""
-    profile = json.loads(path.read_text(encoding="utf-8"))
+    legacy and migrated files both render and edit identically.
+
+    Raises ValueError with a user-readable message when the file is missing or
+    corrupt, so callers surface a clear error instead of a stack trace."""
+    try:
+        profile = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        raise ValueError("profile.json not found — fill in your Profile first.")
+    except json.JSONDecodeError as e:
+        raise ValueError(f"profile.json is not valid JSON ({e}). Fix or restore the file.")
+    if not isinstance(profile, dict):
+        raise ValueError("profile.json must contain a JSON object.")
     profile["skills"] = normalize_skills(profile.get("skills"))
     return profile
 
@@ -185,7 +198,7 @@ def teaching_line(teaching) -> str:
 
 def load_photo() -> str | None:
     """Return a base64 data URI for profile/photo.{jpg,jpeg,png,webp}, or None."""
-    for ext in ("jpg", "jpeg", "png", "webp"):
+    for ext in PHOTO_EXTS:
         path = PHOTO_DIR / f"photo.{ext}"
         if path.exists():
             mime = "image/jpeg" if ext in ("jpg", "jpeg") else f"image/{ext}"
