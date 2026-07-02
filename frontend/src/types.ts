@@ -3,11 +3,10 @@ export interface Location {
   country: string
 }
 
-export interface Links {
-  github?: string
-  linkedin?: string
-  google_scholar?: string
-  [key: string]: string | undefined
+/** A labelled profile/portfolio link, e.g. { label: "LinkedIn", url: "..." }. */
+export interface Link {
+  label: string
+  url: string
 }
 
 export interface Personal {
@@ -15,32 +14,19 @@ export interface Personal {
   location: Location
   email: string
   phone: string
-  links: Links
+  links: Link[]
   professional_title: string
   headline?: string
   keywords: string[]
 }
 
 export interface Narrative {
-  target_roles_description: string
+  /** What the candidate is looking for next — feeds job matching, not printed. */
+  looking_for: string
   target_industries: string[]
   differentiation: string
   problems_enjoyed: string
-  topics_to_teach: string[]
-  research_themes: string
   work_to_avoid: string
-}
-
-export interface TeamSize {
-  min: number
-  max: number
-}
-
-export interface Relevance {
-  teaching: string | null
-  research: string | null
-  leadership: string | null
-  interdisciplinarity: string | null
 }
 
 export interface Experience {
@@ -49,21 +35,14 @@ export interface Experience {
   employer: string
   location: string
   start_date: string
+  /** null / empty ⇒ current role (single source of truth for "current"). */
   end_date: string | null
-  is_current: boolean
-  full_time: boolean
-  team_size: number | TeamSize
-  reporting_structure: string
   responsibilities: string[]
-  technical_difficulty: string
-  impact: string
   technologies: string[]
-  mentored: boolean
-  mentoring_detail?: string
-  presentations: string[]
-  presentations_detail?: string
-  achievements: string[]
-  relevance: Relevance
+  /** Optional free-text: when this role is most relevant (for the AI). */
+  relevance_note: string
+  /** Optional free-text: any extra context for the AI, never printed. */
+  ai_context: string
 }
 
 export interface Education {
@@ -81,19 +60,19 @@ export interface Collaborator {
   affiliation: string
 }
 
+/** A user-named group of tags, e.g. { label: "Design tools", items: [...] }. */
+export interface Group {
+  label: string
+  items: string[]
+}
+
 export interface Academic {
   research_areas: string[]
-  methods: {
-    neural_analyses: string[]
-    computational_modelling: string[]
-    [key: string]: string[]
-  }
-  datasets_tools: {
-    data_types: string[]
-    tools: string[]
-  }
+  methods: Group[]
   interdisciplinary_work: string[]
   collaborators: Collaborator[]
+  research_themes: string
+  topics_to_teach: string[]
 }
 
 export interface Publication {
@@ -151,6 +130,40 @@ export interface Teaching {
   educational_materials: string
 }
 
+export interface Volunteering {
+  role: string
+  organisation: string
+  start_date: string
+  end_date: string | null
+  description: string
+}
+
+export interface Course {
+  name: string
+  provider: string
+  year?: number | null
+}
+
+export interface Membership {
+  name: string
+  role?: string
+  year?: number | null
+}
+
+/** One entry inside a user-defined custom section. */
+export interface CustomItem {
+  heading: string
+  subheading?: string
+  date?: string
+  description?: string
+}
+
+/** A fully user-defined CV section — the escape hatch for anything unforeseen. */
+export interface CustomSection {
+  title: string
+  items: CustomItem[]
+}
+
 export interface LanguageSkill {
   language: string
   level: number
@@ -169,17 +182,25 @@ export interface Skills {
   languages: LanguageSkill[]
 }
 
+export interface Salary {
+  min: number | null
+  max: number | null
+  currency: string
+  period: string
+  notes: string
+}
+
 export interface WorkPreferences {
   commute_radius: string[]
   remote_hybrid: string
-  institution_type_preference: string
-  research_vs_teaching: string
-  leadership_interest: string
-  salary_current_gross: number
-  salary_mobility_budget: number
+  organisation_preferences: string
+  salary: Salary
   schedule: string
   language_preferences: string[]
   relocation: string
+  contract_types: string[]
+  availability: string
+  travel: string
 }
 
 export interface CVDesignPreferences {
@@ -195,9 +216,19 @@ export interface CVDesignPreferences {
   paper_size: string
 }
 
+export interface ProfileMeta {
+  version: string
+  last_updated: string
+  schema: string
+  /** Which optional sections the user has enabled (survives reload). */
+  enabled_sections: string[]
+}
+
 export interface Profile {
-  meta: { version: string; last_updated: string; schema: string }
+  meta: ProfileMeta
   personal: Personal
+  /** CV professional summary, shown at the top of the CV. */
+  summary: string
   narrative: Narrative
   experience: Experience[]
   education: Education[]
@@ -208,8 +239,12 @@ export interface Profile {
   skills: Skills
   work_preferences: WorkPreferences
   cv_design_preferences: CVDesignPreferences
-  // Optional sections — absent on older profiles; always treat as [] when missing.
-  projects?: Project[]
-  certifications?: Certification[]
-  awards?: Award[]
+  // Optional sections — always present as [] after normalization.
+  projects: Project[]
+  certifications: Certification[]
+  awards: Award[]
+  volunteering: Volunteering[]
+  courses: Course[]
+  memberships: Membership[]
+  custom_sections: CustomSection[]
 }

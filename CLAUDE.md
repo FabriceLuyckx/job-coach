@@ -222,8 +222,9 @@ uv run python scripts/tailor_cv.py --url https://... --lang nl
 
 **API endpoints**:
 ```
-GET  /api/profile              Return full profile JSON
+GET  /api/profile              Return full profile JSON (blank v2 skeleton if none yet)
 PUT  /api/profile              Save updated profile JSON
+POST /api/profile/import       Extract a v2 profile from a CV (PDF/text) → returned for review, not saved
 GET  /api/settings             Return app settings (API key masked)
 PUT  /api/settings             Update settings (key, model)
 POST /api/settings/photo       Upload profile photo
@@ -410,26 +411,52 @@ For CLI use without the web UI, create `config.json` manually:
 
 ## Data Formats
 
-### profile.json top-level keys
+### profile.json — schema v2 (`career-profile-v2`)
+
+The schema is **career-neutral**: it works for any field, not the original owner's
+academic/data questionnaire. `load_profile()` runs every file through
+`normalize_profile()` (in `app/services/cv_renderer.py`), which upgrades older v1
+files to v2 **in memory** on load; the next auto-save persists the v2 shape. The
+migration is idempotent, so v2 files pass through untouched.
+
 | Key | Description |
 |-----|-------------|
-| `meta` | Schema version and last-updated date |
-| `personal` | Name, contact details, links, title, keywords, optional `headline` tagline |
-| `narrative` | Career goals, target industries, differentiation, topics to avoid |
-| `experience[]` | Work history with responsibilities, achievements, technologies, and relevance tags |
-| `education[]` | Academic history (degree, field, institution, years, distinction) |
-| `academic` | Research areas, methods, datasets/tools, collaborators |
-| `publications[]` | Selected publications — each a full APA `citation` string + optional `description` |
-| `grants[]` | Fellowships and scholarships |
-| `projects[]` | (optional) Notable projects — `name`, `description`, `url?`, `technologies[]` |
-| `certifications[]` | (optional) Professional certifications — `name`, `issuer`, `year?` |
-| `awards[]` | (optional) Non-academic honours — `name`, `year?`, `description?` |
-| `teaching` | Formal teaching, guest lectures, supervision, mentoring, materials |
-| `skills` | `groups[]` (user-named `{label, items[]}` skill groups, any field) + `languages[]` (`{language, level 1–5, label}`, CEFR star scale). Legacy fixed categories are auto-migrated to groups on load by `normalize_skills()`. |
-| `work_preferences` | Location, remote/hybrid, salary, schedule, language, relocation |
+| `meta` | `version`, `schema`, `last_updated`, and **`enabled_sections[]`** — the optional sections the user has turned on (survives reload; this is section presence, not derived from data) |
+| `personal` | Name, `professional_title`, optional `headline`, contact details, `keywords[]`, and **`links[]`** — an ordered list of `{label, url}` (was a fixed LinkedIn/GitHub/Scholar dict in v1) |
+| `summary` | **Top-level** CV professional summary (was `narrative.target_roles_description`) |
+| `narrative` | Career context for the AI: `looking_for`, `target_industries[]`, `differentiation`, `problems_enjoyed`, `work_to_avoid` |
+| `experience[]` | `title`, `employer`, `location`, `start_date`, `end_date` (empty ⇒ current — the single source of truth), `responsibilities[]` (CV bullets), `technologies[]`, and two optional free-text notes: `relevance_note` + `ai_context` (never printed). v1's `is_current`, `full_time`, `team_size`, `reporting_structure`, `impact`, `mentored`, `presentations`, `achievements`, and the 4-axis `relevance` object are collapsed into these on migration |
+| `education[]` | Degree, field, institution, years, distinction |
+| `skills` | `groups[]` (user-named `{label, items[]}`, any field) + `languages[]` (`{language, level 1–5, label}`, CEFR star scale). Legacy fixed categories auto-migrate to groups |
+| `work_preferences` | `commute_radius[]`, `remote_hybrid`, `relocation`, `contract_types[]`, `schedule`, `availability`, `travel`, `language_preferences[]`, free-text `organisation_preferences`, and `salary: {min, max, currency, period, notes}` (expected range, not v1's single current-salary number) |
+| `academic` | (optional) `research_areas[]`, `methods[]` (user-named `{label, items[]}` groups — was fixed neural/computational buckets), `interdisciplinary_work[]`, `collaborators[]`, `research_themes`, `topics_to_teach[]` |
+| `publications[]` | (optional) Full APA `citation` string + optional `description` |
+| `grants[]` | (optional) Fellowships and scholarships |
+| `teaching` | (optional) Formal teaching, guest lectures, supervision, mentoring, materials |
+| `projects[]` | (optional) `name`, `description`, `url?`, `technologies[]` |
+| `certifications[]` | (optional) `name`, `issuer`, `year?` |
+| `courses[]` | (optional) Courses & training — `name`, `provider`, `year?` |
+| `awards[]` | (optional) `name`, `year?`, `description?` |
+| `volunteering[]` | (optional) `role`, `organisation`, `start_date`, `end_date`, `description` |
+| `memberships[]` | (optional) Professional memberships — `name`, `role?`, `year?` |
+| `custom_sections[]` | (optional) The escape hatch — `{title, items: [{heading, subheading?, date?, description?}]}`, each rendered as its own titled CV section |
 | `cv_design_preferences` | Visual preferences for CV output |
 
-The `experience[].relevance` object has four keys (`teaching`, `research`, `leadership`, `interdisciplinarity`) used by Claude when generating tailored CVs for different job types.
+**Section presence** is driven by `meta.enabled_sections` and the frontend registry
+`frontend/src/lib/profileSections.ts` (core vs optional, labels, badges,
+descriptions). The Profile page can **hide** an optional section without deleting
+its data (it just leaves `enabled_sections`). A brand-new install starts from
+`blank_profile()` (empty skeleton) rather than seeding the example person.
+
+**CV import** (`app/services/cv_importer.py`, `POST /api/profile/import`): extract a
+v2 profile from an uploaded PDF (`pypdf`) or pasted text via one forced-tool LLM
+call (`extracted_profile`), reshaped and normalized, then **returned for review**
+(not saved) — the client persists it on the next auto-save.
+
+**Tailoring gate**: the CV tailoring plan carries `excluded_sections[]` (enum of
+optional printable sections) so the AI can drop sections irrelevant to a given job;
+`apply_tailoring` empties those keys. `include_publications`/`include_teaching`
+keep their dedicated gates.
 
 ### Job sources
 

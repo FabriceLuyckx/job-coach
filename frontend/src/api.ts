@@ -97,6 +97,14 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(p),
     }),
+  // Extract a profile from an existing CV (PDF upload or pasted text). Returns the
+  // normalized profile for review; it is not saved server-side.
+  importProfile: (input: { text?: string; file?: File }) => {
+    const form = new FormData()
+    if (input.file) form.append('file', input.file)
+    if (input.text) form.append('text', input.text)
+    return request<Profile>('/profile/import', { method: 'POST', body: form })
+  },
 
   // CV generation (async)
   startGenerateCV: (url: string, lang: string) =>
