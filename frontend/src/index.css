@@ -373,6 +373,28 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   font-size: var(--fs-base);
 }
 .add-section-menu button:hover:not(:disabled) { background: var(--accent-soft); }
+.add-section-menu.wide { min-width: 340px; max-width: 400px; }
+.add-section-menu.wide button { padding: 10px 12px; }
+.add-section-menu-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.add-section-menu-label { font-weight: 600; }
+.add-section-menu-hint {
+  font-size: 11px; color: var(--muted); border: 1px solid var(--border);
+  border-radius: 999px; padding: 1px 7px;
+}
+.add-section-menu-desc { display: block; font-size: var(--fs-sm); color: var(--muted); margin-top: 3px; line-height: 1.4; }
+
+/* Inline "I currently work here" style checkbox row on entry forms. */
+.checkbox-row {
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+  font-size: var(--fs-sm); color: var(--ink); margin-bottom: var(--space-3);
+}
+.checkbox-row input { width: auto; }
+
+/* Small "Hide" affordance in a section header. */
+.section-hide {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: var(--fs-sm); padding: 4px 8px;
+}
 
 .callout {
   display: flex;
@@ -392,6 +414,11 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 }
 .callout-highlight .callout-icon { color: var(--highlight); flex-shrink: 0; margin-top: 1px; }
 .callout-highlight a { color: var(--highlight); font-weight: 500; text-decoration: underline; }
+.callout-warn {
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+  color: var(--ink);
+}
 
 /* ── Spinner ────────────────────────────────────────────────────────────── */
 .spinner {

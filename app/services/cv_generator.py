@@ -42,6 +42,10 @@ class TailoringPlan:
     # static sidebar text (education degrees/fields, distinctions, grant names,
     # language names) that isn't part of the editable per-role content.
     sidebar_translations: dict[str, str] = field(default_factory=dict)
+    # Optional printable sections the model judged irrelevant to this role and
+    # wants dropped (e.g. "volunteering", "certifications"). Additive to the
+    # dedicated include_publications / include_teaching gates.
+    excluded_sections: list[str] = field(default_factory=list)
 
 
 _TOOL = {
@@ -111,6 +115,14 @@ _TOOL = {
                     "type": "string",
                     "description": "When include_teaching is true, a compact ONE-LINE teaching summary in the target language drawn from the profile's teaching data (formal teaching, guest lectures, supervision) — e.g. 'Guest lecturer at UGent and AMS; tutorials at Oxford; supervised multiple students'. Empty string when include_teaching is false.",
                 },
+                "excluded_sections": {
+                    "type": "array",
+                    "items": {"type": "string", "enum": [
+                        "projects", "volunteering", "certifications", "courses",
+                        "awards", "memberships", "grants", "custom_sections",
+                    ]},
+                    "description": "Optional CV sections present in the profile that are NOT relevant to this role and should be dropped from the CV. Omit or leave empty to keep them all. Do not list publications or teaching here — those have their own flags.",
+                },
             },
         },
     },
@@ -134,6 +146,7 @@ Rules:
 - Keep bullets concise (one line each); never more than 4 per role
 - Publications section: set include_publications=true ONLY for research/academic/university roles; set false for industry, tech, or data engineering roles
 - Teaching section: set include_teaching=true ONLY when teaching/lecturing/training/supervision matters for the role; when true, write teaching_summary as a single compact line in {lang_name} drawn from the profile's teaching data; otherwise set include_teaching=false and teaching_summary=""
+- Optional sections (projects, volunteering, certifications, courses, awards, memberships, grants, custom_sections): list in excluded_sections any that are clearly irrelevant to this role so they are dropped; keep the rest
 - Use the experience relevance notes in the profile to decide which entries best match the role type"""
 
 
@@ -222,6 +235,7 @@ def tailor(
         include_teaching=d.get("include_teaching", False),
         teaching_summary=d.get("teaching_summary", "") or "",
         sidebar_translations=d.get("sidebar_translations", {}) or {},
+        excluded_sections=list(d.get("excluded_sections", []) or []),
     )
 
 
@@ -250,6 +264,9 @@ def _start_key(entry: dict) -> tuple[int, int]:
 def apply_tailoring(profile: dict, plan: TailoringPlan) -> dict:
     """Merge a TailoringPlan into a profile dict, returning a modified copy."""
     p = copy.deepcopy(profile)
+    # v2: the CV professional summary is a top-level field. Keep writing the legacy
+    # narrative key too so CVs from tailoring plans stored before v2 still render.
+    p["summary"] = plan.summary
     p.setdefault("narrative", {})["target_roles_description"] = plan.summary
 
     exp_by_id = {e["id"]: e for e in p.get("experience", []) if e.get("id")}
@@ -270,6 +287,16 @@ def apply_tailoring(profile: dict, plan: TailoringPlan) -> dict:
 
     if not plan.include_publications:
         p["publications"] = []
+
+    # Drop any optional printable sections the model judged irrelevant. Publications
+    # and teaching keep their dedicated gates above/below; everything else here.
+    _EXCLUDABLE = {
+        "projects", "volunteering", "certifications", "courses",
+        "awards", "memberships", "grants", "custom_sections",
+    }
+    for key in plan.excluded_sections:
+        if key in _EXCLUDABLE:
+            p[key] = []
 
     # Teaching renders from teaching.cv_summary (a compact one-liner). When the
     # role doesn't warrant teaching, set it empty so the template guard hides it;

@@ -61,11 +61,10 @@ uv run playwright install chromium
 say "Installing frontend dependencies (npm install)..."
 ( cd frontend && npm install )
 
-# 7. Seed local config + profile from examples (never clobber existing files)
-if [[ ! -f profile/profile.json ]]; then
-  say "Seeding profile/profile.json from profile/profile.example.json"
-  cp profile/profile.example.json profile/profile.json
-fi
+# 7. Seed local config from the example (never clobber an existing file).
+# The profile is intentionally NOT seeded: the app starts with a blank profile so
+# you fill in your own details (or import an existing CV) rather than editing a
+# sample person's data. profile.example.json is kept only as a schema reference.
 if [[ ! -f config.json ]]; then
   say "Seeding config.json from config.json.example"
   cp config.json.example config.json
@@ -81,5 +80,5 @@ cat <<'DONE'
   Then open http://localhost:5173
 
   Add your OpenRouter API key on the Settings page to enable the AI features.
-  (Edit the sample profile on the Profile page or in profile/profile.json.)
+  Then fill in your Profile — or import an existing CV (PDF or paste) to start.
 DONE

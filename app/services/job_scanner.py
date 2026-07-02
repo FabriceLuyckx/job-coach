@@ -167,7 +167,8 @@ def filter_openings(openings: list[dict], profile: dict, api_key: str, model: st
         return {}
     # Only the parts of the profile that drive job relevance — keeps tokens down.
     trimmed = {
-        "title": profile.get("personal", {}).get("title"),
+        "professional_title": profile.get("personal", {}).get("professional_title"),
+        "summary": profile.get("summary"),
         "narrative": profile.get("narrative"),
         "work_preferences": profile.get("work_preferences"),
         "skills": profile.get("skills"),

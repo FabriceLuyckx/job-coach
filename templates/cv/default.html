@@ -423,27 +423,17 @@
     <img src="{{ photo }}" class="photo" alt="{{ personal.name }}" data-section="photo">
     {% endif %}
 
+    {% if personal.links %}
     <div class="section" data-section="links">
       <div class="section-title">{{ labels.links }}</div>
-      {% if personal.links.linkedin %}
+      {% for link in personal.links %}{% if link.url %}
       <div class="link-item">
-        <span class="link-label">LinkedIn</span>
-        <a href="{{ personal.links.linkedin }}">{{ personal.links.linkedin | strip_scheme }}</a>
+        <span class="link-label">{{ link.label }}</span>
+        <a href="{{ link.url }}">{{ link.url | strip_scheme }}</a>
       </div>
-      {% endif %}
-      {% if personal.links.github %}
-      <div class="link-item">
-        <span class="link-label">GitHub</span>
-        <a href="{{ personal.links.github }}">{{ personal.links.github | strip_scheme }}</a>
-      </div>
-      {% endif %}
-      {% if personal.links.google_scholar %}
-      <div class="link-item">
-        <span class="link-label">Google Scholar</span>
-        <a href="{{ personal.links.google_scholar }}">scholar.google.com</a>
-      </div>
-      {% endif %}
+      {% endif %}{% endfor %}
     </div>
+    {% endif %}
 
     <div class="section" data-section="skills">
       <div class="section-title">{{ labels.skills }}</div>
@@ -504,7 +494,7 @@
   <!-- MAIN CONTENT -->
   <main class="main">
 
-    <div class="summary" data-section="summary">{{ narrative.target_roles_description | richtext }}</div>
+    {% if summary %}<div class="summary" data-section="summary">{{ summary | richtext }}</div>{% endif %}
 
     <div class="section" data-section="experience">
       <div class="section-title">{{ labels.experience }}</div>
@@ -584,6 +574,63 @@
       {% endfor %}
     </div>
     {% endif %}
+
+    {% if volunteering %}
+    <div class="section" data-section="volunteering">
+      <div class="section-title">{{ labels.volunteering }}</div>
+      {% for vol in volunteering %}
+      <div class="entry">
+        <div class="entry-header">
+          <span class="entry-title">{{ vol.role }}</span>
+          <span class="entry-date">
+            {{ vol.start_date | format_date }}{% if vol.start_date %} –{% endif %}
+            {% if vol.end_date %}{{ vol.end_date | format_date }}{% elif vol.start_date %}{{ labels.present }}{% endif %}
+          </span>
+        </div>
+        {% if vol.organisation %}<div class="entry-employer">{{ vol.organisation }}</div>{% endif %}
+        {% if vol.description %}<div class="entry-body">{{ vol.description | richtext }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if courses %}
+    <div class="section" data-section="courses">
+      <div class="section-title">{{ labels.courses }}</div>
+      {% for course in courses %}
+      <div class="pub-entry">
+        {{ course.name }}{% if course.provider %} — <span class="pub-journal">{{ course.provider }}</span>{% endif %}{% if course.year %}, {{ course.year }}{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if memberships %}
+    <div class="section" data-section="memberships">
+      <div class="section-title">{{ labels.memberships }}</div>
+      {% for m in memberships %}
+      <div class="pub-entry">
+        {{ m.name }}{% if m.role %} — {{ m.role }}{% endif %}{% if m.year %}, {{ m.year }}{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% for sec in custom_sections %}{% if sec.title and sec['items'] %}
+    <div class="section" data-section="custom">
+      <div class="section-title">{{ sec.title }}</div>
+      {% for item in sec['items'] %}
+      <div class="entry">
+        <div class="entry-header">
+          <span class="entry-title">{{ item.heading }}</span>
+          {% if item.date %}<span class="entry-date">{{ item.date }}</span>{% endif %}
+        </div>
+        {% if item.subheading %}<div class="entry-employer">{{ item.subheading }}</div>{% endif %}
+        {% if item.description %}<div class="entry-body">{{ item.description | richtext }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}{% endfor %}
 
   </main>
 

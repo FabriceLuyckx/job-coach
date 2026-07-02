@@ -229,14 +229,35 @@ if a save fails). Removing an item (a job, degree, publication, …) shows a
 The Profile page is organised into **core** sections that are always shown — Personal
 Info, Professional Summary, Experience, Skills, Education, and Work Preferences — and
 **optional** sections you add on demand via **+ Add a section** (Projects,
-Certifications, Awards, Publications, Grants, Academic Background, Teaching, and Career
-preferences & AI context). Each section carries a small badge showing where its data
+Volunteering, Certifications, Courses & training, Awards, Professional memberships,
+Publications, Grants, Research & academic background, Teaching, Career preferences & AI
+context, and **Custom sections** for anything your field needs). The add-a-section menu
+explains what each one does. Each section carries a small badge showing where its data
 goes:
 
 - **On your CV** — printed on the generated CV.
 - **Helps the AI** — not printed; guides how the AI tailors your CV.
 - **Job matching & letters** — not printed; powers job suggestions and (soon)
   motivational letters. (Work Preferences.)
+
+Every section is career-neutral, so the same page works whether you're a nurse, a
+designer, a lawyer or a researcher. To remove an optional section, use **Hide** in its
+header — this keeps your data (it reappears in **+ Add a section** with a *has content*
+hint); only the per-item ✕ actually deletes anything (with a 5-second Undo).
+
+### Start from an existing CV
+
+A brand-new profile starts empty. Use **Import from an existing CV** (on the empty
+state, or the button in the page header) to upload a PDF or paste your CV text — the AI
+extracts your details into the profile for you to review and edit. Nothing is saved
+until you've checked it, and importing over an existing profile warns you first.
+Requires an OpenRouter API key.
+
+**Experience** entries keep just what a CV needs — title, employer, dates (an *I
+currently work here* checkbox handles current roles), and the bullet points that become
+your CV body. Anything extra for the AI (context, when a role is most relevant) lives
+behind an optional **Notes for the AI** panel. Drag the handle on any Experience,
+Education, Publication or Project entry to reorder it.
 
 **Skills** are organised into named groups you control — add a group with any heading
 that fits your field (e.g. *Technical skills*, *Clinical skills*, *Design tools*) and tag
