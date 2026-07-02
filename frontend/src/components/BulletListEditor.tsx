@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { GripVertical } from 'lucide-react'
 import Button from './Button'
 import RemoveButton from './RemoveButton'
 
@@ -81,8 +82,9 @@ export default function BulletListEditor({ value, onChange, placeholder = 'Add i
               onDragStart={e => { setDragIdx(i); e.dataTransfer.effectAllowed = 'move' }}
               onDragEnd={() => { setDragIdx(null); setDropAt(null) }}
               title="Drag to reorder"
-              style={{ cursor: 'grab', color: 'var(--muted)', flexShrink: 0, padding: '0 4px', fontSize: 14, userSelect: 'none' }}
-            >⠿</span>
+              aria-label="Drag to reorder"
+              style={{ cursor: 'grab', color: 'var(--muted)', flexShrink: 0, padding: '0 2px', userSelect: 'none', display: 'inline-flex' }}
+            ><GripVertical size={15} aria-hidden /></span>
           )}
           <input
             ref={el => { inputs.current[i] = el }}

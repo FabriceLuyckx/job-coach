@@ -20,6 +20,8 @@ export interface SetupStatus {
 // First-run status of the one-time PDF-engine (Chromium) download.
 export const getSetupStatus = () => request<SetupStatus>('/setup/status')
 
+export type JobStatus = 'pending' | 'running' | 'done' | 'error'
+
 export interface CVResult {
   history_id: string
   slug: string
@@ -31,6 +33,15 @@ export interface CVResult {
   job_url: string
   lang: string
   has_plan: boolean
+}
+
+/** Shared return shape of relang / regenerate. */
+export interface CVMutation {
+  lang: string
+  slug: string
+  summary: string
+  tailoring_notes: string
+  preview_url: string
 }
 
 export interface CVPlanRole {
@@ -96,7 +107,7 @@ export const api = {
     }),
 
   getCVJobStatus: (jobId: string) =>
-    request<{ status: string; result?: CVResult; error?: string }>(`/cv/status/${jobId}`),
+    request<{ status: JobStatus; result?: CVResult; error?: string }>(`/cv/status/${jobId}`),
 
   getCVHistory: () => request<CvHistoryEntry[]>('/cv/history'),
 
@@ -111,23 +122,18 @@ export const api = {
     }),
 
   relangCV: (id: string, lang: string) =>
-    request<{ lang: string; slug: string; summary: string; tailoring_notes: string; preview_url: string }>(
-      `/cv/relang/${id}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lang }),
-      },
-    ),
+    request<CVMutation>(`/cv/relang/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lang }),
+    }),
 
   regenerateCV: (id: string, keepEdits: boolean) =>
-    request<{ lang: string; slug: string; summary: string; tailoring_notes: string; preview_url: string }>(
-      `/cv/regenerate/${id}`,
-      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ keep_edits: keepEdits }) },
-    ),
-
-  getCVSummary: (id: string) =>
-    request<{ summary: string }>(`/cv/summary/${id}`),
+    request<CVMutation>(`/cv/regenerate/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ keep_edits: keepEdits }),
+    }),
 
   getCVPlan: (id: string) =>
     request<CVPlan>(`/cv/plan/${id}`),
@@ -155,7 +161,15 @@ export const api = {
 
   startScan: () => request<{ scan_id: string }>('/jobs/scan', { method: 'POST' }),
   getScanStatus: (id: string) =>
-    request<{ status: string; found?: number; error?: string }>(`/jobs/scan/status/${id}`),
+    request<{
+      status: JobStatus
+      found?: number
+      error?: string
+      errors?: Record<string, string> // per-source failures: source name → message
+      current?: number // 1-based index of the source being scanned
+      total?: number
+      source?: string // name of the source being scanned
+    }>(`/jobs/scan/status/${id}`),
   getLastScan: () => request<{ last_scan: string | null }>('/jobs/last-scan'),
 
   getOpenings: () => request<JobOpening[]>('/jobs/openings'),
@@ -163,6 +177,8 @@ export const api = {
     request<{ cv_job_id: string; job_url: string; lang: string }>(`/jobs/openings/${id}/accept`, { method: 'POST' }),
   rejectOpening: (id: string) =>
     request<{ ok: boolean }>(`/jobs/openings/${id}/reject`, { method: 'POST' }),
+  restoreOpening: (id: string) =>
+    request<{ ok: boolean }>(`/jobs/openings/${id}/restore`, { method: 'POST' }),
 
   // Settings
   getSettings: () =>
@@ -184,7 +200,7 @@ export const api = {
       body: JSON.stringify(data),
     }),
   getOpenrouterUsage: () =>
-    request<{ ok: boolean; balance: number | null; usage: number | null; remaining: number | null; is_free_tier: boolean | null }>('/settings/openrouter-usage'),
+    request<{ balance: number | null; usage: number | null; remaining: number | null; is_free_tier: boolean | null }>('/settings/openrouter-usage'),
 
   // Photo
   getPhoto: () => request<{ exists: boolean; data_uri: string | null }>('/settings/photo'),
@@ -194,4 +210,12 @@ export const api = {
     return request<{ ok: boolean; filename: string }>('/settings/photo', { method: 'POST', body: form })
   },
   deletePhoto: () => request<{ ok: boolean; deleted: boolean }>('/settings/photo', { method: 'DELETE' }),
+
+  // Backup & restore
+  backupExportUrl: `${BASE}/backup/export`,
+  importBackup: (file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    return request<{ ok: boolean }>('/backup/import', { method: 'POST', body: form })
+  },
 }

@@ -23,6 +23,19 @@ All your data stays on your machine, in a standard per-user folder:
 - macOS: `~/Library/Application Support/JobCoach/`
 - Windows: `%APPDATA%\JobCoach\`
 
+### Moving to a new computer (backup & restore)
+
+**Settings → Backup & Restore** lets you carry everything over in one file:
+
+- **Export backup** downloads a single `.zip` with your profile and photo, settings,
+  job sources and history, and every generated CV. Your OpenRouter API key is **not**
+  included, so the file is safe to email or store in the cloud.
+- On the new machine, install Job Coach, open **Settings → Backup & Restore**,
+  **Restore from backup** — pick that `.zip` — then re-enter your API key.
+
+Restoring **replaces** your profile, job history and generated CVs on the new machine
+(it doesn't merge). Any API key already set there is left untouched.
+
 > **First-launch security warning (unsigned app):** because the app isn't code-signed
 > yet, the OS will warn the first time. On **macOS**, right-click the app → **Open** →
 > **Open** (or run `xattr -dr com.apple.quarantine "/Applications/Job Coach.app"`).
@@ -82,43 +95,48 @@ cd frontend && npm run dev
 
 Open **http://localhost:5173** in your browser.
 
-On first run, go to **Settings** and enter your [OpenRouter](https://openrouter.ai) API key. This is saved locally to `config.json` (gitignored).
+On first run, a banner guides you to **Settings** to enter your
+[OpenRouter](https://openrouter.ai) API key — it's saved locally to `config.json`
+(gitignored). Until a key is set, the Generate/Scan buttons are disabled with an
+explanation. Your OpenRouter credit balance shows next to the buttons that spend it.
 
-### Customise the CV-tailoring prompt
+### Customise the AI prompts (advanced)
 
-The **Settings** page has a **CV Generator Prompt** editor — the instructions the
-AI follows when tailoring a CV. Edit and save it to change tone, rules, or
-emphasis; use `{lang_name}` where the output language should appear. Your profile
-and the job listing are appended automatically. **Reset to default** restores the
-built-in prompt.
+**Settings → Advanced — AI prompts** (collapsed by default) holds the three
+editable prompts: the CV tailoring prompt and the two job-scanner prompts (link
+extraction, relevance filter). Edit and save to change tone, rules, or emphasis.
+The tailoring prompt must keep the `{lang_name}` placeholder (where the output
+language appears) — saves without it are rejected. Your profile and the job
+listing are appended automatically. **Reset to default** restores the built-in
+prompt.
 
 ### Edit a generated CV
 
 Every generated CV has an **Edit generated content** panel below the preview. You
 can edit the professional summary and each role's bullet points (up to 4 per job),
-drag the ⠿ handle to reorder bullets within a job, and apply formatting by
+drag the handle to reorder bullets within a job, and apply formatting by
 selecting text and pressing **⌘/Ctrl+B** (bold) or **⌘/Ctrl+I** (italic).
 Click **Save all edits** to apply everything at once and re-render.
 
 Edits are stored **per language**, so switching the **Language** dropdown back and
-forth keeps each language's edits intact. **Regenerate** opens a prompt with three
-choices:
-- **Keep my edits, regenerate the rest** — preserves your summary, role selection
-  and bullets, refreshing only the rest (e.g. picking up new sidebar translations).
-- **Regenerate everything** — a fresh AI version, discarding manual edits.
-- **Cancel**.
+forth keeps each language's edits intact.
 
-### Re-tailor an existing CV
+### Update an existing CV
 
-On any generated CV:
-- **Update from Profile** re-renders it with your latest profile data (cheap — no
-  AI call when a tailoring plan is stored).
-- **Regenerate** re-runs the AI to fully re-tailor and re-translate the CV in its
-  current language — use this to pick up profile edits or fix any untranslated text.
-- The **Language** dropdown re-tailors the CV into the other language.
+The **Update CV…** button on any generated CV opens one menu with the three ways
+to refresh it:
 
-The summary and each role's bullet points are written in the CV's language by the
-AI; switching language or regenerating translates them.
+- **Refresh the preview** — re-renders your saved edits with the latest design
+  settings. Free, instant. (Labelled **Save my edits & refresh** when you have
+  unsaved edits.)
+- **Pull in my latest profile** — re-renders from the stored tailoring plan using
+  your current profile data. Free.
+- **Ask the AI to re-tailor** — re-runs the AI against the job listing
+  (~30 seconds, uses credits). You choose whether to **keep your edits** (summary,
+  role selection, bullets are preserved; the rest is refreshed) or **start fresh**.
+
+The **Language** dropdown re-tailors the CV into the other language; the summary
+and bullets are written in the CV's language by the AI.
 
 ---
 
@@ -203,6 +221,11 @@ Alternatively, upload via the **Settings** page in the web UI.
 
 Use the **Profile** page in the web UI, or open `profile/profile.json` directly in any text editor.
 
+**Everything on the Profile page saves automatically as you type** — a status
+indicator in the header shows *Saving… / All changes saved* (with a Retry button
+if a save fails). Removing an item (a job, degree, publication, …) shows a
+5-second **Undo** toast.
+
 The Profile page is organised into **core** sections that are always shown — Personal
 Info, Professional Summary, Experience, Skills, Education, and Work Preferences — and
 **optional** sections you add on demand via **+ Add a section** (Projects,
@@ -231,16 +254,29 @@ See `CLAUDE.md` for the full schema reference.
 The **Job Suggestions** page watches job-listing pages and surfaces openings that fit your profile:
 
 1. **Add sources** — paste the URL of any job-listing page (e.g. a careers or vacancies page) and click **Add**. Add as many as you like.
-2. **Find new listings** — scans each source. It reads the page's actual links (rendering JS-heavy pages in a headless browser when needed), ignores openings seen on a previous scan, and asks the AI to judge only the *new* ones against your profile (goals, role type, location, language). The profile filter is skipped entirely when nothing new is found, and the last-scan time shows next to the button.
-3. **Accept / Reject** — each suggestion can be rejected (greyed out in History) or accepted. **Accepting generates a tailored CV from the job URL — in the posting's language — and takes you straight to the CV Generator**, which shows the URL it's building from.
+2. **Find new listings** — scans each source, showing progress (*Scanning example.com (2 of 5)…*). It reads the page's actual links (rendering JS-heavy pages in a headless browser when needed), ignores openings seen on a previous scan, and asks the AI to judge only the *new* ones against your profile (goals, role type, location, language). The profile filter is skipped entirely when nothing new is found, and the last-scan time shows next to the button. If a source can't be read, it's reported by name after the scan instead of failing silently.
+3. **Accept / Reject** — each suggestion can be rejected (with a 5-second **Undo**) or accepted. **Accepting generates a tailored CV from the job URL — in the posting's language — and takes you straight to the CV Generator**, which shows the URL it's building from.
 
-Accepted and rejected openings stay in the **History** list, newest first (rejected greyed). Accepted entries have **Open CV** to jump to the generated CV, and can still be rejected.
+Accepted and rejected openings stay in the **History** list, newest first. Accepted entries have **Open CV** to jump to the generated CV and **Regenerate CV** to run the generation again (e.g. after a failure); rejected entries can be **Restored** to the suggestions.
 
-You can edit the two scanner prompts (link extraction, relevance filter) on the **Settings** page, and verify a source from the CLI:
+You can edit the two scanner prompts under **Settings → Advanced — AI prompts**, and verify a source from the CLI:
 
 ```bash
 uv run python scripts/scan_debug.py --url https://example.com/jobs
 ```
+
+---
+
+## Run the tests
+
+```bash
+uv run pytest
+```
+
+Covers the backend hardening: upload validation (size caps, image magic bytes),
+backup-import safety (zip bombs, path traversal, manifest checks), slug
+sanitisation, LLM-config and AI-response guards, and profile/prompt validation.
+All tests exercise rejection paths only, so they never touch your local data.
 
 ---
 

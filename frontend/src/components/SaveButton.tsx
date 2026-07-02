@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Check } from 'lucide-react'
 import Button from './Button'
 
 type State = 'idle' | 'saving' | 'saved' | 'error'
@@ -50,7 +51,7 @@ export default function SaveButton({ onSave, dirty, idleLabel = 'Save', savedLab
         onClick={handle}
         className={(saved ? 'btn-saved' : '') + (className ? ' ' + className : '')}
       >
-        {saved ? `✓ ${savedLabel}` : saving ? 'Saving…' : idleLabel}
+        {saved ? <><Check size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />{savedLabel}</> : saving ? 'Saving…' : idleLabel}
       </Button>
     </span>
   )

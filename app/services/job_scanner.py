@@ -19,7 +19,8 @@ from urllib.parse import urljoin
 
 import httpx
 from bs4 import BeautifulSoup
-from openai import OpenAI
+
+from app.services.llm import make_client, tool_args
 
 # Below this many usable links we assume the page is JS-rendered and re-fetch it
 # with a headless browser.
@@ -90,10 +91,6 @@ _FILTER_TOOL = {
 }
 
 
-def _client(api_key: str) -> OpenAI:
-    return OpenAI(base_url="https://openrouter.ai/api/v1", api_key=api_key)
-
-
 def _links_from_html(html: str, page_url: str) -> list[dict]:
     """All <a> with non-empty text + href, absolute-resolved and deduped by url."""
     soup = BeautifulSoup(html, "html.parser")
@@ -139,7 +136,7 @@ def extract_openings(page_url: str, api_key: str, model: str, prompt: str | None
     if not links:
         return []
     listing = "\n".join(f"- {l['text']} → {l['href']}" for l in links)
-    resp = _client(api_key).chat.completions.create(
+    resp = make_client(api_key).chat.completions.create(
         model=model,
         max_tokens=2048,
         messages=[
@@ -149,7 +146,7 @@ def extract_openings(page_url: str, api_key: str, model: str, prompt: str | None
         tools=[_EXTRACT_TOOL],
         tool_choice={"type": "function", "function": {"name": "job_openings"}},
     )
-    args = json.loads(resp.choices[0].message.tool_calls[0].function.arguments)
+    args = tool_args(resp)
     valid = {l["href"] for l in links}
     out, seen = [], set()
     for o in args.get("openings", []):
@@ -176,7 +173,7 @@ def filter_openings(openings: list[dict], profile: dict, api_key: str, model: st
         "skills": profile.get("skills"),
     }
     listing = "\n".join(f"- {o['title']} — {o['url']}" for o in openings)
-    resp = _client(api_key).chat.completions.create(
+    resp = make_client(api_key).chat.completions.create(
         model=model,
         max_tokens=2048,
         messages=[
@@ -188,7 +185,7 @@ def filter_openings(openings: list[dict], profile: dict, api_key: str, model: st
         tools=[_FILTER_TOOL],
         tool_choice={"type": "function", "function": {"name": "relevant_openings"}},
     )
-    args = json.loads(resp.choices[0].message.tool_calls[0].function.arguments)
+    args = tool_args(resp)
     out = {}
     for i in args.get("interesting", []):
         if i.get("url"):

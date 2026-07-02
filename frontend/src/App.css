@@ -3,13 +3,15 @@
   min-height: 100vh;
 }
 
+/* Light paper sidebar with a hairline divider — no more navy block. */
 .sidebar-nav {
-  width: 180px;
+  width: 208px;
   flex-shrink: 0;
-  background: var(--accent);
+  background: var(--paper);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  padding: 20px 0;
+  padding: var(--space-6) 0 var(--space-5);
   position: fixed;
   top: 0;
   left: 0;
@@ -18,48 +20,70 @@
 }
 
 .nav-logo {
-  font-size: 16px;
-  font-weight: 700;
-  color: #fff;
-  padding: 0 20px 24px;
-  letter-spacing: 0.3px;
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 620;
+  color: var(--heading);
+  padding: 0 var(--space-5) var(--space-6);
+  letter-spacing: -0.015em;
+}
+.nav-logo em {
+  font-style: italic;
+  color: var(--accent);
 }
 
 .sidebar-nav a {
-  display: block;
-  padding: 10px 20px;
-  color: rgba(255,255,255,0.75);
-  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px var(--space-5);
+  color: var(--muted);
+  font-size: var(--fs-base);
   font-weight: 500;
   text-decoration: none;
   border-left: 3px solid transparent;
   transition: background 0.15s, color 0.15s;
 }
+.sidebar-nav a svg { flex-shrink: 0; }
 
 .sidebar-nav a:hover {
-  background: rgba(255,255,255,0.08);
-  color: #fff;
+  color: var(--ink);
+  background: var(--accent-soft);
   text-decoration: none;
 }
 
 .sidebar-nav a.active {
-  background: rgba(255,255,255,0.12);
-  color: #fff;
-  border-left-color: rgba(255,255,255,0.8);
+  color: var(--accent);
+  border-left-color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 600;
 }
 
 .nav-spacer { flex: 1; }
 
 .app-content {
-  margin-left: 180px;
+  margin-left: 208px;
   flex: 1;
-  padding: 28px 32px;
-  max-width: 1200px;
+  padding: var(--space-7) var(--space-8);
+}
+
+/* One content width for every page — Settings used to be 640, others 1140. */
+.page-container {
+  max-width: 880px;
 }
 
 .page-title {
   font-size: var(--fs-2xl);
-  font-weight: 700;
-  color: var(--accent);
-  margin-bottom: 24px;
+  margin-bottom: var(--space-6);
 }
+
+/* Page header row: title left, actions right. */
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+.page-head .page-title { margin-bottom: 0; }
+.page-head-actions { display: flex; align-items: center; gap: var(--space-3); }

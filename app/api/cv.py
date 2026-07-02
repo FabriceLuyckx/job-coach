@@ -1,13 +1,14 @@
 import json
 import re
 import threading
+import time
 import uuid
 from dataclasses import asdict
 from datetime import datetime, timezone
 
+import httpx
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import HTMLResponse, Response
-from bs4 import BeautifulSoup
 from pydantic import BaseModel
 
 from app import config, db
@@ -15,12 +16,44 @@ from app.services.cv_generator import (
     DEFAULT_CV_PROMPT, TailoringPlan, apply_tailoring, tailor, _is_active, _start_key,
 )
 from app.services.cv_renderer import LABELS, OUTPUT_DIR, PROFILE_PATH, build_env, load_photo, load_profile
+from app.services.llm import AIResponseError, make_client, message_text
 
 router = APIRouter(prefix="/api/cv", tags=["cv"])
 
 # In-memory job store for async generation
 _jobs: dict[str, dict] = {}
 _jobs_lock = threading.Lock()
+_JOB_TTL = 3600  # seconds a finished generation status stays queryable
+
+
+def _evict_jobs() -> None:
+    """Drop hour-old job statuses so a long-lived process doesn't leak memory.
+    Caller must hold _jobs_lock."""
+    cutoff = time.time() - _JOB_TTL
+    for jid in [j for j, v in _jobs.items() if v.get("created", 0) < cutoff]:
+        del _jobs[jid]
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _clean_slug(slug: str) -> str:
+    """Sanitize a slug from the URL path before it touches the filesystem."""
+    return re.sub(r"[^a-z0-9\-]", "", slug)
+
+
+def _tailor_or_502(profile: dict, job_url: str, api_key: str, model: str,
+                   lang: str, prompt: str) -> TailoringPlan:
+    """tailor() with fetch/AI failures mapped to clean HTTP errors, for the
+    synchronous endpoints (relang/regenerate) where exceptions would otherwise
+    surface as bare 500s."""
+    try:
+        return tailor(profile, job_url, api_key, model, lang, prompt)
+    except AIResponseError as e:
+        raise HTTPException(502, str(e))
+    except httpx.HTTPError as e:
+        raise HTTPException(502, f"Couldn't fetch the job page: {e}")
 
 
 class GenerateRequest(BaseModel):
@@ -56,7 +89,7 @@ def _load_plans(row: dict) -> dict[str, dict]:
     return {}
 
 
-def _persist_plans(id: str, lang: str, plans: dict[str, dict]) -> None:
+def _persist_plans(history_id: str, lang: str, plans: dict[str, dict]) -> None:
     """Write the per-language plans and mirror the active language into the
     legacy columns (lang/plan_json/summary/tailoring_notes) used by the history
     list and older readers."""
@@ -66,7 +99,7 @@ def _persist_plans(id: str, lang: str, plans: dict[str, dict]) -> None:
             "UPDATE cv_history SET lang = ?, plans_json = ?, plan_json = ?, "
             "summary = ?, tailoring_notes = ? WHERE id = ?",
             (lang, json.dumps(plans), json.dumps(cur) if cur else None,
-             cur.get("summary", ""), cur.get("tailoring_notes", ""), id),
+             cur.get("summary", ""), cur.get("tailoring_notes", ""), history_id),
         )
 
 
@@ -121,13 +154,7 @@ def _run_generation(job_id: str, url: str, lang: str) -> None:
             _jobs[job_id]["status"] = "running"
 
         cfg = config.load()
-        api_key = cfg.get("openrouter_api_key", "")
-        model = cfg.get("openrouter_model", "anthropic/claude-sonnet-4-6")
-        if not api_key:
-            raise ValueError("OpenRouter API key not configured. Set it in Settings.")
-        if not PROFILE_PATH.exists():
-            raise ValueError("profile.json not found")
-
+        api_key, model = config.require_llm(cfg)
         profile = load_profile()
         prompt = cfg.get("cv_prompt") or DEFAULT_CV_PROMPT
         plan = tailor(profile, url, api_key, model, lang, prompt)
@@ -144,7 +171,7 @@ def _run_generation(job_id: str, url: str, lang: str) -> None:
                     history_id, slug, plan.job_title, plan.employer, url, lang,
                     plan.tailoring_notes, plan.summary, json.dumps(plan_dict),
                     json.dumps({lang: plan_dict}),
-                    datetime.now(timezone.utc).isoformat(),
+                    _now(),
                 ),
             )
 
@@ -166,7 +193,9 @@ def _run_generation(job_id: str, url: str, lang: str) -> None:
             })
     except Exception as e:
         with _jobs_lock:
-            _jobs[job_id].update({"status": "error", "error": str(e)})
+            # HTTPExceptions carry their message in .detail; everything else in str(e).
+            _jobs[job_id].update({"status": "error",
+                                  "error": getattr(e, "detail", None) or str(e)})
 
 
 def start_generation(url: str, lang: str = "en") -> str:
@@ -176,7 +205,8 @@ def start_generation(url: str, lang: str = "en") -> str:
         raise HTTPException(400, f"Unknown lang '{lang}'. Choices: {list(LABELS)}")
     job_id = str(uuid.uuid4())
     with _jobs_lock:
-        _jobs[job_id] = {"status": "pending"}
+        _evict_jobs()
+        _jobs[job_id] = {"status": "pending", "created": time.time()}
     threading.Thread(target=_run_generation, args=(job_id, url, lang), daemon=True).start()
     return job_id
 
@@ -206,22 +236,22 @@ def get_history():
     return [dict(r) for r in rows]
 
 
-@router.delete("/history/{id}")
-def delete_history(id: str):
+@router.delete("/history/{history_id}")
+def delete_history(history_id: str):
     with db.get_db() as conn:
-        row = conn.execute("SELECT id FROM cv_history WHERE id = ?", (id,)).fetchone()
+        row = conn.execute("SELECT id FROM cv_history WHERE id = ?", (history_id,)).fetchone()
         if not row:
             raise HTTPException(404, "Entry not found")
-        conn.execute("DELETE FROM cv_history WHERE id = ?", (id,))
+        conn.execute("DELETE FROM cv_history WHERE id = ?", (history_id,))
     return {"ok": True}
 
 
-@router.post("/rerender/{id}")
-def rerender_cv(id: str, body: RerenderRequest):
+@router.post("/rerender/{history_id}")
+def rerender_cv(history_id: str, body: RerenderRequest):
     """Re-render the current-language CV from its stored plan + latest profile
     (cheap, no AI). For plan-less legacy entries, re-tailor from the job URL."""
     with db.get_db() as conn:
-        row = conn.execute("SELECT * FROM cv_history WHERE id = ?", (id,)).fetchone()
+        row = conn.execute("SELECT * FROM cv_history WHERE id = ?", (history_id,)).fetchone()
         if not row:
             raise HTTPException(404, "Entry not found")
         row = dict(row)
@@ -236,7 +266,7 @@ def rerender_cv(id: str, body: RerenderRequest):
         if body.summary is not None:
             plan_data["summary"] = body.summary
             plans[lang] = plan_data
-            _persist_plans(id, lang, plans)
+            _persist_plans(history_id, lang, plans)
         plan = TailoringPlan(**plan_data)
         plan.slug = row["slug"]
         profile = load_profile()
@@ -244,13 +274,13 @@ def rerender_cv(id: str, body: RerenderRequest):
     elif row.get("job_url"):
         # No stored plan (older entry) but we have the URL: re-tailor so profile
         # edits are reflected and a plan gets stored for future edits.
-        _retailor(id, row, lang)
+        _retailor(history_id, row, lang)
     # else: nothing to do (caller just reloads the iframe)
 
     return {"ok": True}
 
 
-def _retailor(id: str, row: dict, lang: str, keep_edits: bool = False) -> dict:
+def _retailor(history_id: str, row: dict, lang: str, keep_edits: bool = False) -> dict:
     """Re-run AI tailoring from the stored job URL for the given language, save
     the new HTML, and store the plan for that language. Used by relang + regenerate.
 
@@ -261,16 +291,13 @@ def _retailor(id: str, row: dict, lang: str, keep_edits: bool = False) -> dict:
         raise HTTPException(400, "No job URL stored for this CV, so it can't be regenerated.")
 
     cfg = config.load()
-    api_key = cfg.get("openrouter_api_key", "")
-    model = cfg.get("openrouter_model", "anthropic/claude-sonnet-4-6")
-    if not api_key:
-        raise HTTPException(400, "OpenRouter API key not configured. Set it in Settings.")
-    if not PROFILE_PATH.exists():
-        raise HTTPException(500, "profile.json not found")
-
-    profile = load_profile()
+    try:
+        api_key, model = config.require_llm(cfg)
+        profile = load_profile()
+    except ValueError as e:
+        raise HTTPException(400, str(e))
     prompt = cfg.get("cv_prompt") or DEFAULT_CV_PROMPT
-    plan = tailor(profile, row["job_url"], api_key, model, lang, prompt)
+    plan = _tailor_or_502(profile, row["job_url"], api_key, model, lang, prompt)
     plan.slug = row["slug"]  # keep slug so history identity is stable
 
     plans = _load_plans(row)
@@ -287,59 +314,59 @@ def _retailor(id: str, row: dict, lang: str, keep_edits: bool = False) -> dict:
 
     _render_and_save(plan, profile, lang)
     plans[lang] = asdict(plan)
-    _persist_plans(id, lang, plans)
+    _persist_plans(history_id, lang, plans)
 
     return {"lang": lang, "slug": plan.slug, "summary": plan.summary,
             "tailoring_notes": plan.tailoring_notes,
             "preview_url": f"/api/cv/preview/{plan.slug}/{lang}"}
 
 
-@router.post("/relang/{id}")
-def relang_cv(id: str, body: RelangRequest):
+@router.post("/relang/{history_id}")
+def relang_cv(history_id: str, body: RelangRequest):
     """Switch a CV to another language. If a plan for that language already exists
     (incl. your edits), reuse it — no AI call, no lost edits. Otherwise re-tailor."""
     if body.lang not in LABELS:
         raise HTTPException(400, f"Unknown lang '{body.lang}'. Choices: {list(LABELS)}")
     with db.get_db() as conn:
-        row = conn.execute("SELECT * FROM cv_history WHERE id = ?", (id,)).fetchone()
+        row = conn.execute("SELECT * FROM cv_history WHERE id = ?", (history_id,)).fetchone()
     if not row:
         raise HTTPException(404, "Entry not found")
     row = dict(row)
     plans = _load_plans(row)
 
     if body.lang in plans:
-        _persist_plans(id, body.lang, plans)
+        _persist_plans(history_id, body.lang, plans)
         cur = plans[body.lang]
         return {"lang": body.lang, "slug": row["slug"],
                 "summary": cur.get("summary", ""), "tailoring_notes": cur.get("tailoring_notes", ""),
                 "preview_url": f"/api/cv/preview/{row['slug']}/{body.lang}"}
 
-    return _retailor(id, row, body.lang)
+    return _retailor(history_id, row, body.lang)
 
 
 class RegenerateRequest(BaseModel):
     keep_edits: bool = False
 
 
-@router.post("/regenerate/{id}")
-def regenerate_cv(id: str, body: RegenerateRequest):
+@router.post("/regenerate/{history_id}")
+def regenerate_cv(history_id: str, body: RegenerateRequest):
     """Re-run AI tailoring for the CV's CURRENT language. With keep_edits=True the
     user's summary, role selection and bullets are preserved and only the rest is
     refreshed; otherwise the whole CV is regenerated from scratch."""
     with db.get_db() as conn:
-        row = conn.execute("SELECT * FROM cv_history WHERE id = ?", (id,)).fetchone()
+        row = conn.execute("SELECT * FROM cv_history WHERE id = ?", (history_id,)).fetchone()
     if not row:
         raise HTTPException(404, "Entry not found")
     row = dict(row)
-    return _retailor(id, row, row["lang"], keep_edits=body.keep_edits)
+    return _retailor(history_id, row, row["lang"], keep_edits=body.keep_edits)
 
 
-@router.get("/plan/{id}")
-def get_plan(id: str):
+@router.get("/plan/{history_id}")
+def get_plan(history_id: str):
     """Return the editable AI-generated content (summary + per-role bullets) for
     the CV's current language, for the in-app editor."""
     with db.get_db() as conn:
-        row = conn.execute("SELECT * FROM cv_history WHERE id = ?", (id,)).fetchone()
+        row = conn.execute("SELECT * FROM cv_history WHERE id = ?", (history_id,)).fetchone()
     if not row:
         raise HTTPException(404, "Entry not found")
     row = dict(row)
@@ -367,12 +394,12 @@ def get_plan(id: str):
     return {"lang": lang, "summary": plan.summary, "roles": roles}
 
 
-@router.put("/plan/{id}")
-def put_plan(id: str, body: PlanEdit):
+@router.put("/plan/{history_id}")
+def put_plan(history_id: str, body: PlanEdit):
     """Save edits to the AI-generated content for the current language, then
     re-render. Edits are stored per-language so switching language keeps them."""
     with db.get_db() as conn:
-        row = conn.execute("SELECT * FROM cv_history WHERE id = ?", (id,)).fetchone()
+        row = conn.execute("SELECT * FROM cv_history WHERE id = ?", (history_id,)).fetchone()
     if not row:
         raise HTTPException(404, "Entry not found")
     row = dict(row)
@@ -388,7 +415,7 @@ def put_plan(id: str, body: PlanEdit):
     for r in body.roles:
         plan.adjusted_responsibilities[r.id] = r.bullets[:4]
     plans[lang] = asdict(plan)
-    _persist_plans(id, lang, plans)
+    _persist_plans(history_id, lang, plans)
 
     profile = load_profile()
     plan.slug = row["slug"]
@@ -409,45 +436,21 @@ def _maybe_print(html: str, autoprint: bool) -> str:
     return html.replace("</body>", _PRINT_SCRIPT + "</body>", 1)
 
 
-@router.get("/summary/{id}")
-def get_cv_summary(id: str):
-    """Return the summary text for a history entry (from DB, or parsed from the HTML file)."""
-    with db.get_db() as conn:
-        row = conn.execute(
-            "SELECT slug, lang, summary FROM cv_history WHERE id = ?", (id,)
-        ).fetchone()
-    if not row:
-        raise HTTPException(404, "Entry not found")
-    row = dict(row)
-    if row.get("summary"):
-        return {"summary": row["summary"]}
-    path = OUTPUT_DIR / row["slug"] / f"cv_{row['lang']}.html"
-    if not path.exists():
-        raise HTTPException(404, "CV file not found")
-    soup = BeautifulSoup(path.read_text(encoding="utf-8"), "html.parser")
-    el = soup.find(attrs={"data-section": "summary"})
-    return {"summary": el.get_text(strip=True) if el else ""}
-
-
-@router.post("/summary/{id}/generate")
-def generate_cv_summary(id: str):
+@router.post("/summary/{history_id}/generate")
+def generate_cv_summary(history_id: str):
     """Regenerate just the professional summary via AI, patch the HTML, update DB."""
-    from openai import OpenAI
     with db.get_db() as conn:
-        row = conn.execute("SELECT * FROM cv_history WHERE id = ?", (id,)).fetchone()
+        row = conn.execute("SELECT * FROM cv_history WHERE id = ?", (history_id,)).fetchone()
     if not row:
         raise HTTPException(404, "Entry not found")
     row = dict(row)
 
     cfg = config.load()
-    api_key = cfg.get("openrouter_api_key", "")
-    model_id = cfg.get("openrouter_model", "anthropic/claude-sonnet-4-6")
-    if not api_key:
-        raise HTTPException(400, "OpenRouter API key not configured")
-    if not PROFILE_PATH.exists():
-        raise HTTPException(500, "profile.json not found")
-
-    profile = load_profile()
+    try:
+        api_key, model_id = config.require_llm(cfg)
+        profile = load_profile()
+    except ValueError as e:
+        raise HTTPException(400, str(e))
     lang = row["lang"]
     lang_name = {"en": "English", "nl": "Dutch (Nederlands)"}.get(lang, "English")
 
@@ -462,7 +465,7 @@ def generate_cv_summary(id: str):
     else:
         job_context = f"Job title: {row['job_title']}\nEmployer: {row['employer']}"
 
-    client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=api_key)
+    client = make_client(api_key)
     response = client.chat.completions.create(
         model=model_id,
         max_tokens=512,
@@ -481,42 +484,45 @@ def generate_cv_summary(id: str):
             },
         ],
     )
-    new_summary = response.choices[0].message.content.strip()
+    try:
+        new_summary = message_text(response)
+    except AIResponseError as e:
+        raise HTTPException(502, str(e))
 
     if plan_data:
         # Persist into the per-language plan and re-render from it.
         plan_data["summary"] = new_summary
         plans[lang] = plan_data
-        _persist_plans(id, lang, plans)
+        _persist_plans(history_id, lang, plans)
         plan = TailoringPlan(**plan_data)
         plan.slug = row["slug"]
         _render_and_save(plan, profile, lang)
     else:
         with db.get_db() as conn:
-            conn.execute("UPDATE cv_history SET summary = ? WHERE id = ?", (new_summary, id))
+            conn.execute("UPDATE cv_history SET summary = ? WHERE id = ?", (new_summary, history_id))
 
     return {"summary": new_summary}
 
 
 @router.get("/preview/{slug}", response_class=HTMLResponse)
-def preview_cv(slug: str, print: bool = Query(False, alias="print")):
-    slug = re.sub(r"[^a-z0-9\-]", "", slug)
+def preview_cv(slug: str, autoprint: bool = Query(False, alias="print")):
+    slug = _clean_slug(slug)
     for lang in ("en", "nl"):
         html = _current_html(slug, lang)
         if html is not None:
-            return HTMLResponse(_maybe_print(html, print))
+            return HTMLResponse(_maybe_print(html, autoprint))
     raise HTTPException(404, "CV not found")
 
 
 @router.get("/preview/{slug}/{lang}", response_class=HTMLResponse)
-def preview_cv_lang(slug: str, lang: str, print: bool = Query(False, alias="print")):
-    slug = re.sub(r"[^a-z0-9\-]", "", slug)
+def preview_cv_lang(slug: str, lang: str, autoprint: bool = Query(False, alias="print")):
+    slug = _clean_slug(slug)
     if lang not in LABELS:
         raise HTTPException(400, "Unknown lang")
     html = _current_html(slug, lang)
     if html is None:
         raise HTTPException(404, "CV not found")
-    return HTMLResponse(_maybe_print(html, print))
+    return HTMLResponse(_maybe_print(html, autoprint))
 
 
 @router.get("/pdf/{slug}/{lang}")
@@ -524,7 +530,7 @@ def pdf_cv(slug: str, lang: str):
     """Render the CV to a real PDF (headless Chromium) and return as a download."""
     from app.services.pdf import html_to_pdf
 
-    slug = re.sub(r"[^a-z0-9\-]", "", slug)
+    slug = _clean_slug(slug)
     if lang not in LABELS:
         raise HTTPException(400, "Unknown lang")
     html = _current_html(slug, lang)

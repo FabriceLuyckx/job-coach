@@ -14,7 +14,8 @@ from dataclasses import dataclass, field
 
 import httpx
 from bs4 import BeautifulSoup
-from openai import OpenAI
+
+from app.services.llm import make_client, tool_args
 
 
 @dataclass
@@ -173,10 +174,7 @@ def tailor(
 
     instructions = (prompt or DEFAULT_CV_PROMPT).replace("{lang_name}", lang_name)
 
-    client = OpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        api_key=api_key,
-    )
+    client = make_client(api_key)
 
     response = client.chat.completions.create(
         model=model,
@@ -201,12 +199,15 @@ def tailor(
         tool_choice={"type": "function", "function": {"name": "cv_tailoring_plan"}},
     )
 
-    tool_call = response.choices[0].message.tool_calls[0]
-    d = json.loads(tool_call.function.arguments)
-    slug = re.sub(r"[^a-z0-9]+", "-", d["slug"].lower()).strip("-")
+    d = tool_args(response, required=(
+        "job_title", "employer", "slug", "summary",
+        "selected_experience_ids", "adjusted_responsibilities",
+        "highlighted_skills", "tailoring_notes",
+    ))
+    slug = re.sub(r"[^a-z0-9]+", "-", str(d["slug"]).lower()).strip("-")
 
     # Hard cap at 4 bullets per role regardless of what the model returns.
-    bullets = {eid: list(b)[:4] for eid, b in d["adjusted_responsibilities"].items()}
+    bullets = {eid: list(b)[:4] for eid, b in dict(d["adjusted_responsibilities"]).items()}
 
     return TailoringPlan(
         job_title=d["job_title"],
@@ -249,9 +250,9 @@ def _start_key(entry: dict) -> tuple[int, int]:
 def apply_tailoring(profile: dict, plan: TailoringPlan) -> dict:
     """Merge a TailoringPlan into a profile dict, returning a modified copy."""
     p = copy.deepcopy(profile)
-    p["narrative"]["target_roles_description"] = plan.summary
+    p.setdefault("narrative", {})["target_roles_description"] = plan.summary
 
-    exp_by_id = {e["id"]: e for e in p["experience"]}
+    exp_by_id = {e["id"]: e for e in p.get("experience", []) if e.get("id")}
     filtered = []
     for eid in plan.selected_experience_ids:
         if eid not in exp_by_id:

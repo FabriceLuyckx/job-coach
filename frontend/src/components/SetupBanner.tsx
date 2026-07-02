@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Download, TriangleAlert } from 'lucide-react'
 import { getSetupStatus, type SetupStatus } from '../api'
 
 /**
@@ -38,17 +39,9 @@ export default function SetupBanner() {
     : 'Setting up — downloading the PDF engine (~150 MB, one time). PDF export will be available shortly; everything else works now.'
 
   return (
-    <div
-      role="status"
-      style={{
-        padding: '10px 16px',
-        background: status.error ? '#fdecea' : '#eef4ff',
-        color: status.error ? '#8a1c14' : '#1a3a6b',
-        borderBottom: '1px solid rgba(0,0,0,0.08)',
-        fontSize: 14,
-      }}
-    >
-      {message}
+    <div role="status" className={`setup-banner ${status.error ? 'setup-banner-error' : 'setup-banner-info'}`}>
+      {status.error ? <TriangleAlert size={15} aria-hidden /> : <Download size={15} aria-hidden />}
+      <span>{message}</span>
     </div>
   )
 }

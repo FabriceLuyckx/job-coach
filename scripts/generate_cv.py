@@ -15,7 +15,6 @@ For AI-tailored CVs (adapted to a specific job description), use scripts/tailor_
 """
 
 import argparse
-import json
 import sys
 
 from app.services.cv_renderer import (

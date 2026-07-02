@@ -78,20 +78,28 @@ job-coach/
 │   │   ├── settings.py           # Settings + photo upload endpoints
 │   │   └── jobs.py               # Job sources, scan, accept/reject (Phase 5)
 │   └── services/
+│       ├── llm.py                # Shared OpenRouter client (timeouts) + response validation
 │       ├── cv_generator.py       # OpenRouter-powered tailored CV generation
-│       ├── cv_renderer.py        # Shared Jinja2 utilities
+│       ├── cv_renderer.py        # Shared Jinja2 utilities (+ PHOTO_EXTS, load_profile)
 │       ├── job_scanner.py        # Extract openings from a page + profile-filter (Phase 5)
 │       └── job_matcher.py        # Job scoring/filtering via Claude (Phase 6)
+├── tests/
+│   └── test_hardening.py         # Upload/zip guards, slug + LLM-config helpers (uv run pytest)
 ├── frontend/                     # React + TypeScript SPA (Vite)
 │   └── src/
 │       ├── pages/
-│       │   ├── Profile.tsx       # View/edit career profile
+│       │   ├── Profile.tsx       # View/edit career profile (auto-saves as you type)
 │       │   ├── CVGenerator.tsx   # Paste job URL → generate CV + history
 │       │   ├── Jobs.tsx          # Job sources, AI suggestions, accept/reject (Phase 5)
-│       │   └── Settings.tsx      # OpenRouter API key, model, photo
-│       ├── components/
+│       │   └── Settings.tsx      # OpenRouter API key, model, photo; Advanced → AI prompts
+│       ├── components/           # Shared UI: Button/SaveButton/RemoveButton, Toast,
+│       │   │                     #   Modal, Collapsible, Badge, EmptyState, ErrorBoundary,
+│       │   │                     #   KeyStatus (API-key onboarding), CreditChip
+│       │   ├── cv/CVEditor.tsx   # Per-CV editor panel (preview, Update-CV modal, plan edits)
 │       │   ├── TagInput.tsx
 │       │   └── BulletListEditor.tsx
+│       ├── lib/                  # handoff.ts (Jobs↔CV localStorage keys), usePoller.ts,
+│       │   │                     #   errors.ts (errMsg), format.ts (dates)
 │       ├── api.ts                # Typed API client
 │       └── types.ts              # TypeScript models for profile data
 ├── setup.sh                      # One-command macOS dev setup (deps + seed config/profile)
@@ -203,8 +211,11 @@ uv run python scripts/tailor_cv.py --url https://... --lang nl
   Experience, Skills, Education, Work Preferences) and **optional** sections added via
   **+ Add a section**; each section badged by where its data goes (On your CV / Helps
   the AI / Job matching & letters)
-- Inline editing of any field (text, lists, dates)
-- Configure OpenRouter API key (stored in `config.json`, shown masked in UI)
+- Inline editing of any field (text, lists, dates) with **auto-save** (debounced
+  ~1.5s, single-flight; status shown in the page header; item removals get a 5s
+  Undo toast) — there are no manual Save buttons on the Profile page
+- Configure OpenRouter API key (stored in `config.json`, shown masked in UI);
+  an app-wide banner guides first-run users to Settings until a key is set
 - Trigger CV generation and preview from the browser
 - History of previously generated CVs (persisted in `jobs/jobs.db`)
 - Photo upload/delete via settings
@@ -222,7 +233,17 @@ POST /api/cv/generate          Generate tailored CV → saves HTML + history row
 GET  /api/cv/history           Return all generated CVs, newest first
 GET  /api/cv/preview/{slug}    Return CV HTML for browser preview
 GET  /api/cv/pdf/{slug}/{lang} Render CV to a real PDF (headless Chromium) for download
+GET  /api/backup/export        Download a .zip of user data (config sans secrets, profile, photo, jobs.db, output)
+POST /api/backup/import        Restore a backup .zip (full replace, API key preserved) → re-runs db migrations
 ```
+
+**Backup & restore** (`app/api/backup.py`): export bundles the writable data dir —
+`config.json` (with `openrouter_api_key` stripped), `profile/profile.json` + photo,
+`jobs/jobs.db`, and `output/` — into one `.zip` with a `manifest.json` marker. Import
+validates the marker, guards against path traversal, clears the existing profile photo +
+`output/`, extracts under `DATA_DIR`, and **merges** config (so the destination's API key
+survives) rather than overwriting it, then re-runs `db.init_db()`. Read-only bundled assets
+(templates, frontend) are intentionally excluded. Surfaced in **Settings → Backup & Restore**.
 
 **cv_history table** (`jobs/jobs.db`):
 ```
@@ -263,7 +284,7 @@ cd frontend && npm run dev
 
 **Token-cost design**: link extraction carries no profile context; the expensive profile-filter call runs only on new openings and is skipped entirely when a scan finds nothing new.
 
-**Editable prompts** (Settings, labelled by tab): the link-extraction and relevance-filter prompts (`scan_extract_prompt`, `scan_filter_prompt`) mirror the CV Generator prompt.
+**Editable prompts** (Settings → **Advanced — AI prompts**, collapsed by default): the link-extraction and relevance-filter prompts (`scan_extract_prompt`, `scan_filter_prompt`) mirror the CV Generator prompt. The CV prompt must keep the `{lang_name}` placeholder (validated client- and server-side).
 
 **Key files**:
 - `app/services/job_scanner.py` — `fetch_listing_links()`, `extract_openings()`, `filter_openings()` (returns `{url: {reason, lang}}`); `DEFAULT_EXTRACT_PROMPT`, `DEFAULT_SCAN_PROMPT`
@@ -281,7 +302,13 @@ GET    /api/jobs/last-scan              Last scan timestamp
 GET    /api/jobs/openings               Suggested + decided openings, newest first
 POST   /api/jobs/openings/{id}/accept   Mark accepted + generate CV → {cv_job_id, job_url, lang}
 POST   /api/jobs/openings/{id}/reject   Mark rejected (also works from History)
+POST   /api/jobs/openings/{id}/restore  Back to 'suggested' (Undo for reject)
 ```
+
+**Scan status** (`GET /api/jobs/scan/status/{scan_id}`) reports progress while
+running (`current`/`total`/`source`) and, when done, `found` plus a per-source
+`errors` map (`{source name: message}`) so a broken source is visible instead of
+silently skipped.
 
 **Data model** (SQLite):
 ```
@@ -342,6 +369,21 @@ job_openings: id, url (UNIQUE), title, source_url,
 - Railway starter plan: ~$5/month
 - Vercel: free tier sufficient
 - Anthropic API: pay-per-use, ~$0.01–0.10 per CV generation
+
+**Security prerequisites — MUST be done before any networked deployment.**
+The app is currently localhost-only, where these are low-risk; on a public host
+they are exploitable:
+1. **Authentication on every `/api/*` route.** All endpoints are open today.
+2. **SSRF protection on user-supplied URLs.** `fetch_job_description()`
+   (`app/services/cv_generator.py`) and `fetch_listing_links()`
+   (`app/services/job_scanner.py`, incl. the Playwright fallback) fetch arbitrary
+   URLs with redirects. Before fetching (and again after every redirect), resolve
+   the host and reject private/loopback/link-local ranges and cloud metadata IPs
+   (`169.254.169.254`).
+3. **Real CORS policy** — `app/main.py` currently allows only the Vite dev origin.
+4. **Untrusted-content note in LLM prompts** — scraped page text goes into model
+   calls; keep tool schemas forced (`tool_choice`) and never let scraped content
+   select actions beyond the constrained schema.
 
 ---
 
@@ -416,6 +458,17 @@ Best-in-class long-form text generation and document understanding. The user alr
 
 **Why local-first?**
 Zero hosting cost to start, full data privacy (CV data is sensitive), and simpler to develop and test. The architecture is cloud-ready from day one — adding a `DATABASE_URL` env var and a Dockerfile is all that's needed.
+
+**Why the editorial visual style?**
+The app produces documents, so the UI borrows from print: warm paper background,
+white cards with hairline borders (no drop shadows), a serif display face
+(Fraunces) for headings with Inter for UI text, one terracotta accent, and a
+single lucide-react icon set (no emoji). Tokens live in `frontend/src/index.css`
+(`--paper/--ink/--accent/--space-1..8/--fs-*`); fonts are self-hosted via
+fontsource so the packaged app needs no CDN. All feedback flows through one
+Toast system (errors persist, successes auto-dismiss, destructive actions get
+Undo); Modal/Collapsible/EmptyState/Badge are the shared primitives — pages
+should not reimplement these patterns inline.
 
 **Why SQLite for job data?**
 File-based, no server needed locally, and the job data has no concurrent write requirements. SQLAlchemy abstracts the difference, so migrating to PostgreSQL for cloud deployment is a one-line change.

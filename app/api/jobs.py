@@ -1,7 +1,7 @@
 """Phase 5 — job sources, scanning, and suggestion accept/reject."""
 
-import json
 import threading
+import time
 import uuid
 from datetime import datetime, timezone
 from urllib.parse import urlparse
@@ -11,7 +11,7 @@ from pydantic import BaseModel
 
 from app import config, db
 from app.api.cv import start_generation
-from app.services.cv_renderer import PROFILE_PATH
+from app.services.cv_renderer import load_profile
 from app.services.job_scanner import extract_openings, filter_openings
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
@@ -19,6 +19,15 @@ router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 # In-memory scan status, mirroring the CV-generate pattern.
 _scans: dict[str, dict] = {}
 _scans_lock = threading.Lock()
+_SCAN_TTL = 3600  # seconds a finished scan status stays queryable
+
+
+def _evict_scans() -> None:
+    """Drop hour-old scan statuses so a long-lived process doesn't leak memory.
+    Caller must hold _scans_lock."""
+    cutoff = time.time() - _SCAN_TTL
+    for sid in [s for s, v in _scans.items() if v.get("created", 0) < cutoff]:
+        del _scans[sid]
 
 
 def _now() -> str:
@@ -66,30 +75,30 @@ def _run_scan(scan_id: str) -> None:
             _scans[scan_id]["status"] = "running"
 
         cfg = config.load()
-        api_key = cfg.get("openrouter_api_key", "")
-        model = cfg.get("openrouter_model", "anthropic/claude-sonnet-4-6")
+        api_key, model = config.require_llm(cfg)
         extract_prompt = cfg.get("scan_extract_prompt") or None
         filter_prompt = cfg.get("scan_filter_prompt") or None
-        if not api_key:
-            raise ValueError("OpenRouter API key not configured. Set it in Settings.")
-        if not PROFILE_PATH.exists():
-            raise ValueError("profile.json not found")
-        profile = json.loads(PROFILE_PATH.read_text(encoding="utf-8"))
+        profile = load_profile()
 
         with db.get_db() as conn:
             sources = [dict(r) for r in conn.execute("SELECT * FROM job_sources").fetchall()]
             known = {r["url"] for r in conn.execute("SELECT url FROM job_openings").fetchall()}
 
         found = 0
-        for src in sources:
+        errors: dict[str, str] = {}  # source name → what went wrong
+        for i, src in enumerate(sources):
+            with _scans_lock:
+                _scans[scan_id].update({"current": i + 1, "total": len(sources),
+                                        "source": src["name"] or src["url"]})
+            # One bad source shouldn't abort the whole scan — but the user must
+            # be able to see which source failed and why.
             try:
                 openings = extract_openings(src["url"], api_key, model, extract_prompt)
-            except Exception:
-                continue  # one bad source shouldn't abort the whole scan
-            new = [o for o in openings if o["url"] not in known]
-            if not new:
+                new = [o for o in openings if o["url"] not in known]
+                matches = filter_openings(new, profile, api_key, model, filter_prompt) if new else {}
+            except Exception as e:
+                errors[src["name"] or src["url"]] = str(e)
                 continue
-            matches = filter_openings(new, profile, api_key, model, filter_prompt)
             with db.get_db() as conn:
                 for o in new:
                     m = matches.get(o["url"])
@@ -107,7 +116,7 @@ def _run_scan(scan_id: str) -> None:
 
         config.save({"jobs_last_scan": _now()})  # ponytail: scan time in config.json to avoid a one-value table.
         with _scans_lock:
-            _scans[scan_id].update({"status": "done", "found": found})
+            _scans[scan_id].update({"status": "done", "found": found, "errors": errors})
     except Exception as e:
         with _scans_lock:
             _scans[scan_id].update({"status": "error", "error": str(e)})
@@ -117,7 +126,8 @@ def _run_scan(scan_id: str) -> None:
 def scan():
     scan_id = str(uuid.uuid4())
     with _scans_lock:
-        _scans[scan_id] = {"status": "pending"}
+        _evict_scans()
+        _scans[scan_id] = {"status": "pending", "created": time.time()}
     threading.Thread(target=_run_scan, args=(scan_id,), daemon=True).start()
     return {"scan_id": scan_id}
 
@@ -156,6 +166,19 @@ def reject_opening(oid: str):
         conn.execute(
             "UPDATE job_openings SET status = 'rejected', decided_at = ? WHERE id = ?",
             (_now(), oid),
+        )
+    return {"ok": True}
+
+
+@router.post("/openings/{oid}/restore")
+def restore_opening(oid: str):
+    """Put a decided opening back among the suggestions (the Undo for reject)."""
+    with db.get_db() as conn:
+        if not conn.execute("SELECT 1 FROM job_openings WHERE id = ?", (oid,)).fetchone():
+            raise HTTPException(404, "Opening not found")
+        conn.execute(
+            "UPDATE job_openings SET status = 'suggested', decided_at = NULL WHERE id = ?",
+            (oid,),
         )
     return {"ok": True}
 
