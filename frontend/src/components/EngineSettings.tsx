@@ -68,6 +68,7 @@ export default function EngineSettings({ provider, onProviderChange }: {
       startedRef.current = false
       const msg = errMsg(e)
       // The RAM pre-check is overridable — offer to proceed.
+      // ponytail: native confirm here and in remove(); swap for the shared Modal if these grow options
       if (/RAM/i.test(msg) && window.confirm(t('engine.local.confirmForce', { msg }))) return download(true)
       toast.error(msg)
     }
