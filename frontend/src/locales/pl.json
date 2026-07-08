@@ -303,7 +303,7 @@
       "title": "Importuj z istniejącego CV",
       "help": "Prześlij plik PDF lub wklej tekst swojego CV. AI wyodrębni Twoje dane do profilu, abyś mógł je przejrzeć i edytować — nic nie zostanie zapisane, dopóki tego nie sprawdzisz.",
       "replaceWarn": "Spowoduje to zastąpienie danych aktualnie zapisanych w Twoim profilu.",
-      "localWarn": "Używasz bezpłatnego modelu lokalnego: importowanie CV może być wolne i mniej dokładne. Aby uzyskać najlepsze wyniki, przełącz się na klucz OpenRouter w <settings>Ustawieniach</settings>.",
+      "localWarn": "Używasz bezpłatnego modelu lokalnego: importowanie CV może być wolne i mniej dokładne. Aby uzyskać najlepsze wyniki, przełącz się na klucz OpenRouter w Ustawieniach.",
       "uploadPdf": "Prześlij PDF",
       "pasteText": "…lub wklej tekst swojego CV",
       "pastePlaceholder": "Wklej tutaj pełny tekst swojego CV",
@@ -540,7 +540,7 @@
   },
   "onboarding": {
     "welcome": "Witaj w Job Coach",
-    "intro": "Dwa szybkie wybory i gotowe. Oba możesz zmienić później w <settings>Ustawieniach</settings>.",
+    "intro": "Dwa szybkie wybory i gotowe. Oba możesz zmienić później w Ustawieniach.",
     "skip": "Pomiń na razie",
     "back": "Wstecz",
     "next": "Dalej",

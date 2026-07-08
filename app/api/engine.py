@@ -95,6 +95,14 @@ def _run_download(download_id: str, model_id: str) -> None:
                 _downloads[download_id]["state"] = "resuming"
 
         with httpx.stream("GET", url, headers=headers, follow_redirects=True, timeout=60) as r:
+            if resume_at and r.status_code != 206:
+                # Server ignored the Range (200 = full body, 416 = part already
+                # past EOF, e.g. from a differently-sized upstream file). Appending
+                # would corrupt the model — drop the partial and start from zero.
+                resume_at = 0
+                part.unlink(missing_ok=True)
+                if r.status_code != 200:
+                    r.raise_for_status()
             r.raise_for_status()
             total = int(r.headers.get("content-length", 0)) + resume_at
             with _dl_lock:
@@ -108,6 +116,12 @@ def _run_download(download_id: str, model_id: str) -> None:
                     with _dl_lock:
                         _downloads[download_id]["bytes_done"] += len(chunk)
 
+        # Tripwire: a truncated stream that ended without error must not become a
+        # "ready" model. content-length is authoritative when the server sent one.
+        if total and part.stat().st_size != total:
+            raise RuntimeError(
+                f"Download incomplete ({part.stat().st_size} of {total} bytes) — try again to resume."
+            )
         part.replace(target)
         with _dl_lock:
             _downloads[download_id].update({"state": "done", "bytes_done":
@@ -186,6 +200,12 @@ def latest_download_status():
 
 @router.delete("/model")
 def delete_model(model_id: str | None = None):
+    # Deleting the .part file out from under the download thread would make the
+    # download fail at the final rename — refuse while one is running.
+    with _dl_lock:
+        if any(v.get("state") in ("downloading", "resuming", "pending")
+               for v in _downloads.values()):
+            raise HTTPException(409, "A download is in progress — wait for it to finish first.")
     cfg = config.load()
     mid = model_id or cfg.get("local_model_id") or config.DEFAULT_LOCAL_MODEL
     path = local_model_path(mid)

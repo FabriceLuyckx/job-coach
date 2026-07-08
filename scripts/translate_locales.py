@@ -1,11 +1,14 @@
 """Dev tool: translate the English UI catalog into the shipped Tier-1 locales.
 
 Diffs frontend/src/locales/en.json against each target locale and translates only
-new or changed keys (so routine releases cost cents, not a full re-translation),
-using the configured AI engine. Placeholders like {{name}} are preserved verbatim.
+keys missing from the target (so routine releases cost cents, not a full
+re-translation), using the configured AI engine. A key whose English *text*
+changed keeps its old translation — use --full (or delete the key from the
+target locale) to refresh it. Placeholders like {{name}} and tags like <b> are
+preserved verbatim.
 
 Usage:
-    uv run python scripts/translate_locales.py                # all shipped locales, changed keys only
+    uv run python scripts/translate_locales.py                # all shipped locales, new keys only
     uv run python scripts/translate_locales.py --lang nl fr   # specific locales
     uv run python scripts/translate_locales.py --lang de --full   # full re-translation
 """
@@ -28,6 +31,7 @@ SHIPPED = {
 }
 
 _PLACEHOLDER = re.compile(r"\{\{[^}]+\}\}")
+_TAG = re.compile(r"</?[a-zA-Z]+>")
 _BATCH = 40
 
 _TOOL = {
@@ -104,7 +108,10 @@ def _translate_batch(pairs: list[tuple[str, str]], lang_name: str, cfg: dict) ->
 
 
 def _placeholders_ok(src: str, dst: str) -> bool:
-    return sorted(_PLACEHOLDER.findall(src)) == sorted(_PLACEHOLDER.findall(dst))
+    """Same {{placeholders}} AND same <tags> — models sometimes invent <settings>
+    links where the source has none, which then renders as literal markup."""
+    return (sorted(_PLACEHOLDER.findall(src)) == sorted(_PLACEHOLDER.findall(dst))
+            and sorted(_TAG.findall(src)) == sorted(_TAG.findall(dst)))
 
 
 def translate_locale(lang: str, full: bool, cfg: dict) -> None:

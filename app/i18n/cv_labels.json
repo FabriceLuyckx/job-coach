@@ -25,5 +25,50 @@
     "awards": "Distinctions", "teaching": "Enseignement", "present": "Présent",
     "volunteering": "Bénévolat", "courses": "Cours & Formations",
     "memberships": "Adhésions"
+  },
+  "de": {
+    "links": "Links", "skills": "Kompetenzen", "languages": "Sprachen",
+    "education": "Ausbildung", "grants": "Stipendien & Fellowships",
+    "experience": "Beruflicher Werdegang", "publications": "Ausgewählte Publikationen",
+    "projects": "Projekte", "certifications": "Zertifikate",
+    "awards": "Auszeichnungen", "teaching": "Lehre", "present": "Heute",
+    "volunteering": "Ehrenamt", "courses": "Kurse & Weiterbildung",
+    "memberships": "Mitgliedschaften"
+  },
+  "es": {
+    "links": "Enlaces", "skills": "Competencias", "languages": "Idiomas",
+    "education": "Formación", "grants": "Becas y ayudas",
+    "experience": "Trayectoria profesional", "publications": "Publicaciones seleccionadas",
+    "projects": "Proyectos", "certifications": "Certificaciones",
+    "awards": "Premios", "teaching": "Docencia", "present": "Actualidad",
+    "volunteering": "Voluntariado", "courses": "Cursos y formación",
+    "memberships": "Afiliaciones"
+  },
+  "it": {
+    "links": "Link", "skills": "Competenze", "languages": "Lingue",
+    "education": "Istruzione", "grants": "Borse di studio e fellowship",
+    "experience": "Percorso professionale", "publications": "Pubblicazioni selezionate",
+    "projects": "Progetti", "certifications": "Certificazioni",
+    "awards": "Riconoscimenti", "teaching": "Didattica", "present": "Oggi",
+    "volunteering": "Volontariato", "courses": "Corsi e formazione",
+    "memberships": "Affiliazioni"
+  },
+  "pt": {
+    "links": "Ligações", "skills": "Competências", "languages": "Línguas",
+    "education": "Formação", "grants": "Bolsas e fellowships",
+    "experience": "Percurso profissional", "publications": "Publicações selecionadas",
+    "projects": "Projetos", "certifications": "Certificações",
+    "awards": "Prémios", "teaching": "Ensino", "present": "Presente",
+    "volunteering": "Voluntariado", "courses": "Cursos e formação",
+    "memberships": "Associações"
+  },
+  "pl": {
+    "links": "Linki", "skills": "Umiejętności", "languages": "Języki",
+    "education": "Wykształcenie", "grants": "Granty i stypendia",
+    "experience": "Doświadczenie zawodowe", "publications": "Wybrane publikacje",
+    "projects": "Projekty", "certifications": "Certyfikaty",
+    "awards": "Nagrody", "teaching": "Dydaktyka", "present": "Obecnie",
+    "volunteering": "Wolontariat", "courses": "Kursy i szkolenia",
+    "memberships": "Członkostwa"
   }
 }

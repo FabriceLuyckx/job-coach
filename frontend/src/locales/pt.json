@@ -303,7 +303,7 @@
       "title": "Importar de um CV existente",
       "help": "Carregue um PDF ou cole o texto do seu CV. A IA extrai os seus dados para o perfil para que os reveja e edite — nada é guardado até confirmar.",
       "replaceWarn": "Isto substitui os dados atualmente no seu perfil.",
-      "localWarn": "Está a usar o modelo local gratuito: importar um CV pode ser lento e menos preciso. Para melhores resultados, configure uma chave OpenRouter nas <settings>Definições</settings>.",
+      "localWarn": "Está a usar o modelo local gratuito: importar um CV pode ser lento e menos preciso. Para melhores resultados, configure uma chave OpenRouter nas Definições.",
       "uploadPdf": "Carregar um PDF",
       "pasteText": "…ou cole o texto do seu CV",
       "pastePlaceholder": "Cole aqui o texto completo do seu CV",

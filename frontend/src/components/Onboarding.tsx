@@ -149,6 +149,7 @@ function EngineStep({ onBack, onNext }: { onBack: () => void; onNext: () => void
     } catch (e) {
       setPct(null)
       const msg = errMsg(e)
+      // ponytail: native confirm for the RAM override; swap for the shared Modal if it grows options
       if (/RAM/i.test(msg) && window.confirm(`${msg}\n\nDownload anyway?`)) return download(true)
       setErr(msg)
     }

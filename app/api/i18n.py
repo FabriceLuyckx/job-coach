@@ -23,6 +23,7 @@ from app.services.llm import complete, tool_args
 router = APIRouter(prefix="/api/i18n", tags=["i18n"])
 
 _PLACEHOLDER = re.compile(r"\{\{[^}]+\}\}")
+_TAG = re.compile(r"</?[a-zA-Z]+>")
 _BATCH = 40
 
 # In-memory generation status, one per language, mirroring the scan pattern.
@@ -75,7 +76,10 @@ def _unflatten(flat: dict[str, str]) -> dict:
 
 
 def _placeholders_ok(src: str, dst: str) -> bool:
-    return sorted(_PLACEHOLDER.findall(src)) == sorted(_PLACEHOLDER.findall(dst))
+    """Same {{placeholders}} AND same <tags> — models sometimes invent <settings>
+    links where the source has none, which then renders as literal markup."""
+    return (sorted(_PLACEHOLDER.findall(src)) == sorted(_PLACEHOLDER.findall(dst))
+            and sorted(_TAG.findall(src)) == sorted(_TAG.findall(dst)))
 
 
 def _translate_batch(pairs, lang_display, cfg) -> dict[str, str]:
@@ -118,6 +122,26 @@ def _translate_map(source: dict[str, str], lang_display: str, cfg: dict, progres
         if progress:
             progress(min(start + _BATCH, len(items)), len(items))
     return result
+
+
+def ensure_cv_labels(lang: str, cfg: dict) -> None:
+    """Best-effort: make sure CV section labels exist for `lang` before a CV is
+    rendered in it (a posting's detected language can be outside the reviewed
+    set). Reviewed sets and already-generated files are no-ops; otherwise one
+    small batch call translates the labels. Failures are swallowed — cv_labels()
+    then falls back to English headings, exactly as before."""
+    if lang in LABELS:
+        return
+    path = LOCALES_DIR / f"cv_labels.{lang}.json"
+    if path.exists():
+        return
+    try:
+        label_tr = _translate_map(LABELS["en"], lang_name(lang), cfg)
+        LOCALES_DIR.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(label_tr, ensure_ascii=False, indent=2) + "\n",
+                        encoding="utf-8")
+    except Exception:
+        pass
 
 
 def _run_generation(lang: str) -> None:

@@ -15,14 +15,15 @@ from app import config, db
 from app.services.cv_generator import (
     DEFAULT_CV_PROMPT, TailoringPlan, apply_tailoring, tailor, _is_active, _start_key,
 )
+from app.api.i18n import ensure_cv_labels
 from app.i18n.languages import is_valid_code, lang_name
 from app.services.cv_renderer import OUTPUT_DIR, PROFILE_PATH, build_env, cv_labels, load_photo, load_profile
+from app.services.llm import AIResponseError, complete, message_text
 
 
 def _clean_lang(lang: str) -> str:
     """Sanitize a language code from a request path/body to a bare 2-letter code."""
     return re.sub(r"[^a-z]", "", (lang or "").lower())[:2]
-from app.services.llm import AIResponseError, complete, message_text
 
 router = APIRouter(prefix="/api/cv", tags=["cv"])
 
@@ -164,6 +165,7 @@ def _run_generation(job_id: str, url: str, lang: str) -> None:
         profile = load_profile()
         prompt = cfg.get("cv_prompt") or DEFAULT_CV_PROMPT
         plan = tailor(profile, url, cfg, lang, prompt)
+        ensure_cv_labels(lang, cfg)  # no-op for reviewed/already-generated languages
         slug = _render_and_save(plan, profile, lang)
 
         history_id = str(uuid.uuid4())
@@ -305,6 +307,7 @@ def _retailor(history_id: str, row: dict, lang: str, keep_edits: bool = False) -
         raise HTTPException(400, str(e))
     prompt = cfg.get("cv_prompt") or DEFAULT_CV_PROMPT
     plan = _tailor_or_502(profile, row["job_url"], cfg, lang, prompt)
+    ensure_cv_labels(lang, cfg)  # no-op for reviewed/already-generated languages
     plan.slug = row["slug"]  # keep slug so history identity is stable
 
     plans = _load_plans(row)

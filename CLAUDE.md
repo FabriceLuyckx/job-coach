@@ -423,10 +423,12 @@ The UI is fully internationalized. English is the source catalog
 (`frontend/src/locales/en.json`); reviewed **shipped** locales (nl, fr, de, es, it, pt, pl)
 sit beside it and are loaded on demand. `app_language` (config) is server-stored and
 applied at boot. Regenerate shipped locales after English changes with
-`uv run python scripts/translate_locales.py` (diffs and translates only changed keys via
-the configured AI engine; `--full` forces a complete pass). CV **section labels** are
-separate: reviewed sets live in `app/i18n/cv_labels.json` (en/nl/fr), resolved by
-`cv_labels(lang)` in `cv_renderer.py` with per-key English fallback. Backend API error
+`uv run python scripts/translate_locales.py` (diffs and translates only keys missing from
+the target via the configured AI engine; `--full` forces a complete pass). CV **section
+labels** are separate: reviewed sets for every shipped locale live in
+`app/i18n/cv_labels.json`, resolved by `cv_labels(lang)` in `cv_renderer.py` with per-key
+English fallback; for any other CV language, `ensure_cv_labels()` (app/api/i18n.py)
+translates the label set once at CV-generation time. Backend API error
 messages stay English on the wire except a small coded set (Phase D). Any non-shipped
 language is generated on-device by the engine (Phase D).
 
