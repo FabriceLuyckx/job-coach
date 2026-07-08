@@ -34,7 +34,7 @@ router = APIRouter(prefix="/api/backup", tags=["backup"])
 MANIFEST_NAME = "manifest.json"
 BACKUP_MARKER = "job-coach-backup"
 # Top-level archive entries we recognise; anything else is ignored on import.
-ALLOWED_TOP = {"config.json", "profile", "jobs", "output", MANIFEST_NAME}
+ALLOWED_TOP = {"config.json", "profile", "jobs", "output", "locales", MANIFEST_NAME}
 
 # Upload/extraction caps: a backup is profile JSON + a photo + a small SQLite DB
 # + generated CV HTML, so these are generous. They exist to stop a corrupt or
@@ -69,6 +69,10 @@ def _backup_files() -> list[tuple[object, str]]:
             if p.is_file():
                 rel = p.relative_to(paths.OUTPUT_DIR).as_posix()
                 items.append((p, f"output/{rel}"))
+    # On-device generated locales (Tier-2 UI translations + CV label sets).
+    if paths.LOCALES_DIR.exists():
+        for p in paths.LOCALES_DIR.glob("*.json"):
+            items.append((p, f"locales/{p.name}"))
     return items
 
 

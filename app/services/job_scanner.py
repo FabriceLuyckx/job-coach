@@ -20,7 +20,7 @@ from urllib.parse import urljoin
 import httpx
 from bs4 import BeautifulSoup
 
-from app.services.llm import make_client, tool_args
+from app.services.llm import complete, tool_args
 
 # Below this many usable links we assume the page is JS-rendered and re-fetch it
 # with a headless browser.
@@ -81,7 +81,7 @@ _FILTER_TOOL = {
                         "properties": {
                             "url": {"type": "string", "description": "URL of an interesting opening (must match one of the candidate URLs)"},
                             "reason": {"type": "string", "description": "One-line reason it fits the profile"},
-                            "lang": {"type": "string", "enum": ["en", "nl"], "description": "Language the posting is written in"},
+                            "lang": {"type": "string", "description": "ISO 639-1 code (e.g. 'en', 'nl', 'fr') of the language the posting is written in"},
                         },
                     },
                 }
@@ -129,22 +129,22 @@ def fetch_listing_links(url: str) -> list[dict]:
             browser.close()
 
 
-def extract_openings(page_url: str, api_key: str, model: str, prompt: str | None = None) -> list[dict]:
+def extract_openings(page_url: str, cfg: dict, prompt: str | None = None) -> list[dict]:
     """Return every job opening on the listing page as {url, title}, chosen from
     the page's real links so URLs are never invented."""
     links = fetch_listing_links(page_url)
     if not links:
         return []
     listing = "\n".join(f"- {l['text']} → {l['href']}" for l in links)
-    resp = make_client(api_key).chat.completions.create(
-        model=model,
-        max_tokens=2048,
-        messages=[
+    resp = complete(
+        [
             {"role": "system", "content": prompt or DEFAULT_EXTRACT_PROMPT},
             {"role": "user", "content": f"Listing page: {page_url}\n\nLinks found:\n{listing[:14000]}"},
         ],
         tools=[_EXTRACT_TOOL],
         tool_choice={"type": "function", "function": {"name": "job_openings"}},
+        cfg=cfg,
+        max_tokens=2048,
     )
     args = tool_args(resp)
     valid = {l["href"] for l in links}
@@ -160,7 +160,7 @@ def extract_openings(page_url: str, api_key: str, model: str, prompt: str | None
     return out
 
 
-def filter_openings(openings: list[dict], profile: dict, api_key: str, model: str,
+def filter_openings(openings: list[dict], profile: dict, cfg: dict,
                     prompt: str | None = None) -> dict[str, dict]:
     """Given NEW openings, return {url: {reason, lang}} for those matching the profile."""
     if not openings:
@@ -174,22 +174,27 @@ def filter_openings(openings: list[dict], profile: dict, api_key: str, model: st
         "skills": profile.get("skills"),
     }
     listing = "\n".join(f"- {o['title']} — {o['url']}" for o in openings)
-    resp = make_client(api_key).chat.completions.create(
-        model=model,
-        max_tokens=2048,
-        messages=[
+    # Write the one-line reason in the user's UI language.
+    from app.i18n.languages import lang_name
+    app_lang = (cfg or {}).get("app_language") or "en"
+    reason_lang = f"\n\nWrite each 'reason' in {lang_name(app_lang)}." if app_lang != "en" else ""
+    resp = complete(
+        [
             {"role": "system", "content":
-                f"{prompt or DEFAULT_SCAN_PROMPT}\n\n"
+                f"{prompt or DEFAULT_SCAN_PROMPT}{reason_lang}\n\n"
                 f"CANDIDATE PROFILE:\n{json.dumps(trimmed, ensure_ascii=False, indent=2)}"},
             {"role": "user", "content": f"Candidate openings:\n{listing}"},
         ],
         tools=[_FILTER_TOOL],
         tool_choice={"type": "function", "function": {"name": "relevant_openings"}},
+        cfg=cfg,
+        max_tokens=2048,
     )
     args = tool_args(resp)
     out = {}
     for i in args.get("interesting", []):
         if i.get("url"):
+            code = str(i.get("lang") or "").lower()[:2]
             out[i["url"]] = {"reason": i.get("reason", ""),
-                             "lang": i.get("lang") if i.get("lang") in ("en", "nl") else "en"}
+                             "lang": code if len(code) == 2 and code.isalpha() else "en"}
     return out

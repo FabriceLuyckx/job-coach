@@ -9,19 +9,20 @@ import { useKeyStatus } from './KeyStatus'
  * happens, not only in Settings.
  */
 export default function CreditChip() {
-  const { keySet } = useKeyStatus()
+  const { keySet, provider } = useKeyStatus()
   const [balance, setBalance] = useState<number | null>(null)
 
   useEffect(() => {
-    if (!keySet) return
+    if (!keySet || provider !== 'openrouter') return
     let active = true
     api.getOpenrouterUsage()
       .then(u => { if (active) setBalance(u.balance ?? u.remaining) })
       .catch(() => {})
     return () => { active = false }
-  }, [keySet])
+  }, [keySet, provider])
 
-  if (!keySet || balance == null) return null
+  // Balance is an OpenRouter concept; the local engine has no cost to show.
+  if (provider !== 'openrouter' || !keySet || balance == null) return null
   return (
     <span className={`credit-chip${balance < 1 ? ' credit-chip-low' : ''}`}
       title="Your OpenRouter credit balance">

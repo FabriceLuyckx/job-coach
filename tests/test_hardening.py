@@ -83,15 +83,21 @@ def test_import_rejects_zip_bomb(monkeypatch):
 
 # ---------- config / LLM helpers ----------
 
-def test_require_llm_raises_without_key():
+def test_require_engine_raises_without_key():
     with pytest.raises(ValueError, match="Settings"):
-        config.require_llm({"openrouter_api_key": ""})
+        config.require_engine({"openrouter_api_key": ""})
 
 
-def test_require_llm_returns_key_and_default_model():
-    key, model = config.require_llm({"openrouter_api_key": "sk-or-x", "openrouter_model": ""})
-    assert key == "sk-or-x"
-    assert model == config.DEFAULT_MODEL
+def test_require_engine_returns_openrouter_defaults():
+    eng = config.require_engine({"openrouter_api_key": "sk-or-x", "openrouter_model": ""})
+    assert eng.provider == "openrouter"
+    assert eng.api_key == "sk-or-x"
+    assert eng.model == config.DEFAULT_MODEL
+
+
+def test_require_engine_local_not_downloaded_raises():
+    with pytest.raises(ValueError, match="not downloaded"):
+        config.require_engine({"llm_provider": "local", "local_model_id": "qwen3-4b-instruct"})
 
 
 def test_clean_slug_strips_traversal():
@@ -100,16 +106,11 @@ def test_clean_slug_strips_traversal():
     assert "/" not in _clean_slug("a/b/c")
 
 
-class _Fake:
-    def __init__(self, **kw):
-        self.__dict__.update(kw)
-
-
 def _fake_response(arguments: str | None):
+    from app.services.llm import LLMResponse, ToolCall
     if arguments is None:
-        return _Fake(choices=[_Fake(message=_Fake(tool_calls=None))])
-    call = _Fake(function=_Fake(arguments=arguments))
-    return _Fake(choices=[_Fake(message=_Fake(tool_calls=[call]))])
+        return LLMResponse(text=None, tool_calls=[])
+    return LLMResponse(text=None, tool_calls=[ToolCall(name="t", arguments=arguments)])
 
 
 def test_tool_args_no_tool_call():

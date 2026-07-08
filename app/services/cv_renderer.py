@@ -38,27 +38,33 @@ MONTH_ABBR = {
 }
 
 # Section titles only — per-skill-group headings now come from the profile data
-# (skills.groups[].label), so the old fixed group label keys were removed.
-LABELS: dict[str, dict[str, str]] = {
-    "en": {
-        "links": "Links", "skills": "Skills", "languages": "Languages",
-        "education": "Education", "grants": "Grants & Fellowships",
-        "experience": "Career Path", "publications": "Selected Publications",
-        "projects": "Projects", "certifications": "Certifications",
-        "awards": "Awards", "teaching": "Teaching", "present": "Present",
-        "volunteering": "Volunteering", "courses": "Courses & Training",
-        "memberships": "Memberships",
-    },
-    "nl": {
-        "links": "Links", "skills": "Vaardigheden", "languages": "Talen",
-        "education": "Opleiding", "grants": "Beurzen & Fellowships",
-        "experience": "Loopbaan", "publications": "Selectie Publicaties",
-        "projects": "Projecten", "certifications": "Certificaten",
-        "awards": "Onderscheidingen", "teaching": "Onderwijs", "present": "Heden",
-        "volunteering": "Vrijwilligerswerk", "courses": "Cursussen & Opleiding",
-        "memberships": "Lidmaatschappen",
-    },
-}
+# (skills.groups[].label). Reviewed translations live in app/i18n/cv_labels.json;
+# on-device generated label sets (Phase D) live under DATA_DIR/locales.
+_CV_LABELS_PATH = RESOURCE_DIR / "app" / "i18n" / "cv_labels.json"
+LABELS: dict[str, dict[str, str]] = json.loads(_CV_LABELS_PATH.read_text(encoding="utf-8"))
+
+
+def cv_labels(lang: str) -> dict[str, str]:
+    """CV section labels for a language, falling back to English per missing key.
+
+    Order of lookup: bundled reviewed labels (LABELS) → on-device generated labels
+    (DATA_DIR/locales/cv_labels.<lang>.json, written by Phase D) → English.
+    """
+    en = LABELS["en"]
+    if lang == "en":
+        return dict(en)
+    labels = dict(LABELS.get(lang) or {})
+    if not labels:
+        # Phase D: a generated label set may exist on disk for a Tier-2 language.
+        from app.paths import LOCALES_DIR
+        gen = LOCALES_DIR / f"cv_labels.{lang}.json"
+        if gen.exists():
+            try:
+                labels = json.loads(gen.read_text(encoding="utf-8"))
+            except (ValueError, OSError):
+                labels = {}
+    # English fallback for any missing key so a CV never shows a blank heading.
+    return {k: labels.get(k) or v for k, v in en.items()}
 
 # Star-rating proficiency scale shared by the language editor and normalization.
 CEFR_LABELS: dict[int, str] = {

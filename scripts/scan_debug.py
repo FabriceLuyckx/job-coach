@@ -23,9 +23,9 @@ def main() -> None:
 
     cfg = config.load()
     try:
-        api_key, model = config.require_llm(cfg)
-    except ValueError:
-        raise SystemExit("Set openrouter_api_key in config.json / Settings first.")
+        config.require_engine(cfg)
+    except ValueError as e:
+        raise SystemExit(str(e))
 
     links = job_scanner.fetch_listing_links(args.url)
     print(f"\n[1] {len(links)} links found "
@@ -33,14 +33,14 @@ def main() -> None:
     for l in links[:40]:
         print(f"    {l['text'][:60]!r:64} {l['href']}")
 
-    openings = job_scanner.extract_openings(args.url, api_key, model,
+    openings = job_scanner.extract_openings(args.url, cfg,
                                             cfg.get("scan_extract_prompt") or None)
     print(f"\n[2] LLM extracted {len(openings)} openings:")
     for o in openings:
         print(f"    {o['title'][:60]!r:64} {o['url']}")
 
     profile = load_profile()
-    matches = job_scanner.filter_openings(openings, profile, api_key, model,
+    matches = job_scanner.filter_openings(openings, profile, cfg,
                                           cfg.get("scan_filter_prompt") or None)
     print(f"\n[3] {len(matches)} judged interesting:")
     for url, m in matches.items():

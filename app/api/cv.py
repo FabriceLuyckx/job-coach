@@ -15,8 +15,15 @@ from app import config, db
 from app.services.cv_generator import (
     DEFAULT_CV_PROMPT, TailoringPlan, apply_tailoring, tailor, _is_active, _start_key,
 )
-from app.services.cv_renderer import LABELS, OUTPUT_DIR, PROFILE_PATH, build_env, load_photo, load_profile
-from app.services.llm import AIResponseError, make_client, message_text
+from app.api.i18n import ensure_cv_labels
+from app.i18n.languages import is_valid_code, lang_name
+from app.services.cv_renderer import OUTPUT_DIR, PROFILE_PATH, build_env, cv_labels, load_photo, load_profile
+from app.services.llm import AIResponseError, complete, message_text
+
+
+def _clean_lang(lang: str) -> str:
+    """Sanitize a language code from a request path/body to a bare 2-letter code."""
+    return re.sub(r"[^a-z]", "", (lang or "").lower())[:2]
 
 router = APIRouter(prefix="/api/cv", tags=["cv"])
 
@@ -43,13 +50,13 @@ def _clean_slug(slug: str) -> str:
     return re.sub(r"[^a-z0-9\-]", "", slug)
 
 
-def _tailor_or_502(profile: dict, job_url: str, api_key: str, model: str,
+def _tailor_or_502(profile: dict, job_url: str, cfg: dict,
                    lang: str, prompt: str) -> TailoringPlan:
     """tailor() with fetch/AI failures mapped to clean HTTP errors, for the
     synchronous endpoints (relang/regenerate) where exceptions would otherwise
     surface as bare 500s."""
     try:
-        return tailor(profile, job_url, api_key, model, lang, prompt)
+        return tailor(profile, job_url, cfg, lang, prompt)
     except AIResponseError as e:
         raise HTTPException(502, str(e))
     except httpx.HTTPError as e:
@@ -110,7 +117,7 @@ def _render_html(plan: TailoringPlan, profile: dict, lang: str) -> str:
     photo_uri = load_photo() if include_photo else None
     env = build_env()
     return env.get_template("default.html").render(
-        **tailored, labels=LABELS[lang], lang=lang, photo=photo_uri,
+        **tailored, labels=cv_labels(lang), lang=lang, photo=photo_uri,
     )
 
 
@@ -154,10 +161,11 @@ def _run_generation(job_id: str, url: str, lang: str) -> None:
             _jobs[job_id]["status"] = "running"
 
         cfg = config.load()
-        api_key, model = config.require_llm(cfg)
+        config.require_engine(cfg)  # fail fast before fetching the job page
         profile = load_profile()
         prompt = cfg.get("cv_prompt") or DEFAULT_CV_PROMPT
-        plan = tailor(profile, url, api_key, model, lang, prompt)
+        plan = tailor(profile, url, cfg, lang, prompt)
+        ensure_cv_labels(lang, cfg)  # no-op for reviewed/already-generated languages
         slug = _render_and_save(plan, profile, lang)
 
         history_id = str(uuid.uuid4())
@@ -201,8 +209,9 @@ def _run_generation(job_id: str, url: str, lang: str) -> None:
 def start_generation(url: str, lang: str = "en") -> str:
     """Kick off async CV generation for a job URL; returns the poll job_id.
     Shared by the /generate endpoint and the Jobs 'accept' flow."""
-    if lang not in LABELS:
-        raise HTTPException(400, f"Unknown lang '{lang}'. Choices: {list(LABELS)}")
+    lang = _clean_lang(lang)
+    if not is_valid_code(lang):
+        raise HTTPException(400, f"Unknown language code '{lang}'.")
     job_id = str(uuid.uuid4())
     with _jobs_lock:
         _evict_jobs()
@@ -292,12 +301,13 @@ def _retailor(history_id: str, row: dict, lang: str, keep_edits: bool = False) -
 
     cfg = config.load()
     try:
-        api_key, model = config.require_llm(cfg)
+        config.require_engine(cfg)
         profile = load_profile()
     except ValueError as e:
         raise HTTPException(400, str(e))
     prompt = cfg.get("cv_prompt") or DEFAULT_CV_PROMPT
-    plan = _tailor_or_502(profile, row["job_url"], api_key, model, lang, prompt)
+    plan = _tailor_or_502(profile, row["job_url"], cfg, lang, prompt)
+    ensure_cv_labels(lang, cfg)  # no-op for reviewed/already-generated languages
     plan.slug = row["slug"]  # keep slug so history identity is stable
 
     plans = _load_plans(row)
@@ -325,8 +335,9 @@ def _retailor(history_id: str, row: dict, lang: str, keep_edits: bool = False) -
 def relang_cv(history_id: str, body: RelangRequest):
     """Switch a CV to another language. If a plan for that language already exists
     (incl. your edits), reuse it — no AI call, no lost edits. Otherwise re-tailor."""
-    if body.lang not in LABELS:
-        raise HTTPException(400, f"Unknown lang '{body.lang}'. Choices: {list(LABELS)}")
+    body.lang = _clean_lang(body.lang)
+    if not is_valid_code(body.lang):
+        raise HTTPException(400, f"Unknown language code '{body.lang}'.")
     with db.get_db() as conn:
         row = conn.execute("SELECT * FROM cv_history WHERE id = ?", (history_id,)).fetchone()
     if not row:
@@ -447,12 +458,12 @@ def generate_cv_summary(history_id: str):
 
     cfg = config.load()
     try:
-        api_key, model_id = config.require_llm(cfg)
+        config.require_engine(cfg)
         profile = load_profile()
     except ValueError as e:
         raise HTTPException(400, str(e))
     lang = row["lang"]
-    lang_name = {"en": "English", "nl": "Dutch (Nederlands)"}.get(lang, "English")
+    lang_display = lang_name(lang)
 
     plans = _load_plans(row)
     plan_data = plans.get(lang)
@@ -465,26 +476,25 @@ def generate_cv_summary(history_id: str):
     else:
         job_context = f"Job title: {row['job_title']}\nEmployer: {row['employer']}"
 
-    client = make_client(api_key)
-    response = client.chat.completions.create(
-        model=model_id,
-        max_tokens=512,
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    f"You are an expert career coach. Write a professional CV summary in {lang_name}.\n"
-                    "Rules: first person (I, my), maximum 4 sentences, direct and specific to the role.\n\n"
-                    f"CANDIDATE PROFILE:\n{json.dumps(profile, ensure_ascii=False, indent=2)}"
-                ),
-            },
-            {
-                "role": "user",
-                "content": f"Write a professional summary for this application:\n\n{job_context}",
-            },
-        ],
-    )
     try:
+        response = complete(
+            [
+                {
+                    "role": "system",
+                    "content": (
+                        f"You are an expert career coach. Write a professional CV summary in {lang_display}.\n"
+                        "Rules: first person (I, my), maximum 4 sentences, direct and specific to the role.\n\n"
+                        f"CANDIDATE PROFILE:\n{json.dumps(profile, ensure_ascii=False, indent=2)}"
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": f"Write a professional summary for this application:\n\n{job_context}",
+                },
+            ],
+            cfg=cfg,
+            max_tokens=512,
+        )
         new_summary = message_text(response)
     except AIResponseError as e:
         raise HTTPException(502, str(e))
@@ -507,7 +517,12 @@ def generate_cv_summary(history_id: str):
 @router.get("/preview/{slug}", response_class=HTMLResponse)
 def preview_cv(slug: str, autoprint: bool = Query(False, alias="print")):
     slug = _clean_slug(slug)
-    for lang in ("en", "nl"):
+    # Prefer English, then any language a CV was generated in for this slug.
+    langs = ["en"] + sorted(
+        p.stem.removeprefix("cv_")
+        for p in (OUTPUT_DIR / slug).glob("cv_*.html")
+    ) if (OUTPUT_DIR / slug).exists() else ["en"]
+    for lang in dict.fromkeys(langs):  # de-dupe, keep order
         html = _current_html(slug, lang)
         if html is not None:
             return HTMLResponse(_maybe_print(html, autoprint))
@@ -517,8 +532,9 @@ def preview_cv(slug: str, autoprint: bool = Query(False, alias="print")):
 @router.get("/preview/{slug}/{lang}", response_class=HTMLResponse)
 def preview_cv_lang(slug: str, lang: str, autoprint: bool = Query(False, alias="print")):
     slug = _clean_slug(slug)
-    if lang not in LABELS:
-        raise HTTPException(400, "Unknown lang")
+    lang = _clean_lang(lang)
+    if not is_valid_code(lang):
+        raise HTTPException(400, "Unknown language code")
     html = _current_html(slug, lang)
     if html is None:
         raise HTTPException(404, "CV not found")
@@ -531,8 +547,9 @@ def pdf_cv(slug: str, lang: str):
     from app.services.pdf import html_to_pdf
 
     slug = _clean_slug(slug)
-    if lang not in LABELS:
-        raise HTTPException(400, "Unknown lang")
+    lang = _clean_lang(lang)
+    if not is_valid_code(lang):
+        raise HTTPException(400, "Unknown language code")
     html = _current_html(slug, lang)
     if html is None:
         raise HTTPException(404, "CV not found")

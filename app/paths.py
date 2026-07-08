@@ -29,6 +29,9 @@ else:
 TEMPLATES_DIR = RESOURCE_DIR / "templates" / "cv"
 FRONTEND_DIST = RESOURCE_DIR / "frontend" / "dist"
 EXAMPLE_PROFILE = RESOURCE_DIR / "profile" / "profile.example.json"
+# Source UI catalog (English) + shipped locales. Bundled as data in the packaged
+# app so on-device translation (Phase D) can read the English strings to translate.
+UI_LOCALES_SRC = RESOURCE_DIR / "frontend" / "src" / "locales"
 
 # --- Writable user data ------------------------------------------------------
 # Frozen: ~/Library/Application Support/JobCoach (mac), %APPDATA%\JobCoach (win).
@@ -42,6 +45,13 @@ PROFILE_PATH = PROFILE_DIR / "profile.json"
 PHOTO_DIR = PROFILE_DIR  # photo.{jpg,png,...} sits next to profile.json
 DB_PATH = DATA_DIR / "jobs" / "jobs.db"
 OUTPUT_DIR = DATA_DIR / "output"
+
+# Downloaded local LLM models (GGUF) live in the writable data dir, like Chromium,
+# so they survive a read-only install and are excluded from backups (multi-GB).
+MODELS_DIR = DATA_DIR / "models"
+
+# On-device generated UI locale files (Tier-2 languages) and generated CV labels.
+LOCALES_DIR = DATA_DIR / "locales"
 
 # Chromium that Playwright downloads on first run lives in the writable dir too,
 # so it survives from a read-only install. Only the packaged launcher points

@@ -19,6 +19,11 @@ datas = [
     (str(ROOT / "templates" / "cv"), "templates/cv"),
     (str(ROOT / "frontend" / "dist"), "frontend/dist"),
     (str(ROOT / "profile" / "profile.example.json"), "profile"),
+    # Reviewed CV section labels, read at runtime by cv_renderer.cv_labels().
+    (str(ROOT / "app" / "i18n" / "cv_labels.json"), "app/i18n"),
+    # English UI catalog + shipped locales — the on-device translator reads these
+    # to generate Tier-2 languages (app/api/i18n.py, UI_LOCALES_SRC).
+    (str(ROOT / "frontend" / "src" / "locales"), "frontend/src/locales"),
 ]
 binaries = []
 
@@ -36,6 +41,17 @@ pw_datas, pw_binaries, pw_hidden = collect_all("playwright")
 datas += pw_datas
 binaries += pw_binaries
 hiddenimports += pw_hidden
+
+# Free local AI engine. Collect llama-cpp-python's native library (Metal dylib on
+# macOS arm64, AVX2 CPU libs elsewhere) when the `local` extra is installed; skip
+# cleanly if this build targets the OpenRouter-only configuration.
+try:
+    lc_datas, lc_binaries, lc_hidden = collect_all("llama_cpp")
+    datas += lc_datas
+    binaries += lc_binaries
+    hiddenimports += lc_hidden
+except Exception:
+    print("llama_cpp not installed — building without the local AI engine.")
 
 a = Analysis(
     [str(ROOT / "app" / "desktop.py")],

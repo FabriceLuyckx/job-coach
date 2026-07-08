@@ -36,8 +36,9 @@ def import_profile(file: UploadFile | None = File(default=None), text: str = For
     """Extract a structured profile from an uploaded CV (PDF) or pasted text via one
     LLM call. Returns the normalized profile for review in the editor — it is NOT
     saved here; the client persists it on the next auto-save."""
+    cfg = config.load()
     try:
-        key, model = config.require_llm()
+        config.require_engine(cfg)
     except ValueError as e:
         raise HTTPException(400, str(e))
 
@@ -55,7 +56,7 @@ def import_profile(file: UploadFile | None = File(default=None), text: str = For
         raise HTTPException(400, "Paste your CV text or upload a PDF to import.")
 
     try:
-        raw = extract_profile(cv_text, key, model)
+        raw = extract_profile(cv_text, cfg)
     except AIResponseError:
         raise HTTPException(502, "The AI returned an unexpected response — try again.")
     except Exception as e:

@@ -19,6 +19,7 @@ import sys
 
 from app.services.cv_renderer import (
     LABELS,
+    cv_labels,
     OUTPUT_DIR,
     PROFILE_PATH,
     ROOT,
@@ -33,7 +34,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Render a full CV from profile/profile.json"
     )
-    parser.add_argument("--lang",     choices=list(LABELS), default="en")
+    parser.add_argument("--lang",     default="en", help="Output language (ISO 639-1 code, e.g. en, nl, fr)")
     parser.add_argument("--job",      default="",
                         help="Job title/company slug for output directory")
     parser.add_argument("--template", default="default.html")
@@ -50,7 +51,7 @@ def main() -> None:
     env = build_env()
     html = env.get_template(args.template).render(
         **profile,
-        labels=LABELS[args.lang],
+        labels=cv_labels(args.lang),
         lang=args.lang,
         photo=photo_uri,
     )

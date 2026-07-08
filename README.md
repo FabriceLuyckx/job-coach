@@ -16,8 +16,15 @@ For non-technical users. Grab the latest build from the
 
 The app opens in your default browser. On **first launch** it downloads a PDF
 engine one time (~150 MB) — a banner shows the progress and everything except
-PDF export works while it finishes. Then open **Settings** and paste your
-[OpenRouter](https://openrouter.ai) API key.
+PDF export works while it finishes.
+
+Then pick how the AI runs (Settings → **AI Engine**, or the first-run prompt):
+
+- **Free local model** — download a model (~2.5 GB) that runs on your own computer.
+  No account, no cost, fully private/offline. Good results; on a slower machine a CV
+  can take a few minutes.
+- **OpenRouter** — paste an [OpenRouter](https://openrouter.ai) API key for the best
+  quality (pay a few cents per CV).
 
 All your data stays on your machine, in a standard per-user folder:
 - macOS: `~/Library/Application Support/JobCoach/`
@@ -95,10 +102,29 @@ cd frontend && npm run dev
 
 Open **http://localhost:5173** in your browser.
 
-On first run, a banner guides you to **Settings** to enter your
-[OpenRouter](https://openrouter.ai) API key — it's saved locally to `config.json`
-(gitignored). Until a key is set, the Generate/Scan buttons are disabled with an
-explanation. Your OpenRouter credit balance shows next to the buttons that spend it.
+On first run, a banner guides you to **Settings → AI Engine** to set up the AI. Choose
+either the **free local model** (downloaded and run on your machine — no key needed) or
+**OpenRouter** (paste an [OpenRouter](https://openrouter.ai) API key, saved locally to
+`config.json`, gitignored). Until an engine is ready, the Generate/Scan buttons are
+disabled with an explanation. On OpenRouter, your credit balance shows next to the
+buttons that spend it.
+
+> **Local engine (development):** the local model runs via `llama-cpp-python`, a heavy
+> platform-specific dependency kept out of the default install. Enable it with
+> `uv sync --extra local`. Without it, use the OpenRouter engine.
+
+### Language
+
+The app is English by default and can run in other languages — pick one under
+**Settings → Language**. Seven European languages (Dutch, French, German, Spanish,
+Italian, Portuguese, Polish) ship translated and reviewed. Job postings themselves are
+never translated: the AI reads them in whatever language they're in and writes your CV in
+the language you ask for. Some backend error messages remain in English.
+
+> **Maintainers:** UI strings live in `frontend/src/locales/en.json`. After changing them,
+> refresh the shipped translations with `uv run python scripts/translate_locales.py` (it
+> only re-translates new or changed keys). CV section headings are translated separately in
+> `app/i18n/cv_labels.json`.
 
 ### Customise the AI prompts (advanced)
 
@@ -160,7 +186,8 @@ uv run python scripts/generate_cv.py --lang nl --job "UGent Data Scientist"
 
 ## AI-tailor a CV for a specific job (CLI)
 
-Requires an OpenRouter API key. Set it via the Settings page (preferred), or create `config.json` manually:
+Requires a configured AI engine (a downloaded local model, or an OpenRouter API key). Set
+it via the Settings page (preferred), or create `config.json` manually:
 
 ```json
 {
@@ -251,7 +278,9 @@ A brand-new profile starts empty. Use **Import from an existing CV** (on the emp
 state, or the button in the page header) to upload a PDF or paste your CV text — the AI
 extracts your details into the profile for you to review and edit. Nothing is saved
 until you've checked it, and importing over an existing profile warns you first.
-Requires an OpenRouter API key.
+Requires a configured AI engine. CV import is the most demanding AI task, so on the free
+local model it may be slower and less accurate — the import dialog says so, and for a
+long or complex CV an OpenRouter key gives noticeably better results.
 
 **Experience** entries keep just what a CV needs — title, employer, dates (an *I
 currently work here* checkbox handles current roles), and the bullet points that become

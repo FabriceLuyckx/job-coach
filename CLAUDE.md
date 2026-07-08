@@ -38,10 +38,10 @@ The app runs locally first, designed for easy cloud deployment. AI is powered vi
 | Layer | Technology | Notes |
 |-------|-----------|-------|
 | Backend | Python / FastAPI | User knows Python well |
-| Frontend | React (TypeScript) | Simple SPA, served by FastAPI locally |
+| Frontend | React (TypeScript) | Simple SPA, served by FastAPI locally. Fully internationalized via react-i18next (English source catalog `frontend/src/locales/en.json`; shipped locales nl/fr/de/es/it/pt/pl) |
 | Profile data | `profile/profile.json` | Human-readable, version-controllable |
 | Jobs data | SQLite → PostgreSQL | SQLite locally, Postgres for cloud |
-| AI | OpenRouter → Anthropic Claude | Model: `anthropic/claude-sonnet-4-6`; key stored in `config.json` |
+| AI | Pluggable engine (`app/services/llm.py` → `engines/`) | **OpenRouter** (Claude, default) or a **free local GGUF** run in-process via llama-cpp-python. Every call goes through `complete()`; provider chosen by `llm_provider` in `config.json` |
 | CV output | HTML → PDF (headless Chromium) | Jinja2 templates; PDF rendered server-side via Playwright |
 | Local run | uvicorn | `uvicorn app.main:app --reload` |
 | Cloud (future) | Railway (backend) + Vercel (frontend) | Phase 6 |
@@ -78,7 +78,8 @@ job-coach/
 │   │   ├── settings.py           # Settings + photo upload endpoints
 │   │   └── jobs.py               # Job sources, scan, accept/reject (Phase 5)
 │   └── services/
-│       ├── llm.py                # Shared OpenRouter client (timeouts) + response validation
+│       ├── llm.py                # Provider-neutral complete() + LLMResponse/ToolCall + response validation
+│       ├── engines/              # AI providers: openrouter.py, local.py (llama.cpp), registry.py
 │       ├── cv_generator.py       # OpenRouter-powered tailored CV generation
 │       ├── cv_renderer.py        # Shared Jinja2 utilities (+ PHOTO_EXTS, load_profile)
 │       ├── job_scanner.py        # Extract openings from a page + profile-filter (Phase 5)
@@ -225,8 +226,16 @@ uv run python scripts/tailor_cv.py --url https://... --lang nl
 GET  /api/profile              Return full profile JSON (blank v2 skeleton if none yet)
 PUT  /api/profile              Save updated profile JSON
 POST /api/profile/import       Extract a v2 profile from a CV (PDF/text) → returned for review, not saved
-GET  /api/settings             Return app settings (API key masked)
-PUT  /api/settings             Update settings (key, model)
+GET  /api/settings             Return app settings (API key masked; incl. llm_provider, app_language)
+PUT  /api/settings             Update settings (key, model, llm_provider, app_language, onboarding_done)
+GET  /api/engine               AI-engine status {provider, ready, detail, model} — the app-wide "AI ready" check
+GET  /api/engine/models        Local-model registry (label, size, RAM, downloaded?)
+POST /api/engine/download      Start downloading the local GGUF (disk/RAM pre-checks; force overrides RAM) → {download_id}
+GET  /api/engine/download/status[/{id}]  Download progress {state, bytes_done, bytes_total, error}
+DELETE /api/engine/model       Delete the downloaded GGUF
+POST /api/i18n/generate        Translate the UI catalog + CV labels into a language on-device → runs in background
+GET  /api/i18n/generate/status/{lang}  On-device translation progress
+GET  /api/i18n/{lang}          Serve a UI locale catalog (shipped bundle or generated)
 POST /api/settings/photo       Upload profile photo
 GET  /api/settings/photo       Return photo as base64 data URI
 DELETE /api/settings/photo     Remove photo
@@ -390,8 +399,15 @@ they are exploitable:
 
 ## Configuration
 
-### API key setup
-Configure via the Settings page in the web UI — the key is saved to `config.json` (gitignored).
+### AI engine setup
+Two ways to power the AI features, chosen in **Settings → AI Engine** (or the first-run
+wizard):
+
+* **Free local model** — download a GGUF (default: Qwen3-4B-Instruct, ~2.5 GB) that runs
+  in-process via llama-cpp-python. No account, no cost, fully offline. Requires the `local`
+  extra: `uv sync --extra local` (the packaged app bundles it). Uses schema-constrained
+  JSON so even a small model returns valid tool output.
+* **OpenRouter** — best quality; paste an API key (saved to `config.json`, gitignored).
 
 For CLI use without the web UI, create `config.json` manually:
 ```json
@@ -400,12 +416,31 @@ For CLI use without the web UI, create `config.json` manually:
   "openrouter_model": "anthropic/claude-sonnet-4-6"
 }
 ```
+(Or set `"llm_provider": "local"` after downloading the model via the UI.)
+
+### Language / i18n
+The UI is fully internationalized. English is the source catalog
+(`frontend/src/locales/en.json`); reviewed **shipped** locales (nl, fr, de, es, it, pt, pl)
+sit beside it and are loaded on demand. `app_language` (config) is server-stored and
+applied at boot. Regenerate shipped locales after English changes with
+`uv run python scripts/translate_locales.py` (diffs and translates only keys missing from
+the target via the configured AI engine; `--full` forces a complete pass). CV **section
+labels** are separate: reviewed sets for every shipped locale live in
+`app/i18n/cv_labels.json`, resolved by `cv_labels(lang)` in `cv_renderer.py` with per-key
+English fallback; for any other CV language, `ensure_cv_labels()` (app/api/i18n.py)
+translates the label set once at CV-generation time. Backend API error
+messages stay English on the wire except a small coded set (Phase D). Any non-shipped
+language is generated on-device by the engine (Phase D).
 
 ### config.json reference
 | Key | Description | Default |
 |-----|-------------|---------|
-| `openrouter_api_key` | OpenRouter API key (get one at openrouter.ai) | Required for AI features |
+| `llm_provider` | AI engine: `openrouter` or `local` (free, downloaded GGUF via llama.cpp) | `openrouter` |
+| `openrouter_api_key` | OpenRouter API key (get one at openrouter.ai) | Required when provider is `openrouter` |
 | `openrouter_model` | Model string passed to OpenRouter | `anthropic/claude-sonnet-4-6` |
+| `local_model_id` | Registry key of the local model (see `engines/registry.py`) | `qwen3-4b-instruct` |
+| `app_language` | UI language (ISO 639-1); `en` is the native source language | `en` |
+| `onboarding_done` | First-run wizard completion marker | `false` |
 
 ---
 
@@ -441,6 +476,13 @@ migration is idempotent, so v2 files pass through untouched.
 | `memberships[]` | (optional) Professional memberships — `name`, `role?`, `year?` |
 | `custom_sections[]` | (optional) The escape hatch — `{title, items: [{heading, subheading?, date?, description?}]}`, each rendered as its own titled CV section |
 | `cv_design_preferences` | Visual preferences for CV output |
+
+**First-run onboarding** (`frontend/src/components/Onboarding.tsx`): a modal wizard
+shown when `GET /api/engine` reports not-ready **and** config `onboarding_done` is
+false. Three steps — pick a language, set up the AI engine (download the free local
+model or paste an OpenRouter key), done. Skippable on every step (sets
+`onboarding_done` so it never nags again); `SetupBanner`/`ApiKeyBanner` remain the
+fallback prompt for a still-missing engine.
 
 **Section presence** is driven by `meta.enabled_sections` and the frontend registry
 `frontend/src/lib/profileSections.ts` (core vs optional, labels, badges,

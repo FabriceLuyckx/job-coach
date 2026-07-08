@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Download, TriangleAlert } from 'lucide-react'
 import { getSetupStatus, type SetupStatus } from '../api'
 
@@ -9,6 +10,7 @@ import { getSetupStatus, type SetupStatus } from '../api'
  * setup where it's already installed.
  */
 export default function SetupBanner() {
+  const { t } = useTranslation()
   const [status, setStatus] = useState<SetupStatus | null>(null)
 
   useEffect(() => {
@@ -35,8 +37,8 @@ export default function SetupBanner() {
   if (!status || status.chromium_ready) return null
 
   const message = status.error
-    ? `PDF engine setup failed: ${status.error}. PDF export is unavailable; other features work.`
-    : 'Setting up — downloading the PDF engine (~150 MB, one time). PDF export will be available shortly; everything else works now.'
+    ? t('banner.setupError', { error: status.error })
+    : t('banner.setupInstalling')
 
   return (
     <div role="status" className={`setup-banner ${status.error ? 'setup-banner-error' : 'setup-banner-info'}`}>

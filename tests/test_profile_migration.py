@@ -167,18 +167,12 @@ def test_professional_title_reaches_matcher(monkeypatch):
 
     captured = {}
 
-    def fake_client(_key):
-        class C:
-            class chat:
-                class completions:
-                    @staticmethod
-                    def create(**kw):
-                        captured["system"] = kw["messages"][0]["content"]
-                        raise RuntimeError("stop after capture")
-        return C()
+    def fake_complete(messages, **kw):
+        captured["system"] = messages[0]["content"]
+        raise RuntimeError("stop after capture")
 
-    monkeypatch.setattr(js, "make_client", fake_client)
+    monkeypatch.setattr(js, "complete", fake_complete)
     p = normalize_profile(copy.deepcopy(V1))
     with pytest.raises(RuntimeError):
-        js.filter_openings([{"title": "X", "url": "http://x"}], p, "k", "m")
+        js.filter_openings([{"title": "X", "url": "http://x"}], p, {"openrouter_api_key": "k"})
     assert "Data Scientist" in captured.get("system", "")

@@ -15,7 +15,8 @@ from dataclasses import dataclass, field
 import httpx
 from bs4 import BeautifulSoup
 
-from app.services.llm import make_client, tool_args
+from app.i18n.languages import lang_name
+from app.services.llm import complete, tool_args
 
 
 @dataclass
@@ -128,8 +129,6 @@ _TOOL = {
     },
 }
 
-_LANG_NAMES = {"en": "English", "nl": "Dutch (Nederlands)"}
-
 # Editable via Settings → "CV Generator Prompt". {lang_name} is substituted at
 # call time. The candidate profile JSON is appended automatically after this.
 DEFAULT_CV_PROMPT = """You are an expert career coach helping tailor CVs to specific job openings.
@@ -165,34 +164,28 @@ def fetch_job_description(url: str) -> str:
 
 
 def tailor(
-    profile: dict, job_url: str, api_key: str, model: str,
+    profile: dict, job_url: str, cfg: dict,
     lang: str = "en", prompt: str | None = None,
 ) -> TailoringPlan:
     """
-    Call an LLM via OpenRouter to produce a CV tailoring plan for a given job URL.
+    Call the configured LLM engine to produce a CV tailoring plan for a job URL.
 
     Args:
         profile:  Loaded profile.json as a dict
         job_url:  Public URL of the job posting
-        api_key:  OpenRouter API key
-        model:    OpenRouter model string, e.g. 'anthropic/claude-sonnet-4-6'
-        lang:     Output language code ('en' or 'nl')
+        cfg:      App config dict (selects the AI engine)
+        lang:     Output language code (e.g. 'en', 'nl')
         prompt:   System instructions (DEFAULT_CV_PROMPT if None); {lang_name} is substituted
 
     Returns:
         TailoringPlan with all fields needed to render a tailored CV
     """
-    lang_name = _LANG_NAMES.get(lang, "English")
     job_text = fetch_job_description(job_url)
 
-    instructions = (prompt or DEFAULT_CV_PROMPT).replace("{lang_name}", lang_name)
+    instructions = (prompt or DEFAULT_CV_PROMPT).replace("{lang_name}", lang_name(lang))
 
-    client = make_client(api_key)
-
-    response = client.chat.completions.create(
-        model=model,
-        max_tokens=2048,
-        messages=[
+    response = complete(
+        [
             {
                 "role": "system",
                 "content": (
@@ -210,6 +203,8 @@ def tailor(
         ],
         tools=[_TOOL],
         tool_choice={"type": "function", "function": {"name": "cv_tailoring_plan"}},
+        cfg=cfg,
+        max_tokens=2048,
     )
 
     d = tool_args(response, required=(
