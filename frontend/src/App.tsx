@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { BrowserRouter, NavLink, Routes, Route, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { UserRound, FileText, Briefcase, Settings } from 'lucide-react'
@@ -8,6 +8,7 @@ import JobsPage from './pages/Jobs'
 import SettingsPage from './pages/Settings'
 import SetupBanner from './components/SetupBanner'
 import ErrorBoundary from './components/ErrorBoundary'
+import Onboarding from './components/Onboarding'
 import { ToastProvider } from './components/Toast'
 import { ApiKeyBanner, KeyStatusProvider } from './components/KeyStatus'
 import { api } from './api'
@@ -16,12 +17,18 @@ import './App.css'
 
 export default function App() {
   const { t } = useTranslation()
+  // null = still checking; true = show the first-run wizard.
+  const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null)
 
-  // Reconcile the UI language with the server-stored preference at boot.
+  // Reconcile the UI language with the server preference and decide whether the
+  // first-run wizard should appear (engine not ready AND not previously skipped).
   useEffect(() => {
-    api.getSettings()
-      .then(s => { if (s.app_language) void loadLanguage(s.app_language) })
-      .catch(() => {})
+    Promise.all([api.getSettings(), api.getEngine()])
+      .then(([s, e]) => {
+        if (s.app_language) void loadLanguage(s.app_language)
+        setShowOnboarding(!e.ready && !s.onboarding_done)
+      })
+      .catch(() => setShowOnboarding(false))
   }, [])
 
   return (
@@ -29,6 +36,7 @@ export default function App() {
       <BrowserRouter>
         <ToastProvider>
           <KeyStatusProvider>
+            {showOnboarding && <Onboarding onDone={() => setShowOnboarding(false)} />}
             <div className="app-shell">
               <nav className="sidebar-nav">
                 <div className="nav-logo">{t('nav.brand')} <em>{t('nav.brandEm')}</em></div>

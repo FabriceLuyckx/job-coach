@@ -537,5 +537,31 @@
       "title": "OpenRouter",
       "desc": "Beste kwaliteit — vereist een API-sleutel, betaal een paar cent per gebruik."
     }
+  },
+  "onboarding": {
+    "welcome": "Welkom bij Job Coach",
+    "intro": "Twee snelle keuzes en je bent klaar. Je kunt beide later wijzigen via Instellingen.",
+    "skip": "Voorlopig overslaan",
+    "back": "Terug",
+    "next": "Volgende",
+    "done": "Klaar",
+    "step": "Stap {{n}} van {{total}}",
+    "langTitle": "Kies je taal",
+    "langHelp": "De app is standaard in het Engels. Kies een taal — andere talen zijn AI-vertaald.",
+    "langOther": "Andere taal…",
+    "langOtherHelp": "Voer een 2-letterige code in (bijv. sv, ja). De vertaling gebeurt op je apparaat zodra je AI-engine is ingesteld.",
+    "langQueued": "We vertalen de interface zodra je een AI-engine hebt ingesteld.",
+    "engineTitle": "AI instellen",
+    "engineHelp": "De AI past je cv's aan en scant vacatures. Kies hoe het werkt.",
+    "engineLocalCta": "Gratis model downloaden",
+    "engineDownloading": "Downloaden… {{pct}}%",
+    "engineLocalReady": "Gratis model klaar.",
+    "engineKeyPlaceholder": "Plak je OpenRouter API-sleutel (sk-or-…)",
+    "engineSaveKey": "Sleutel opslaan",
+    "engineKeySaved": "API-sleutel opgeslagen.",
+    "engineGetKey": "Vraag een sleutel aan op openrouter.ai",
+    "doneTitle": "Je bent helemaal klaar",
+    "doneBody": "Volgende stap: maak je Profiel aan (importeer een bestaand cv om snel te beginnen) en voeg vacaturebronnen toe via Vacaturesuggesties.",
+    "finish": "Job Coach starten"
   }
 }
