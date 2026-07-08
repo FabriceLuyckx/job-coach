@@ -38,6 +38,11 @@ class SettingsIn(BaseModel):
     cv_prompt: str | None = None
     scan_extract_prompt: str | None = None
     scan_filter_prompt: str | None = None
+    # AI engine + UI language + onboarding marker.
+    llm_provider: str | None = None
+    local_model_id: str | None = None
+    app_language: str | None = None
+    onboarding_done: bool | None = None
 
 
 @router.get("")
@@ -54,6 +59,10 @@ def get_settings():
         "scan_extract_prompt_default": DEFAULT_EXTRACT_PROMPT,
         "scan_filter_prompt": cfg.get("scan_filter_prompt") or DEFAULT_SCAN_PROMPT,
         "scan_filter_prompt_default": DEFAULT_SCAN_PROMPT,
+        "llm_provider": cfg.get("llm_provider") or "openrouter",
+        "local_model_id": cfg.get("local_model_id") or config.DEFAULT_LOCAL_MODEL,
+        "app_language": cfg.get("app_language") or "en",
+        "onboarding_done": bool(cfg.get("onboarding_done")),
     }
 
 

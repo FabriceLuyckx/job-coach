@@ -151,7 +151,7 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
                 <Button
                   variant="primary" onClick={generate} busy={loading}
                   disabled={!url.trim() || keySet === false}
-                  title={keySet === false ? 'Add your OpenRouter API key in Settings first' : undefined}
+                  title={keySet === false ? 'Set up an AI engine in Settings first' : undefined}
                 >
                   {loading ? (loadingMsg || 'Generating…') : 'Generate CV'}
                 </Button>

@@ -5,8 +5,10 @@ import type { Profile } from '../types'
 import Button from '../components/Button'
 import SaveButton from '../components/SaveButton'
 import Collapsible from '../components/Collapsible'
+import EngineSettings from '../components/EngineSettings'
 import { useToast } from '../components/Toast'
 import { useKeyStatus } from '../components/KeyStatus'
+import type { EngineProvider } from '../api'
 import { errMsg } from '../lib/errors'
 
 const FONT_OPTIONS = [
@@ -82,7 +84,12 @@ export default function SettingsPage() {
     scan_extract_prompt_default: string
     scan_filter_prompt: string
     scan_filter_prompt_default: string
+    llm_provider: EngineProvider
+    local_model_id: string
+    app_language: string
+    onboarding_done: boolean
   } | null>(null)
+  const [provider, setProvider] = useState<EngineProvider>('openrouter')
   const [profile, setProfile] = useState<Profile | null>(null)
   const [photo, setPhoto] = useState<{ exists: boolean; data_uri: string | null } | null>(null)
   const [usage, setUsage] = useState<Usage | null>(null)
@@ -113,6 +120,7 @@ export default function SettingsPage() {
       setSettings(s)
       setProfile(p)
       setPhoto(ph)
+      setProvider(s.llm_provider)
       setModel(s.openrouter_model)
       setCvPrompt(s.cv_prompt)
       setScanExtract(s.scan_extract_prompt)
@@ -122,6 +130,16 @@ export default function SettingsPage() {
       if (s.openrouter_api_key_set) loadUsage()
     }).catch(e => setLoadError(errMsg(e)))
   }, [])
+
+  // Switching engine takes effect immediately (next AI request uses it).
+  async function changeProvider(p: EngineProvider) {
+    setProvider(p)
+    try {
+      await api.putSettings({ llm_provider: p })
+      setSettings(await api.getSettings())
+      refreshKeyStatus()
+    } catch (e) { toast.error(errMsg(e)) }
+  }
 
   // Save handlers throw on error so the SaveButton surfaces it.
   async function saveOpenRouter() {
@@ -215,7 +233,11 @@ export default function SettingsPage() {
     <div>
       <h1 className="page-title">Settings</h1>
 
-      {/* OpenRouter */}
+      {/* AI engine chooser (local vs OpenRouter) */}
+      <EngineSettings provider={provider} onProviderChange={changeProvider} />
+
+      {/* OpenRouter — key + model; shown when OpenRouter is the active engine */}
+      {provider === 'openrouter' && (
       <div className="card">
         <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>OpenRouter Connection</div>
         <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>
@@ -274,6 +296,7 @@ export default function SettingsPage() {
         )}
         <SaveButton dirty={connectionDirty} onSave={saveOpenRouter} idleLabel="Save connection" />
       </div>
+      )}
 
       {/* Photo */}
       <div className="card">

@@ -41,7 +41,7 @@ The app runs locally first, designed for easy cloud deployment. AI is powered vi
 | Frontend | React (TypeScript) | Simple SPA, served by FastAPI locally |
 | Profile data | `profile/profile.json` | Human-readable, version-controllable |
 | Jobs data | SQLite → PostgreSQL | SQLite locally, Postgres for cloud |
-| AI | OpenRouter → Anthropic Claude | Model: `anthropic/claude-sonnet-4-6`; key stored in `config.json` |
+| AI | Pluggable engine (`app/services/llm.py` → `engines/`) | **OpenRouter** (Claude, default) or a **free local GGUF** run in-process via llama-cpp-python. Every call goes through `complete()`; provider chosen by `llm_provider` in `config.json` |
 | CV output | HTML → PDF (headless Chromium) | Jinja2 templates; PDF rendered server-side via Playwright |
 | Local run | uvicorn | `uvicorn app.main:app --reload` |
 | Cloud (future) | Railway (backend) + Vercel (frontend) | Phase 6 |
@@ -226,8 +226,13 @@ uv run python scripts/tailor_cv.py --url https://... --lang nl
 GET  /api/profile              Return full profile JSON (blank v2 skeleton if none yet)
 PUT  /api/profile              Save updated profile JSON
 POST /api/profile/import       Extract a v2 profile from a CV (PDF/text) → returned for review, not saved
-GET  /api/settings             Return app settings (API key masked)
-PUT  /api/settings             Update settings (key, model)
+GET  /api/settings             Return app settings (API key masked; incl. llm_provider, app_language)
+PUT  /api/settings             Update settings (key, model, llm_provider, app_language, onboarding_done)
+GET  /api/engine               AI-engine status {provider, ready, detail, model} — the app-wide "AI ready" check
+GET  /api/engine/models        Local-model registry (label, size, RAM, downloaded?)
+POST /api/engine/download      Start downloading the local GGUF (disk/RAM pre-checks; force overrides RAM) → {download_id}
+GET  /api/engine/download/status[/{id}]  Download progress {state, bytes_done, bytes_total, error}
+DELETE /api/engine/model       Delete the downloaded GGUF
 POST /api/settings/photo       Upload profile photo
 GET  /api/settings/photo       Return photo as base64 data URI
 DELETE /api/settings/photo     Remove photo
@@ -391,8 +396,15 @@ they are exploitable:
 
 ## Configuration
 
-### API key setup
-Configure via the Settings page in the web UI — the key is saved to `config.json` (gitignored).
+### AI engine setup
+Two ways to power the AI features, chosen in **Settings → AI Engine** (or the first-run
+wizard):
+
+* **Free local model** — download a GGUF (default: Qwen3-4B-Instruct, ~2.5 GB) that runs
+  in-process via llama-cpp-python. No account, no cost, fully offline. Requires the `local`
+  extra: `uv sync --extra local` (the packaged app bundles it). Uses schema-constrained
+  JSON so even a small model returns valid tool output.
+* **OpenRouter** — best quality; paste an API key (saved to `config.json`, gitignored).
 
 For CLI use without the web UI, create `config.json` manually:
 ```json
@@ -401,12 +413,17 @@ For CLI use without the web UI, create `config.json` manually:
   "openrouter_model": "anthropic/claude-sonnet-4-6"
 }
 ```
+(Or set `"llm_provider": "local"` after downloading the model via the UI.)
 
 ### config.json reference
 | Key | Description | Default |
 |-----|-------------|---------|
-| `openrouter_api_key` | OpenRouter API key (get one at openrouter.ai) | Required for AI features |
+| `llm_provider` | AI engine: `openrouter` or `local` (free, downloaded GGUF via llama.cpp) | `openrouter` |
+| `openrouter_api_key` | OpenRouter API key (get one at openrouter.ai) | Required when provider is `openrouter` |
 | `openrouter_model` | Model string passed to OpenRouter | `anthropic/claude-sonnet-4-6` |
+| `local_model_id` | Registry key of the local model (see `engines/registry.py`) | `qwen3-4b-instruct` |
+| `app_language` | UI language (ISO 639-1); `en` is the native source language | `en` |
+| `onboarding_done` | First-run wizard completion marker | `false` |
 
 ---
 
