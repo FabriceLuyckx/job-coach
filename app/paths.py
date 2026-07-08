@@ -29,6 +29,9 @@ else:
 TEMPLATES_DIR = RESOURCE_DIR / "templates" / "cv"
 FRONTEND_DIST = RESOURCE_DIR / "frontend" / "dist"
 EXAMPLE_PROFILE = RESOURCE_DIR / "profile" / "profile.example.json"
+# Source UI catalog (English) + shipped locales. Bundled as data in the packaged
+# app so on-device translation (Phase D) can read the English strings to translate.
+UI_LOCALES_SRC = RESOURCE_DIR / "frontend" / "src" / "locales"
 
 # --- Writable user data ------------------------------------------------------
 # Frozen: ~/Library/Application Support/JobCoach (mac), %APPDATA%\JobCoach (win).

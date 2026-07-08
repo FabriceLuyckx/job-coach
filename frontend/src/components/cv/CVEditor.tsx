@@ -6,6 +6,7 @@ import { api, type CVResult, type CVPlan, type CVPlanRole } from '../../api'
 import BulletListEditor from '../BulletListEditor'
 import Button from '../Button'
 import SaveButton from '../SaveButton'
+import LangSelect from '../LangSelect'
 import Modal from '../Modal'
 import { errMsg } from '../../lib/errors'
 import { LANGUAGE_NAMES } from '../../i18n'
@@ -292,16 +293,15 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
           {relanging
             ? t('cveditor.translatingTo', { lang: langLabel(pendingLang ?? '') })
             : t('cveditor.language')}
-          <select
-            value={pendingLang ?? result.lang}
-            disabled={relanging || !result.job_url}
-            onChange={e => changeLang(e.target.value)}
-            title={result.job_url ? t('cveditor.relangTooltipHasUrl') : t('cveditor.relangTooltipNoUrl')}
-            style={{ padding: '3px 6px', fontSize: 'var(--fs-sm)', width: 'auto' }}
-          >
-            <option value="en">English</option>
-            <option value="nl">Dutch</option>
-          </select>
+          <span title={result.job_url ? t('cveditor.relangTooltipHasUrl') : t('cveditor.relangTooltipNoUrl')}>
+            <LangSelect
+              value={pendingLang ?? result.lang}
+              extra={result.lang}
+              disabled={relanging || !result.job_url}
+              onChange={changeLang}
+              style={{ padding: '3px 6px', fontSize: 'var(--fs-sm)', width: 'auto' }}
+            />
+          </span>
         </label>
       </div>
 

@@ -83,7 +83,9 @@
       "generating": "Interface vertalen… {{pct}}%",
       "generated": "Interface vertaald naar {{lang}}.",
       "experimental": "AI-vertaald — kan onvolkomenheden bevatten.",
-      "needEngineFirst": "Stel eerst een AI-engine in voordat je een nieuwe taal toevoegt."
+      "needEngineFirst": "Stel eerst een AI-engine in voordat je een nieuwe taal toevoegt.",
+      "badCode": "Voer een taalcode van 2 letters in (bijv. sv, ja, ar).",
+      "genFailed": "Vertaling mislukt — probeer het opnieuw."
     },
     "prompts": {
       "title": "Geavanceerd — AI-prompts",

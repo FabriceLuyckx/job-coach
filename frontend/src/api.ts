@@ -248,6 +248,16 @@ export const api = {
   },
   deletePhoto: () => request<{ ok: boolean; deleted: boolean }>('/settings/photo', { method: 'DELETE' }),
 
+  // On-device UI translation (Tier-2 languages)
+  generateLocale: (lang: string) =>
+    request<{ lang: string; status: string }>('/i18n/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lang }),
+    }),
+  getLocaleGenStatus: (lang: string) =>
+    request<{ status: 'idle' | 'running' | 'done' | 'error'; current?: number; total?: number; error?: string }>(`/i18n/generate/status/${lang}`),
+
   // AI engine (OpenRouter key vs local model)
   getEngine: () => request<EngineStatus>('/engine'),
   listLocalModels: () => request<LocalModel[]>('/engine/models'),
