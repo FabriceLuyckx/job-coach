@@ -25,7 +25,7 @@ def test_pdf_to_text_rejects_non_pdf():
 
 def test_import_requires_text_or_file(monkeypatch):
     import app.api.profile as prof
-    monkeypatch.setattr(prof.config, "require_llm", lambda cfg=None: ("k", "m"))
+    monkeypatch.setattr(prof.config, "require_engine", lambda cfg=None: None)
     r = client.post("/api/profile/import", data={"text": ""})
     assert r.status_code == 400
 
@@ -33,7 +33,7 @@ def test_import_requires_text_or_file(monkeypatch):
 def test_import_rejects_oversize_pdf(monkeypatch):
     import app.api.profile as prof
     import app.services.cv_importer as importer
-    monkeypatch.setattr(prof.config, "require_llm", lambda cfg=None: ("k", "m"))
+    monkeypatch.setattr(prof.config, "require_engine", lambda cfg=None: None)
     monkeypatch.setattr(prof, "MAX_CV_BYTES", 100)
     big = b"%PDF-1.4" + b"\x00" * 500
     r = client.post("/api/profile/import", files={"file": ("cv.pdf", big, "application/pdf")})
@@ -44,8 +44,8 @@ def test_import_rejects_oversize_pdf(monkeypatch):
 
 def test_import_happy_path(monkeypatch):
     import app.api.profile as prof
-    monkeypatch.setattr(prof.config, "require_llm", lambda cfg=None: ("k", "m"))
-    monkeypatch.setattr(prof, "extract_profile", lambda text, key, model: {
+    monkeypatch.setattr(prof.config, "require_engine", lambda cfg=None: None)
+    monkeypatch.setattr(prof, "extract_profile", lambda text, cfg: {
         "meta": {"schema": "career-profile-v2"},
         "personal": {"name": "Zed", "professional_title": "Chef",
                      "location": {"city": "", "country": ""}, "links": [], "keywords": []},

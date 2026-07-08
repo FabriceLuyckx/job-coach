@@ -75,7 +75,7 @@ def _run_scan(scan_id: str) -> None:
             _scans[scan_id]["status"] = "running"
 
         cfg = config.load()
-        api_key, model = config.require_llm(cfg)
+        config.require_engine(cfg)  # fail fast before scanning any source
         extract_prompt = cfg.get("scan_extract_prompt") or None
         filter_prompt = cfg.get("scan_filter_prompt") or None
         profile = load_profile()
@@ -93,9 +93,9 @@ def _run_scan(scan_id: str) -> None:
             # One bad source shouldn't abort the whole scan — but the user must
             # be able to see which source failed and why.
             try:
-                openings = extract_openings(src["url"], api_key, model, extract_prompt)
+                openings = extract_openings(src["url"], cfg, extract_prompt)
                 new = [o for o in openings if o["url"] not in known]
-                matches = filter_openings(new, profile, api_key, model, filter_prompt) if new else {}
+                matches = filter_openings(new, profile, cfg, filter_prompt) if new else {}
             except Exception as e:
                 errors[src["name"] or src["url"]] = str(e)
                 continue

@@ -11,7 +11,7 @@ away, so nothing from the source CV is silently lost.
 import io
 import json
 
-from app.services.llm import make_client, tool_args
+from app.services.llm import complete, tool_args
 
 # Uploaded CV size cap (PDF). Matches the spirit of the photo/backup guards.
 MAX_CV_BYTES = 5 * 1024 * 1024
@@ -219,20 +219,19 @@ def _raw_to_v2(d: dict) -> dict:
     return profile
 
 
-def extract_profile(cv_text: str, api_key: str, model: str) -> dict:
+def extract_profile(cv_text: str, cfg: dict) -> dict:
     """Return a v2-shaped profile dict extracted from CV text (caller normalizes)."""
     if not cv_text.strip():
         raise ValueError("No CV text to import.")
-    client = make_client(api_key)
-    resp = client.chat.completions.create(
-        model=model,
-        max_tokens=4096,
-        messages=[
+    resp = complete(
+        [
             {"role": "system", "content": _IMPORT_PROMPT},
             {"role": "user", "content": f"CV to extract:\n\n{cv_text[:16000]}"},
         ],
         tools=[_IMPORT_TOOL],
         tool_choice={"type": "function", "function": {"name": "extracted_profile"}},
+        cfg=cfg,
+        max_tokens=4096,
     )
     d = tool_args(resp, required=("personal",))
     return _raw_to_v2(d)
