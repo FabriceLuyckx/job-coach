@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { Trans } from 'react-i18next'
 import { KeyRound } from 'lucide-react'
 import { api } from '../api'
 import type { EngineProvider } from '../api'
@@ -50,9 +51,7 @@ export function ApiKeyBanner() {
     <div className="setup-banner setup-banner-info" role="status">
       <KeyRound size={15} aria-hidden />
       <span>
-        Welcome! To generate CVs and scan job listings, set up an AI engine in{' '}
-        <Link to="/settings">Settings</Link> — download the free local model, or add
-        an OpenRouter API key.
+        <Trans i18nKey="banner.engineNotReady" components={{ settings: <Link to="/settings" /> }} />
       </span>
     </div>
   )

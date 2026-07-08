@@ -1,0 +1,29 @@
+{
+  "en": {
+    "links": "Links", "skills": "Skills", "languages": "Languages",
+    "education": "Education", "grants": "Grants & Fellowships",
+    "experience": "Career Path", "publications": "Selected Publications",
+    "projects": "Projects", "certifications": "Certifications",
+    "awards": "Awards", "teaching": "Teaching", "present": "Present",
+    "volunteering": "Volunteering", "courses": "Courses & Training",
+    "memberships": "Memberships"
+  },
+  "nl": {
+    "links": "Links", "skills": "Vaardigheden", "languages": "Talen",
+    "education": "Opleiding", "grants": "Beurzen & Fellowships",
+    "experience": "Loopbaan", "publications": "Selectie Publicaties",
+    "projects": "Projecten", "certifications": "Certificaten",
+    "awards": "Onderscheidingen", "teaching": "Onderwijs", "present": "Heden",
+    "volunteering": "Vrijwilligerswerk", "courses": "Cursussen & Opleiding",
+    "memberships": "Lidmaatschappen"
+  },
+  "fr": {
+    "links": "Liens", "skills": "Compétences", "languages": "Langues",
+    "education": "Formation", "grants": "Bourses & Financements",
+    "experience": "Parcours professionnel", "publications": "Publications sélectionnées",
+    "projects": "Projets", "certifications": "Certifications",
+    "awards": "Distinctions", "teaching": "Enseignement", "present": "Présent",
+    "volunteering": "Bénévolat", "courses": "Cours & Formations",
+    "memberships": "Adhésions"
+  }
+}

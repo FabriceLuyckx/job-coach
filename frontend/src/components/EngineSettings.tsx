@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Cpu, Cloud, Download, Trash2, CheckCircle2 } from 'lucide-react'
 import { api } from '../api'
 import type { EngineProvider, LocalModel, DownloadStatus } from '../api'
@@ -19,6 +20,7 @@ export default function EngineSettings({ provider, onProviderChange }: {
   onProviderChange: (p: EngineProvider) => void
 }) {
   const toast = useToast()
+  const { t } = useTranslation()
   const [model, setModel] = useState<LocalModel | null>(null)
   const [dl, setDl] = useState<DownloadStatus>({ state: 'idle' })
   const poller = usePoller(1000)
@@ -44,12 +46,12 @@ export default function EngineSettings({ provider, onProviderChange }: {
       const s = await api.getDownloadStatus()
       setDl(s)
       if (s.state === 'done') {
-        if (startedRef.current) { toast.success('Model downloaded — the free AI engine is ready.'); startedRef.current = false }
+        if (startedRef.current) { toast.success(t('engine.local.downloaded')); startedRef.current = false }
         refreshModel()
         return true
       }
       if (s.state === 'error') {
-        toast.error(`Download failed: ${s.error ?? 'unknown error'}`)
+        toast.error(t('engine.local.downloadFailed', { error: s.error ?? 'unknown error' }))
         return true
       }
       return false
@@ -66,18 +68,18 @@ export default function EngineSettings({ provider, onProviderChange }: {
       startedRef.current = false
       const msg = errMsg(e)
       // The RAM pre-check is overridable — offer to proceed.
-      if (/RAM/i.test(msg) && window.confirm(`${msg}\n\nDownload anyway?`)) return download(true)
+      if (/RAM/i.test(msg) && window.confirm(t('engine.local.confirmForce', { msg }))) return download(true)
       toast.error(msg)
     }
   }
 
   async function remove() {
-    if (!window.confirm('Delete the downloaded model? You can download it again later.')) return
+    if (!window.confirm(t('engine.local.confirmDelete'))) return
     try {
       await api.deleteLocalModel()
       setDl({ state: 'idle' })
       refreshModel()
-      toast.success('Model deleted')
+      toast.success(t('engine.local.deleted'))
     } catch (e) { toast.error(errMsg(e)) }
   }
 
@@ -85,23 +87,21 @@ export default function EngineSettings({ provider, onProviderChange }: {
 
   return (
     <div className="card">
-      <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>AI Engine</div>
-      <p className="help-text" style={{ marginBottom: 'var(--space-4)' }}>
-        Choose how the app runs its AI (tailoring CVs, scanning jobs). You can switch anytime.
-      </p>
+      <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>{t('engine.title')}</div>
+      <p className="help-text" style={{ marginBottom: 'var(--space-4)' }}>{t('engine.help')}</p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}>
         <EngineCard
           icon={<Cpu size={18} aria-hidden />}
-          title="Free local model"
-          desc="Free & private — runs on your computer. Good results; no account needed."
+          title={t('engine.local.title')}
+          desc={t('engine.local.desc')}
           selected={provider === 'local'}
           onClick={() => onProviderChange('local')}
         />
         <EngineCard
           icon={<Cloud size={18} aria-hidden />}
-          title="OpenRouter"
-          desc="Best quality — needs an API key, pay a few cents per use."
+          title={t('engine.openrouter.title')}
+          desc={t('engine.openrouter.desc')}
           selected={provider === 'openrouter'}
           onClick={() => onProviderChange('openrouter')}
         />
@@ -109,19 +109,18 @@ export default function EngineSettings({ provider, onProviderChange }: {
 
       {provider === 'local' && (
         <div className="field" style={{ marginBottom: 0 }}>
-          <div style={{ fontWeight: 600 }}>{model?.label ?? 'Recommended model'}</div>
+          <div style={{ fontWeight: 600 }}>{model?.label ?? t('engine.local.recommended')}</div>
           <p className="muted-sm" style={{ margin: '4px 0 var(--space-3)' }}>
-            Download size ~{fmtGb(model?.size_bytes)} · recommended {model?.min_ram_gb ?? 8} GB RAM.
-            Runs entirely offline once downloaded.
+            {t('engine.local.sizeNote', { size: fmtGb(model?.size_bytes), ram: model?.min_ram_gb ?? 8 })}
           </p>
 
           {model?.downloaded && !busy ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--accent)' }}>
-                <CheckCircle2 size={16} aria-hidden /> Downloaded and ready
+                <CheckCircle2 size={16} aria-hidden /> {t('engine.local.ready')}
               </span>
               <Button variant="ghost" className="btn-icon-danger" onClick={remove}>
-                <Trash2 size={15} aria-hidden /> Delete model
+                <Trash2 size={15} aria-hidden /> {t('engine.local.deleteModel')}
               </Button>
             </div>
           ) : busy ? (
@@ -130,13 +129,13 @@ export default function EngineSettings({ provider, onProviderChange }: {
                 <div style={{ width: `${pct}%`, height: '100%', background: 'var(--accent)', transition: 'width .3s' }} />
               </div>
               <p className="muted-sm" style={{ marginTop: 6 }}>
-                {dl.state === 'resuming' ? 'Resuming… ' : 'Downloading… '}
-                {fmtGb(dl.bytes_done)} / {fmtGb(dl.bytes_total)} ({pct}%)
+                {t(dl.state === 'resuming' ? 'engine.local.resuming' : 'engine.local.downloading',
+                   { done: fmtGb(dl.bytes_done), total: fmtGb(dl.bytes_total), pct })}
               </p>
             </div>
           ) : (
             <Button onClick={() => download()}>
-              <Download size={15} aria-hidden /> Download model
+              <Download size={15} aria-hidden /> {t('engine.local.download')}
             </Button>
           )}
         </div>

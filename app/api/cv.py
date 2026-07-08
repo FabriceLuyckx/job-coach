@@ -15,7 +15,7 @@ from app import config, db
 from app.services.cv_generator import (
     DEFAULT_CV_PROMPT, TailoringPlan, apply_tailoring, tailor, _is_active, _start_key,
 )
-from app.services.cv_renderer import LABELS, OUTPUT_DIR, PROFILE_PATH, build_env, load_photo, load_profile
+from app.services.cv_renderer import LABELS, OUTPUT_DIR, PROFILE_PATH, build_env, cv_labels, load_photo, load_profile
 from app.services.llm import AIResponseError, complete, message_text
 
 router = APIRouter(prefix="/api/cv", tags=["cv"])
@@ -110,7 +110,7 @@ def _render_html(plan: TailoringPlan, profile: dict, lang: str) -> str:
     photo_uri = load_photo() if include_photo else None
     env = build_env()
     return env.get_template("default.html").render(
-        **tailored, labels=LABELS[lang], lang=lang, photo=photo_uri,
+        **tailored, labels=cv_labels(lang), lang=lang, photo=photo_uri,
     )
 
 

@@ -113,6 +113,19 @@ buttons that spend it.
 > platform-specific dependency kept out of the default install. Enable it with
 > `uv sync --extra local`. Without it, use the OpenRouter engine.
 
+### Language
+
+The app is English by default and can run in other languages — pick one under
+**Settings → Language**. Seven European languages (Dutch, French, German, Spanish,
+Italian, Portuguese, Polish) ship translated and reviewed. Job postings themselves are
+never translated: the AI reads them in whatever language they're in and writes your CV in
+the language you ask for. Some backend error messages remain in English.
+
+> **Maintainers:** UI strings live in `frontend/src/locales/en.json`. After changing them,
+> refresh the shipped translations with `uv run python scripts/translate_locales.py` (it
+> only re-translates new or changed keys). CV section headings are translated separately in
+> `app/i18n/cv_labels.json`.
+
 ### Customise the AI prompts (advanced)
 
 **Settings → Advanced — AI prompts** (collapsed by default) holds the three
