@@ -16,7 +16,7 @@ from app.services.cv_generator import (
     DEFAULT_CV_PROMPT, TailoringPlan, apply_tailoring, tailor, _is_active, _start_key,
 )
 from app.services.cv_renderer import LABELS, OUTPUT_DIR, PROFILE_PATH, build_env, load_photo, load_profile
-from app.services.llm import AIResponseError, make_client, message_text
+from app.services.llm import AIResponseError, complete, message_text
 
 router = APIRouter(prefix="/api/cv", tags=["cv"])
 
@@ -43,13 +43,13 @@ def _clean_slug(slug: str) -> str:
     return re.sub(r"[^a-z0-9\-]", "", slug)
 
 
-def _tailor_or_502(profile: dict, job_url: str, api_key: str, model: str,
+def _tailor_or_502(profile: dict, job_url: str, cfg: dict,
                    lang: str, prompt: str) -> TailoringPlan:
     """tailor() with fetch/AI failures mapped to clean HTTP errors, for the
     synchronous endpoints (relang/regenerate) where exceptions would otherwise
     surface as bare 500s."""
     try:
-        return tailor(profile, job_url, api_key, model, lang, prompt)
+        return tailor(profile, job_url, cfg, lang, prompt)
     except AIResponseError as e:
         raise HTTPException(502, str(e))
     except httpx.HTTPError as e:
@@ -154,10 +154,10 @@ def _run_generation(job_id: str, url: str, lang: str) -> None:
             _jobs[job_id]["status"] = "running"
 
         cfg = config.load()
-        api_key, model = config.require_llm(cfg)
+        config.require_engine(cfg)  # fail fast before fetching the job page
         profile = load_profile()
         prompt = cfg.get("cv_prompt") or DEFAULT_CV_PROMPT
-        plan = tailor(profile, url, api_key, model, lang, prompt)
+        plan = tailor(profile, url, cfg, lang, prompt)
         slug = _render_and_save(plan, profile, lang)
 
         history_id = str(uuid.uuid4())
@@ -292,12 +292,12 @@ def _retailor(history_id: str, row: dict, lang: str, keep_edits: bool = False) -
 
     cfg = config.load()
     try:
-        api_key, model = config.require_llm(cfg)
+        config.require_engine(cfg)
         profile = load_profile()
     except ValueError as e:
         raise HTTPException(400, str(e))
     prompt = cfg.get("cv_prompt") or DEFAULT_CV_PROMPT
-    plan = _tailor_or_502(profile, row["job_url"], api_key, model, lang, prompt)
+    plan = _tailor_or_502(profile, row["job_url"], cfg, lang, prompt)
     plan.slug = row["slug"]  # keep slug so history identity is stable
 
     plans = _load_plans(row)
@@ -447,7 +447,7 @@ def generate_cv_summary(history_id: str):
 
     cfg = config.load()
     try:
-        api_key, model_id = config.require_llm(cfg)
+        config.require_engine(cfg)
         profile = load_profile()
     except ValueError as e:
         raise HTTPException(400, str(e))
@@ -465,26 +465,25 @@ def generate_cv_summary(history_id: str):
     else:
         job_context = f"Job title: {row['job_title']}\nEmployer: {row['employer']}"
 
-    client = make_client(api_key)
-    response = client.chat.completions.create(
-        model=model_id,
-        max_tokens=512,
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    f"You are an expert career coach. Write a professional CV summary in {lang_name}.\n"
-                    "Rules: first person (I, my), maximum 4 sentences, direct and specific to the role.\n\n"
-                    f"CANDIDATE PROFILE:\n{json.dumps(profile, ensure_ascii=False, indent=2)}"
-                ),
-            },
-            {
-                "role": "user",
-                "content": f"Write a professional summary for this application:\n\n{job_context}",
-            },
-        ],
-    )
     try:
+        response = complete(
+            [
+                {
+                    "role": "system",
+                    "content": (
+                        f"You are an expert career coach. Write a professional CV summary in {lang_name}.\n"
+                        "Rules: first person (I, my), maximum 4 sentences, direct and specific to the role.\n\n"
+                        f"CANDIDATE PROFILE:\n{json.dumps(profile, ensure_ascii=False, indent=2)}"
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": f"Write a professional summary for this application:\n\n{job_context}",
+                },
+            ],
+            cfg=cfg,
+            max_tokens=512,
+        )
         new_summary = message_text(response)
     except AIResponseError as e:
         raise HTTPException(502, str(e))

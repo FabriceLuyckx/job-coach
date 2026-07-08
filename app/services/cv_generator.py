@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 import httpx
 from bs4 import BeautifulSoup
 
-from app.services.llm import make_client, tool_args
+from app.services.llm import complete, tool_args
 
 
 @dataclass
@@ -165,18 +165,17 @@ def fetch_job_description(url: str) -> str:
 
 
 def tailor(
-    profile: dict, job_url: str, api_key: str, model: str,
+    profile: dict, job_url: str, cfg: dict,
     lang: str = "en", prompt: str | None = None,
 ) -> TailoringPlan:
     """
-    Call an LLM via OpenRouter to produce a CV tailoring plan for a given job URL.
+    Call the configured LLM engine to produce a CV tailoring plan for a job URL.
 
     Args:
         profile:  Loaded profile.json as a dict
         job_url:  Public URL of the job posting
-        api_key:  OpenRouter API key
-        model:    OpenRouter model string, e.g. 'anthropic/claude-sonnet-4-6'
-        lang:     Output language code ('en' or 'nl')
+        cfg:      App config dict (selects the AI engine)
+        lang:     Output language code (e.g. 'en', 'nl')
         prompt:   System instructions (DEFAULT_CV_PROMPT if None); {lang_name} is substituted
 
     Returns:
@@ -187,12 +186,8 @@ def tailor(
 
     instructions = (prompt or DEFAULT_CV_PROMPT).replace("{lang_name}", lang_name)
 
-    client = make_client(api_key)
-
-    response = client.chat.completions.create(
-        model=model,
-        max_tokens=2048,
-        messages=[
+    response = complete(
+        [
             {
                 "role": "system",
                 "content": (
@@ -210,6 +205,8 @@ def tailor(
         ],
         tools=[_TOOL],
         tool_choice={"type": "function", "function": {"name": "cv_tailoring_plan"}},
+        cfg=cfg,
+        max_tokens=2048,
     )
 
     d = tool_args(response, required=(

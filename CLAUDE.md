@@ -78,7 +78,8 @@ job-coach/
 │   │   ├── settings.py           # Settings + photo upload endpoints
 │   │   └── jobs.py               # Job sources, scan, accept/reject (Phase 5)
 │   └── services/
-│       ├── llm.py                # Shared OpenRouter client (timeouts) + response validation
+│       ├── llm.py                # Provider-neutral complete() + LLMResponse/ToolCall + response validation
+│       ├── engines/              # AI providers: openrouter.py, local.py (llama.cpp), registry.py
 │       ├── cv_generator.py       # OpenRouter-powered tailored CV generation
 │       ├── cv_renderer.py        # Shared Jinja2 utilities (+ PHOTO_EXTS, load_profile)
 │       ├── job_scanner.py        # Extract openings from a page + profile-filter (Phase 5)

@@ -52,16 +52,19 @@ def main() -> None:
     profile = load_profile()
 
     cfg = app_config.load()
-    api_key = os.environ.get("OPENROUTER_API_KEY") or cfg.get("openrouter_api_key", "")
-    model = cfg.get("openrouter_model") or app_config.DEFAULT_MODEL
-    if not api_key:
-        print("\nConfiguration error: OpenRouter API key not set.")
-        print("Set it via the Settings page or in config.json (openrouter_api_key).")
+    # Allow an env override of the OpenRouter key for CLI use.
+    env_key = os.environ.get("OPENROUTER_API_KEY")
+    if env_key:
+        cfg = {**cfg, "openrouter_api_key": env_key}
+    try:
+        app_config.require_engine(cfg)
+    except ValueError as e:
+        print(f"\nConfiguration error: {e}")
         sys.exit(1)
 
     print(f"Fetching job description from {args.url} …")
     try:
-        plan = tailor(profile, args.url, api_key, model, lang=args.lang,
+        plan = tailor(profile, args.url, cfg, lang=args.lang,
                       prompt=cfg.get("cv_prompt") or None)
     except Exception as e:
         print(f"\nFailed to fetch or process job URL: {e}")

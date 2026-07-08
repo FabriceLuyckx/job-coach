@@ -43,6 +43,13 @@ PHOTO_DIR = PROFILE_DIR  # photo.{jpg,png,...} sits next to profile.json
 DB_PATH = DATA_DIR / "jobs" / "jobs.db"
 OUTPUT_DIR = DATA_DIR / "output"
 
+# Downloaded local LLM models (GGUF) live in the writable data dir, like Chromium,
+# so they survive a read-only install and are excluded from backups (multi-GB).
+MODELS_DIR = DATA_DIR / "models"
+
+# On-device generated UI locale files (Tier-2 languages) and generated CV labels.
+LOCALES_DIR = DATA_DIR / "locales"
+
 # Chromium that Playwright downloads on first run lives in the writable dir too,
 # so it survives from a read-only install. Only the packaged launcher points
 # PLAYWRIGHT_BROWSERS_PATH here; in dev the default Playwright cache is used.
