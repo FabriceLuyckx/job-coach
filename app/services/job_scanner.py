@@ -81,7 +81,7 @@ _FILTER_TOOL = {
                         "properties": {
                             "url": {"type": "string", "description": "URL of an interesting opening (must match one of the candidate URLs)"},
                             "reason": {"type": "string", "description": "One-line reason it fits the profile"},
-                            "lang": {"type": "string", "enum": ["en", "nl"], "description": "Language the posting is written in"},
+                            "lang": {"type": "string", "description": "ISO 639-1 code (e.g. 'en', 'nl', 'fr') of the language the posting is written in"},
                         },
                     },
                 }
@@ -174,10 +174,14 @@ def filter_openings(openings: list[dict], profile: dict, cfg: dict,
         "skills": profile.get("skills"),
     }
     listing = "\n".join(f"- {o['title']} — {o['url']}" for o in openings)
+    # Write the one-line reason in the user's UI language.
+    from app.i18n.languages import lang_name
+    app_lang = (cfg or {}).get("app_language") or "en"
+    reason_lang = f"\n\nWrite each 'reason' in {lang_name(app_lang)}." if app_lang != "en" else ""
     resp = complete(
         [
             {"role": "system", "content":
-                f"{prompt or DEFAULT_SCAN_PROMPT}\n\n"
+                f"{prompt or DEFAULT_SCAN_PROMPT}{reason_lang}\n\n"
                 f"CANDIDATE PROFILE:\n{json.dumps(trimmed, ensure_ascii=False, indent=2)}"},
             {"role": "user", "content": f"Candidate openings:\n{listing}"},
         ],
@@ -190,6 +194,7 @@ def filter_openings(openings: list[dict], profile: dict, cfg: dict,
     out = {}
     for i in args.get("interesting", []):
         if i.get("url"):
+            code = str(i.get("lang") or "").lower()[:2]
             out[i["url"]] = {"reason": i.get("reason", ""),
-                             "lang": i.get("lang") if i.get("lang") in ("en", "nl") else "en"}
+                             "lang": code if len(code) == 2 and code.isalpha() else "en"}
     return out

@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 import httpx
 from bs4 import BeautifulSoup
 
+from app.i18n.languages import lang_name
 from app.services.llm import complete, tool_args
 
 
@@ -128,8 +129,6 @@ _TOOL = {
     },
 }
 
-_LANG_NAMES = {"en": "English", "nl": "Dutch (Nederlands)"}
-
 # Editable via Settings → "CV Generator Prompt". {lang_name} is substituted at
 # call time. The candidate profile JSON is appended automatically after this.
 DEFAULT_CV_PROMPT = """You are an expert career coach helping tailor CVs to specific job openings.
@@ -181,10 +180,9 @@ def tailor(
     Returns:
         TailoringPlan with all fields needed to render a tailored CV
     """
-    lang_name = _LANG_NAMES.get(lang, "English")
     job_text = fetch_job_description(job_url)
 
-    instructions = (prompt or DEFAULT_CV_PROMPT).replace("{lang_name}", lang_name)
+    instructions = (prompt or DEFAULT_CV_PROMPT).replace("{lang_name}", lang_name(lang))
 
     response = complete(
         [

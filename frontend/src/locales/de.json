@@ -83,7 +83,9 @@
       "generating": "Oberfläche wird übersetzt… {{pct}}%",
       "generated": "Oberfläche wurde in {{lang}} übersetzt.",
       "experimental": "KI-übersetzt – kann vereinzelte Fehler enthalten.",
-      "needEngineFirst": "Richte zuerst eine KI-Engine ein, bevor du eine neue Sprache hinzufügst."
+      "needEngineFirst": "Richte zuerst eine KI-Engine ein, bevor du eine neue Sprache hinzufügst.",
+      "badCode": "Gib einen 2-buchstabigen Sprachcode ein (z. B. sv, ja, ar).",
+      "genFailed": "Übersetzung fehlgeschlagen – bitte versuche es erneut."
     },
     "prompts": {
       "title": "Erweitert – KI-Prompts",

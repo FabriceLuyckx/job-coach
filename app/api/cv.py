@@ -15,7 +15,13 @@ from app import config, db
 from app.services.cv_generator import (
     DEFAULT_CV_PROMPT, TailoringPlan, apply_tailoring, tailor, _is_active, _start_key,
 )
-from app.services.cv_renderer import LABELS, OUTPUT_DIR, PROFILE_PATH, build_env, cv_labels, load_photo, load_profile
+from app.i18n.languages import is_valid_code, lang_name
+from app.services.cv_renderer import OUTPUT_DIR, PROFILE_PATH, build_env, cv_labels, load_photo, load_profile
+
+
+def _clean_lang(lang: str) -> str:
+    """Sanitize a language code from a request path/body to a bare 2-letter code."""
+    return re.sub(r"[^a-z]", "", (lang or "").lower())[:2]
 from app.services.llm import AIResponseError, complete, message_text
 
 router = APIRouter(prefix="/api/cv", tags=["cv"])
@@ -201,8 +207,9 @@ def _run_generation(job_id: str, url: str, lang: str) -> None:
 def start_generation(url: str, lang: str = "en") -> str:
     """Kick off async CV generation for a job URL; returns the poll job_id.
     Shared by the /generate endpoint and the Jobs 'accept' flow."""
-    if lang not in LABELS:
-        raise HTTPException(400, f"Unknown lang '{lang}'. Choices: {list(LABELS)}")
+    lang = _clean_lang(lang)
+    if not is_valid_code(lang):
+        raise HTTPException(400, f"Unknown language code '{lang}'.")
     job_id = str(uuid.uuid4())
     with _jobs_lock:
         _evict_jobs()
@@ -325,8 +332,9 @@ def _retailor(history_id: str, row: dict, lang: str, keep_edits: bool = False) -
 def relang_cv(history_id: str, body: RelangRequest):
     """Switch a CV to another language. If a plan for that language already exists
     (incl. your edits), reuse it — no AI call, no lost edits. Otherwise re-tailor."""
-    if body.lang not in LABELS:
-        raise HTTPException(400, f"Unknown lang '{body.lang}'. Choices: {list(LABELS)}")
+    body.lang = _clean_lang(body.lang)
+    if not is_valid_code(body.lang):
+        raise HTTPException(400, f"Unknown language code '{body.lang}'.")
     with db.get_db() as conn:
         row = conn.execute("SELECT * FROM cv_history WHERE id = ?", (history_id,)).fetchone()
     if not row:
@@ -452,7 +460,7 @@ def generate_cv_summary(history_id: str):
     except ValueError as e:
         raise HTTPException(400, str(e))
     lang = row["lang"]
-    lang_name = {"en": "English", "nl": "Dutch (Nederlands)"}.get(lang, "English")
+    lang_display = lang_name(lang)
 
     plans = _load_plans(row)
     plan_data = plans.get(lang)
@@ -471,7 +479,7 @@ def generate_cv_summary(history_id: str):
                 {
                     "role": "system",
                     "content": (
-                        f"You are an expert career coach. Write a professional CV summary in {lang_name}.\n"
+                        f"You are an expert career coach. Write a professional CV summary in {lang_display}.\n"
                         "Rules: first person (I, my), maximum 4 sentences, direct and specific to the role.\n\n"
                         f"CANDIDATE PROFILE:\n{json.dumps(profile, ensure_ascii=False, indent=2)}"
                     ),
@@ -506,7 +514,12 @@ def generate_cv_summary(history_id: str):
 @router.get("/preview/{slug}", response_class=HTMLResponse)
 def preview_cv(slug: str, autoprint: bool = Query(False, alias="print")):
     slug = _clean_slug(slug)
-    for lang in ("en", "nl"):
+    # Prefer English, then any language a CV was generated in for this slug.
+    langs = ["en"] + sorted(
+        p.stem.removeprefix("cv_")
+        for p in (OUTPUT_DIR / slug).glob("cv_*.html")
+    ) if (OUTPUT_DIR / slug).exists() else ["en"]
+    for lang in dict.fromkeys(langs):  # de-dupe, keep order
         html = _current_html(slug, lang)
         if html is not None:
             return HTMLResponse(_maybe_print(html, autoprint))
@@ -516,8 +529,9 @@ def preview_cv(slug: str, autoprint: bool = Query(False, alias="print")):
 @router.get("/preview/{slug}/{lang}", response_class=HTMLResponse)
 def preview_cv_lang(slug: str, lang: str, autoprint: bool = Query(False, alias="print")):
     slug = _clean_slug(slug)
-    if lang not in LABELS:
-        raise HTTPException(400, "Unknown lang")
+    lang = _clean_lang(lang)
+    if not is_valid_code(lang):
+        raise HTTPException(400, "Unknown language code")
     html = _current_html(slug, lang)
     if html is None:
         raise HTTPException(404, "CV not found")
@@ -530,8 +544,9 @@ def pdf_cv(slug: str, lang: str):
     from app.services.pdf import html_to_pdf
 
     slug = _clean_slug(slug)
-    if lang not in LABELS:
-        raise HTTPException(400, "Unknown lang")
+    lang = _clean_lang(lang)
+    if not is_valid_code(lang):
+        raise HTTPException(400, "Unknown language code")
     html = _current_html(slug, lang)
     if html is None:
         raise HTTPException(404, "CV not found")

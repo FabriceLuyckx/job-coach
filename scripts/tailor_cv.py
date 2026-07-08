@@ -44,7 +44,7 @@ def main() -> None:
         description="AI-tailor a CV for a specific job posting URL"
     )
     parser.add_argument("--url",      required=True, help="URL of the job posting")
-    parser.add_argument("--lang",     choices=list(LABELS), default="en")
+    parser.add_argument("--lang",     default="en", help="Output language (ISO 639-1 code, e.g. en, nl, fr)")
     parser.add_argument("--job",      default="",
                         help="Override the output directory slug (default: inferred by Claude)")
     parser.add_argument("--template", default="default.html")

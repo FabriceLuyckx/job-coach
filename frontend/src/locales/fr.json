@@ -83,7 +83,9 @@
       "generating": "Traduction de l'interface… {{pct}}%",
       "generated": "Interface traduite en {{lang}}.",
       "experimental": "Traduit par IA — peut contenir des imperfections.",
-      "needEngineFirst": "Configurez d'abord un moteur IA ci-dessus avant d'ajouter une nouvelle langue."
+      "needEngineFirst": "Configurez d'abord un moteur IA ci-dessus avant d'ajouter une nouvelle langue.",
+      "badCode": "Entrez un code de langue à 2 lettres (ex. sv, ja, ar).",
+      "genFailed": "La traduction a échoué — veuillez réessayer."
     },
     "prompts": {
       "title": "Avancé — Prompts IA",

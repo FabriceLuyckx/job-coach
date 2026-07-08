@@ -7,6 +7,7 @@ import Badge from '../components/Badge'
 import Collapsible from '../components/Collapsible'
 import EmptyState from '../components/EmptyState'
 import CreditChip from '../components/CreditChip'
+import LangSelect from '../components/LangSelect'
 import CVEditor from '../components/cv/CVEditor'
 import { useToast } from '../components/Toast'
 import { useKeyStatus } from '../components/KeyStatus'
@@ -26,7 +27,7 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
   const { keySet } = useKeyStatus()
   const [expanded, setExpanded] = useState(true)
   const [url, setUrl] = useState('')
-  const [lang, setLang] = useState<'en' | 'nl'>('en')
+  const [lang, setLang] = useState('en')
   const [loading, setLoading] = useState(false)
   const [loadingMsg, setLoadingMsg] = useState('')
   const [error, setError] = useState('')
@@ -143,12 +144,9 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
                 />
               </div>
               <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-end', marginTop: 'var(--space-3)', flexWrap: 'wrap' }}>
-                <div style={{ width: 120 }}>
+                <div style={{ width: 140 }}>
                   <label>{t('cv.language')}</label>
-                  <select value={lang} onChange={e => setLang(e.target.value as 'en' | 'nl')} disabled={loading}>
-                    <option value="en">English</option>
-                    <option value="nl">Dutch</option>
-                  </select>
+                  <LangSelect value={lang} onChange={setLang} disabled={loading} />
                 </div>
                 <Button
                   variant="primary" onClick={generate} busy={loading}

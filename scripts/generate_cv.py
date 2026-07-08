@@ -34,7 +34,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Render a full CV from profile/profile.json"
     )
-    parser.add_argument("--lang",     choices=list(LABELS), default="en")
+    parser.add_argument("--lang",     default="en", help="Output language (ISO 639-1 code, e.g. en, nl, fr)")
     parser.add_argument("--job",      default="",
                         help="Job title/company slug for output directory")
     parser.add_argument("--template", default="default.html")

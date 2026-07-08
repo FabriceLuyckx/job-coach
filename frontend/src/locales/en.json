@@ -83,7 +83,9 @@
       "generating": "Translating the interface… {{pct}}%",
       "generated": "Interface translated to {{lang}}.",
       "experimental": "AI-translated — may contain rough edges.",
-      "needEngineFirst": "Set up an AI engine above before adding a new language."
+      "needEngineFirst": "Set up an AI engine above before adding a new language.",
+      "badCode": "Enter a 2-letter language code (e.g. sv, ja, ar).",
+      "genFailed": "Translation failed — please try again."
     },
     "prompts": {
       "title": "Advanced — AI prompts",

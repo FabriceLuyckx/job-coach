@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-from app.api import profile, cv, settings, jobs, system, backup, engine
+from app.api import profile, cv, settings, jobs, system, backup, engine, i18n
 from app import db, paths
 
 
@@ -34,6 +34,7 @@ app.include_router(jobs.router)
 app.include_router(system.router)
 app.include_router(backup.router)
 app.include_router(engine.router)
+app.include_router(i18n.router)
 
 FRONTEND_DIST = paths.FRONTEND_DIST
 
