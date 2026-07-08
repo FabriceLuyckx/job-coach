@@ -88,6 +88,31 @@ export interface JobOpening {
   decided_at: string | null
 }
 
+export type EngineProvider = 'openrouter' | 'local'
+
+export interface EngineStatus {
+  provider: EngineProvider
+  ready: boolean
+  detail: string
+  model: { id: string; label: string; size_bytes: number | null; min_ram_gb: number | null } | null
+}
+
+export interface LocalModel {
+  id: string
+  label: string
+  size_bytes: number
+  min_ram_gb: number
+  downloaded: boolean
+}
+
+export interface DownloadStatus {
+  state: 'idle' | 'pending' | 'downloading' | 'resuming' | 'done' | 'error'
+  bytes_done?: number
+  bytes_total?: number
+  error?: string
+  model_id?: string
+}
+
 export const api = {
   // Profile
   getProfile: () => request<Profile>('/profile'),
@@ -200,8 +225,12 @@ export const api = {
       scan_extract_prompt_default: string
       scan_filter_prompt: string
       scan_filter_prompt_default: string
+      llm_provider: EngineProvider
+      local_model_id: string
+      app_language: string
+      onboarding_done: boolean
     }>('/settings'),
-  putSettings: (data: { openrouter_api_key?: string; openrouter_model?: string; cv_prompt?: string; scan_extract_prompt?: string; scan_filter_prompt?: string }) =>
+  putSettings: (data: { openrouter_api_key?: string; openrouter_model?: string; cv_prompt?: string; scan_extract_prompt?: string; scan_filter_prompt?: string; llm_provider?: EngineProvider; local_model_id?: string; app_language?: string; onboarding_done?: boolean }) =>
     request<{ ok: boolean }>('/settings', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -218,6 +247,19 @@ export const api = {
     return request<{ ok: boolean; filename: string }>('/settings/photo', { method: 'POST', body: form })
   },
   deletePhoto: () => request<{ ok: boolean; deleted: boolean }>('/settings/photo', { method: 'DELETE' }),
+
+  // AI engine (OpenRouter key vs local model)
+  getEngine: () => request<EngineStatus>('/engine'),
+  listLocalModels: () => request<LocalModel[]>('/engine/models'),
+  startModelDownload: (opts?: { model_id?: string; force?: boolean }) =>
+    request<{ download_id: string }>('/engine/download', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(opts ?? {}),
+    }),
+  getDownloadStatus: () => request<DownloadStatus>('/engine/download/status'),
+  deleteLocalModel: (modelId?: string) =>
+    request<{ ok: boolean }>(`/engine/model${modelId ? `?model_id=${encodeURIComponent(modelId)}` : ''}`, { method: 'DELETE' }),
 
   // Backup & restore
   backupExportUrl: `${BASE}/backup/export`,

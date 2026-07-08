@@ -301,8 +301,9 @@ function CustomSectionCard({ sec, onChange, onRemove }: { sec: CustomSection; on
 
 // ── CV import modal ──────────────────────────────────────────────────────────
 
-function ImportCVModal({ hasContent, onClose, onImported }: {
+function ImportCVModal({ hasContent, localEngine, onClose, onImported }: {
   hasContent: boolean
+  localEngine: boolean
   onClose: () => void
   onImported: (p: Profile) => void
 }) {
@@ -335,6 +336,12 @@ function ImportCVModal({ hasContent, onClose, onImported }: {
           This replaces the details currently in your profile.
         </p>
       )}
+      {localEngine && (
+        <p className="callout callout-warn" style={{ marginBottom: 'var(--space-3)' }}>
+          You're using the free local model: importing a CV may be slow and less accurate.
+          For best results, switch to an OpenRouter key in Settings.
+        </p>
+      )}
       <div className="field">
         <label>Upload a PDF</label>
         <input type="file" accept="application/pdf,.pdf" onChange={e => setFile(e.target.files?.[0] ?? null)} />
@@ -361,7 +368,7 @@ type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
 
 export default function ProfilePage() {
   const toast = useToast()
-  const { keySet } = useKeyStatus()
+  const { keySet, provider } = useKeyStatus()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [error, setError] = useState('')
@@ -728,7 +735,7 @@ export default function ProfilePage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
           {showForm && (
             <Button variant="secondary" onClick={() => setShowImport(true)} disabled={keySet === false}
-              title={keySet === false ? 'Add your OpenRouter API key in Settings first' : 'Extract your details from an existing CV'}
+              title={keySet === false ? 'Set up an AI engine in Settings first' : 'Extract your details from an existing CV'}
               style={{ padding: '4px 10px', fontSize: 'var(--fs-sm)' }}>
               <FileUp size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />Import from CV
             </Button>
@@ -748,7 +755,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {showImport && <ImportCVModal hasContent={!pristine} onClose={() => setShowImport(false)} onImported={onImported} />}
+      {showImport && <ImportCVModal hasContent={!pristine} localEngine={provider === 'local'} onClose={() => setShowImport(false)} onImported={onImported} />}
       <p className="help-text" style={{ marginTop: 'calc(-1 * var(--space-4))' }}>
         Everything you enter here is saved automatically as you type.
       </p>
@@ -758,7 +765,7 @@ export default function ProfilePage() {
           action={
             <div style={{ display: 'flex', gap: 'var(--space-2)', justifyContent: 'center', flexWrap: 'wrap' }}>
               <Button onClick={() => setShowImport(true)} disabled={keySet === false}
-                title={keySet === false ? 'Add your OpenRouter API key in Settings first' : undefined}>
+                title={keySet === false ? 'Set up an AI engine in Settings first' : undefined}>
                 <FileUp size={15} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />Import from an existing CV
               </Button>
               <Button variant="secondary" onClick={() => setManualStart(true)}>

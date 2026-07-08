@@ -203,7 +203,7 @@ export default function JobsPage() {
             onClick={scan}
             busy={scanning}
             disabled={sources.length === 0 || keySet === false}
-            title={keySet === false ? 'Add your OpenRouter API key in Settings first' : undefined}
+            title={keySet === false ? 'Set up an AI engine in Settings first' : undefined}
           >
             {!scanning && <Search size={15} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
             {scanning ? (scanProgress || 'Scanning…') : 'Find new listings'}
