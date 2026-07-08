@@ -233,6 +233,9 @@ GET  /api/engine/models        Local-model registry (label, size, RAM, downloade
 POST /api/engine/download      Start downloading the local GGUF (disk/RAM pre-checks; force overrides RAM) → {download_id}
 GET  /api/engine/download/status[/{id}]  Download progress {state, bytes_done, bytes_total, error}
 DELETE /api/engine/model       Delete the downloaded GGUF
+POST /api/i18n/generate        Translate the UI catalog + CV labels into a language on-device → runs in background
+GET  /api/i18n/generate/status/{lang}  On-device translation progress
+GET  /api/i18n/{lang}          Serve a UI locale catalog (shipped bundle or generated)
 POST /api/settings/photo       Upload profile photo
 GET  /api/settings/photo       Return photo as base64 data URI
 DELETE /api/settings/photo     Remove photo
@@ -471,6 +474,13 @@ migration is idempotent, so v2 files pass through untouched.
 | `memberships[]` | (optional) Professional memberships — `name`, `role?`, `year?` |
 | `custom_sections[]` | (optional) The escape hatch — `{title, items: [{heading, subheading?, date?, description?}]}`, each rendered as its own titled CV section |
 | `cv_design_preferences` | Visual preferences for CV output |
+
+**First-run onboarding** (`frontend/src/components/Onboarding.tsx`): a modal wizard
+shown when `GET /api/engine` reports not-ready **and** config `onboarding_done` is
+false. Three steps — pick a language, set up the AI engine (download the free local
+model or paste an OpenRouter key), done. Skippable on every step (sets
+`onboarding_done` so it never nags again); `SetupBanner`/`ApiKeyBanner` remain the
+fallback prompt for a still-missing engine.
 
 **Section presence** is driven by `meta.enabled_sections` and the frontend registry
 `frontend/src/lib/profileSections.ts` (core vs optional, labels, badges,

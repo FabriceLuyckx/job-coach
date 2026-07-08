@@ -537,5 +537,31 @@
       "title": "OpenRouter",
       "desc": "Beste Qualität – benötigt einen API-Schlüssel, kostet wenige Cent pro Nutzung."
     }
+  },
+  "onboarding": {
+    "welcome": "Willkommen bei Job Coach",
+    "intro": "Zwei kurze Einstellungen und du bist startklar. Beides kannst du später in den <settings>Einstellungen</settings> ändern.",
+    "skip": "Vorerst überspringen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "done": "Fertig",
+    "step": "Schritt {{n}} von {{total}}",
+    "langTitle": "Wählen Sie Ihre Sprache",
+    "langHelp": "Die App ist standardmäßig auf Englisch. Wähle eine Sprache – andere sind KI-übersetzt.",
+    "langOther": "Andere Sprache…",
+    "langOtherHelp": "Gib einen 2-Buchstaben-Code ein (z. B. sv, ja). Die Übersetzung erfolgt auf deinem Gerät, sobald deine KI-Engine eingerichtet ist.",
+    "langQueued": "Wir übersetzen die Benutzeroberfläche, sobald Sie eine KI-Engine eingerichtet haben.",
+    "engineTitle": "KI einrichten",
+    "engineHelp": "Die KI passt deine Lebensläufe an und scannt Stellenanzeigen. Wähle, wie sie arbeiten soll.",
+    "engineLocalCta": "Kostenloses Modell herunterladen",
+    "engineDownloading": "Wird heruntergeladen… {{pct}}%",
+    "engineLocalReady": "Kostenloses Modell bereit.",
+    "engineKeyPlaceholder": "OpenRouter-API-Schlüssel einfügen (sk-or-…)",
+    "engineSaveKey": "Schlüssel speichern",
+    "engineKeySaved": "API-Schlüssel gespeichert.",
+    "engineGetKey": "Schlüssel auf openrouter.ai holen",
+    "doneTitle": "Alles erledigt",
+    "doneBody": "Weiter: Erstelle dein Profil (importiere einen vorhandenen Lebenslauf für einen schnellen Start) und füge dann Jobquellen unter Jobvorschläge hinzu.",
+    "finish": "Job Coach verwenden"
   }
 }

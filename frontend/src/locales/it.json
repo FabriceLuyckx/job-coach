@@ -537,5 +537,31 @@
       "title": "OpenRouter",
       "desc": "Qualità migliore — richiede una chiave API, a pochi centesimi per utilizzo."
     }
+  },
+  "onboarding": {
+    "welcome": "Benvenuto in Job Coach",
+    "intro": "Due scelte rapide e sei pronto. Puoi modificarle entrambe in seguito nelle Impostazioni.",
+    "skip": "Salta per ora",
+    "back": "Indietro",
+    "next": "Avanti",
+    "done": "Fine",
+    "step": "Passaggio {{n}} di {{total}}",
+    "langTitle": "Scegli la lingua",
+    "langHelp": "L'app è in inglese per impostazione predefinita. Scegli una lingua — le altre sono tradotte dall'IA.",
+    "langOther": "Altra lingua…",
+    "langOtherHelp": "Inserisci un codice di 2 lettere (es. sv, ja). Viene tradotto sul tuo dispositivo una volta configurato il motore IA.",
+    "langQueued": "Tradurremo l'interfaccia subito dopo aver configurato un motore IA.",
+    "engineTitle": "Configura l'IA",
+    "engineHelp": "L'IA personalizza i tuoi CV e analizza le offerte di lavoro. Scegli come eseguirla.",
+    "engineLocalCta": "Scarica il modello gratuito",
+    "engineDownloading": "Download in corso… {{pct}}%",
+    "engineLocalReady": "Modello gratuito pronto.",
+    "engineKeyPlaceholder": "Incolla la tua chiave API OpenRouter (sk-or-…)",
+    "engineSaveKey": "Salva chiave",
+    "engineKeySaved": "Chiave API salvata.",
+    "engineGetKey": "Ottieni una chiave su openrouter.ai",
+    "doneTitle": "Sei pronto",
+    "doneBody": "Prossimo passo: crea il tuo Profilo (importa un CV esistente per iniziare rapidamente), poi aggiungi fonti di lavoro in Suggerimenti di lavoro.",
+    "finish": "Inizia a usare Job Coach"
   }
 }
