@@ -29,6 +29,7 @@ from app import config as app_config
 from app.services.cv_generator import apply_tailoring, tailor
 from app.services.cv_renderer import (
     LABELS,
+    cv_labels,
     OUTPUT_DIR,
     PROFILE_PATH,
     ROOT,
@@ -82,7 +83,7 @@ def main() -> None:
     env = build_env()
     html = env.get_template(args.template).render(
         **tailored_profile,
-        labels=LABELS[args.lang],
+        labels=cv_labels(args.lang),
         lang=args.lang,
         photo=photo_uri,
     )

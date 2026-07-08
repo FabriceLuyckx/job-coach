@@ -38,7 +38,7 @@ The app runs locally first, designed for easy cloud deployment. AI is powered vi
 | Layer | Technology | Notes |
 |-------|-----------|-------|
 | Backend | Python / FastAPI | User knows Python well |
-| Frontend | React (TypeScript) | Simple SPA, served by FastAPI locally |
+| Frontend | React (TypeScript) | Simple SPA, served by FastAPI locally. Fully internationalized via react-i18next (English source catalog `frontend/src/locales/en.json`; shipped locales nl/fr/de/es/it/pt/pl) |
 | Profile data | `profile/profile.json` | Human-readable, version-controllable |
 | Jobs data | SQLite → PostgreSQL | SQLite locally, Postgres for cloud |
 | AI | Pluggable engine (`app/services/llm.py` → `engines/`) | **OpenRouter** (Claude, default) or a **free local GGUF** run in-process via llama-cpp-python. Every call goes through `complete()`; provider chosen by `llm_provider` in `config.json` |
@@ -414,6 +414,18 @@ For CLI use without the web UI, create `config.json` manually:
 }
 ```
 (Or set `"llm_provider": "local"` after downloading the model via the UI.)
+
+### Language / i18n
+The UI is fully internationalized. English is the source catalog
+(`frontend/src/locales/en.json`); reviewed **shipped** locales (nl, fr, de, es, it, pt, pl)
+sit beside it and are loaded on demand. `app_language` (config) is server-stored and
+applied at boot. Regenerate shipped locales after English changes with
+`uv run python scripts/translate_locales.py` (diffs and translates only changed keys via
+the configured AI engine; `--full` forces a complete pass). CV **section labels** are
+separate: reviewed sets live in `app/i18n/cv_labels.json` (en/nl/fr), resolved by
+`cv_labels(lang)` in `cv_renderer.py` with per-key English fallback. Backend API error
+messages stay English on the wire except a small coded set (Phase D). Any non-shipped
+language is generated on-device by the engine (Phase D).
 
 ### config.json reference
 | Key | Description | Default |

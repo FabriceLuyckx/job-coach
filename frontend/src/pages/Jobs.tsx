@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Trans, useTranslation } from 'react-i18next'
 import { Search, Inbox, RotateCcw, ExternalLink, Check, X } from 'lucide-react'
 import { api, type JobSource, type JobOpening } from '../api'
 import Button from '../components/Button'
@@ -21,6 +22,7 @@ function host(url: string): string {
 export default function JobsPage() {
   const navigate = useNavigate()
   const toast = useToast()
+  const { t } = useTranslation()
   const { keySet } = useKeyStatus()
   const [sources, setSources] = useState<JobSource[]>([])
   const [openings, setOpenings] = useState<JobOpening[]>([])
@@ -69,7 +71,7 @@ export default function JobsPage() {
 
   async function scan() {
     setScanning(true)
-    setScanProgress('Starting…')
+    setScanProgress(t('jobs.starting'))
     setSourceErrors({})
     try {
       const { scan_id } = await api.startScan()
@@ -77,14 +79,14 @@ export default function JobsPage() {
         try {
           const s = await api.getScanStatus(scan_id)
           if (s.status === 'running' && s.total) {
-            setScanProgress(`Scanning ${s.source ?? ''} (${s.current} of ${s.total})…`)
+            setScanProgress(t('jobs.scanProgress', { source: s.source ?? '', current: s.current, total: s.total }))
             return false
           }
           if (s.status === 'done') {
             setScanning(false)
             setScanProgress('')
             setSourceErrors(s.errors ?? {})
-            toast.success(s.found ? `Found ${s.found} new listing${s.found === 1 ? '' : 's'}` : 'No new listings found')
+            toast.success(s.found ? t('jobs.foundListings', { count: s.found }) : t('jobs.noNewListings'))
             reloadOpenings()
             api.getLastScan().then(r => setLastScan(r.last_scan)).catch(() => {})
             return true
@@ -92,14 +94,14 @@ export default function JobsPage() {
           if (s.status === 'error') {
             setScanning(false)
             setScanProgress('')
-            toast.error(s.error ?? 'Scan failed')
+            toast.error(s.error ?? t('jobs.scanFailed'))
             return true
           }
           return false
         } catch {
           setScanning(false)
           setScanProgress('')
-          toast.error('Scan failed — the server may have restarted.')
+          toast.error(t('jobs.scanFailedRestart'))
           return true
         }
       })
@@ -129,9 +131,9 @@ export default function JobsPage() {
     try {
       await api.rejectOpening(o.id)
       reloadOpenings()
-      toast.info(`Rejected “${o.title}”`, {
+      toast.info(t('jobs.rejectedToast', { title: o.title }), {
         action: {
-          label: 'Undo',
+          label: t('jobs.undo'),
           onClick: async () => {
             try {
               await api.restoreOpening(o.id)
@@ -159,42 +161,39 @@ export default function JobsPage() {
   return (
     <div>
       <div className="page-head">
-        <h1 className="page-title">Job Suggestions</h1>
+        <h1 className="page-title">{t('jobs.title')}</h1>
         <CreditChip />
       </div>
 
       {loadError && (
         <div className="load-error">
-          <span style={{ flex: 1 }}>Couldn't load this page: {loadError}</span>
-          <Button variant="secondary" onClick={load}>Retry</Button>
+          <span style={{ flex: 1 }}>{t('jobs.loadError', { error: loadError })}</span>
+          <Button variant="secondary" onClick={load}>{t('common.retry')}</Button>
         </div>
       )}
 
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 'var(--space-2)' }}>Sources</div>
-        <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>
-          Add job-listing pages to watch. Finding new listings scans each for openings
-          and filters them against your profile.
-        </p>
+        <div className="section-title" style={{ marginBottom: 'var(--space-2)' }}>{t('jobs.sources')}</div>
+        <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{t('jobs.sourcesHelp')}</p>
         <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
           <input
             value={newUrl}
             onChange={e => setNewUrl(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addSource()}
             placeholder="https://example.com/jobs"
-            aria-label="Job listing page URL"
+            aria-label={t('jobs.sourceUrlAria')}
             style={{ flex: 1 }}
           />
-          <Button variant="secondary" onClick={addSource}>Add</Button>
+          <Button variant="secondary" onClick={addSource}>{t('jobs.add')}</Button>
         </div>
-        {sources.length === 0 && <div className="muted-sm">No sources yet — paste a careers-page URL above.</div>}
+        {sources.length === 0 && <div className="muted-sm">{t('jobs.noSources')}</div>}
         {sources.map(s => (
           <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', padding: '4px 0' }}>
             <a href={s.url} target="_blank" rel="noreferrer" style={{ flex: 1 }}>{s.name}</a>
             {sourceErrors[s.name] && (
-              <span className="muted-sm" style={{ color: 'var(--danger)' }}>couldn't be read</span>
+              <span className="muted-sm" style={{ color: 'var(--danger)' }}>{t('jobs.couldntRead')}</span>
             )}
-            <RemoveButton onClick={() => removeSource(s.id)} title={`Remove ${s.name}`} />
+            <RemoveButton onClick={() => removeSource(s.id)} title={t('jobs.removeSource', { name: s.name })} />
           </div>
         ))}
         <div style={{ marginTop: 'var(--space-3)', display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
@@ -203,38 +202,36 @@ export default function JobsPage() {
             onClick={scan}
             busy={scanning}
             disabled={sources.length === 0 || keySet === false}
-            title={keySet === false ? 'Set up an AI engine in Settings first' : undefined}
+            title={keySet === false ? t('jobs.needEngine') : undefined}
           >
             {!scanning && <Search size={15} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
-            {scanning ? (scanProgress || 'Scanning…') : 'Find new listings'}
+            {scanning ? (scanProgress || t('jobs.scanning')) : t('jobs.findNew')}
           </Button>
           <span className="muted-sm">
-            {lastScan ? `Last scan: ${formatDateTime(lastScan)}` : 'Never scanned'}
+            {lastScan ? t('jobs.lastScan', { time: formatDateTime(lastScan) }) : t('jobs.neverScanned')}
           </span>
         </div>
         {keySet === false && (
           <p className="muted-sm" style={{ marginTop: 'var(--space-2)' }}>
-            Scanning needs an OpenRouter API key — add one in Settings.
+            {t('jobs.needEngine')}
           </p>
         )}
         {failedSources.length > 0 && (
           <div className="load-error" style={{ marginTop: 'var(--space-3)', marginBottom: 0 }}>
             <div style={{ flex: 1 }}>
               {failedSources.map(([name, err]) => (
-                <div key={name}>Couldn't read <strong>{name}</strong> — {err}</div>
+                <div key={name}><Trans i18nKey="jobs.couldntReadSource" values={{ name, err }} components={{ b: <strong /> }} /></div>
               ))}
             </div>
           </div>
         )}
       </div>
 
-      <div className="section-title" style={{ marginBottom: 'var(--space-3)' }}>Suggestions</div>
+      <div className="section-title" style={{ marginBottom: 'var(--space-3)' }}>{t('jobs.suggestions')}</div>
       {suggested.length === 0 ? (
         <div style={{ marginBottom: 'var(--space-5)' }}>
-          <EmptyState icon={Inbox} title="No suggestions yet">
-            {sources.length === 0
-              ? 'Add a job-listing page above, then find new listings — openings that match your profile will appear here.'
-              : 'Run “Find new listings” — openings that match your profile will appear here with a short reason.'}
+          <EmptyState icon={Inbox} title={t('jobs.noSuggestionsTitle')}>
+            {sources.length === 0 ? t('jobs.noSuggestionsNoSources') : t('jobs.noSuggestionsHasSources')}
           </EmptyState>
         </div>
       ) : suggested.map(o => (
@@ -249,13 +246,13 @@ export default function JobsPage() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', flexShrink: 0 }}>
             <Button variant="primary" onClick={() => accept(o)} busy={busy === o.id}
-              title="Generates a tailored CV for this job and opens it in the CV Generator">
+              title={t('jobs.acceptTitle')}>
               <Check size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
-              Accept → generate CV
+              {t('jobs.acceptGenerate')}
             </Button>
             <Button variant="secondary" onClick={() => reject(o)} disabled={busy === o.id}>
               <X size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
-              Reject
+              {t('jobs.reject')}
             </Button>
           </div>
         </div>
@@ -263,7 +260,7 @@ export default function JobsPage() {
 
       {decided.length > 0 && (
         <>
-          <div className="section-title" style={{ marginTop: 'var(--space-6)', marginBottom: 'var(--space-3)' }}>History</div>
+          <div className="section-title" style={{ marginTop: 'var(--space-6)', marginBottom: 'var(--space-3)' }}>{t('jobs.history')}</div>
           {decided.map(o => {
             const rejected = o.status === 'rejected'
             return (
@@ -277,7 +274,7 @@ export default function JobsPage() {
                     <a href={o.url} target="_blank" rel="noreferrer">{o.title}</a>
                   </div>
                   <div className="muted-sm">
-                    {host(o.source_url)} · {rejected ? 'Rejected' : 'Accepted'}
+                    {host(o.source_url)} · {rejected ? t('jobs.rejected') : t('jobs.accepted')}
                   </div>
                   {o.reason && <div style={{ fontSize: 'var(--fs-sm)', marginTop: 'var(--space-2)' }}>{o.reason}</div>}
                 </div>
@@ -287,21 +284,21 @@ export default function JobsPage() {
                       try { await api.restoreOpening(o.id); reloadOpenings() } catch (e) { toast.error(errMsg(e)) }
                     }}>
                       <RotateCcw size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
-                      Restore
+                      {t('jobs.restore')}
                     </Button>
                   ) : (
                     <>
                       <Button variant="secondary" onClick={() => openCV(o)}>
                         <ExternalLink size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
-                        Open CV
+                        {t('jobs.openCv')}
                       </Button>
                       <Button variant="ghost" onClick={() => accept(o, true)} busy={busy === o.id}
-                        title="Run the CV generation for this opening again">
+                        title={t('jobs.regenerateTitle')}>
                         <RotateCcw size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
-                        Regenerate CV
+                        {t('jobs.regenerateCv')}
                       </Button>
                       <Button variant="ghost" className="btn-icon-danger" onClick={() => reject(o)} disabled={busy === o.id}>
-                        Reject
+                        {t('jobs.reject')}
                       </Button>
                     </>
                   )}

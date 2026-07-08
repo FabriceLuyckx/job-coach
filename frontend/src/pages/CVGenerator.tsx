@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ExternalLink, FileText, Plus, X } from 'lucide-react'
 import { api, type CvHistoryEntry, type CVResult } from '../api'
 import Button from '../components/Button'
@@ -21,6 +22,7 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
   onGenerated: (entry: CvHistoryEntry) => void
   onClose: () => void
 }) {
+  const { t } = useTranslation()
   const { keySet } = useKeyStatus()
   const [expanded, setExpanded] = useState(true)
   const [url, setUrl] = useState('')
@@ -34,12 +36,12 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
   useEffect(() => { onGeneratedRef.current = onGenerated }, [onGenerated])
 
   function startPolling(jobId: string) {
-    setLoadingMsg('Fetching job listing…')
+    setLoadingMsg(t('cv.fetchingListing'))
     poller.start(async () => {
       try {
         const status = await api.getCVJobStatus(jobId)
         if (status.status === 'running') {
-          setLoadingMsg('Tailoring CV with AI…')
+          setLoadingMsg(t('cv.tailoring'))
           return false
         }
         if (status.status === 'done' && status.result) {
@@ -60,7 +62,7 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
         if (status.status === 'error') {
           setLoading(false)
           setLoadingMsg('')
-          setError(status.error ?? 'Generation failed')
+          setError(status.error ?? t('cv.generationFailed'))
           handoff.clearPendingJob()
           return true
         }
@@ -68,7 +70,7 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
       } catch {
         setLoading(false)
         setLoadingMsg('')
-        setError('Generation failed — the server may have restarted. Check the history list below.')
+        setError(t('cv.generationFailedRestart'))
         handoff.clearPendingJob()
         return true
       }
@@ -90,7 +92,7 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
 
   async function generate() {
     if (!url.trim()) return
-    setLoading(true); setError(''); setLoadingMsg('Starting…')
+    setLoading(true); setError(''); setLoadingMsg(t('cv.starting'))
     try {
       const { job_id } = await api.startGenerateCV(url.trim(), lang)
       handoff.setPendingJob(job_id, url.trim())
@@ -104,7 +106,7 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
 
   const headerLabel = result
     ? `${result.job_title} @ ${result.employer}`
-    : loading ? (loadingMsg || 'Generating…') : 'New CV'
+    : loading ? (loadingMsg || t('cv.generating')) : t('cv.newCv')
 
   return (
     <div className="card" style={{ padding: 0, marginBottom: 'var(--space-2)' }}>
@@ -120,7 +122,7 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
             </span>
           }
           extras={
-            <Button variant="ghost" icon aria-label="Close" title="Close"
+            <Button variant="ghost" icon aria-label={t('common.close')} title={t('common.close')}
               onClick={() => { poller.stop(); onClose() }}><X size={16} aria-hidden /></Button>
           }
         >
@@ -131,7 +133,7 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
           ) : (
             <div>
               <div className="field">
-                <label>Job listing URL</label>
+                <label>{t('cv.jobUrl')}</label>
                 <input
                   type="url" value={url}
                   onChange={e => setUrl(e.target.value)}
@@ -142,7 +144,7 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
               </div>
               <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-end', marginTop: 'var(--space-3)', flexWrap: 'wrap' }}>
                 <div style={{ width: 120 }}>
-                  <label>Language</label>
+                  <label>{t('cv.language')}</label>
                   <select value={lang} onChange={e => setLang(e.target.value as 'en' | 'nl')} disabled={loading}>
                     <option value="en">English</option>
                     <option value="nl">Dutch</option>
@@ -151,15 +153,15 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
                 <Button
                   variant="primary" onClick={generate} busy={loading}
                   disabled={!url.trim() || keySet === false}
-                  title={keySet === false ? 'Set up an AI engine in Settings first' : undefined}
+                  title={keySet === false ? t('cv.needEngine') : undefined}
                 >
-                  {loading ? (loadingMsg || 'Generating…') : 'Generate CV'}
+                  {loading ? (loadingMsg || t('cv.generating')) : t('cv.generateCv')}
                 </Button>
-                {loading && <span className="muted-sm">Reading the listing and tailoring your CV — usually about 30 seconds.</span>}
+                {loading && <span className="muted-sm">{t('cv.generatingHint')}</span>}
               </div>
               {keySet === false && (
                 <p className="muted-sm" style={{ marginTop: 'var(--space-2)' }}>
-                  Generating needs an OpenRouter API key — add one in Settings.
+                  {t('cv.needEngine')}
                 </p>
               )}
               {error && <p className="error-msg" style={{ marginTop: 10 }}>{error}</p>}
@@ -179,6 +181,7 @@ function CVHistorySlot({ entry: initialEntry, hasPhoto, onDelete, initialExpande
   onDelete: (entry: CvHistoryEntry) => void
   initialExpanded?: boolean
 }) {
+  const { t } = useTranslation()
   const [expanded, setExpanded] = useState(initialExpanded)
   const [entry, setEntry] = useState(initialEntry)
 
@@ -217,10 +220,10 @@ function CVHistorySlot({ entry: initialEntry, hasPhoto, onDelete, initialExpande
                   href={entry.job_url} target="_blank" rel="noreferrer"
                   style={{ fontSize: 'var(--fs-sm)', whiteSpace: 'nowrap' }}
                 >
-                  Listing <ExternalLink size={11} aria-hidden />
+                  {t('cv.listing')} <ExternalLink size={11} aria-hidden />
                 </a>
               )}
-              <Button variant="ghost" icon className="btn-icon-danger" aria-label={`Delete CV for ${entry.job_title}`} title="Delete"
+              <Button variant="ghost" icon className="btn-icon-danger" aria-label={t('cv.deleteCv', { title: entry.job_title })} title={t('common.delete')}
                 onClick={() => onDelete(entry)}><X size={16} aria-hidden /></Button>
             </>
           }
@@ -244,6 +247,7 @@ function CVHistorySlot({ entry: initialEntry, hasPhoto, onDelete, initialExpande
 
 export default function CVGeneratorPage() {
   const toast = useToast()
+  const { t } = useTranslation()
   const [showNew, setShowNew] = useState(false)
   const [history, setHistory] = useState<CvHistoryEntry[]>([])
   const [hasPhoto, setHasPhoto] = useState(false)
@@ -265,7 +269,7 @@ export default function CVGeneratorPage() {
         if (match) {
           setOpenEntryId(match.id)
         } else {
-          toast.info('No CV found for that job yet — its generation may have failed. Use “Regenerate CV” on the Job Suggestions page to try again.')
+          toast.info(t('cv.noCvForJob'))
         }
       }
     }).catch(e => setLoadError(errMsg(e)))
@@ -310,10 +314,10 @@ export default function CVGeneratorPage() {
       api.deleteCVHistory(entry.id).catch(e => { toast.error(errMsg(e)); load() })
     }, 5000)
     pendingDeletes.current.set(entry.id, timer)
-    toast.info(`Deleted the CV for “${entry.job_title}”`, {
+    toast.info(t('cv.deletedToast', { title: entry.job_title }), {
       duration: 5000,
       action: {
-        label: 'Undo',
+        label: t('cv.undo'),
         onClick: () => {
           const t = pendingDeletes.current.get(entry.id)
           if (t) { clearTimeout(t); pendingDeletes.current.delete(entry.id) }
@@ -328,13 +332,13 @@ export default function CVGeneratorPage() {
   return (
     <div>
       <div className="page-head">
-        <h1 className="page-title">CV Generator</h1>
+        <h1 className="page-title">{t('cv.title')}</h1>
         <div className="page-head-actions">
           <CreditChip />
           {!showNew && (
             <Button variant="primary" onClick={() => setShowNew(true)}>
               <Plus size={15} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
-              New CV
+              {t('cv.newCv')}
             </Button>
           )}
         </div>
@@ -342,8 +346,8 @@ export default function CVGeneratorPage() {
 
       {loadError && (
         <div className="load-error">
-          <span style={{ flex: 1 }}>Couldn't load your CVs: {loadError}</span>
-          <Button variant="secondary" onClick={load}>Retry</Button>
+          <span style={{ flex: 1 }}>{t('cv.loadError', { error: loadError })}</span>
+          <Button variant="secondary" onClick={load}>{t('common.retry')}</Button>
         </div>
       )}
 
@@ -358,14 +362,13 @@ export default function CVGeneratorPage() {
       {!showNew && visibleHistory.length === 0 && !loadError && (
         <EmptyState
           icon={FileText}
-          title="No CVs yet"
+          title={t('cv.noCvsTitle')}
           action={<Button variant="primary" onClick={() => setShowNew(true)}>
             <Plus size={15} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
-            New CV
+            {t('cv.newCv')}
           </Button>}
         >
-          Paste the URL of a job listing and the AI reads it, picks your most relevant
-          experience, and writes a tailored CV — ready to preview, edit, and download as PDF.
+          {t('cv.noCvsBody')}
         </EmptyState>
       )}
 

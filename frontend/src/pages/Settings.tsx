@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 import { SlidersHorizontal } from 'lucide-react'
 import { api } from '../api'
 import type { Profile } from '../types'
@@ -8,6 +9,7 @@ import Collapsible from '../components/Collapsible'
 import EngineSettings from '../components/EngineSettings'
 import { useToast } from '../components/Toast'
 import { useKeyStatus } from '../components/KeyStatus'
+import LanguageSettings from '../components/LanguageSettings'
 import type { EngineProvider } from '../api'
 import { errMsg } from '../lib/errors'
 
@@ -51,6 +53,7 @@ function PromptEditor({ title, help, value, saved, defaultValue, rows = 8, onCha
   onChange: (v: string) => void
   onSave: () => Promise<void>
 }) {
+  const { t } = useTranslation()
   return (
     <div style={{ marginBottom: 'var(--space-6)' }}>
       <div style={{ fontWeight: 600, marginBottom: 'var(--space-2)' }}>{title}</div>
@@ -62,9 +65,9 @@ function PromptEditor({ title, help, value, saved, defaultValue, rows = 8, onCha
         style={{ width: '100%', fontFamily: 'monospace', fontSize: 'var(--fs-sm)', lineHeight: 1.5 }}
       />
       <div style={{ display: 'flex', gap: 'var(--space-3)', marginTop: 'var(--space-3)' }}>
-        <SaveButton dirty={value !== saved} onSave={onSave} idleLabel="Save prompt" />
+        <SaveButton dirty={value !== saved} onSave={onSave} idleLabel={t('settings.prompts.savePrompt')} />
         <Button variant="secondary" onClick={() => onChange(defaultValue)} disabled={value === defaultValue}>
-          Reset to default
+          {t('settings.prompts.reset')}
         </Button>
       </div>
     </div>
@@ -73,6 +76,7 @@ function PromptEditor({ title, help, value, saved, defaultValue, rows = 8, onCha
 
 export default function SettingsPage() {
   const toast = useToast()
+  const { t } = useTranslation()
   const { refresh: refreshKeyStatus } = useKeyStatus()
   const [settings, setSettings] = useState<{
     openrouter_api_key_set: boolean
@@ -155,7 +159,7 @@ export default function SettingsPage() {
     // The language placeholder is what makes non-English CVs work; catch its
     // removal here with a clear message instead of a server round-trip.
     if (data.cv_prompt !== undefined && !data.cv_prompt.includes('{lang_name}')) {
-      throw new Error('The prompt must contain the {lang_name} placeholder — it tells the AI which language to write in.')
+      throw new Error(t('settings.prompts.langPlaceholderError'))
     }
     await api.putSettings(data)
     setSettings(await api.getSettings())
@@ -174,7 +178,7 @@ export default function SettingsPage() {
     try {
       await api.uploadPhoto(file)
       setPhoto(await api.getPhoto())
-      toast.success('Photo uploaded')
+      toast.success(t('settings.photo.uploaded'))
     } catch (e) {
       toast.error(errMsg(e))
     } finally { setPhotoUploading(false); if (fileRef.current) fileRef.current.value = '' }
@@ -185,7 +189,7 @@ export default function SettingsPage() {
     try {
       await api.deletePhoto()
       setPhoto({ exists: false, data_uri: null })
-      toast.success('Photo removed')
+      toast.success(t('settings.photo.removed'))
     } catch (e) {
       toast.error(errMsg(e))
     } finally { setPhotoUploading(false) }
@@ -195,15 +199,11 @@ export default function SettingsPage() {
     const file = e.target.files?.[0]
     if (backupRef.current) backupRef.current.value = ''
     if (!file) return
-    if (!window.confirm(
-      'Restoring a backup replaces your profile, settings, job history and generated CVs ' +
-      'on this computer with the contents of the backup (your API key is kept). This ' +
-      'cannot be undone. Continue?'
-    )) return
+    if (!window.confirm(t('settings.backup.confirmRestore'))) return
     setImporting(true)
     try {
       await api.importBackup(file)
-      toast.success('Backup restored — reloading…')
+      toast.success(t('settings.backup.restored'))
       setTimeout(() => window.location.reload(), 900)
     } catch (e) {
       toast.error(errMsg(e))
@@ -214,15 +214,15 @@ export default function SettingsPage() {
   if (loadError) {
     return (
       <div>
-        <h1 className="page-title">Settings</h1>
+        <h1 className="page-title">{t('settings.title')}</h1>
         <div className="load-error">
-          <span style={{ flex: 1 }}>Couldn't load settings: {loadError}</span>
-          <Button variant="secondary" onClick={() => window.location.reload()}>Retry</Button>
+          <span style={{ flex: 1 }}>{t('settings.loadError', { error: loadError })}</span>
+          <Button variant="secondary" onClick={() => window.location.reload()}>{t('common.retry')}</Button>
         </div>
       </div>
     )
   }
-  if (!settings || !profile) return <div style={{ padding: 32, color: 'var(--muted)' }}>Loading…</div>
+  if (!settings || !profile) return <div style={{ padding: 32, color: 'var(--muted)' }}>{t('common.loading')}</div>
 
   const isCustomModel = !OPENROUTER_MODELS.includes(settings.openrouter_model)
   const pendingModel = model !== '__custom__' ? model : customModel
@@ -231,7 +231,10 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <h1 className="page-title">Settings</h1>
+      <h1 className="page-title">{t('settings.title')}</h1>
+
+      {/* UI language */}
+      <LanguageSettings current={settings.app_language} />
 
       {/* AI engine chooser (local vs OpenRouter) */}
       <EngineSettings provider={provider} onProviderChange={changeProvider} />
@@ -239,53 +242,53 @@ export default function SettingsPage() {
       {/* OpenRouter — key + model; shown when OpenRouter is the active engine */}
       {provider === 'openrouter' && (
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>OpenRouter Connection</div>
+        <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>{t('settings.openrouter.title')}</div>
         <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>
-          OpenRouter routes requests to Claude, GPT-4, and other models via one API key.
-          Get yours at <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">openrouter.ai/keys</a>.
+          <Trans i18nKey="settings.openrouter.help"
+            components={{ link: <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer" /> }} />
         </p>
         {settings.openrouter_api_key_set && (
           <div className="credit-line">
             {usage ? (
               <>
-                <span>Balance: <strong>{fmtUsd(usage.balance ?? usage.remaining)}</strong></span>
-                {usage.usage != null && <span>· Used: <strong>{fmtUsd(usage.usage)}</strong></span>}
+                <span>{t('settings.openrouter.balance')}: <strong>{fmtUsd(usage.balance ?? usage.remaining)}</strong></span>
+                {usage.usage != null && <span>· {t('settings.openrouter.used')}: <strong>{fmtUsd(usage.usage)}</strong></span>}
               </>
-            ) : usageErr ? <span>Balance unavailable</span> : <span>Loading balance…</span>}
-            <a href="https://openrouter.ai/settings/credits" target="_blank" rel="noreferrer">Manage credits ↗</a>
+            ) : usageErr ? <span>{t('settings.openrouter.balanceUnavailable')}</span> : <span>{t('settings.openrouter.loadingBalance')}</span>}
+            <a href="https://openrouter.ai/settings/credits" target="_blank" rel="noreferrer">{t('settings.openrouter.manageCredits')}</a>
           </div>
         )}
         <div className="field">
-          <label>API key</label>
+          <label>{t('settings.openrouter.apiKey')}</label>
           {settings.openrouter_api_key_set && (
             <p className="muted-sm" style={{ marginBottom: 6 }}>
-              Currently set (ending {settings.openrouter_api_key_preview}). Enter a new key to replace it.
+              {t('settings.openrouter.currentlySet', { preview: settings.openrouter_api_key_preview })}
             </p>
           )}
           <input
             type="password"
             value={apiKey}
             onChange={e => setApiKey(e.target.value)}
-            placeholder={settings.openrouter_api_key_set ? 'Enter new key to replace…' : 'sk-or-…'}
+            placeholder={settings.openrouter_api_key_set ? t('settings.openrouter.newKeyPlaceholder') : t('settings.openrouter.keyPlaceholder')}
           />
         </div>
         <div className="field">
-          <label>Model</label>
+          <label>{t('settings.openrouter.model')}</label>
           <select
             value={model === '__custom__' || isCustomModel ? '__custom__' : model}
             onChange={e => setModel(e.target.value)}
           >
             {OPENROUTER_MODELS.map(m => <option key={m} value={m}>{m}</option>)}
-            <option value="__custom__">Custom model ID…</option>
+            <option value="__custom__">{t('settings.openrouter.customModel')}</option>
           </select>
           <p className="field-hint">
-            Active: <strong>{settings.openrouter_model}</strong>
-            {connectionDirty && <span style={{ color: 'var(--highlight)', marginLeft: 8 }}>● unsaved change</span>}
+            {t('settings.openrouter.active')}: <strong>{settings.openrouter_model}</strong>
+            {connectionDirty && <span style={{ color: 'var(--highlight)', marginLeft: 8 }}>● {t('common.unsavedChange')}</span>}
           </p>
         </div>
         {(model === '__custom__' || isCustomModel) && (
           <div className="field">
-            <label>Custom model ID</label>
+            <label>{t('settings.openrouter.customModelLabel')}</label>
             <input
               type="text"
               value={isCustomModel ? settings.openrouter_model : customModel}
@@ -294,13 +297,13 @@ export default function SettingsPage() {
             />
           </div>
         )}
-        <SaveButton dirty={connectionDirty} onSave={saveOpenRouter} idleLabel="Save connection" />
+        <SaveButton dirty={connectionDirty} onSave={saveOpenRouter} idleLabel={t('settings.openrouter.saveConnection')} />
       </div>
       )}
 
       {/* Photo */}
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>Profile Photo</div>
+        <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>{t('settings.photo.title')}</div>
         {photo?.exists && photo.data_uri && (
           <img
             src={photo.data_uri}
@@ -317,10 +320,10 @@ export default function SettingsPage() {
             onChange={handlePhotoUpload}
           />
           <Button variant="secondary" busy={photoUploading} onClick={() => fileRef.current?.click()}>
-            {photo?.exists ? 'Replace photo' : 'Upload photo'}
+            {photo?.exists ? t('settings.photo.replace') : t('settings.photo.upload')}
           </Button>
           {photo?.exists && (
-            <Button variant="ghost" className="btn-icon-danger" onClick={handlePhotoDelete} disabled={photoUploading}>Remove</Button>
+            <Button variant="ghost" className="btn-icon-danger" onClick={handlePhotoDelete} disabled={photoUploading}>{t('common.remove')}</Button>
           )}
         </div>
         <div className="field" style={{ marginTop: 'var(--space-4)' }}>
@@ -330,16 +333,16 @@ export default function SettingsPage() {
               checked={profile.cv_design_preferences.include_photo}
               onChange={e => setProfile({ ...profile, cv_design_preferences: { ...profile.cv_design_preferences, include_photo: e.target.checked } })}
             />
-            Include photo in generated CVs
+            {t('settings.photo.includeInCv')}
           </label>
         </div>
       </div>
 
       {/* Visual preferences */}
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>CV Visual Preferences</div>
+        <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>{t('settings.visual.title')}</div>
         <div className="field">
-          <label>Accent colour</label>
+          <label>{t('settings.visual.accent')}</label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
             {ACCENT_PRESETS.map(({ value, label }) => (
               <button
@@ -360,12 +363,12 @@ export default function SettingsPage() {
             type="text"
             value={profile.cv_design_preferences.accent_color}
             onChange={e => setProfile({ ...profile, cv_design_preferences: { ...profile.cv_design_preferences, accent_color: e.target.value } })}
-            placeholder="#1B3A6B or 'Dark blue'"
+            placeholder={t('settings.visual.accentPlaceholder')}
             style={{ width: 200 }}
           />
         </div>
         <div className="field">
-          <label>Font style</label>
+          <label>{t('settings.visual.font')}</label>
           <select
             value={profile.cv_design_preferences.font_type}
             onChange={e => setProfile({ ...profile, cv_design_preferences: { ...profile.cv_design_preferences, font_type: e.target.value } })}
@@ -374,29 +377,26 @@ export default function SettingsPage() {
           </select>
         </div>
         <div className="field">
-          <label>Style notes (for the AI)</label>
+          <label>{t('settings.visual.styleNotes')}</label>
           <input
             type="text"
             value={profile.cv_design_preferences.style}
             onChange={e => setProfile({ ...profile, cv_design_preferences: { ...profile.cv_design_preferences, style: e.target.value } })}
-            placeholder="e.g. Minimalist"
+            placeholder={t('settings.visual.stylePlaceholder')}
           />
         </div>
-        <SaveButton dirty={prefsDirty} onSave={saveVisualPrefs} idleLabel="Save preferences" />
+        <SaveButton dirty={prefsDirty} onSave={saveVisualPrefs} idleLabel={t('settings.visual.save')} />
       </div>
 
       {/* Backup & restore */}
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>Backup &amp; Restore</div>
+        <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>{t('settings.backup.title')}</div>
         <p className="help-text">
-          Move to a new computer or keep a safe copy of your work. <strong>Export</strong> downloads a
-          single <code>.zip</code> containing your profile &amp; photo, settings, job sources &amp;
-          history, and every generated CV. On the new machine, install Job Coach and use{' '}
-          <strong>Restore</strong> to load that file, then re-enter your OpenRouter API key.
+          <Trans i18nKey="settings.backup.help" components={{ b: <strong />, code: <code /> }} />
         </p>
         <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', flexWrap: 'wrap' }}>
           <Button onClick={() => { window.location.href = api.backupExportUrl }}>
-            Export backup (.zip)
+            {t('settings.backup.export')}
           </Button>
           <input
             ref={backupRef}
@@ -410,9 +410,7 @@ export default function SettingsPage() {
           </Button>
         </div>
         <p className="help-text" style={{ marginTop: 'var(--space-3)', marginBottom: 0, fontSize: 'var(--fs-xs)' }}>
-          Restoring <strong>replaces</strong> your profile, job history and generated CVs with the
-          backup's contents — it does not merge. Your OpenRouter API key is never included in the
-          export and is left untouched on restore.
+          <Trans i18nKey="settings.backup.note" components={{ b: <strong /> }} />
         </p>
       </div>
 
@@ -421,20 +419,15 @@ export default function SettingsPage() {
         title={
           <span className="collapsible-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
             <SlidersHorizontal size={16} aria-hidden />
-            Advanced — AI prompts
+            {t('settings.prompts.title')}
           </span>
         }
       >
-        <p className="help-text">
-          These are the exact instructions sent to the AI. The defaults work well — only edit
-          them if you want to change how CVs are written or how job listings are filtered.
-          You can always reset to the default.
-        </p>
+        <p className="help-text">{t('settings.prompts.help')}</p>
 
         <PromptEditor
-          title="CV Generator — tailoring prompt"
-          help={<>Sent when tailoring a CV. Your profile and the job listing are added automatically
-            below it. <code>{'{lang_name}'}</code> is replaced with the output language — it must stay in the prompt.</>}
+          title={t('settings.prompts.cvTitle')}
+          help={<Trans i18nKey="settings.prompts.cvHelp" components={{ code: <code /> }} />}
           value={cvPrompt}
           saved={settings.cv_prompt}
           defaultValue={settings.cv_prompt_default}
@@ -444,8 +437,8 @@ export default function SettingsPage() {
         />
 
         <PromptEditor
-          title="Job Suggestions — link extraction prompt"
-          help="Picks which of a page's links are real job openings. The list of links found on the page is added automatically below it."
+          title={t('settings.prompts.extractTitle')}
+          help={t('settings.prompts.extractHelp')}
           value={scanExtract}
           saved={settings.scan_extract_prompt}
           defaultValue={settings.scan_extract_prompt_default}
@@ -454,8 +447,8 @@ export default function SettingsPage() {
         />
 
         <PromptEditor
-          title="Job Suggestions — relevance filter prompt"
-          help="Decides which new openings match you. The relevant parts of your profile are added automatically below it."
+          title={t('settings.prompts.filterTitle')}
+          help={t('settings.prompts.filterHelp')}
           value={scanFilter}
           saved={settings.scan_filter_prompt}
           defaultValue={settings.scan_filter_prompt_default}
