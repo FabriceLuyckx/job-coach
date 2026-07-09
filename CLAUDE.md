@@ -528,16 +528,20 @@ Best-in-class long-form text generation and document understanding. The user alr
 **Why local-first?**
 Zero hosting cost to start, full data privacy (CV data is sensitive), and simpler to develop and test. The architecture is cloud-ready from day one — adding a `DATABASE_URL` env var and a Dockerfile is all that's needed.
 
-**Why the editorial visual style?**
-The app produces documents, so the UI borrows from print: warm paper background,
-white cards with hairline borders (no drop shadows), a serif display face
-(Fraunces) for headings with Inter for UI text, one terracotta accent, and a
-single lucide-react icon set (no emoji). Tokens live in `frontend/src/index.css`
-(`--paper/--ink/--accent/--space-1..8/--fs-*`); fonts are self-hosted via
-fontsource so the packaged app needs no CDN. All feedback flows through one
-Toast system (errors persist, successes auto-dismiss, destructive actions get
-Undo); Modal/Collapsible/EmptyState/Badge are the shared primitives — pages
-should not reimplement these patterns inline.
+**Why the Bauhaus/Swiss poster style?**
+The UI borrows from mid-century festival posters (2026-07-08 redesign, replacing
+the earlier editorial/serif direction): the app shell (body + sidebar) is a muted
+teal wall (`--frame`) and each page renders as a cream poster sheet on it
+(`.page-container`), with ink-black hairline borders and rules, bold uppercase
+Inter headings (one grotesque family — no serif), a vermilion accent with a teal
+counterpoint, zero border-radius, squared chips instead of pills, and hard offset
+shadows on the sheet and menus/modals only. A thick ink bar underlines every page
+title; the active nav item reads as a cream tab cut from the sheet. Icons stay lucide-react (no emoji). Tokens live in
+`frontend/src/index.css` (`--paper/--ink/--accent/--teal/--space-1..8/--fs-*`);
+Inter is self-hosted via fontsource so the packaged app needs no CDN. All
+feedback flows through one Toast system (errors persist, successes auto-dismiss,
+destructive actions get Undo); Modal/Collapsible/EmptyState/Badge are the shared
+primitives — pages should not reimplement these patterns inline.
 
 **Why SQLite for job data?**
 File-based, no server needed locally, and the job data has no concurrent write requirements. SQLAlchemy abstracts the difference, so migrating to PostgreSQL for cloud deployment is a one-line change.

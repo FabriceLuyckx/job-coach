@@ -192,7 +192,7 @@ function EngineStep({ onBack, onNext }: { onBack: () => void; onNext: () => void
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--accent)' }}><Check size={16} aria-hidden /> {t('onboarding.engineLocalReady')}</span>
           ) : pct !== null ? (
             <div>
-              <div style={{ height: 8, background: 'var(--border)', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ height: 8, background: 'var(--surface-dim)', borderRadius: 4, overflow: 'hidden' }}>
                 <div style={{ width: `${pct}%`, height: '100%', background: 'var(--accent)', transition: 'width .3s' }} />
               </div>
               <p className="muted-sm" style={{ marginTop: 6 }}>{t('onboarding.engineDownloading', { pct })}</p>

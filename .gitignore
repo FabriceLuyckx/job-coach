@@ -221,6 +221,7 @@ __marimo__/
 # Job Coach — generated output and local-only data
 output/
 jobs/
+models/
 .venv/
 
 # The `*.spec` rule above ignores auto-generated PyInstaller specs, but our

@@ -126,7 +126,7 @@ export default function EngineSettings({ provider, onProviderChange }: {
             </div>
           ) : busy ? (
             <div>
-              <div style={{ height: 8, background: 'var(--border)', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ height: 8, background: 'var(--surface-dim)', borderRadius: 4, overflow: 'hidden' }}>
                 <div style={{ width: `${pct}%`, height: '100%', background: 'var(--accent)', transition: 'width .3s' }} />
               </div>
               <p className="muted-sm" style={{ marginTop: 6 }}>

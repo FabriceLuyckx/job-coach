@@ -9,14 +9,15 @@ from pathlib import Path
 
 from app.paths import MODELS_DIR
 
-# NOTE: verify the exact repo/filename against Hugging Face at build time. The
-# official Qwen GGUF repo is preferred; a well-known quantizer mirror (bartowski /
-# unsloth) is an acceptable fallback if the official Q4_K_M asset is unavailable.
+# NOTE: verify the exact repo/filename against Hugging Face at build time.
+# The official Qwen/Qwen3-4B-Instruct-2507-GGUF repo went gated (401 on
+# download) as of 2026-07-09, so this points at the bartowski mirror instead —
+# same Q4_K_M quant, public.
 LOCAL_MODELS: dict[str, dict] = {
     "qwen3-4b-instruct": {
         "label": "Qwen3 4B Instruct (recommended)",
-        "repo": "Qwen/Qwen3-4B-Instruct-2507-GGUF",
-        "filename": "Qwen3-4B-Instruct-2507-Q4_K_M.gguf",
+        "repo": "bartowski/Qwen_Qwen3-4B-Instruct-2507-GGUF",
+        "filename": "Qwen_Qwen3-4B-Instruct-2507-Q4_K_M.gguf",
         # Approximate on-disk size; used only for the disk-space pre-check and UI.
         "size_bytes": 2_500_000_000,
         "min_ram_gb": 8,

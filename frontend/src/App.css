@@ -3,12 +3,11 @@
   min-height: 100vh;
 }
 
-/* Light paper sidebar with a hairline divider — no more navy block. */
+/* The sidebar is part of the teal wall the poster hangs on. */
 .sidebar-nav {
   width: 208px;
   flex-shrink: 0;
-  background: var(--paper);
-  border-right: 1px solid var(--border);
+  background: var(--frame);
   display: flex;
   flex-direction: column;
   padding: var(--space-6) 0 var(--space-5);
@@ -20,16 +19,13 @@
 }
 
 .nav-logo {
-  font-family: var(--font-display);
-  font-size: 21px;
-  font-weight: 620;
-  color: var(--heading);
+  font-size: 19px;
   padding: 0 var(--space-5) var(--space-6);
-  letter-spacing: -0.015em;
 }
+.sidebar-nav .nav-logo { color: var(--paper); }
 .nav-logo em {
-  font-style: italic;
-  color: var(--accent);
+  font-style: normal;
+  color: var(--ink);
 }
 
 .sidebar-nav a {
@@ -37,7 +33,7 @@
   align-items: center;
   gap: 10px;
   padding: 9px var(--space-5);
-  color: var(--muted);
+  color: color-mix(in srgb, var(--paper) 82%, transparent);
   font-size: var(--fs-base);
   font-weight: 500;
   text-decoration: none;
@@ -47,15 +43,16 @@
 .sidebar-nav a svg { flex-shrink: 0; }
 
 .sidebar-nav a:hover {
-  color: var(--ink);
-  background: var(--accent-soft);
+  color: var(--paper);
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
   text-decoration: none;
 }
 
+/* Active item reads as a cream tab cut from the poster sheet. */
 .sidebar-nav a.active {
-  color: var(--accent);
+  color: var(--ink);
   border-left-color: var(--accent);
-  background: var(--accent-soft);
+  background: var(--paper);
   font-weight: 600;
 }
 
@@ -67,14 +64,23 @@
   padding: var(--space-7) var(--space-8);
 }
 
-/* One content width for every page — Settings used to be 640, others 1140. */
+/* One content width for every page — Settings used to be 640, others 1140.
+   The cream poster sheet on the teal wall. */
 .page-container {
   max-width: 880px;
+  background: var(--paper);
+  padding: var(--space-7) var(--space-8);
+  box-shadow: var(--shadow-pop);
+  min-height: calc(100vh - 2 * var(--space-7));
 }
 
+/* The poster rule: a thick ink bar under every page title. */
 .page-title {
+  display: inline-block;
   font-size: var(--fs-2xl);
   margin-bottom: var(--space-6);
+  padding-bottom: var(--space-2);
+  border-bottom: 4px solid var(--heading);
 }
 
 /* Page header row: title left, actions right. */
