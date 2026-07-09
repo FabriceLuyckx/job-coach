@@ -41,8 +41,8 @@ export default function App() {
               <nav className="sidebar-nav">
                 <div className="nav-logo">{t('nav.brand')} <em>{t('nav.brandEm')}</em></div>
                 <NavLink to="/profile"><UserRound size={17} aria-hidden />{t('nav.profile')}</NavLink>
-                <NavLink to="/cv"><FileText size={17} aria-hidden />{t('nav.cv')}</NavLink>
                 <NavLink to="/jobs"><Briefcase size={17} aria-hidden />{t('nav.jobs')}</NavLink>
+                <NavLink to="/cv"><FileText size={17} aria-hidden />{t('nav.cv')}</NavLink>
                 <div className="nav-spacer" />
                 <NavLink to="/settings"><Settings size={17} aria-hidden />{t('nav.settings')}</NavLink>
               </nav>
