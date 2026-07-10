@@ -3,6 +3,7 @@
     "brand": "Job",
     "brandEm": "Coach",
     "profile": "Profilo",
+    "preferences": "Preferenze",
     "cv": "Generatore CV",
     "jobs": "Offerte di lavoro",
     "settings": "Impostazioni"
@@ -18,6 +19,32 @@
     "edit": "Modifica",
     "download": "Scarica",
     "unsavedChange": "modifica non salvata"
+  },
+  "onboarding": {
+    "welcome": "Benvenuto in Job Coach",
+    "intro": "Due scelte rapide e sei pronto. Puoi modificarle entrambe in seguito nelle Impostazioni.",
+    "skip": "Salta per ora",
+    "back": "Indietro",
+    "next": "Avanti",
+    "done": "Fine",
+    "step": "Passaggio {{n}} di {{total}}",
+    "langTitle": "Scegli la lingua",
+    "langHelp": "L'app è in inglese per impostazione predefinita. Scegli una lingua — le altre sono tradotte dall'IA.",
+    "langOther": "Altra lingua…",
+    "langOtherHelp": "Inserisci un codice di 2 lettere (es. sv, ja). Viene tradotto sul tuo dispositivo una volta configurato il motore IA.",
+    "langQueued": "Tradurremo l'interfaccia subito dopo aver configurato un motore IA.",
+    "engineTitle": "Configura l'IA",
+    "engineHelp": "L'IA personalizza i tuoi CV e analizza le offerte di lavoro. Scegli come eseguirla.",
+    "engineLocalCta": "Scarica il modello gratuito",
+    "engineDownloading": "Download in corso… {{pct}}%",
+    "engineLocalReady": "Modello gratuito pronto.",
+    "engineKeyPlaceholder": "Incolla la tua chiave API OpenRouter (sk-or-…)",
+    "engineSaveKey": "Salva chiave",
+    "engineKeySaved": "Chiave API salvata.",
+    "engineGetKey": "Ottieni una chiave su openrouter.ai",
+    "doneTitle": "Sei pronto",
+    "doneBody": "Prossimo passo: crea il tuo Profilo (importa un CV esistente per iniziare rapidamente), poi aggiungi fonti di lavoro in Suggerimenti di lavoro.",
+    "finish": "Inizia a usare Job Coach"
   },
   "banner": {
     "engineNotReady": "Benvenuto! Per generare CV e scansionare offerte di lavoro, configura un motore AI nelle <settings>Impostazioni</settings> — scarica il modello locale gratuito oppure aggiungi una chiave API OpenRouter.",
@@ -126,10 +153,7 @@
     "hasContent": "contiene contenuto",
     "notesForAi": "Note per l'AI (opzionale)",
     "notesForAiHelp": "Non stampate — aiutano l'AI a decidere quando includere questo ruolo e come formularlo.",
-    "whenRelevant": "Quando è più rilevante questo ruolo?",
-    "whenRelevantPlaceholder": "es. Ideale per ruoli di leadership o con molti dati",
-    "anythingElse": "Qualcos'altro da sapere?",
-    "anythingElsePlaceholder": "es. Riportava al CTO; part-time; sistemi ad alta scalabilità",
+    "aiNotesPlaceholder": "es. Adatto a ruoli di leadership o con molti dati; riportava al CTO; part-time",
     "currentlyWorkHere": "Lavoro attualmente qui",
     "currentlyVolunteering": "Attualmente volontario qui",
     "untitled": "(senza titolo)",
@@ -148,13 +172,10 @@
       "name": "Nome",
       "fullName": "Nome completo",
       "professionalTitle": "Titolo professionale",
-      "headline": "Titolo / slogan (opzionale)",
-      "headlinePlaceholder": "Una breve riga mostrata sotto il tuo nome nel CV",
       "email": "Email",
       "phone": "Telefono",
       "city": "Città",
       "country": "Paese",
-      "keywords": "Parole chiave",
       "links": "Link",
       "summary": "Riepilogo",
       "degree": "Titolo di studio",
@@ -173,8 +194,6 @@
       "issuer": "Ente emittente",
       "provider": "Fornitore",
       "year": "Anno",
-      "yearStart": "Anno di inizio",
-      "yearEnd": "Anno di fine",
       "courseTraining": "Corso / formazione",
       "since": "Dal (anno)",
       "roleOptional": "Ruolo (opzionale)",
@@ -185,7 +204,15 @@
       "heading": "Intestazione",
       "subheading": "Sottotitolo (opzionale)",
       "dateOptional": "Data (opzionale)",
-      "multiYear": "Pluriennale (intervallo di date)"
+      "responsibilityPlaceholder": "Inizia con un verbo; includi risultati misurabili quando possibile",
+      "roleSkillsTools": "Competenze e strumenti utilizzati in questo ruolo",
+      "summaryPlaceholder": "2–4 frasi: chi sei professionalmente, le tue competenze più forti e ciò che cerchi",
+      "projectDescriptionPlaceholder": "Cosa era, a chi era destinato e quale fu l'outcom?",
+      "educationDescriptionOptional": "Note (opzionale)",
+      "educationDescriptionPlaceholder": "Argomento di tesi, specializzazione o corso rilevante ai lavori che cerchi",
+      "years": "Anni",
+      "funderOptional": "Fondatore (opzionale)",
+      "amountOptional": "Importo (opzionale)"
     },
     "help": {
       "personal": "Nome, recapiti e link — mostrati in cima a ogni CV.",
@@ -194,7 +221,6 @@
       "experience": "I tuoi ruoli, dal più recente. I punti elenco costituiscono il corpo del tuo CV.",
       "skills": "Raggruppa le tue competenze sotto intestazioni adatte al tuo settore (es. Competenze tecniche, Competenze cliniche, Strumenti di design) — ogni gruppo con contenuto viene mostrato nel tuo CV.",
       "education": "Titoli di studio, dal più recente — mostrati nella barra laterale del CV.",
-      "workPreferences": "Non mostrato nel CV — aiuta il Job Coach a suggerire offerte personalizzate e a scrivere lettere motivazionali (prossimamente).",
       "projects": "Progetti rilevanti o lavori secondari — mostrati nel tuo CV.",
       "volunteering": "Ruoli di volontariato e attività comunitarie — mostrati nel tuo CV.",
       "certifications": "Certificazioni professionali — mostrate nel tuo CV.",
@@ -204,10 +230,8 @@
       "publications": "Per ruoli accademici/di ricerca. Incolla la citazione APA completa; l'AI può omettere questa sezione per lavori non accademici.",
       "grants": "Per ruoli accademici/di ricerca — mostrati nella barra laterale del CV.",
       "academic": "Non stampato nel tuo CV — aiuta l'AI ad adattare e abbinare ruoli orientati alla ricerca.",
-      "teaching": "Mostrato nel tuo CV come riga compatta quando il ruolo è legato all'insegnamento — l'AI lo include solo se pertinente. Aiuta anche la personalizzazione e il matching.",
-      "careerContext": "Non stampato nel tuo CV — guida l'AI nell'adattamento del CV e dei suggerimenti.",
       "customSections": "Aggiungi le sezioni di cui il tuo settore ha bisogno — ognuna diventa un blocco con titolo nel tuo CV.",
-      "methods": "Raggruppa metodi, tecniche o strumenti sotto intestazioni adatte al tuo settore."
+      "teaching": "Stampato sul tuo CV come elenco dei tuoi ruoli di insegnamento; l'AI lo elimina per ruoli in cui non è rilevante."
     },
     "add": {
       "project": "+ Aggiungi progetto",
@@ -218,8 +242,6 @@
       "membership": "+ Aggiungi iscrizione",
       "publication": "+ Aggiungi pubblicazione",
       "grant": "+ Aggiungi finanziamento",
-      "methodGroup": "+ Aggiungi gruppo di metodi",
-      "collaborator": "+ Aggiungi collaboratore",
       "customSection": "+ Aggiungi sezione personalizzata",
       "job": "+ Aggiungi lavoro",
       "skillGroup": "+ Aggiungi gruppo di competenze",
@@ -239,65 +261,14 @@
     "academic": {
       "researchAreas": "Aree di ricerca",
       "researchThemes": "Temi di ricerca",
-      "topicsToTeach": "Argomenti che ti piace insegnare",
-      "methodsTitle": "Metodi e tecniche",
-      "methodGroupPlaceholder": "Nome gruppo (es. Metodi statistici)",
-      "interdisciplinary": "Lavoro interdisciplinare",
-      "collaborators": "Collaboratori",
-      "namePlaceholder": "Nome",
-      "affiliationPlaceholder": "Affiliazione"
-    },
-    "teaching": {
-      "subjects": "Materie che puoi insegnare",
-      "supervision": "Supervisione degli studenti",
-      "mentoring": "Mentoring",
-      "materials": "Materiali didattici creati",
-      "formalRoles": "Ruoli di insegnamento formali",
-      "type": "Tipo",
-      "course": "Corso",
-      "years": "Anni",
-      "guestLectures": "Lezioni come ospite",
-      "coursePlaceholder": "Corso",
-      "institutionPlaceholder": "Istituzione"
-    },
-    "career": {
-      "lookingFor": "Cosa stai cercando come prossimo passo?",
-      "targetIndustries": "Settori di interesse",
-      "differentiation": "Cosa ti distingue?",
-      "problemsEnjoyed": "Problemi che ami risolvere",
-      "workToAvoid": "Lavori da evitare"
+      "researchThemesPlaceholder": "es. Metodi, collaboratori, lavoro interdisciplinare — qualsiasi cosa per l'AI"
     },
     "work": {
-      "locations": "Luoghi / spostamenti preferiti (città)",
       "remoteHybrid": "Da remoto / ibrido / in sede",
       "remote": "Da remoto",
       "hybrid": "Ibrido",
       "onSite": "In sede",
-      "noPreference": "Nessuna preferenza",
-      "relocation": "Trasferimento",
-      "relocationPlaceholder": "es. Disponibile a discuterne",
-      "contractTypes": "Tipologie di contratto considerate",
-      "contractPlaceholder": "Indeterminato, Freelance, Part-time…",
-      "schedule": "Orario",
-      "schedulePlaceholder": "es. Full-time, 4/5",
-      "availability": "Disponibilità / preavviso",
-      "availabilityPlaceholder": "es. Due mesi di preavviso",
-      "travel": "Disponibilità a viaggiare",
-      "travelPlaceholder": "es. Trasferte occasionali vanno bene",
-      "languagePrefs": "Preferenze linguistiche",
-      "orgPrefs": "Preferenze organizzative (opzionale)",
-      "orgPrefsPlaceholder": "Tipo di datore di lavoro, cultura, missione che ti attraggono…",
-      "expectedSalary": "Stipendio desiderato (opzionale)",
-      "from": "Da",
-      "to": "A",
-      "currency": "Valuta",
-      "per": "Per",
-      "month": "Mese",
-      "year": "Anno",
-      "hour": "Ora",
-      "day": "Giorno",
-      "salaryNotes": "Note sullo stipendio (opzionale)",
-      "salaryNotesPlaceholder": "es. Flessibile per il ruolo giusto; i benefit contano"
+      "noPreference": "Nessuna preferenza"
     },
     "import": {
       "title": "Importa da un CV esistente",
@@ -310,12 +281,49 @@
       "chooseError": "Incolla il testo del tuo CV o scegli un PDF.",
       "importing": "Importazione in corso…",
       "importBtn": "Importa"
+    },
+    "teaching": {
+      "type": "Tipo",
+      "typePlaceholder": "Seleziona un tipo…",
+      "typeOther": "Tipo (specificare)",
+      "subject": "Oggetto / titolo del corso",
+      "years": "Anni",
+      "descriptionPlaceholder": "A chi hai insegnato (livello, dimensione del gruppo) e cosa hai fatto?",
+      "types": {
+        "course_instructor": "Insegnante di corso",
+        "guest_lecture": "Lezione straordinaria",
+        "tutorials_seminars": "Tutorials e seminari",
+        "workshop_training": "Workshop / formazione",
+        "supervision": "Supervisione",
+        "other": "Altro"
+      }
+    }
+  },
+  "preferences": {
+    "title": "Preferenze",
+    "help": "Non mostrato nel tuo CV — viene usato dal Job Coach per filtrare i lavori suggeriti e (presto) scrivere lettere motivazionali.",
+    "lookingFor": {
+      "title": "Cosa sto cercando",
+      "help": "Guida l'AI nel personalizzare il tuo CV e filtrare i suggerimenti di lavoro."
+    },
+    "practical": {
+      "title": "Preferenze pratiche",
+      "help": "Località, modalità remoto/hibrido e lingue — utilizzate per la corrispondenza dei lavori."
+    },
+    "fields": {
+      "lookingFor": "Cosa stai cercando?",
+      "lookingForPlaceholder": "Che tipo di ruolo stai cercando successivamente? Quali settori ti interessano? Cosa ti distingue? Quali problemi ti piacciono risolvere?",
+      "avoid": "Cosa non deve avere un lavoro?",
+      "avoidPlaceholder": "Esempio: lavoro puramente amministrativo, viaggi costanti, settori da escludere",
+      "locations": "Località preferite / tempo di percorso (città)",
+      "languages": "Preferenze linguistiche",
+      "notes": "Qualsiasi altro dettaglio pratico",
+      "notesPlaceholder": "Tipo di contratto, full-time/part-time, orario, aspettative di salario, viaggi, trasloco, che tipo di organizzazione ti piace"
     }
   },
   "badges": {
     "cv": "Nel tuo CV",
-    "ai": "Aiuta l'IA",
-    "jobs": "Matching offerte & lettere"
+    "ai": "Aiuta l'IA"
   },
   "sections": {
     "personal": {
@@ -337,10 +345,6 @@
     "education": {
       "label": "Istruzione",
       "description": "Titoli di studio e percorsi formativi."
-    },
-    "work_preferences": {
-      "label": "Preferenze lavorative",
-      "description": "Cosa cerchi — migliora il matching con le offerte."
     },
     "projects": {
       "label": "Progetti",
@@ -381,10 +385,6 @@
     "teaching": {
       "label": "Insegnamento",
       "description": "Insegnamento, supervisione e docenza — mostrati quando pertinenti."
-    },
-    "career_context": {
-      "label": "Preferenze di carriera e contesto AI",
-      "description": "Settori target e ciò che ti distingue — guida l'AI."
     },
     "custom_sections": {
       "label": "Sezioni personalizzate",
@@ -537,31 +537,5 @@
       "title": "OpenRouter",
       "desc": "Qualità migliore — richiede una chiave API, a pochi centesimi per utilizzo."
     }
-  },
-  "onboarding": {
-    "welcome": "Benvenuto in Job Coach",
-    "intro": "Due scelte rapide e sei pronto. Puoi modificarle entrambe in seguito nelle Impostazioni.",
-    "skip": "Salta per ora",
-    "back": "Indietro",
-    "next": "Avanti",
-    "done": "Fine",
-    "step": "Passaggio {{n}} di {{total}}",
-    "langTitle": "Scegli la lingua",
-    "langHelp": "L'app è in inglese per impostazione predefinita. Scegli una lingua — le altre sono tradotte dall'IA.",
-    "langOther": "Altra lingua…",
-    "langOtherHelp": "Inserisci un codice di 2 lettere (es. sv, ja). Viene tradotto sul tuo dispositivo una volta configurato il motore IA.",
-    "langQueued": "Tradurremo l'interfaccia subito dopo aver configurato un motore IA.",
-    "engineTitle": "Configura l'IA",
-    "engineHelp": "L'IA personalizza i tuoi CV e analizza le offerte di lavoro. Scegli come eseguirla.",
-    "engineLocalCta": "Scarica il modello gratuito",
-    "engineDownloading": "Download in corso… {{pct}}%",
-    "engineLocalReady": "Modello gratuito pronto.",
-    "engineKeyPlaceholder": "Incolla la tua chiave API OpenRouter (sk-or-…)",
-    "engineSaveKey": "Salva chiave",
-    "engineKeySaved": "Chiave API salvata.",
-    "engineGetKey": "Ottieni una chiave su openrouter.ai",
-    "doneTitle": "Sei pronto",
-    "doneBody": "Prossimo passo: crea il tuo Profilo (importa un CV esistente per iniziare rapidamente), poi aggiungi fonti di lavoro in Suggerimenti di lavoro.",
-    "finish": "Inizia a usare Job Coach"
   }
 }

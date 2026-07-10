@@ -6,7 +6,12 @@
     "projects": "Projects", "certifications": "Certifications",
     "awards": "Awards", "teaching": "Teaching", "present": "Present",
     "volunteering": "Volunteering", "courses": "Courses & Training",
-    "memberships": "Memberships"
+    "memberships": "Memberships",
+    "teaching_type_course_instructor": "Course instructor",
+    "teaching_type_guest_lecture": "Guest lecture",
+    "teaching_type_tutorials_seminars": "Tutorials & seminars",
+    "teaching_type_workshop_training": "Workshop / training",
+    "teaching_type_supervision": "Supervision"
   },
   "nl": {
     "links": "Links", "skills": "Vaardigheden", "languages": "Talen",
@@ -15,7 +20,12 @@
     "projects": "Projecten", "certifications": "Certificaten",
     "awards": "Onderscheidingen", "teaching": "Onderwijs", "present": "Heden",
     "volunteering": "Vrijwilligerswerk", "courses": "Cursussen & Opleiding",
-    "memberships": "Lidmaatschappen"
+    "memberships": "Lidmaatschappen",
+    "teaching_type_course_instructor": "Cursusdocent",
+    "teaching_type_guest_lecture": "Gastcollege",
+    "teaching_type_tutorials_seminars": "Werkcolleges & seminaries",
+    "teaching_type_workshop_training": "Workshop / training",
+    "teaching_type_supervision": "Begeleiding"
   },
   "fr": {
     "links": "Liens", "skills": "Compétences", "languages": "Langues",
@@ -24,7 +34,12 @@
     "projects": "Projets", "certifications": "Certifications",
     "awards": "Distinctions", "teaching": "Enseignement", "present": "Présent",
     "volunteering": "Bénévolat", "courses": "Cours & Formations",
-    "memberships": "Adhésions"
+    "memberships": "Adhésions",
+    "teaching_type_course_instructor": "Enseignant du cours",
+    "teaching_type_guest_lecture": "Cours invité",
+    "teaching_type_tutorials_seminars": "Travaux dirigés & séminaires",
+    "teaching_type_workshop_training": "Atelier / formation",
+    "teaching_type_supervision": "Encadrement"
   },
   "de": {
     "links": "Links", "skills": "Kompetenzen", "languages": "Sprachen",
@@ -33,7 +48,12 @@
     "projects": "Projekte", "certifications": "Zertifikate",
     "awards": "Auszeichnungen", "teaching": "Lehre", "present": "Heute",
     "volunteering": "Ehrenamt", "courses": "Kurse & Weiterbildung",
-    "memberships": "Mitgliedschaften"
+    "memberships": "Mitgliedschaften",
+    "teaching_type_course_instructor": "Kursleiter",
+    "teaching_type_guest_lecture": "Gastvortrag",
+    "teaching_type_tutorials_seminars": "Übungen & Seminare",
+    "teaching_type_workshop_training": "Workshop / Schulung",
+    "teaching_type_supervision": "Betreuung"
   },
   "es": {
     "links": "Enlaces", "skills": "Competencias", "languages": "Idiomas",
@@ -42,7 +62,12 @@
     "projects": "Proyectos", "certifications": "Certificaciones",
     "awards": "Premios", "teaching": "Docencia", "present": "Actualidad",
     "volunteering": "Voluntariado", "courses": "Cursos y formación",
-    "memberships": "Afiliaciones"
+    "memberships": "Afiliaciones",
+    "teaching_type_course_instructor": "Profesor del curso",
+    "teaching_type_guest_lecture": "Clase invitada",
+    "teaching_type_tutorials_seminars": "Prácticas y seminarios",
+    "teaching_type_workshop_training": "Taller / formación",
+    "teaching_type_supervision": "Supervisión"
   },
   "it": {
     "links": "Link", "skills": "Competenze", "languages": "Lingue",
@@ -51,7 +76,12 @@
     "projects": "Progetti", "certifications": "Certificazioni",
     "awards": "Riconoscimenti", "teaching": "Didattica", "present": "Oggi",
     "volunteering": "Volontariato", "courses": "Corsi e formazione",
-    "memberships": "Affiliazioni"
+    "memberships": "Affiliazioni",
+    "teaching_type_course_instructor": "Docente del corso",
+    "teaching_type_guest_lecture": "Lezione ospite",
+    "teaching_type_tutorials_seminars": "Esercitazioni e seminari",
+    "teaching_type_workshop_training": "Workshop / formazione",
+    "teaching_type_supervision": "Supervisione"
   },
   "pt": {
     "links": "Ligações", "skills": "Competências", "languages": "Línguas",
@@ -60,7 +90,12 @@
     "projects": "Projetos", "certifications": "Certificações",
     "awards": "Prémios", "teaching": "Ensino", "present": "Presente",
     "volunteering": "Voluntariado", "courses": "Cursos e formação",
-    "memberships": "Associações"
+    "memberships": "Associações",
+    "teaching_type_course_instructor": "Docente do curso",
+    "teaching_type_guest_lecture": "Aula convidada",
+    "teaching_type_tutorials_seminars": "Tutoriais e seminários",
+    "teaching_type_workshop_training": "Workshop / formação",
+    "teaching_type_supervision": "Supervisão"
   },
   "pl": {
     "links": "Linki", "skills": "Umiejętności", "languages": "Języki",
@@ -69,6 +104,11 @@
     "projects": "Projekty", "certifications": "Certyfikaty",
     "awards": "Nagrody", "teaching": "Dydaktyka", "present": "Obecnie",
     "volunteering": "Wolontariat", "courses": "Kursy i szkolenia",
-    "memberships": "Członkostwa"
+    "memberships": "Członkostwa",
+    "teaching_type_course_instructor": "Prowadzący kurs",
+    "teaching_type_guest_lecture": "Wykład gościnny",
+    "teaching_type_tutorials_seminars": "Ćwiczenia i seminaria",
+    "teaching_type_workshop_training": "Warsztaty / szkolenie",
+    "teaching_type_supervision": "Nadzór i opieka"
   }
 }

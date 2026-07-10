@@ -16,6 +16,7 @@ import httpx
 from bs4 import BeautifulSoup
 
 from app.i18n.languages import lang_name
+from app.services.cv_renderer import profile_for_tailoring
 from app.services.llm import complete, tool_args
 
 
@@ -29,23 +30,21 @@ class TailoringPlan:
     adjusted_responsibilities: dict[str, list[str]]
     highlighted_skills: list[str]
     tailoring_notes: str
-    include_publications: bool = True
-    # Teaching: shown on the CV only when relevant to the role (e.g. lecturer /
-    # academic / training jobs). When included, teaching_summary is a compact
-    # one-line blurb in the target language; empty otherwise.
-    include_teaching: bool = False
-    teaching_summary: str = ""
     # Deprecated: achievements are now folded into adjusted_responsibilities
     # (one combined bullet list per role). Kept so older stored plans that still
     # carry this key continue to deserialize; it is no longer rendered.
     adjusted_achievements: dict[str, list[str]] = field(default_factory=dict)
+    # Deprecated (profile v4): publications/teaching are now gated via
+    # excluded_sections. Kept so older stored plans still deserialize.
+    include_publications: bool = True
+    include_teaching: bool = False
+    teaching_summary: str = ""
     # For non-English CVs: {english sidebar string → translation}. Covers the
     # static sidebar text (education degrees/fields, distinctions, grant names,
     # language names) that isn't part of the editable per-role content.
     sidebar_translations: dict[str, str] = field(default_factory=dict)
     # Optional printable sections the model judged irrelevant to this role and
-    # wants dropped (e.g. "volunteering", "certifications"). Additive to the
-    # dedicated include_publications / include_teaching gates.
+    # wants dropped (e.g. "volunteering", "publications", "teaching").
     excluded_sections: list[str] = field(default_factory=list)
 
 
@@ -60,8 +59,7 @@ _TOOL = {
                 "job_title", "employer", "slug", "summary",
                 "selected_experience_ids", "adjusted_responsibilities",
                 "sidebar_translations",
-                "highlighted_skills", "tailoring_notes", "include_publications",
-                "include_teaching", "teaching_summary",
+                "highlighted_skills", "tailoring_notes",
             ],
             "properties": {
                 "job_title": {
@@ -104,25 +102,14 @@ _TOOL = {
                     "type": "string",
                     "description": "Brief explanation of the tailoring choices made",
                 },
-                "include_publications": {
-                    "type": "boolean",
-                    "description": "Set to true only for academic/research/university roles. Set to false for all industry, data engineering, commercial, or technology roles where peer-reviewed publications are not part of the hiring criteria.",
-                },
-                "include_teaching": {
-                    "type": "boolean",
-                    "description": "Set to true only when teaching/lecturing/training/supervision is relevant to the role (e.g. lecturer, teaching assistant, academic, or jobs that value training others). Set to false otherwise.",
-                },
-                "teaching_summary": {
-                    "type": "string",
-                    "description": "When include_teaching is true, a compact ONE-LINE teaching summary in the target language drawn from the profile's teaching data (formal teaching, guest lectures, supervision) — e.g. 'Guest lecturer at UGent and AMS; tutorials at Oxford; supervised multiple students'. Empty string when include_teaching is false.",
-                },
                 "excluded_sections": {
                     "type": "array",
                     "items": {"type": "string", "enum": [
                         "projects", "volunteering", "certifications", "courses",
                         "awards", "memberships", "grants", "custom_sections",
+                        "publications", "teaching",
                     ]},
-                    "description": "Optional CV sections present in the profile that are NOT relevant to this role and should be dropped from the CV. Omit or leave empty to keep them all. Do not list publications or teaching here — those have their own flags.",
+                    "description": "Optional CV sections present in the profile that are NOT relevant to this role and should be dropped from the CV. Set 'publications' and 'teaching' only for non-academic, non-training roles. Omit or leave empty to keep everything.",
                 },
             },
         },
@@ -143,10 +130,8 @@ Rules:
 - Mirror the language of the job description, but only honestly
 - Do not invent skills or experience not present in the profile
 - Keep bullets concise (one line each); never more than 4 per role
-- Publications section: set include_publications=true ONLY for research/academic/university roles; set false for industry, tech, or data engineering roles
-- Teaching section: set include_teaching=true ONLY when teaching/lecturing/training/supervision matters for the role; when true, write teaching_summary as a single compact line in {lang_name} drawn from the profile's teaching data; otherwise set include_teaching=false and teaching_summary=""
-- Optional sections (projects, volunteering, certifications, courses, awards, memberships, grants, custom_sections): list in excluded_sections any that are clearly irrelevant to this role so they are dropped; keep the rest
-- Use the experience relevance notes in the profile to decide which entries best match the role type"""
+- Optional sections (projects, volunteering, certifications, courses, awards, memberships, grants, custom_sections, publications, teaching): list in excluded_sections any that are clearly irrelevant to this role so they are dropped; keep publications and teaching only for academic, research, or training-heavy roles; keep the rest
+- Use each role's ai_notes field in the profile to decide which entries best match the role type"""
 
 
 def fetch_job_description(url: str) -> str:
@@ -190,7 +175,7 @@ def tailor(
                 "role": "system",
                 "content": (
                     f"{instructions}\n\n"
-                    f"CANDIDATE PROFILE:\n{json.dumps(profile, ensure_ascii=False, indent=2)}"
+                    f"CANDIDATE PROFILE:\n{json.dumps(profile_for_tailoring(profile), ensure_ascii=False, indent=2)}"
                 ),
             },
             {
@@ -226,9 +211,6 @@ def tailor(
         adjusted_responsibilities=bullets,
         highlighted_skills=d["highlighted_skills"],
         tailoring_notes=d["tailoring_notes"],
-        include_publications=d.get("include_publications", True),
-        include_teaching=d.get("include_teaching", False),
-        teaching_summary=d.get("teaching_summary", "") or "",
         sidebar_translations=d.get("sidebar_translations", {}) or {},
         excluded_sections=list(d.get("excluded_sections", []) or []),
     )
@@ -259,10 +241,7 @@ def _start_key(entry: dict) -> tuple[int, int]:
 def apply_tailoring(profile: dict, plan: TailoringPlan) -> dict:
     """Merge a TailoringPlan into a profile dict, returning a modified copy."""
     p = copy.deepcopy(profile)
-    # v2: the CV professional summary is a top-level field. Keep writing the legacy
-    # narrative key too so CVs from tailoring plans stored before v2 still render.
     p["summary"] = plan.summary
-    p.setdefault("narrative", {})["target_roles_description"] = plan.summary
 
     exp_by_id = {e["id"]: e for e in p.get("experience", []) if e.get("id")}
     filtered = []
@@ -280,25 +259,16 @@ def apply_tailoring(profile: dict, plan: TailoringPlan) -> dict:
     past = sorted((e for e in filtered if not _is_active(e)), key=_start_key, reverse=True)
     p["experience"] = active + past
 
-    if not plan.include_publications:
-        p["publications"] = []
-
-    # Drop any optional printable sections the model judged irrelevant. Publications
-    # and teaching keep their dedicated gates above/below; everything else here.
+    # Drop any optional printable sections the model judged irrelevant.
     _EXCLUDABLE = {
         "projects", "volunteering", "certifications", "courses",
-        "awards", "memberships", "grants", "custom_sections",
+        "awards", "memberships", "grants", "custom_sections", "publications",
     }
     for key in plan.excluded_sections:
         if key in _EXCLUDABLE:
             p[key] = []
-
-    # Teaching renders from teaching.cv_summary (a compact one-liner). When the
-    # role doesn't warrant teaching, set it empty so the template guard hides it;
-    # otherwise use the model's tailored summary. Setting the key (even to "")
-    # also overrides the template's generic-CV fallback line.
-    p.setdefault("teaching", {})
-    p["teaching"]["cv_summary"] = plan.teaching_summary if plan.include_teaching else ""
+    if "teaching" in plan.excluded_sections:
+        p["teaching"] = {"entries": []}
 
     # Translate static sidebar text (education, grants, languages) for non-English
     # CVs. Only strings the model chose to translate are replaced; the rest stay.
@@ -333,7 +303,7 @@ if __name__ == "__main__":
         {"id": "b", "start_date": "2023-03", "end_date": None, "is_current": True},
         {"id": "c", "start_date": "2020-04", "end_date": "2021-11"},
     ]
-    prof = {"narrative": {}, "experience": exp, "publications": [1]}
+    prof = {"experience": exp, "publications": [1]}
     plan = TailoringPlan("t", "e", "s", "sum", ["a", "b", "c"], {}, [], "n")
     order = [e["id"] for e in apply_tailoring(prof, plan)["experience"]]
     assert order == ["b", "c", "a"], order  # active first, then newest start

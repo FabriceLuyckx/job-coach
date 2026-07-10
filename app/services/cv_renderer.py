@@ -72,6 +72,12 @@ CEFR_LABELS: dict[int, str] = {
     4: "B2/C1 Advanced", 5: "C2 Native / Fluent",
 }
 
+# Teaching entry "type" — a select in the UI; "other" reveals a free-text type_other.
+TEACHING_TYPES = (
+    "course_instructor", "guest_lecture", "tutorials_seminars",
+    "workshop_training", "supervision", "other",
+)
+
 # Generic editable groups seeded when a profile has no skills data at all.
 DEFAULT_SKILL_GROUPS: list[dict] = [
     {"label": "Technical skills", "items": []},
@@ -140,9 +146,11 @@ def normalize_skills(skills: dict | None) -> dict:
 
 # Optional sections keyed the same on the backend and the frontend registry. Used
 # to seed meta.enabled_sections when migrating a profile that predates it.
+# career_context lived here in v2; in v3 its fields moved to the (non-optional)
+# Preferences page, so it's no longer a toggle.
 OPTIONAL_SECTIONS = (
     "projects", "certifications", "awards", "publications", "grants",
-    "academic", "teaching", "career_context",
+    "academic", "teaching",
     "volunteering", "courses", "memberships", "custom_sections",
 )
 
@@ -317,27 +325,286 @@ def _optional_has_data(p: dict, key: str) -> bool:
         return bool(p.get(key))
     if key == "academic":
         a = p.get("academic") or {}
-        return bool(a.get("research_areas") or a.get("methods") or a.get("collaborators")
-                    or a.get("interdisciplinary_work") or a.get("research_themes")
-                    or a.get("topics_to_teach"))
+        return bool(a.get("research_areas") or a.get("research_themes"))
     if key == "teaching":
-        t = p.get("teaching") or {}
-        return bool(t.get("subjects_to_teach") or t.get("formal_experience")
-                    or t.get("guest_lectures") or t.get("student_supervision")
-                    or t.get("mentoring") or t.get("educational_materials"))
-    if key == "career_context":
-        n = p.get("narrative") or {}
-        return bool(n.get("target_industries") or n.get("differentiation")
-                    or n.get("problems_enjoyed") or n.get("work_to_avoid")
-                    or n.get("looking_for"))
+        return bool((p.get("teaching") or {}).get("entries"))
     return False
 
 
-def normalize_profile(profile: dict) -> dict:
-    """Upgrade a v1/partial profile to the career-neutral v2 shape in memory.
+# ── Profile schema v3 migration ──────────────────────────────────────────────
+# v3 prunes v2's questionnaire-shaped structure down to what's actually read by
+# the CV template or the AI pipelines (see docs/plans/profile-v3-restructure.md).
+# Runs after the v1→v2 step above, on its output, so these only ever see v2
+# shapes. Each pops the v2-only keys it consumes, so re-running normalize_profile
+# on an already-v3 profile (which the v1→v2 step re-pads with empty defaults)
+# folds in nothing new — idempotent.
 
-    Idempotent: a v2 profile passes through unchanged. Callers persist the result
-    on the next save, so old files migrate transparently.
+def _migrate_experience_v3(exp: dict) -> dict:
+    """v2's two free-text AI notes (relevance_note, ai_context) → one ai_notes."""
+    e = dict(exp)
+    if "ai_notes" not in e:
+        e["ai_notes"] = "\n".join(_nonempty(e.get("relevance_note"), e.get("ai_context")))
+    e.pop("relevance_note", None)
+    e.pop("ai_context", None)
+    e.setdefault("ai_notes", "")
+    return e
+
+
+def _migrate_academic_v3(academic: dict | None) -> tuple[dict, list[str]]:
+    """v2 academic (method groups, interdisciplinary work, collaborators) → v3's
+    research_areas + free-text research_themes, with the structured detail folded
+    into readable lines. Returns (academic_v3, topics_to_teach) — the caller merges
+    topics_to_teach into teaching.subjects_to_teach."""
+    a = dict(academic or {})
+    lines: list[str] = []
+    for g in (a.pop("methods", None) or []):
+        if isinstance(g, dict) and g.get("items"):
+            lines.append(f"{g.get('label') or 'Methods'}: {', '.join(g['items'])}")
+    interdisciplinary = a.pop("interdisciplinary_work", None) or []
+    if interdisciplinary:
+        lines.append("Interdisciplinary work: " + ", ".join(interdisciplinary))
+    collaborators = a.pop("collaborators", None) or []
+    names = [
+        c.get("name", "") + (f" ({c['affiliation']})" if c.get("affiliation") else "")
+        for c in collaborators if isinstance(c, dict) and c.get("name")
+    ]
+    if names:
+        lines.append("Collaborators: " + ", ".join(names))
+    topics = list(a.pop("topics_to_teach", None) or [])
+
+    research_themes = "\n".join(_nonempty(a.get("research_themes")) + lines)
+    return {
+        "research_areas": list(a.get("research_areas") or []),
+        "research_themes": research_themes,
+    }, topics
+
+
+def _migrate_teaching_v3(teaching: dict | None, extra_subjects: list[str]) -> dict:
+    """v2 teaching (formal_experience + guest_lectures + 3 free-text fields) → v3's
+    single entries list + one free-text notes field."""
+    t = dict(teaching or {})
+    entries = t.pop("entries", None)
+    if entries is None:
+        entries = []
+        for f in (t.pop("formal_experience", None) or []):
+            if isinstance(f, dict):
+                entries.append({
+                    "type": f.get("type", ""), "course": f.get("course", ""),
+                    "institution": f.get("institution", ""), "years": f.get("years", ""),
+                    "description": f.get("description", ""),
+                })
+        for g in (t.pop("guest_lectures", None) or []):
+            if isinstance(g, dict):
+                entries.append({
+                    "type": "Guest lecture", "course": g.get("course", ""),
+                    "institution": g.get("institution", ""), "years": "", "description": "",
+                })
+    else:
+        t.pop("formal_experience", None)
+        t.pop("guest_lectures", None)
+
+    if "notes" not in t:
+        lines: list[str] = []
+        for label, key in (("Student supervision", "student_supervision"),
+                            ("Mentoring", "mentoring"),
+                            ("Educational materials", "educational_materials")):
+            v = t.get(key)
+            if isinstance(v, str) and v.strip():
+                lines.append(f"{label}: {v.strip()}")
+        t["notes"] = "\n".join(lines)
+    t.pop("student_supervision", None)
+    t.pop("mentoring", None)
+    t.pop("educational_materials", None)
+
+    t["subjects_to_teach"] = list(dict.fromkeys(list(t.get("subjects_to_teach") or []) + extra_subjects))
+    t["entries"] = entries
+    t.setdefault("notes", "")
+    return t
+
+
+def _migrate_design_prefs_v3(prefs: dict | None) -> dict:
+    """v2 cv_design_preferences had 10 questionnaire fields; only these two are
+    ever read (Settings UI + the CV template's accent colour)."""
+    d = dict(prefs or {})
+    return {
+        "accent_color": d.get("accent_color") or "#1B3A6B",
+        "include_photo": bool(d.get("include_photo", False)),
+    }
+
+
+# ── Profile schema v4 migration ──────────────────────────────────────────────
+# v4 gives each remaining loosely-typed section its own topic-shaped fields
+# instead of collapsing them further (see docs/plans/profile-v4-radical-simplification.md).
+# Runs after the v3 step, on its output. Each pops the v3-only keys it consumes,
+# so re-running normalize_profile on an already-v4 profile (whose keys the v1→v2
+# step re-pads with empty/default stubs) folds in nothing new — idempotent.
+
+def _map_teaching_type(raw: str) -> tuple[str, str]:
+    """Best-effort keyword match from a free-text v3 teaching type to the v4 enum."""
+    t = (raw or "").strip()
+    if not t:
+        return "", ""
+    low = t.lower()
+    if "guest" in low:
+        return "guest_lecture", ""
+    if "tutorial" in low or "seminar" in low:
+        return "tutorials_seminars", ""
+    if "workshop" in low or "training" in low:
+        return "workshop_training", ""
+    if "supervis" in low:
+        return "supervision", ""
+    if any(k in low for k in ("lectur", "instruct", "course", "taught")):
+        return "course_instructor", ""
+    return "other", t
+
+
+def _migrate_teaching_entry_v4(entry: dict) -> dict:
+    """v3 {type (free text), course} → v4 {type (enum), type_other, subject}."""
+    e = dict(entry)
+    if "type_other" not in e:
+        typ, other = _map_teaching_type(e.pop("type", ""))
+        e["type"] = typ
+        e["type_other"] = other
+        course = e.pop("course", None)
+        if course is not None:
+            e["subject"] = course
+    e.setdefault("type", "")
+    e.setdefault("type_other", "")
+    e.setdefault("subject", "")
+    e.setdefault("institution", "")
+    e.setdefault("years", "")
+    e.setdefault("description", "")
+    return e
+
+
+def _migrate_teaching_v4(teaching: dict | None) -> tuple[dict, list[str], str]:
+    """v3 teaching {subjects_to_teach, entries, notes} → v4 {entries} only.
+
+    Returns (new_teaching, subjects_to_teach, notes) — the caller relocates the
+    first into preferences.looking_for and the second into academic.research_themes
+    (R3: forward-looking/free-form data doesn't belong in a CV history section).
+    """
+    t = dict(teaching or {})
+    entries = [_migrate_teaching_entry_v4(e) for e in (t.get("entries") or []) if isinstance(e, dict)]
+    subjects = list(t.pop("subjects_to_teach", None) or [])
+    notes = (t.pop("notes", None) or "").strip()
+    return {"entries": entries}, subjects, notes
+
+
+def _migrate_grants_v4(grants: list | None) -> list[dict]:
+    """v3 {year, year_start, year_end} → v4 free-text `years`; add optional funder/amount."""
+    out = []
+    for g in grants or []:
+        if not isinstance(g, dict):
+            continue
+        g = dict(g)
+        if "years" not in g:
+            year = g.pop("year", None)
+            y1 = g.pop("year_start", None)
+            y2 = g.pop("year_end", None)
+            if year:
+                g["years"] = str(year)
+            elif y1 or y2:
+                g["years"] = f"{y1 or ''}–{y2 or ''}"
+            else:
+                g["years"] = ""
+        else:
+            g.pop("year", None)
+            g.pop("year_start", None)
+            g.pop("year_end", None)
+        g.setdefault("name", "")
+        g.setdefault("funder", "")
+        g.setdefault("amount", "")
+        out.append(g)
+    return out
+
+
+def _migrate_education_v4(education: list | None) -> list[dict]:
+    """Add optional `description` (thesis topic / specialisation / coursework)."""
+    out = []
+    for edu in education or []:
+        if not isinstance(edu, dict):
+            continue
+        edu = dict(edu)
+        edu.setdefault("description", "")
+        out.append(edu)
+    return out
+
+
+def _migrate_publications_v4(publications: list | None) -> list[dict]:
+    """Add optional `url` (DOI or link)."""
+    out = []
+    for pub in publications or []:
+        if not isinstance(pub, dict):
+            continue
+        pub = dict(pub)
+        pub.setdefault("url", "")
+        out.append(pub)
+    return out
+
+
+def _migrate_personal_v4(personal: dict, summary: str) -> tuple[dict, str]:
+    """Drop personal.headline; fold non-empty text into summary as its first line."""
+    p = dict(personal)
+    headline = (p.pop("headline", "") or "").strip()
+    if headline:
+        summary = f"{headline}\n{summary}" if summary else headline
+    return p, summary
+
+
+def _migrate_preferences_v4(narrative: dict, wp: dict, extra_looking_for: list[str]) -> dict:
+    """narrative + work_preferences (incl. salary) → one `preferences` object.
+
+    Its only consumer is the job-matching filter prompt, so free text is the
+    right shape here — unlike CV sections, whose structure is consumed by
+    template/tailoring-plan code.
+    """
+    looking_lines = _nonempty(narrative.get("looking_for"))
+    industries = narrative.get("target_industries") or []
+    if industries:
+        looking_lines.append("Target industries: " + ", ".join(industries))
+    looking_lines += _nonempty(narrative.get("differentiation"), narrative.get("problems_enjoyed"))
+    if extra_looking_for:
+        looking_lines.append("Subjects I can teach: " + ", ".join(extra_looking_for))
+
+    notes_lines: list[str] = []
+    if wp.get("relocation"):
+        notes_lines.append(f"Relocation: {wp['relocation']}")
+    if wp.get("contract_types"):
+        notes_lines.append("Contract types: " + ", ".join(wp["contract_types"]))
+    if wp.get("schedule"):
+        notes_lines.append(f"Schedule: {wp['schedule']}")
+    if wp.get("availability"):
+        notes_lines.append(f"Availability: {wp['availability']}")
+    if wp.get("travel"):
+        notes_lines.append(f"Travel: {wp['travel']}")
+    if wp.get("organisation_preferences"):
+        notes_lines.append(f"Organisation preferences: {wp['organisation_preferences']}")
+    salary = wp.get("salary") or {}
+    if salary.get("min") or salary.get("max"):
+        rng = f"{salary.get('min') or '?'}–{salary.get('max') or '?'}"
+        line = f"Salary: {rng} {salary.get('currency', '')}/{salary.get('period', '')}"
+        if salary.get("notes"):
+            line += f" ({salary['notes']})"
+        notes_lines.append(line)
+    elif salary.get("notes"):
+        notes_lines.append(f"Salary notes: {salary['notes']}")
+
+    return {
+        "looking_for": "\n".join(looking_lines),
+        "avoid": (narrative.get("work_to_avoid") or "").strip(),
+        "locations": list(wp.get("commute_radius") or []),
+        "remote": wp.get("remote_hybrid") or "",
+        "languages": list(wp.get("language_preferences") or []),
+        "notes": "\n".join(notes_lines),
+    }
+
+
+def normalize_profile(profile: dict) -> dict:
+    """Upgrade a v1/partial profile to the current (v4) shape in memory.
+
+    Idempotent: an already-v4 profile passes through unchanged. Callers persist
+    the result on the next save, so old files migrate transparently.
     """
     p = dict(profile)
     p["skills"] = normalize_skills(p.get("skills"))
@@ -393,28 +660,61 @@ def normalize_profile(profile: dict) -> dict:
                 "volunteering", "courses", "memberships", "custom_sections"):
         p.setdefault(key, [])
 
+    # ── v2 → v3 ──
+    p["experience"] = [_migrate_experience_v3(e) for e in p["experience"]]
+    p["personal"].pop("keywords", None)
+    academic_v3, extra_subjects = _migrate_academic_v3(p["academic"])
+    p["academic"] = academic_v3
+    p["teaching"] = _migrate_teaching_v3(p["teaching"], extra_subjects)
+    p["cv_design_preferences"] = _migrate_design_prefs_v3(p.get("cv_design_preferences"))
+
+    # ── v3 → v4 ──
+    p["personal"], p["summary"] = _migrate_personal_v4(p["personal"], p["summary"])
+    p["education"] = _migrate_education_v4(p["education"])
+    p["publications"] = _migrate_publications_v4(p["publications"])
+    p["grants"] = _migrate_grants_v4(p["grants"])
+    new_teaching, extra_looking_for, teaching_notes = _migrate_teaching_v4(p["teaching"])
+    p["teaching"] = new_teaching
+    if teaching_notes:
+        line = f"Teaching notes: {teaching_notes}"
+        themes = p["academic"].get("research_themes", "")
+        p["academic"]["research_themes"] = f"{themes}\n{line}" if themes else line
+    if "preferences" not in p:
+        p["preferences"] = _migrate_preferences_v4(
+            p.get("narrative") or {}, p.get("work_preferences") or {}, extra_looking_for)
+    p.pop("narrative", None)
+    p.pop("work_preferences", None)
+
     meta = dict(p.get("meta") or {})
-    meta["schema"] = "career-profile-v2"
+    meta["schema"] = "career-profile-v4"
     if "enabled_sections" not in meta:
         meta["enabled_sections"] = [k for k in OPTIONAL_SECTIONS if _optional_has_data(p, k)]
+    else:
+        meta["enabled_sections"] = [k for k in meta["enabled_sections"] if k != "career_context"]
     p["meta"] = meta
     return p
 
 
+def profile_for_tailoring(profile: dict) -> dict:
+    """Everything the CV-tailoring model may see: printable sections and
+    per-role ai_notes. Never preferences, cv_design_preferences, or meta
+    — those are the Preferences page's data, not the CV's."""
+    return {k: v for k, v in profile.items()
+            if k not in ("preferences", "cv_design_preferences", "meta")}
+
+
 def blank_profile() -> dict:
-    """A pristine, career-neutral v2 profile — seeded for a brand-new user instead
+    """A pristine, career-neutral v4 profile — seeded for a brand-new user instead
     of an example person's data. normalize_profile fills in the rest of the shape."""
     return normalize_profile({
-        "meta": {"version": "2.0", "schema": "career-profile-v2"},
+        "meta": {"version": "4.0", "schema": "career-profile-v4"},
         "personal": {
             "name": "", "professional_title": "", "email": "", "phone": "",
-            "location": {"city": "", "country": ""}, "links": [], "keywords": [],
+            "location": {"city": "", "country": ""}, "links": [],
         },
         "summary": "",
-        "narrative": {},
         "experience": [],
         "skills": {"groups": [dict(g) for g in DEFAULT_SKILL_GROUPS], "languages": []},
-        "work_preferences": {},
         "cv_design_preferences": {
             "accent_color": "#1B3A6B", "include_photo": False,
         },
@@ -464,35 +764,6 @@ def richtext(value: str) -> Markup:
     return Markup(s)
 
 
-def teaching_line(teaching) -> str:
-    """Build a compact one-line teaching summary from structured teaching data.
-
-    Used as the generic-CV fallback when no AI-tailored `teaching.cv_summary` is
-    present. Returns '' when there is nothing to show (so the template hides the
-    section). For tailored CVs, cv_summary takes precedence in the template.
-    """
-    if not isinstance(teaching, dict):
-        return ""
-    parts: list[str] = []
-    for f in teaching.get("formal_experience") or []:
-        typ = (f.get("type") or "").strip()
-        inst = (f.get("institution") or "").strip()
-        if typ and inst:
-            parts.append(f"{typ} at {inst}")
-        elif typ or inst:
-            parts.append(typ or inst)
-    insts: list[str] = []
-    for g in teaching.get("guest_lectures") or []:
-        inst = (g.get("institution") or "").strip()
-        if inst and inst not in insts:
-            insts.append(inst)
-    if insts:
-        parts.append("Guest lectures at " + ", ".join(insts))
-    if (teaching.get("student_supervision") or "").strip():
-        parts.append("student supervision")
-    return " · ".join(parts)
-
-
 def load_photo() -> str | None:
     """Return a base64 data URI for profile/photo.{jpg,jpeg,png,webp}, or None."""
     for ext in PHOTO_EXTS:
@@ -509,5 +780,4 @@ def build_env() -> Environment:
     env.filters["format_date"] = format_date
     env.filters["strip_scheme"] = strip_scheme
     env.filters["richtext"] = richtext
-    env.filters["teaching_line"] = teaching_line
     return env

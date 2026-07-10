@@ -16,17 +16,6 @@ export interface Personal {
   phone: string
   links: Link[]
   professional_title: string
-  headline?: string
-  keywords: string[]
-}
-
-export interface Narrative {
-  /** What the candidate is looking for next — feeds job matching, not printed. */
-  looking_for: string
-  target_industries: string[]
-  differentiation: string
-  problems_enjoyed: string
-  work_to_avoid: string
 }
 
 export interface Experience {
@@ -39,10 +28,9 @@ export interface Experience {
   end_date: string | null
   responsibilities: string[]
   technologies: string[]
-  /** Optional free-text: when this role is most relevant (for the AI). */
-  relevance_note: string
-  /** Optional free-text: any extra context for the AI, never printed. */
-  ai_context: string
+  /** Optional free-text notes for the AI (when this role is most relevant, extra
+   * context) — never printed on the CV. */
+  ai_notes: string
 }
 
 export interface Education {
@@ -53,26 +41,14 @@ export interface Education {
   start_year: number
   end_year: number | null
   distinction: string | null
-}
-
-export interface Collaborator {
-  name: string
-  affiliation: string
-}
-
-/** A user-named group of tags, e.g. { label: "Design tools", items: [...] }. */
-export interface Group {
-  label: string
-  items: string[]
+  /** Optional — thesis topic, specialisation, or relevant coursework. */
+  description?: string
 }
 
 export interface Academic {
   research_areas: string[]
-  methods: Group[]
-  interdisciplinary_work: string[]
-  collaborators: Collaborator[]
+  /** Free text — research themes, methods, collaborators, anything else for the AI. */
   research_themes: string
-  topics_to_teach: string[]
 }
 
 export interface Publication {
@@ -80,6 +56,8 @@ export interface Publication {
   citation: string
   /** Optional one-line note about the work's significance. */
   description?: string
+  /** Optional DOI or link. */
+  url?: string
 }
 
 export interface Project {
@@ -102,32 +80,31 @@ export interface Award {
 }
 
 export interface Grant {
-  year: number | null
-  year_start: number | null
-  year_end: number | null
   name: string
+  years: string
+  /** Optional — funding body. */
+  funder: string
+  /** Optional — free text, e.g. "€25 000". */
+  amount: string
 }
 
-export interface FormalTeaching {
-  type: string
-  course: string
+/** Enum select in the UI; "other" reveals type_other as a free-text input. */
+export type TeachingType =
+  | '' | 'course_instructor' | 'guest_lecture' | 'tutorials_seminars'
+  | 'workshop_training' | 'supervision' | 'other'
+
+export interface TeachingEntry {
+  type: TeachingType
+  /** Free text, used only when type === 'other'. */
+  type_other: string
+  subject: string
   institution: string
   years: string
   description: string
 }
 
-export interface GuestLecture {
-  course: string
-  institution: string
-}
-
 export interface Teaching {
-  formal_experience: FormalTeaching[]
-  guest_lectures: GuestLecture[]
-  subjects_to_teach: string[]
-  student_supervision: string
-  mentoring: string
-  educational_materials: string
+  entries: TeachingEntry[]
 }
 
 export interface Volunteering {
@@ -182,38 +159,19 @@ export interface Skills {
   languages: LanguageSkill[]
 }
 
-export interface Salary {
-  min: number | null
-  max: number | null
-  currency: string
-  period: string
+/** Feeds the job-matching prompt only — never printed on the CV. */
+export interface Preferences {
+  looking_for: string
+  avoid: string
+  locations: string[]
+  remote: string
+  languages: string[]
   notes: string
 }
 
-export interface WorkPreferences {
-  commute_radius: string[]
-  remote_hybrid: string
-  organisation_preferences: string
-  salary: Salary
-  schedule: string
-  language_preferences: string[]
-  relocation: string
-  contract_types: string[]
-  availability: string
-  travel: string
-}
-
 export interface CVDesignPreferences {
-  style: string
-  aesthetic: string
-  font_type: string
-  layout: string
-  spacing: string
   accent_color: string
   include_photo: boolean
-  format_style: string
-  typography: string
-  paper_size: string
 }
 
 export interface ProfileMeta {
@@ -229,7 +187,6 @@ export interface Profile {
   personal: Personal
   /** CV professional summary, shown at the top of the CV. */
   summary: string
-  narrative: Narrative
   experience: Experience[]
   education: Education[]
   academic: Academic
@@ -237,7 +194,7 @@ export interface Profile {
   grants: Grant[]
   teaching: Teaching
   skills: Skills
-  work_preferences: WorkPreferences
+  preferences: Preferences
   cv_design_preferences: CVDesignPreferences
   // Optional sections — always present as [] after normalization.
   projects: Project[]

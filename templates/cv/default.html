@@ -95,13 +95,6 @@
     letter-spacing: 0.2px;
   }
 
-  .header-headline {
-    font-size: 8pt;
-    font-weight: 300;
-    opacity: 0.8;
-    margin-top: 3px;
-  }
-
   .header-contact {
     text-align: right;
     font-size: 8pt;
@@ -237,6 +230,7 @@
   .edu-field   { font-size: 8pt; color: var(--muted); font-style: italic; }
   .edu-institution { font-size: 8pt; color: var(--blue); font-weight: 500; }
   .edu-year    { font-size: 7.5pt; color: var(--muted); }
+  .edu-description { font-size: 7.5pt; color: var(--muted); margin-top: 2px; }
 
   /* ── GRANTS ── */
   .grant-entry { font-size: 8pt; margin-bottom: 5px; line-height: 1.4; }
@@ -399,7 +393,6 @@
     <div class="header-name">
       <h1>{{ personal.name }}</h1>
       <h2>{{ personal.professional_title }}</h2>
-      {% if personal.headline %}<div class="header-headline">{{ personal.headline }}</div>{% endif %}
     </div>
     <div class="header-contact">
       <div>{{ personal.location.city }}, {{ personal.location.country }}</div>
@@ -471,6 +464,7 @@
         <div class="edu-year">
           {{ edu.start_year }}–{{ edu.end_year }}{% if edu.distinction %} · {{ edu.distinction }}{% endif %}
         </div>
+        {% if edu.description %}<div class="edu-description">{{ edu.description }}</div>{% endif %}
       </div>
       {% endif %}
       {% endfor %}
@@ -480,11 +474,8 @@
       <div class="section-title">{{ labels.grants }}</div>
       {% for grant in grants %}
       <div class="grant-entry">
-        <span class="grant-year">
-          {%- if grant.year %}{{ grant.year }}
-          {%- else %}{{ grant.year_start }}–{{ grant.year_end }}
-          {%- endif %}</span>
-        &nbsp;{{ grant.name }}
+        <span class="grant-year">{{ grant.years }}</span>
+        &nbsp;{{ grant.name }}{% if grant.funder %} — {{ grant.funder }}{% endif %}{% if grant.amount %} ({{ grant.amount }}){% endif %}
       </div>
       {% endfor %}
     </div>
@@ -537,19 +528,30 @@
       <div class="section-title">{{ labels.publications }}</div>
       {% for pub in publications %}
       <div class="pub-entry">
-        {{ pub.citation | richtext }}{% if pub.description %} <span class="pub-note">{{ pub.description }}</span>{% endif %}
+        {{ pub.citation | richtext }}{% if pub.description %} <span class="pub-note">{{ pub.description }}</span>{% endif %}{% if pub.url %} <a href="{{ pub.url }}">{{ pub.url | strip_scheme }}</a>{% endif %}
       </div>
       {% endfor %}
     </div>
     {% endif %}
 
-    {# Teaching: tailored CVs set teaching.cv_summary (may be "" to hide it);
-       the generic full-profile CV falls back to a deterministic compact line. #}
-    {% set teaching_text = teaching.cv_summary if teaching.cv_summary is defined else (teaching | teaching_line) %}
-    {% if teaching_text %}
+    {% if teaching.entries %}
     <div class="section" data-section="teaching">
       <div class="section-title">{{ labels.teaching }}</div>
-      <div class="pub-entry">{{ teaching_text | richtext }}</div>
+      {% for te in teaching.entries %}
+      <div class="entry">
+        <div class="entry-header">
+          <span class="entry-title">
+            {%- if te.type == "other" -%}{{ te.type_other }}
+            {%- elif te.type -%}{{ labels["teaching_type_" ~ te.type] }}
+            {%- endif -%}
+            {%- if te.subject %} — {{ te.subject }}{% endif -%}
+          </span>
+          <span class="entry-date">{{ te.years }}</span>
+        </div>
+        {% if te.institution %}<div class="entry-employer">{{ te.institution }}</div>{% endif %}
+        {% if te.description %}<div class="entry-body">{{ te.description | richtext }}</div>{% endif %}
+      </div>
+      {% endfor %}
     </div>
     {% endif %}
 

@@ -6,7 +6,7 @@
 // `sections.<key>.label` / `sections.<key>.description`; consumers wrap them in
 // t(). `BADGE_LABELS` maps badges to their i18n keys similarly.
 
-export type SectionBadge = 'cv' | 'ai' | 'jobs'
+export type SectionBadge = 'cv' | 'ai'
 
 export interface SectionDef {
   key: string
@@ -22,7 +22,6 @@ export interface SectionDef {
 export const BADGE_LABELS: Record<SectionBadge, string> = {
   cv: 'badges.cv',
   ai: 'badges.ai',
-  jobs: 'badges.jobs',
 }
 
 const def = (key: string, badge: SectionBadge, core: boolean): SectionDef => ({
@@ -37,7 +36,6 @@ export const CORE_SECTIONS: SectionDef[] = [
   def('experience', 'cv', true),
   def('skills', 'cv', true),
   def('education', 'cv', true),
-  def('work_preferences', 'jobs', true),
 ]
 
 export const OPTIONAL_SECTIONS: SectionDef[] = [
@@ -51,7 +49,6 @@ export const OPTIONAL_SECTIONS: SectionDef[] = [
   def('grants', 'cv', false),
   def('academic', 'ai', false),
   def('teaching', 'cv', false),
-  def('career_context', 'ai', false),
   def('custom_sections', 'cv', false),
 ]
 

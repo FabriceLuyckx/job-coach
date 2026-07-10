@@ -1,16 +1,15 @@
 {
   "meta": {
-    "version": "2.0",
+    "version": "4.0",
     "last_updated": "2026-01-01",
-    "schema": "career-profile-v2",
+    "schema": "career-profile-v4",
     "enabled_sections": [
       "projects",
       "certifications",
       "awards",
       "volunteering",
       "courses",
-      "memberships",
-      "career_context"
+      "memberships"
     ]
   },
   "personal": {
@@ -22,7 +21,6 @@
     "email": "jane.doe@example.com",
     "phone": "+10000000000",
     "professional_title": "Data Scientist",
-    "headline": "Turning messy data into clear decisions",
     "links": [
       {
         "label": "LinkedIn",
@@ -36,24 +34,20 @@
         "label": "Portfolio",
         "url": "https://janedoe.example.com"
       }
-    ],
-    "keywords": [
-      "Data Analysis",
-      "Machine Learning",
-      "Communication"
     ]
   },
-  "summary": "I enjoy roles where I can keep learning, work closely with people, and turn data into clear stories. I like coaching teammates and presenting results to non-technical audiences.",
-  "narrative": {
-    "looking_for": "A hands-on data role in a mission-driven organisation where I can keep building products and mentoring others.",
-    "target_industries": [
-      "Research institutions",
-      "Educational institutions",
-      "Technology companies"
+  "summary": "Turning messy data into clear decisions\nI enjoy roles where I can keep learning, work closely with people, and turn data into clear stories. I like coaching teammates and presenting results to non-technical audiences.",
+  "preferences": {
+    "looking_for": "A hands-on data role in a mission-driven organisation where I can keep building products and mentoring others.\nTarget industries: Research institutions, Educational institutions, Technology companies\nI combine a research background with hands-on engineering experience, which lets me apply data science across very different domains.\nBuilding new data products with visible results, and learning new technologies to solve them.\nSubjects I can teach: Data Science, Statistics",
+    "avoid": "Purely administrative roles with no hands-on contribution, or work focused solely on maximising revenue.",
+    "locations": [
+      "Springfield"
     ],
-    "differentiation": "I combine a research background with hands-on engineering experience, which lets me apply data science across very different domains.",
-    "problems_enjoyed": "Building new data products with visible results, and learning new technologies to solve them.",
-    "work_to_avoid": "Purely administrative roles with no hands-on contribution, or work focused solely on maximising revenue."
+    "remote": "Hybrid",
+    "languages": [
+      "English"
+    ],
+    "notes": "Relocation: Open to discussion\nContract types: Permanent, Freelance\nSchedule: Full-time\nAvailability: Two months' notice\nTravel: Occasional travel is fine\nOrganisation preferences: No strong preference on organisation type; value teams that ship real products.\nSalary: 4500–6000 EUR/month (Open to discussion for the right role.)"
   },
   "experience": [
     {
@@ -75,8 +69,7 @@
         "SQL",
         "AWS"
       ],
-      "relevance_note": "Leadership: Built and led a new data team end to end.\nTeaching: Requires translating technical concepts for non-technical stakeholders.",
-      "ai_context": "Reports to the Head of Engineering. Managing role with technical oversight rather than hands-on implementation."
+      "ai_notes": "Leadership: Built and led a new data team end to end.\nTeaching: Requires translating technical concepts for non-technical stakeholders.\nReports to the Head of Engineering. Managing role with technical oversight rather than hands-on implementation."
     },
     {
       "id": "globex-data-engineer",
@@ -96,8 +89,7 @@
         "PySpark",
         "Kafka"
       ],
-      "relevance_note": "Research: Built an A/B testing framework including reporting and statistics.\nInterdisciplinarity: Collaborated across product and marketing teams.",
-      "ai_context": "Grew quickly from a junior to a core team member. Maintained streaming pipelines processing millions of datapoints."
+      "ai_notes": "Research: Built an A/B testing framework including reporting and statistics.\nInterdisciplinarity: Collaborated across product and marketing teams.\nGrew quickly from a junior to a core team member. Maintained streaming pipelines processing millions of datapoints."
     }
   ],
   "education": [
@@ -108,7 +100,8 @@
       "location": "Springfield, Exampleland",
       "start_year": 2016,
       "end_year": 2020,
-      "distinction": null
+      "distinction": null,
+      "description": ""
     },
     {
       "degree": "Master's Degree",
@@ -117,26 +110,42 @@
       "location": "Springfield, Exampleland",
       "start_year": 2014,
       "end_year": 2016,
-      "distinction": "With distinction"
+      "distinction": "With distinction",
+      "description": ""
     }
   ],
   "skills": {
     "groups": [
       {
         "label": "Programming",
-        "items": ["Python", "R", "SQL"]
+        "items": [
+          "Python",
+          "R",
+          "SQL"
+        ]
       },
       {
         "label": "Tools & software",
-        "items": ["git", "Docker", "Jupyter Notebooks"]
+        "items": [
+          "git",
+          "Docker",
+          "Jupyter Notebooks"
+        ]
       },
       {
         "label": "Data & visualisation",
-        "items": ["PostgreSQL", "matplotlib", "plotly"]
+        "items": [
+          "PostgreSQL",
+          "matplotlib",
+          "plotly"
+        ]
       },
       {
         "label": "Soft skills",
-        "items": ["Communication", "Team leadership"]
+        "items": [
+          "Communication",
+          "Team leadership"
+        ]
       }
     ],
     "languages": [
@@ -152,105 +161,57 @@
       }
     ]
   },
-  "work_preferences": {
-    "commute_radius": [
-      "Springfield"
-    ],
-    "remote_hybrid": "Hybrid",
-    "organisation_preferences": "No strong preference on organisation type; value teams that ship real products.",
-    "salary": {
-      "min": 4500,
-      "max": 6000,
-      "currency": "EUR",
-      "period": "month",
-      "notes": "Open to discussion for the right role."
-    },
-    "schedule": "Full-time",
-    "language_preferences": [
-      "English"
-    ],
-    "relocation": "Open to discussion",
-    "contract_types": [
-      "Permanent",
-      "Freelance"
-    ],
-    "availability": "Two months' notice",
-    "travel": "Occasional travel is fine"
-  },
   "academic": {
     "research_areas": [
       "Machine Learning",
       "Statistical Modelling"
     ],
-    "methods": [
-      {
-        "label": "Computational modelling",
-        "items": ["Regression models", "Bayesian inference"]
-      },
-      {
-        "label": "Data types",
-        "items": ["Behavioural data", "Time series"]
-      }
-    ],
-    "interdisciplinary_work": [
-      "Applying machine learning across domains"
-    ],
-    "collaborators": [
-      {
-        "name": "John Smith",
-        "affiliation": "Example University"
-      }
-    ],
-    "research_themes": "Applying modern statistical and machine-learning methods to understand human behaviour and improve decision-making.",
-    "topics_to_teach": [
-      "Data science",
-      "Statistics"
-    ]
+    "research_themes": "Applying modern statistical and machine-learning methods to understand human behaviour and improve decision-making.\nComputational modelling: Regression models, Bayesian inference\nData types: Behavioural data, Time series\nInterdisciplinary work: Applying machine learning across domains\nCollaborators: John Smith (Example University)\nTeaching notes: Student supervision: Supervised undergraduate students on data analysis projects.\nMentoring: Mentored junior colleagues and interns.\nEducational materials: Created interactive notebooks to illustrate statistical concepts."
   },
   "publications": [
     {
       "citation": "Doe, J., & Smith, J. (2020). An example publication title. Journal of Examples, 1(1), 1-10.",
-      "description": "A short note on why this work matters."
+      "description": "A short note on why this work matters.",
+      "url": ""
     }
   ],
   "grants": [
     {
-      "year": 2018,
-      "year_start": null,
-      "year_end": null,
-      "name": "Example Research Scholarship"
+      "name": "Example Research Scholarship",
+      "years": "2018",
+      "funder": "",
+      "amount": ""
     }
   ],
   "teaching": {
-    "formal_experience": [
+    "entries": [
       {
-        "type": "Tutorial teaching",
-        "course": "Introduction to Statistics",
         "institution": "Example University",
         "years": "2018-2019",
-        "description": "Tutored small groups and reviewed student work."
-      }
-    ],
-    "guest_lectures": [
+        "description": "Tutored small groups and reviewed student work.",
+        "type": "tutorials_seminars",
+        "type_other": "",
+        "subject": "Introduction to Statistics"
+      },
       {
-        "course": "Applied Data Science",
-        "institution": "Example University"
+        "institution": "Example University",
+        "years": "",
+        "description": "",
+        "type": "guest_lecture",
+        "type_other": "",
+        "subject": "Applied Data Science"
       }
-    ],
-    "subjects_to_teach": [
-      "Data Science",
-      "Statistics"
-    ],
-    "student_supervision": "Supervised undergraduate students on data analysis projects.",
-    "mentoring": "Mentored junior colleagues and interns.",
-    "educational_materials": "Created interactive notebooks to illustrate statistical concepts."
+    ]
   },
   "projects": [
     {
       "name": "Example Dashboard",
       "description": "An open-source dashboard that visualises public data.",
       "url": "https://github.com/janedoe/example-dashboard",
-      "technologies": ["Python", "Plotly"]
+      "technologies": [
+        "Python",
+        "Plotly"
+      ]
     }
   ],
   "certifications": [
@@ -304,15 +265,7 @@
     }
   ],
   "cv_design_preferences": {
-    "style": "Minimalist",
-    "aesthetic": "Modern tech",
-    "font_type": "Sans-serif",
-    "layout": "Two-column",
-    "spacing": "Spacious",
     "accent_color": "#1B3A6B",
-    "include_photo": false,
-    "format_style": "Executive-style",
-    "typography": "Contemporary",
-    "paper_size": "A4"
+    "include_photo": false
   }
 }

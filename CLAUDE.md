@@ -89,7 +89,8 @@ job-coach/
 ├── frontend/                     # React + TypeScript SPA (Vite)
 │   └── src/
 │       ├── pages/
-│       │   ├── Profile.tsx       # View/edit career profile (auto-saves as you type)
+│       │   ├── Profile.tsx       # View/edit CV data only (auto-saves as you type)
+│       │   ├── Preferences.tsx   # "What I'm looking for" + practical work preferences
 │       │   ├── CVGenerator.tsx   # Paste job URL → generate CV + history
 │       │   ├── Jobs.tsx          # Job sources, AI suggestions, accept/reject (Phase 5)
 │       │   └── Settings.tsx      # OpenRouter API key, model, photo; Advanced → AI prompts
@@ -97,10 +98,13 @@ job-coach/
 │       │   │                     #   Modal, Collapsible, Badge, EmptyState, ErrorBoundary,
 │       │   │                     #   KeyStatus (API-key onboarding), CreditChip
 │       │   ├── cv/CVEditor.tsx   # Per-CV editor panel (preview, Update-CV modal, plan edits)
+│       │   ├── ProfileSection.tsx # Section/Field primitives shared by Profile + Preferences
 │       │   ├── TagInput.tsx
 │       │   └── BulletListEditor.tsx
 │       ├── lib/                  # handoff.ts (Jobs↔CV localStorage keys), usePoller.ts,
-│       │   │                     #   errors.ts (errMsg), format.ts (dates)
+│       │   │                     #   errors.ts (errMsg), format.ts (dates),
+│       │   │                     #   useProfileAutosave.ts (debounced save, shared by
+│       │   │                     #   Profile + Preferences), profileSections.ts (registry)
 │       ├── api.ts                # Typed API client
 │       └── types.ts              # TypeScript models for profile data
 ├── setup.sh                      # One-command macOS dev setup (deps + seed config/profile)
@@ -208,13 +212,15 @@ uv run python scripts/tailor_cv.py --url https://... --lang nl
 **Goal**: Browser-based interface to view and edit the career profile without touching JSON directly.
 
 **Features**:
-- Profile editor split into always-visible **core** sections (Personal, Summary,
-  Experience, Skills, Education, Work Preferences) and **optional** sections added via
-  **+ Add a section**; each section badged by where its data goes (On your CV / Helps
-  the AI / Job matching & letters)
+- Profile editor (CV data only, since the v3 restructure — see Data Formats below)
+  split into always-visible **core** sections (Personal, Summary, Experience,
+  Skills, Education) and **optional** sections added via **+ Add a section**; each
+  section badged by where its data goes (On your CV / Helps the AI). The separate
+  **Preferences** page holds "what I'm looking for" and practical work preferences
+  — the data that drives job matching, not the CV
 - Inline editing of any field (text, lists, dates) with **auto-save** (debounced
   ~1.5s, single-flight; status shown in the page header; item removals get a 5s
-  Undo toast) — there are no manual Save buttons on the Profile page
+  Undo toast) — there are no manual Save buttons on the Profile or Preferences page
 - Configure OpenRouter API key (stored in `config.json`, shown masked in UI);
   an app-wide banner guides first-run users to Settings until a key is set
 - Trigger CV generation and preview from the browser
@@ -223,9 +229,9 @@ uv run python scripts/tailor_cv.py --url https://... --lang nl
 
 **API endpoints**:
 ```
-GET  /api/profile              Return full profile JSON (blank v2 skeleton if none yet)
+GET  /api/profile              Return full profile JSON (blank skeleton if none yet)
 PUT  /api/profile              Save updated profile JSON
-POST /api/profile/import       Extract a v2 profile from a CV (PDF/text) → returned for review, not saved
+POST /api/profile/import       Extract a profile from a CV (PDF/text) → returned for review, not saved
 GET  /api/settings             Return app settings (API key masked; incl. llm_provider, app_language)
 PUT  /api/settings             Update settings (key, model, llm_provider, app_language, onboarding_done)
 GET  /api/engine               AI-engine status {provider, ready, detail, model} — the app-wide "AI ready" check
@@ -336,7 +342,7 @@ job_openings: id, url (UNIQUE), title, source_url,
 
 **Features**:
 - Claude scores each unscored job against the career profile
-- Scoring criteria derived from `work_preferences` and `narrative` in `profile.json`:
+- Scoring criteria derived from `preferences` in `profile.json`:
   - Role type (research/education/data focus)
   - Location match (Ghent/Brussels, hybrid)
   - Language (Dutch/English)
@@ -446,28 +452,41 @@ language is generated on-device by the engine (Phase D).
 
 ## Data Formats
 
-### profile.json — schema v2 (`career-profile-v2`)
+### profile.json — schema v4 (`career-profile-v4`)
 
 The schema is **career-neutral**: it works for any field, not the original owner's
 academic/data questionnaire. `load_profile()` runs every file through
-`normalize_profile()` (in `app/services/cv_renderer.py`), which upgrades older v1
-files to v2 **in memory** on load; the next auto-save persists the v2 shape. The
-migration is idempotent, so v2 files pass through untouched.
+`normalize_profile()` (in `app/services/cv_renderer.py`), which upgrades older
+v1/v2/v3 files to v4 **in memory** on load (v1→v2→v3→v4); the next auto-save
+persists the v4 shape. The migration is idempotent, so v4 files pass through
+untouched.
+
+v4 (2026-07) is a per-section refinement on top of the v3 CV/preferences split:
+every section keeps (or gains) structure **tailored to its topic** rather than
+generic heading/subheading strings — structured, topic-shaped data is easier for
+the AI to process than free text. `teaching` gets a `type` enum instead of a
+free-text type; `grants` drops its year-triple + multi-year checkbox for one
+free-text `years`, with new optional `funder`/`amount`; `personal.headline` is
+gone (folds into `summary`); `education[]`/`publications[]` gain small optional
+fields; `narrative` + `work_preferences` collapse into one `preferences` object
+(its only consumer is the job-matching prompt, so free text is fine there — unlike
+CV sections, whose structure is consumed by template/tailoring-plan code). See
+`docs/plans/profile-v4-radical-simplification.md` for the full rationale; the only
+generic/free-form section is (and remains) `custom_sections`, the escape hatch.
 
 | Key | Description |
 |-----|-------------|
 | `meta` | `version`, `schema`, `last_updated`, and **`enabled_sections[]`** — the optional sections the user has turned on (survives reload; this is section presence, not derived from data) |
-| `personal` | Name, `professional_title`, optional `headline`, contact details, `keywords[]`, and **`links[]`** — an ordered list of `{label, url}` (was a fixed LinkedIn/GitHub/Scholar dict in v1) |
-| `summary` | **Top-level** CV professional summary (was `narrative.target_roles_description`) |
-| `narrative` | Career context for the AI: `looking_for`, `target_industries[]`, `differentiation`, `problems_enjoyed`, `work_to_avoid` |
-| `experience[]` | `title`, `employer`, `location`, `start_date`, `end_date` (empty ⇒ current — the single source of truth), `responsibilities[]` (CV bullets), `technologies[]`, and two optional free-text notes: `relevance_note` + `ai_context` (never printed). v1's `is_current`, `full_time`, `team_size`, `reporting_structure`, `impact`, `mentored`, `presentations`, `achievements`, and the 4-axis `relevance` object are collapsed into these on migration |
-| `education[]` | Degree, field, institution, years, distinction |
+| `personal` | Name, `professional_title`, contact details, and **`links[]`** — an ordered list of `{label, url}` (was a fixed LinkedIn/GitHub/Scholar dict in v1; `keywords[]` was dropped in v3, `headline` dropped in v4 — folds into `summary` on migration) |
+| `summary` | **Top-level** CV professional summary (was `narrative.target_roles_description` in v1/v2) |
+| `preferences` | **Preferences page.** `looking_for`, `avoid` (free text), `locations[]`, `remote` (Remote/Hybrid/On-site/No preference), `languages[]`, and one free-text `notes` catch-all (contract type, schedule, salary, travel, relocation, organisation fit — v3's `narrative` + `work_preferences`, including the salary widget, collapse into this on migration) |
+| `experience[]` | `title`, `employer`, `location`, `start_date`, `end_date` (empty ⇒ current — the single source of truth), `responsibilities[]` (CV bullets), `technologies[]`, and one optional free-text `ai_notes` field (never printed — v3 merged the old `relevance_note` + `ai_context` pair) |
+| `education[]` | Degree, field, institution, years, distinction, optional `description` (thesis topic/specialisation/coursework — v4, for early-career users) |
 | `skills` | `groups[]` (user-named `{label, items[]}`, any field) + `languages[]` (`{language, level 1–5, label}`, CEFR star scale). Legacy fixed categories auto-migrate to groups |
-| `work_preferences` | `commute_radius[]`, `remote_hybrid`, `relocation`, `contract_types[]`, `schedule`, `availability`, `travel`, `language_preferences[]`, free-text `organisation_preferences`, and `salary: {min, max, currency, period, notes}` (expected range, not v1's single current-salary number) |
-| `academic` | (optional) `research_areas[]`, `methods[]` (user-named `{label, items[]}` groups — was fixed neural/computational buckets), `interdisciplinary_work[]`, `collaborators[]`, `research_themes`, `topics_to_teach[]` |
-| `publications[]` | (optional) Full APA `citation` string + optional `description` |
-| `grants[]` | (optional) Fellowships and scholarships |
-| `teaching` | (optional) Formal teaching, guest lectures, supervision, mentoring, materials |
+| `academic` | (optional) `research_areas[]` + free-text `research_themes` — never printed, helps the AI tailor research-oriented roles. Teaching's old free-text `notes` folds into this on v4 migration ("Teaching notes: …") |
+| `publications[]` | (optional) Full APA `citation` string, optional `description`, optional `url` (DOI/link — v4) |
+| `grants[]` | (optional) `{name, years, funder?, amount?}` — `years` is free text ("2021" or "2019–2021"); `funder`/`amount` are optional and print only when set |
+| `teaching` | (optional) `entries[]` only — each `{type, type_other, subject, institution, years, description}`. `type` is an enum (`course_instructor`, `guest_lecture`, `tutorials_seminars`, `workshop_training`, `supervision`, `other` + free-text `type_other`); `subject` was `course` in v3. Prints on the CV as a real entry list (not an AI one-liner); the model can still drop the whole section via `excluded_sections`. v3's `subjects_to_teach[]` moved to `preferences.looking_for`, its `notes` moved to `academic.research_themes` — forward-looking/free-form data doesn't belong in a CV history section |
 | `projects[]` | (optional) `name`, `description`, `url?`, `technologies[]` |
 | `certifications[]` | (optional) `name`, `issuer`, `year?` |
 | `courses[]` | (optional) Courses & training — `name`, `provider`, `year?` |
@@ -475,7 +494,7 @@ migration is idempotent, so v2 files pass through untouched.
 | `volunteering[]` | (optional) `role`, `organisation`, `start_date`, `end_date`, `description` |
 | `memberships[]` | (optional) Professional memberships — `name`, `role?`, `year?` |
 | `custom_sections[]` | (optional) The escape hatch — `{title, items: [{heading, subheading?, date?, description?}]}`, each rendered as its own titled CV section |
-| `cv_design_preferences` | Visual preferences for CV output |
+| `cv_design_preferences` | `{accent_color, include_photo}` — the only two keys ever read (Settings UI + the CV template) |
 
 **First-run onboarding** (`frontend/src/components/Onboarding.tsx`): a modal wizard
 shown when `GET /api/engine` reports not-ready **and** config `onboarding_done` is
@@ -486,19 +505,31 @@ fallback prompt for a still-missing engine.
 
 **Section presence** is driven by `meta.enabled_sections` and the frontend registry
 `frontend/src/lib/profileSections.ts` (core vs optional, labels, badges,
-descriptions). The Profile page can **hide** an optional section without deleting
-its data (it just leaves `enabled_sections`). A brand-new install starts from
-`blank_profile()` (empty skeleton) rather than seeding the example person.
+descriptions — Profile only; the Preferences page's two sections aren't in this
+registry, they're not hideable). The Profile page can **hide** an optional section
+without deleting its data (it just leaves `enabled_sections`). A brand-new install
+starts from `blank_profile()` (empty skeleton) rather than seeding the example
+person.
+
+**What the AI sees**: `app/services/cv_renderer.py`'s `profile_for_tailoring()`
+strips `preferences`, `cv_design_preferences`, and `meta` before a profile goes
+into a CV-tailoring or summary-writing prompt (`cv_generator.py`'s `tailor()`,
+`app/api/cv.py`'s `generate_cv_summary`) — that page's data is for job matching and
+app config, not for the CV. The job-relevance filter in `job_scanner.py`'s
+`filter_openings()` does the inverse: it hand-picks only `preferences`,
+`summary`, `skills`, and `professional_title` to keep that call's tokens down.
 
 **CV import** (`app/services/cv_importer.py`, `POST /api/profile/import`): extract a
-v2 profile from an uploaded PDF (`pypdf`) or pasted text via one forced-tool LLM
+profile from an uploaded PDF (`pypdf`) or pasted text via one forced-tool LLM
 call (`extracted_profile`), reshaped and normalized, then **returned for review**
 (not saved) — the client persists it on the next auto-save.
 
 **Tailoring gate**: the CV tailoring plan carries `excluded_sections[]` (enum of
-optional printable sections) so the AI can drop sections irrelevant to a given job;
-`apply_tailoring` empties those keys. `include_publications`/`include_teaching`
-keep their dedicated gates.
+optional printable sections, including `publications` and `teaching`) so the AI
+can drop sections irrelevant to a given job; `apply_tailoring` empties those keys
+(teaching to `{entries: []}`, everything else to `[]`). This is the single
+exclusion mechanism — there are no more dedicated `include_publications`/
+`include_teaching` flags.
 
 ### Job sources
 

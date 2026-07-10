@@ -1,10 +1,10 @@
-"""Profile schema v1 → v2 migration tests. Run with: uv run pytest"""
+"""Profile schema v1 → v4 migration tests. Run with: uv run pytest"""
 
 import copy
 
 import pytest
 
-from app.services.cv_renderer import normalize_profile
+from app.services.cv_renderer import normalize_profile, profile_for_tailoring
 
 # A minimal but representative v1 profile (the pre-v2 questionnaire shape).
 V1 = {
@@ -80,8 +80,21 @@ V1 = {
     "publications": [{"citation": "Doe (2020). Title.", "description": "note"}],
     "grants": [],
     "teaching": {
-        "formal_experience": [], "guest_lectures": [], "subjects_to_teach": ["Stats"],
-        "student_supervision": "", "mentoring": "", "educational_materials": "",
+        "formal_experience": [
+            {"type": "Tutorial teaching", "course": "Intro Stats", "institution": "Ghent Uni",
+             "years": "2018-2019", "description": "Tutored small groups."},
+        ],
+        "guest_lectures": [{"course": "Applied ML", "institution": "VUB"}],
+        "subjects_to_teach": ["Stats"],
+        "student_supervision": "Supervised 3 undergrads.",
+        "mentoring": "Mentored junior engineers.",
+        "educational_materials": "",
+    },
+    "cv_design_preferences": {
+        "style": "Minimalist", "aesthetic": "Modern", "font_type": "Sans-serif",
+        "layout": "Two-column", "spacing": "Spacious", "accent_color": "#123456",
+        "include_photo": True, "format_style": "Executive", "typography": "Contemporary",
+        "paper_size": "A4",
     },
 }
 
@@ -89,10 +102,8 @@ V1 = {
 def test_summary_split_from_looking_for():
     p = normalize_profile(copy.deepcopy(V1))
     assert p["summary"] == "I turn data into decisions."
-    assert p["narrative"]["looking_for"] == "I turn data into decisions."
-    assert "target_roles_description" not in p["narrative"]
-    assert "research_themes" not in p["narrative"]
-    assert "topics_to_teach" not in p["narrative"]
+    assert "narrative" not in p
+    assert p["preferences"]["looking_for"].startswith("I turn data into decisions.")
 
 
 def test_links_dict_to_list():
@@ -104,61 +115,162 @@ def test_links_dict_to_list():
     ]  # empty google_scholar dropped
 
 
-def test_experience_collapsed():
+def test_keywords_dropped():
+    p = normalize_profile(copy.deepcopy(V1))
+    assert "keywords" not in p["personal"]
+
+
+def test_experience_collapsed_to_ai_notes():
     p = normalize_profile(copy.deepcopy(V1))
     e = p["experience"][0]
     # achievements merged into responsibilities
     assert e["responsibilities"] == ["Built pipelines", "Co-built A/B testing"]
-    # relevance object → note
-    assert "Teaching:" in e["relevance_note"] and "Research:" in e["relevance_note"]
-    # assorted fields → ai_context, including part-time flag
-    assert "Reporting:" in e["ai_context"]
-    assert "Part-time role." in e["ai_context"]
-    # retired keys gone
+    # relevance object + assorted fields → one ai_notes field
+    assert "Teaching:" in e["ai_notes"] and "Research:" in e["ai_notes"]
+    assert "Reporting:" in e["ai_notes"]
+    assert "Part-time role." in e["ai_notes"]
+    # retired/superseded keys gone
     for k in ("is_current", "full_time", "team_size", "reporting_structure",
-              "impact", "mentored", "presentations", "achievements", "relevance"):
+              "impact", "mentored", "presentations", "achievements", "relevance",
+              "relevance_note", "ai_context"):
         assert k not in e
 
 
-def test_academic_methods_to_groups():
+def test_academic_folded_to_research_themes():
     p = normalize_profile(copy.deepcopy(V1))
-    labels = [g["label"] for g in p["academic"]["methods"]]
-    assert "Neural / brain analysis" in labels
-    assert "Computational modelling" in labels
-    assert "Data types" in labels and "Tools" in labels
-    assert "datasets_tools" not in p["academic"]
-    assert p["academic"]["research_themes"] == "Human behaviour."
-    assert p["academic"]["topics_to_teach"] == ["Statistics"]
+    a = p["academic"]
+    assert set(a.keys()) == {"research_areas", "research_themes"}
+    assert a["research_areas"] == ["ML"]
+    themes = a["research_themes"]
+    assert "Human behaviour." in themes  # original text preserved
+    assert "Neural / brain analysis: EEG" in themes
+    assert "Computational modelling: Bayesian inference" in themes
+    assert "Data types: Time series" in themes
+    assert "Interdisciplinary work: Cross-domain ML" in themes
+    assert "Collaborators: John (Uni)" in themes
+    # academic.topics_to_teach (via narrative) + teaching.subjects_to_teach both
+    # relocate to preferences.looking_for (R3: forward-looking data, not a CV section)
+    looking_for = p["preferences"]["looking_for"]
+    assert "Statistics" in looking_for
+    assert "Stats" in looking_for
 
 
-def test_work_preferences_migrated():
+def test_teaching_entries_v4_shape():
     p = normalize_profile(copy.deepcopy(V1))
-    wp = p["work_preferences"]
-    assert wp["salary"]["min"] == 4500
-    assert wp["salary"]["currency"] == "EUR"
-    assert "400" in wp["salary"]["notes"]
-    assert "University" in wp["organisation_preferences"]
-    for k in ("salary_current_gross", "salary_mobility_budget",
-              "institution_type_preference", "research_vs_teaching"):
-        assert k not in wp
-    assert wp["contract_types"] == []
-    assert "availability" in wp and "travel" in wp
+    t = p["teaching"]
+    assert set(t.keys()) == {"entries"}
+    types = {e["type"] for e in t["entries"]}
+    assert "tutorials_seminars" in types  # "Tutorial teaching" keyword-matched
+    assert "guest_lecture" in types
+    tutorial = next(e for e in t["entries"] if e["type"] == "tutorials_seminars")
+    assert tutorial["subject"] == "Intro Stats"  # course → subject
+    assert tutorial["type_other"] == ""
+    guest = next(e for e in t["entries"] if e["type"] == "guest_lecture")
+    assert guest["institution"] == "VUB"
+    # student_supervision + mentoring (folded into v3 teaching.notes) relocate to
+    # academic.research_themes — AI-only, never printed on the CV
+    assert "Teaching notes:" in p["academic"]["research_themes"]
+    assert "Supervised 3 undergrads." in p["academic"]["research_themes"]
+    assert "Mentored junior engineers." in p["academic"]["research_themes"]
+
+
+def test_teaching_type_unmatched_keyword_becomes_other():
+    p = normalize_profile({
+        "personal": {"name": "X"},
+        "teaching": {"entries": [{"type": "Freelance consulting", "course": "N/A",
+                                   "institution": "", "years": "", "description": ""}]},
+    })
+    e = p["teaching"]["entries"][0]
+    assert e["type"] == "other"
+    assert e["type_other"] == "Freelance consulting"
+    assert e["subject"] == "N/A"
+
+
+def test_design_prefs_trimmed():
+    p = normalize_profile(copy.deepcopy(V1))
+    assert p["cv_design_preferences"] == {"accent_color": "#123456", "include_photo": True}
+
+
+def test_preferences_migrated():
+    p = normalize_profile(copy.deepcopy(V1))
+    prefs = p["preferences"]
+    assert set(prefs.keys()) == {"looking_for", "avoid", "locations", "remote", "languages", "notes"}
+    assert prefs["locations"] == ["Ghent"]
+    assert prefs["remote"] == "Hybrid"
+    assert prefs["languages"] == ["English"]
+    assert prefs["avoid"] == "Pure admin."
+    assert "University" in prefs["notes"]  # organisation_preferences folded in
+    assert "4500" in prefs["notes"]  # salary folded in
+    assert "narrative" not in p
+    assert "work_preferences" not in p
+
+
+def test_grants_year_fields_collapse_to_years():
+    p = normalize_profile({
+        "personal": {"name": "X"},
+        "grants": [
+            {"name": "Fellowship A", "year": 2021},
+            {"name": "Fellowship B", "year_start": 2019, "year_end": 2021},
+        ],
+    })
+    a, b = p["grants"]
+    assert a["years"] == "2021"
+    assert b["years"] == "2019–2021"
+    for g in (a, b):
+        assert g["funder"] == ""
+        assert g["amount"] == ""
+        assert "year" not in g and "year_start" not in g and "year_end" not in g
+
+
+def test_headline_folds_into_summary():
+    p = normalize_profile({
+        "personal": {"name": "X", "headline": "Builder of things"},
+        "summary": "I ship products.",
+    })
+    assert "headline" not in p["personal"]
+    assert p["summary"] == "Builder of things\nI ship products."
+
+
+def test_headline_empty_leaves_summary_untouched():
+    p = normalize_profile({"personal": {"name": "X"}, "summary": "I ship products."})
+    assert p["summary"] == "I ship products."
+
+
+def test_education_and_publications_gain_optional_fields():
+    p = normalize_profile({
+        "personal": {"name": "X"},
+        "education": [{"degree": "MSc", "field": "CS", "institution": "Ghent"}],
+        "publications": [{"citation": "Doe (2020). Title."}],
+    })
+    assert p["education"][0]["description"] == ""
+    assert p["publications"][0]["url"] == ""
 
 
 def test_new_sections_and_meta():
     p = normalize_profile(copy.deepcopy(V1))
     for k in ("volunteering", "courses", "memberships", "custom_sections"):
         assert p[k] == []
-    assert p["meta"]["schema"] == "career-profile-v2"
-    # enabled_sections seeded from data presence
+    assert p["meta"]["schema"] == "career-profile-v4"
+    # enabled_sections seeded from data presence; career_context no longer exists
     es = p["meta"]["enabled_sections"]
-    assert "academic" in es and "publications" in es and "career_context" in es
+    assert "academic" in es and "publications" in es
+    assert "career_context" not in es
 
 
-def test_idempotent_on_v2():
+def test_idempotent():
     once = normalize_profile(copy.deepcopy(V1))
     twice = normalize_profile(copy.deepcopy(once))
     assert once == twice
+
+
+def test_profile_for_tailoring_excludes_preferences():
+    p = normalize_profile(copy.deepcopy(V1))
+    tailoring_view = profile_for_tailoring(p)
+    assert "preferences" not in tailoring_view
+    assert "cv_design_preferences" not in tailoring_view
+    assert "meta" not in tailoring_view
+    # printable/AI content still present
+    assert "experience" in tailoring_view and "academic" in tailoring_view
 
 
 def test_professional_title_reaches_matcher(monkeypatch):

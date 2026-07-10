@@ -169,8 +169,7 @@ def filter_openings(openings: list[dict], profile: dict, cfg: dict,
     trimmed = {
         "professional_title": profile.get("personal", {}).get("professional_title"),
         "summary": profile.get("summary"),
-        "narrative": profile.get("narrative"),
-        "work_preferences": profile.get("work_preferences"),
+        "preferences": profile.get("preferences"),
         "skills": profile.get("skills"),
     }
     listing = "\n".join(f"- {o['title']} — {o['url']}" for o in openings)

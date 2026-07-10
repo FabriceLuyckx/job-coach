@@ -1,12 +1,12 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Check, CloudUpload, EyeOff, FileUp, PencilLine, Upload } from 'lucide-react'
+import { Check, CloudUpload, FileUp, PencilLine, Upload } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { api } from '../api'
 import type {
   Profile, Experience, Education, Publication, Grant,
-  FormalTeaching, GuestLecture, Collaborator, Project,
+  TeachingEntry, Project,
   Volunteering, CustomSection, Link as ProfileLink,
 } from '../types'
 import TagInput from '../components/TagInput'
@@ -19,12 +19,14 @@ import Collapsible from '../components/Collapsible'
 import ReorderableList from '../components/ReorderableList'
 import Modal from '../components/Modal'
 import EmptyState from '../components/EmptyState'
+import { Section, Field } from '../components/ProfileSection'
 import { useToast } from '../components/Toast'
 import { useKeyStatus } from '../components/KeyStatus'
 import { errMsg } from '../lib/errors'
+import { useProfileAutosave } from '../lib/useProfileAutosave'
 import {
   OPTIONAL_SECTIONS, OPTIONAL_BY_KEY, ALL_OPTIONAL_KEYS,
-  BADGE_LABELS, type SectionBadge,
+  BADGE_LABELS,
 } from '../lib/profileSections'
 
 // Proficiency scale shown beneath the language stars (CEFR).
@@ -35,47 +37,14 @@ const CEFR_LABELS: Record<number, string> = {
 
 const LINK_SUGGESTIONS = ['LinkedIn', 'GitHub', 'Portfolio', 'Website', 'Google Scholar', 'Behance', 'Dribbble', 'ORCID']
 
+const SKILL_GROUP_SUGGESTIONS = ['Technical skills', 'Tools & software', 'Soft skills', 'Methods', 'Certifiable skills']
+
+const TEACHING_TYPES = [
+  'course_instructor', 'guest_lecture', 'tutorials_seminars',
+  'workshop_training', 'supervision', 'other',
+] as const
+
 // ── helpers ─────────────────────────────────────────────────────────────────
-
-function Section({ title, badge, help, count, onHide, children, defaultOpen = false }: {
-  title: string
-  badge?: SectionBadge
-  help?: string
-  count?: number
-  onHide?: () => void
-  children: React.ReactNode
-  defaultOpen?: boolean
-}) {
-  const { t } = useTranslation()
-  return (
-    <Collapsible
-      defaultOpen={defaultOpen}
-      extras={onHide && (
-        <button type="button" className="btn-ghost section-hide" onClick={onHide} title={t('profile.hideSection')}>
-          <EyeOff size={14} aria-hidden /> {t('profile.hide')}
-        </button>
-      )}
-      title={
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-          <span className="collapsible-title">{title}{typeof count === 'number' && count > 0 ? ` (${count})` : ''}</span>
-          {badge && <Badge variant={badge}>{t(BADGE_LABELS[badge])}</Badge>}
-        </span>
-      }
-    >
-      {help && <p className="section-help">{help}</p>}
-      {children}
-    </Collapsible>
-  )
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="field">
-      <label>{label}</label>
-      {children}
-    </div>
-  )
-}
 
 // Reusable collapsible item card (Experience / Education / Publication / …).
 function ItemCard({ summary, italic, open, setOpen, onRemove, handle, children }: {
@@ -136,20 +105,18 @@ function ExperienceCard({
         {t('profile.currentlyWorkHere')}
       </label>
       <Field label={t('profile.fields.whatYouDid')}>
-        <BulletListEditor value={exp.responsibilities} onChange={v => set('responsibilities', v)} reorder format />
+        <BulletListEditor value={exp.responsibilities} onChange={v => set('responsibilities', v)} placeholder={t('profile.fields.responsibilityPlaceholder')} reorder format />
       </Field>
-      <Field label={t('profile.fields.technologies')}><TagInput value={exp.technologies} onChange={v => set('technologies', v)} /></Field>
+      <Field label={t('profile.fields.roleSkillsTools')}><TagInput value={exp.technologies} onChange={v => set('technologies', v)} /></Field>
       <div style={{ marginTop: 'var(--space-3)' }}>
-        <Collapsible flat title={<span style={{ fontWeight: 600, fontSize: 'var(--fs-sm)' }}>{t('profile.notesForAi')}</span>}>
+        <Collapsible flat title={
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontWeight: 600, fontSize: 'var(--fs-sm)' }}>
+            {t('profile.notesForAi')}<Badge variant="ai">{t('badges.ai')}</Badge>
+          </span>
+        }>
           <p className="section-help" style={{ margin: '0 0 var(--space-2)' }}>{t('profile.notesForAiHelp')}</p>
-          <Field label={t('profile.whenRelevant')}>
-            <textarea value={exp.relevance_note} onChange={e => set('relevance_note', e.target.value)}
-              placeholder={t('profile.whenRelevantPlaceholder')} />
-          </Field>
-          <Field label={t('profile.anythingElse')}>
-            <textarea value={exp.ai_context} onChange={e => set('ai_context', e.target.value)}
-              placeholder={t('profile.anythingElsePlaceholder')} />
-          </Field>
+          <textarea value={exp.ai_notes} onChange={e => set('ai_notes', e.target.value)}
+            placeholder={t('profile.aiNotesPlaceholder')} />
         </Collapsible>
       </div>
     </ItemCard>
@@ -177,6 +144,9 @@ function EducationCard({ edu, onChange, onRemove, handle }: { edu: Education; on
         <Field label={t('profile.fields.endYear')}><input type="number" value={edu.end_year ?? ''} onChange={e => set('end_year', e.target.value ? +e.target.value : null)} /></Field>
       </div>
       <Field label={t('profile.fields.distinctionOptional')}><input type="text" value={edu.distinction ?? ''} onChange={e => set('distinction', e.target.value || null)} /></Field>
+      <Field label={t('profile.fields.educationDescriptionOptional')}>
+        <textarea value={edu.description ?? ''} onChange={e => set('description', e.target.value)} placeholder={t('profile.fields.educationDescriptionPlaceholder')} />
+      </Field>
     </ItemCard>
   )
 }
@@ -197,6 +167,9 @@ function PublicationCard({ pub, onChange, onRemove, handle }: { pub: Publication
       <Field label={t('profile.fields.shortDescription')}>
         <input type="text" value={pub.description ?? ''} onChange={e => set('description', e.target.value || undefined)} placeholder={t('profile.fields.whyMatters')} />
       </Field>
+      <Field label={t('profile.fields.url')}>
+        <input type="url" value={pub.url ?? ''} onChange={e => set('url', e.target.value || undefined)} placeholder="https://doi.org/…" />
+      </Field>
     </ItemCard>
   )
 }
@@ -213,7 +186,7 @@ function ProjectCard({ proj, onChange, onRemove, handle }: { proj: Project; onCh
         <Field label={t('profile.fields.name')}><input type="text" value={proj.name} onChange={e => set('name', e.target.value)} /></Field>
         <Field label={t('profile.fields.url')}><input type="url" value={proj.url ?? ''} onChange={e => set('url', e.target.value || undefined)} /></Field>
       </div>
-      <Field label={t('profile.fields.description')}><textarea value={proj.description} onChange={e => set('description', e.target.value)} /></Field>
+      <Field label={t('profile.fields.description')}><textarea value={proj.description} placeholder={t('profile.fields.projectDescriptionPlaceholder')} onChange={e => set('description', e.target.value)} /></Field>
       <Field label={t('profile.fields.technologies')}><TagInput value={proj.technologies} onChange={v => set('technologies', v)} /></Field>
     </ItemCard>
   )
@@ -249,31 +222,19 @@ function VolunteeringCard({ vol, onChange, onRemove, handle }: { vol: Volunteeri
 
 function GrantCard({ grant, onChange, onRemove }: { grant: Grant; onChange: (g: Grant) => void; onRemove: () => void }) {
   const { t } = useTranslation()
-  const isRange = grant.year == null && (grant.year_start != null || grant.year_end != null)
-  const [range, setRange] = useState(isRange)
   const set = (k: keyof Grant, v: unknown) => onChange({ ...grant, [k]: v })
   return (
     <div className="card" style={{ marginBottom: 'var(--space-3)', padding: '12px 18px' }}>
       <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
         <div style={{ flex: 1 }}>
-          <Field label={t('profile.fields.name')}><input type="text" value={grant.name} onChange={e => set('name', e.target.value)} /></Field>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: 'var(--ink)', fontWeight: 400, marginBottom: 'var(--space-2)' }}>
-            <input type="checkbox" checked={range} style={{ width: 'auto' }}
-              onChange={e => {
-                setRange(e.target.checked)
-                if (e.target.checked) onChange({ ...grant, year: null })
-                else onChange({ ...grant, year_start: null, year_end: null })
-              }} />
-            {t('profile.fields.multiYear')}
-          </label>
-          {range ? (
-            <div className="row">
-              <Field label={t('profile.fields.yearStart')}><input type="number" value={grant.year_start ?? ''} onChange={e => set('year_start', e.target.value ? +e.target.value : null)} /></Field>
-              <Field label={t('profile.fields.yearEnd')}><input type="number" value={grant.year_end ?? ''} onChange={e => set('year_end', e.target.value ? +e.target.value : null)} /></Field>
-            </div>
-          ) : (
-            <Field label={t('profile.fields.year')}><input type="number" value={grant.year ?? ''} onChange={e => set('year', e.target.value ? +e.target.value : null)} /></Field>
-          )}
+          <div className="row">
+            <Field label={t('profile.fields.name')}><input type="text" value={grant.name} onChange={e => set('name', e.target.value)} /></Field>
+            <Field label={t('profile.fields.years')}><input type="text" value={grant.years} placeholder="2021 or 2019–2021" onChange={e => set('years', e.target.value)} /></Field>
+          </div>
+          <div className="row">
+            <Field label={t('profile.fields.funderOptional')}><input type="text" value={grant.funder} onChange={e => set('funder', e.target.value)} /></Field>
+            <Field label={t('profile.fields.amountOptional')}><input type="text" value={grant.amount} placeholder="€25 000" onChange={e => set('amount', e.target.value)} /></Field>
+          </div>
         </div>
         <div style={{ marginTop: 20 }}><RemoveButton onClick={onRemove} /></div>
       </div>
@@ -368,65 +329,19 @@ function ImportCVModal({ hasContent, localEngine, onClose, onImported }: {
   )
 }
 
-type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
-
 // ── Main page ────────────────────────────────────────────────────────────────
 
 export default function ProfilePage() {
   const toast = useToast()
   const { t } = useTranslation()
   const { keySet, provider } = useKeyStatus()
-  const [profile, setProfile] = useState<Profile | null>(null)
+  const {
+    profile, setProfile, latestProfile, error, saveState, saveError, runSave, scheduleSave, set,
+  } = useProfileAutosave()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [error, setError] = useState('')
   const [showImport, setShowImport] = useState(false)
   const [manualStart, setManualStart] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-  const latestProfile = useRef<Profile | null>(null)
-
-  // ── Auto-save: debounced, single-flight, latest-wins ──
-  const [saveState, setSaveState] = useState<SaveState>('idle')
-  const [saveError, setSaveError] = useState('')
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const inFlight = useRef(false)
-  const queued = useRef(false)
-
-  const runSave = useCallback(async () => {
-    if (inFlight.current) { queued.current = true; return }
-    const cur = latestProfile.current
-    if (!cur) return
-    inFlight.current = true
-    setSaveState('saving')
-    try {
-      await api.putProfile(cur)
-      setSaveState('saved'); setSaveError('')
-    } catch (e) {
-      setSaveError(errMsg(e)); setSaveState('error')
-    } finally {
-      inFlight.current = false
-      if (queued.current) { queued.current = false; runSave() }
-    }
-  }, [])
-
-  const scheduleSave = useCallback(() => {
-    setSaveState(s => (s === 'saving' ? s : 'pending'))
-    if (saveTimer.current) clearTimeout(saveTimer.current)
-    saveTimer.current = setTimeout(runSave, 1500)
-  }, [runSave])
-
-  useEffect(() => () => {
-    if (saveTimer.current) {
-      clearTimeout(saveTimer.current)
-      const cur = latestProfile.current
-      if (cur) api.putProfile(cur).catch(() => {})
-    }
-  }, [])
-
-  useEffect(() => {
-    api.getProfile().then(p => {
-      setProfile(p); latestProfile.current = p
-    }).catch(e => setError(errMsg(e)))
-  }, [])
 
   useEffect(() => {
     if (!menuOpen) return
@@ -438,27 +353,6 @@ export default function ProfilePage() {
   }, [menuOpen])
 
   if (!profile) return <div style={{ padding: 32, color: 'var(--muted)' }}>{error || t('profile.loading')}</div>
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function applyPath(obj: any, parts: string[], value: unknown): any {
-    if (parts.length === 0) return value
-    const [head, ...tail] = parts
-    return { ...obj, [head]: applyPath(obj[head] ?? {}, tail, value) }
-  }
-
-  const set = (path: string, value: unknown) => {
-    const parts = path.split('.')
-    setProfile(prev => {
-      if (!prev) return prev
-      const next = applyPath(prev, parts, value) as Profile
-      latestProfile.current = next
-      return next
-    })
-    if (latestProfile.current) {
-      latestProfile.current = applyPath(latestProfile.current, parts, value) as Profile
-    }
-    scheduleSave()
-  }
 
   function removeItem(label: string, path: string, prevList: unknown[], index: number) {
     set(path, prevList.filter((_, i) => i !== index))
@@ -502,18 +396,10 @@ export default function ProfilePage() {
     }
     if (key === 'academic') {
       const a = pf.academic
-      return a.research_areas.length > 0 || a.methods.length > 0 || a.collaborators.length > 0
-        || a.interdisciplinary_work.length > 0 || !!a.research_themes || a.topics_to_teach.length > 0
+      return a.research_areas.length > 0 || !!a.research_themes
     }
     if (key === 'teaching') {
-      const t = pf.teaching
-      return t.subjects_to_teach.length > 0 || t.formal_experience.length > 0 || t.guest_lectures.length > 0
-        || !!t.student_supervision || !!t.mentoring || !!t.educational_materials
-    }
-    if (key === 'career_context') {
-      const n = pf.narrative
-      return n.target_industries.length > 0 || !!n.differentiation || !!n.problems_enjoyed
-        || !!n.work_to_avoid || !!n.looking_for
+      return pf.teaching.entries.length > 0
     }
     return false
   }
@@ -622,7 +508,7 @@ export default function ProfilePage() {
                   onChange={u => { const next = [...pf.publications]; next[i] = u; set('publications', next) }}
                   onRemove={() => removeItem(t('sections.publications.label'), 'publications', pf.publications, i)} />
               )} />
-            <Button variant="secondary" onClick={() => set('publications', [...pf.publications, { citation: '', description: '' }])}>{t('profile.add.publication')}</Button>
+            <Button variant="secondary" onClick={() => set('publications', [...pf.publications, { citation: '', description: '', url: '' }])}>{t('profile.add.publication')}</Button>
           </Section>
         )
       case 'grants':
@@ -633,89 +519,51 @@ export default function ProfilePage() {
                 onChange={u => { const next = [...pf.grants]; next[i] = u; set('grants', next) }}
                 onRemove={() => removeItem(g.name || t('sections.grants.label'), 'grants', pf.grants, i)} />
             ))}
-            <Button variant="secondary" onClick={() => set('grants', [...pf.grants, { year: null, year_start: null, year_end: null, name: '' } as Grant])}>{t('profile.add.grant')}</Button>
+            <Button variant="secondary" onClick={() => set('grants', [...pf.grants, { name: '', years: '', funder: '', amount: '' } as Grant])}>{t('profile.add.grant')}</Button>
           </Section>
         )
       case 'academic':
         return (
           <Section key={key} title={t(def.label)} badge="ai" help={t('profile.help.academic')} {...hideProps}>
             <Field label={t('profile.academic.researchAreas')}><TagInput value={pf.academic.research_areas} onChange={v => set('academic.research_areas', v)} /></Field>
-            <Field label={t('profile.academic.researchThemes')}><textarea value={pf.academic.research_themes} onChange={e => set('academic.research_themes', e.target.value)} /></Field>
-            <Field label={t('profile.academic.topicsToTeach')}><TagInput value={pf.academic.topics_to_teach} onChange={v => set('academic.topics_to_teach', v)} /></Field>
-            <label style={{ fontWeight: 600, fontSize: 'var(--fs-sm)', margin: 'var(--space-3) 0 var(--space-1)', display: 'block' }}>{t('profile.academic.methodsTitle')}</label>
-            <p className="section-help" style={{ marginTop: 0 }}>{t('profile.help.methods')}</p>
-            {pf.academic.methods.map((g, i) => (
-              <div key={i} className="card" style={{ marginBottom: 'var(--space-2)', padding: '12px 18px' }}>
-                <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
-                  <input type="text" value={g.label} placeholder={t('profile.academic.methodGroupPlaceholder')} style={{ fontWeight: 600 }}
-                    onChange={e => { const next = [...pf.academic.methods]; next[i] = { ...g, label: e.target.value }; set('academic.methods', next) }} />
-                  <RemoveButton onClick={() => set('academic.methods', pf.academic.methods.filter((_, idx) => idx !== i))} />
-                </div>
-                <TagInput value={g.items} onChange={v => { const next = [...pf.academic.methods]; next[i] = { ...g, items: v }; set('academic.methods', next) }} />
-              </div>
-            ))}
-            <Button variant="secondary" onClick={() => set('academic.methods', [...pf.academic.methods, { label: '', items: [] }])}>{t('profile.add.methodGroup')}</Button>
-            <div style={{ marginTop: 'var(--space-4)' }}>
-              <Field label={t('profile.academic.interdisciplinary')}><TagInput value={pf.academic.interdisciplinary_work} onChange={v => set('academic.interdisciplinary_work', v)} /></Field>
-              <Field label={t('profile.academic.collaborators')}>
-                {pf.academic.collaborators.map((c, i) => (
-                  <div key={i} className="row" style={{ marginBottom: 'var(--space-2)' }}>
-                    <input type="text" value={c.name} placeholder={t('profile.academic.namePlaceholder')} onChange={e => { const next = [...pf.academic.collaborators]; next[i] = { ...c, name: e.target.value }; set('academic.collaborators', next) }} />
-                    <input type="text" value={c.affiliation} placeholder={t('profile.academic.affiliationPlaceholder')} onChange={e => { const next = [...pf.academic.collaborators]; next[i] = { ...c, affiliation: e.target.value }; set('academic.collaborators', next) }} />
-                    <RemoveButton onClick={() => set('academic.collaborators', pf.academic.collaborators.filter((_, idx) => idx !== i))} />
-                  </div>
-                ))}
-                <Button variant="secondary" onClick={() => set('academic.collaborators', [...pf.academic.collaborators, { name: '', affiliation: '' } as Collaborator])}>{t('profile.add.collaborator')}</Button>
-              </Field>
-            </div>
+            <Field label={t('profile.academic.researchThemes')}>
+              <textarea value={pf.academic.research_themes} onChange={e => set('academic.research_themes', e.target.value)}
+                placeholder={t('profile.academic.researchThemesPlaceholder')} style={{ minHeight: 100 }} />
+            </Field>
           </Section>
         )
-      case 'teaching':
+      case 'teaching': {
+        const entries = pf.teaching.entries
         return (
           <Section key={key} title={t(def.label)} badge="cv" help={t('profile.help.teaching')} {...hideProps}>
-            <Field label={t('profile.teaching.subjects')}><TagInput value={pf.teaching.subjects_to_teach} onChange={v => set('teaching.subjects_to_teach', v)} /></Field>
-            <Field label={t('profile.teaching.supervision')}><textarea value={pf.teaching.student_supervision} onChange={e => set('teaching.student_supervision', e.target.value)} /></Field>
-            <Field label={t('profile.teaching.mentoring')}><textarea value={pf.teaching.mentoring} onChange={e => set('teaching.mentoring', e.target.value)} /></Field>
-            <Field label={t('profile.teaching.materials')}><textarea value={pf.teaching.educational_materials} onChange={e => set('teaching.educational_materials', e.target.value)} /></Field>
-            <Field label={t('profile.teaching.formalRoles')}>
-              {pf.teaching.formal_experience.map((te, i) => (
-                <div key={i} className="card" style={{ marginBottom: 'var(--space-2)' }}>
-                  <div className="row">
-                    <Field label={t('profile.teaching.type')}><input type="text" value={te.type} onChange={e => { const next = [...pf.teaching.formal_experience]; next[i] = { ...te, type: e.target.value }; set('teaching.formal_experience', next) }} /></Field>
-                    <Field label={t('profile.teaching.course')}><input type="text" value={te.course} onChange={e => { const next = [...pf.teaching.formal_experience]; next[i] = { ...te, course: e.target.value }; set('teaching.formal_experience', next) }} /></Field>
-                  </div>
-                  <div className="row">
-                    <Field label={t('profile.fields.institution')}><input type="text" value={te.institution} onChange={e => { const next = [...pf.teaching.formal_experience]; next[i] = { ...te, institution: e.target.value }; set('teaching.formal_experience', next) }} /></Field>
-                    <Field label={t('profile.teaching.years')}><input type="text" value={te.years} onChange={e => { const next = [...pf.teaching.formal_experience]; next[i] = { ...te, years: e.target.value }; set('teaching.formal_experience', next) }} /></Field>
-                  </div>
-                  <Field label={t('profile.fields.description')}><textarea value={te.description} onChange={e => { const next = [...pf.teaching.formal_experience]; next[i] = { ...te, description: e.target.value }; set('teaching.formal_experience', next) }} /></Field>
-                  <RemoveButton onClick={() => set('teaching.formal_experience', pf.teaching.formal_experience.filter((_, idx) => idx !== i))} />
+            {entries.map((te, i) => (
+              <div key={i} className="card" style={{ marginBottom: 'var(--space-2)' }}>
+                <div className="row">
+                  <Field label={t('profile.teaching.type')}>
+                    <select value={te.type} onChange={e => { const next = [...entries]; next[i] = { ...te, type: e.target.value as TeachingEntry['type'] }; set('teaching.entries', next) }}>
+                      <option value="">{t('profile.teaching.typePlaceholder')}</option>
+                      {TEACHING_TYPES.map(k => <option key={k} value={k}>{t(`profile.teaching.types.${k}`)}</option>)}
+                    </select>
+                  </Field>
+                  {te.type === 'other' && (
+                    <Field label={t('profile.teaching.typeOther')}><input type="text" value={te.type_other} onChange={e => { const next = [...entries]; next[i] = { ...te, type_other: e.target.value }; set('teaching.entries', next) }} /></Field>
+                  )}
+                  <Field label={t('profile.teaching.subject')}><input type="text" value={te.subject} onChange={e => { const next = [...entries]; next[i] = { ...te, subject: e.target.value }; set('teaching.entries', next) }} /></Field>
                 </div>
-              ))}
-              <Button variant="secondary" onClick={() => set('teaching.formal_experience', [...pf.teaching.formal_experience, { type: '', course: '', institution: '', years: '', description: '' } as FormalTeaching])}>{t('profile.add.generic')}</Button>
-            </Field>
-            <Field label={t('profile.teaching.guestLectures')}>
-              {pf.teaching.guest_lectures.map((g, i) => (
-                <div key={i} className="row" style={{ marginBottom: 'var(--space-2)' }}>
-                  <input type="text" value={g.course} placeholder={t('profile.teaching.coursePlaceholder')} onChange={e => { const next = [...pf.teaching.guest_lectures]; next[i] = { ...g, course: e.target.value }; set('teaching.guest_lectures', next) }} />
-                  <input type="text" value={g.institution} placeholder={t('profile.teaching.institutionPlaceholder')} onChange={e => { const next = [...pf.teaching.guest_lectures]; next[i] = { ...g, institution: e.target.value }; set('teaching.guest_lectures', next) }} />
-                  <RemoveButton onClick={() => set('teaching.guest_lectures', pf.teaching.guest_lectures.filter((_, idx) => idx !== i))} />
+                <div className="row">
+                  <Field label={t('profile.fields.institution')}><input type="text" value={te.institution} onChange={e => { const next = [...entries]; next[i] = { ...te, institution: e.target.value }; set('teaching.entries', next) }} /></Field>
+                  <Field label={t('profile.teaching.years')}><input type="text" value={te.years} onChange={e => { const next = [...entries]; next[i] = { ...te, years: e.target.value }; set('teaching.entries', next) }} /></Field>
                 </div>
-              ))}
-              <Button variant="secondary" onClick={() => set('teaching.guest_lectures', [...pf.teaching.guest_lectures, { course: '', institution: '' } as GuestLecture])}>{t('profile.add.generic')}</Button>
-            </Field>
+                <Field label={t('profile.fields.description')}>
+                  <textarea value={te.description} placeholder={t('profile.teaching.descriptionPlaceholder')} onChange={e => { const next = [...entries]; next[i] = { ...te, description: e.target.value }; set('teaching.entries', next) }} />
+                </Field>
+                <RemoveButton onClick={() => set('teaching.entries', entries.filter((_, idx) => idx !== i))} />
+              </div>
+            ))}
+            <Button variant="secondary" onClick={() => set('teaching.entries', [...entries, { type: '', type_other: '', subject: '', institution: '', years: '', description: '' } as TeachingEntry])}>{t('profile.add.generic')}</Button>
           </Section>
         )
-      case 'career_context':
-        return (
-          <Section key={key} title={t(def.label)} badge="ai" help={t('profile.help.careerContext')} {...hideProps}>
-            <Field label={t('profile.career.lookingFor')}><textarea value={pf.narrative.looking_for} onChange={e => set('narrative.looking_for', e.target.value)} /></Field>
-            <Field label={t('profile.career.targetIndustries')}><TagInput value={pf.narrative.target_industries} onChange={v => set('narrative.target_industries', v)} /></Field>
-            <Field label={t('profile.career.differentiation')}><textarea value={pf.narrative.differentiation} onChange={e => set('narrative.differentiation', e.target.value)} /></Field>
-            <Field label={t('profile.career.problemsEnjoyed')}><textarea value={pf.narrative.problems_enjoyed} onChange={e => set('narrative.problems_enjoyed', e.target.value)} /></Field>
-            <Field label={t('profile.career.workToAvoid')}><textarea value={pf.narrative.work_to_avoid} onChange={e => set('narrative.work_to_avoid', e.target.value)} /></Field>
-          </Section>
-        )
+      }
       case 'custom_sections':
         return (
           <Section key={key} title={t(def.label)} badge="cv" count={customSections.length} help={t('profile.help.customSections')} {...hideProps}>
@@ -793,7 +641,6 @@ export default function ProfilePage() {
           <Field label={t('profile.fields.fullName')}><input type="text" value={pf.personal.name} onChange={e => set('personal.name', e.target.value)} /></Field>
           <Field label={t('profile.fields.professionalTitle')}><input type="text" value={pf.personal.professional_title} onChange={e => set('personal.professional_title', e.target.value)} /></Field>
         </div>
-        <Field label={t('profile.fields.headline')}><input type="text" value={pf.personal.headline ?? ''} onChange={e => set('personal.headline', e.target.value || undefined)} placeholder={t('profile.fields.headlinePlaceholder')} /></Field>
         <div className="row">
           <Field label={t('profile.fields.email')}><input type="email" value={pf.personal.email} onChange={e => set('personal.email', e.target.value)} /></Field>
           <Field label={t('profile.fields.phone')}><input type="tel" value={pf.personal.phone} onChange={e => set('personal.phone', e.target.value)} /></Field>
@@ -802,7 +649,6 @@ export default function ProfilePage() {
           <Field label={t('profile.fields.city')}><input type="text" value={pf.personal.location.city} onChange={e => set('personal.location.city', e.target.value)} /></Field>
           <Field label={t('profile.fields.country')}><input type="text" value={pf.personal.location.country} onChange={e => set('personal.location.country', e.target.value)} /></Field>
         </div>
-        <Field label={t('profile.fields.keywords')}><TagInput value={pf.personal.keywords} onChange={v => set('personal.keywords', v)} /></Field>
         <Field label={t('profile.fields.links')}>
           <p className="section-help" style={{ marginTop: 0 }}>{t('profile.help.linksHelp')}</p>
           <datalist id="link-labels">{LINK_SUGGESTIONS.map(s => <option key={s} value={s} />)}</datalist>
@@ -818,7 +664,7 @@ export default function ProfilePage() {
       </Section>
 
       <Section title={t('sections.summary.label')} badge="cv" help={t('profile.help.summary')} defaultOpen>
-        <Field label={t('profile.fields.summary')}><textarea value={pf.summary} onChange={e => set('summary', e.target.value)} style={{ minHeight: 100 }} /></Field>
+        <Field label={t('profile.fields.summary')}><textarea value={pf.summary} placeholder={t('profile.fields.summaryPlaceholder')} onChange={e => set('summary', e.target.value)} style={{ minHeight: 100 }} /></Field>
       </Section>
 
       <Section title={t('sections.experience.label')} badge="cv" count={pf.experience.length} help={t('profile.help.experience')}>
@@ -830,7 +676,7 @@ export default function ProfilePage() {
           )} />
         <Button variant="secondary" onClick={() => set('experience', [...pf.experience, {
           id: `job-${Date.now()}`, title: '', employer: '', location: '', start_date: '',
-          end_date: null, responsibilities: [], technologies: [], relevance_note: '', ai_context: '',
+          end_date: null, responsibilities: [], technologies: [], ai_notes: '',
         }])}>{t('profile.add.job')}</Button>
       </Section>
 
@@ -838,7 +684,8 @@ export default function ProfilePage() {
         {pf.skills.groups.map((g, i) => (
           <div key={i} className="card" style={{ marginBottom: 'var(--space-3)', padding: '12px 18px' }}>
             <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
-              <input type="text" value={g.label} placeholder={t('profile.skills.groupNamePlaceholder')} style={{ fontWeight: 600 }}
+              <datalist id="skill-group-labels">{SKILL_GROUP_SUGGESTIONS.map(s => <option key={s} value={s} />)}</datalist>
+              <input type="text" list="skill-group-labels" value={g.label} placeholder={t('profile.skills.groupNamePlaceholder')} style={{ fontWeight: 600 }}
                 onChange={e => { const next = [...pf.skills.groups]; next[i] = { ...g, label: e.target.value }; set('skills.groups', next) }} />
               <RemoveButton title={t('profile.skills.removeGroup')} onClick={() => removeItem(g.label || t('sections.skills.label'), 'skills.groups', pf.skills.groups, i)} />
             </div>
@@ -869,40 +716,8 @@ export default function ProfilePage() {
               onRemove={() => removeItem(edu.degree || t('sections.education.label'), 'education', pf.education, i)} />
           )} />
         <Button variant="secondary" onClick={() => set('education', [...pf.education, {
-          degree: '', field: '', institution: '', location: '', start_year: new Date().getFullYear(), end_year: null, distinction: null,
+          degree: '', field: '', institution: '', location: '', start_year: new Date().getFullYear(), end_year: null, distinction: null, description: '',
         }])}>{t('profile.add.education')}</Button>
-      </Section>
-
-      <Section title={t('sections.work_preferences.label')} badge="jobs" help={t('profile.help.workPreferences')}>
-        <Field label={t('profile.work.locations')}><TagInput value={pf.work_preferences.commute_radius} onChange={v => set('work_preferences.commute_radius', v)} /></Field>
-        <div className="row">
-          <Field label={t('profile.work.remoteHybrid')}>
-            <select value={pf.work_preferences.remote_hybrid} onChange={e => set('work_preferences.remote_hybrid', e.target.value)}>
-              <option value="Remote">{t('profile.work.remote')}</option><option value="Hybrid">{t('profile.work.hybrid')}</option><option value="On-site">{t('profile.work.onSite')}</option><option value="No preference">{t('profile.work.noPreference')}</option>
-            </select>
-          </Field>
-          <Field label={t('profile.work.relocation')}><input type="text" value={pf.work_preferences.relocation} onChange={e => set('work_preferences.relocation', e.target.value)} placeholder={t('profile.work.relocationPlaceholder')} /></Field>
-        </div>
-        <Field label={t('profile.work.contractTypes')}><TagInput value={pf.work_preferences.contract_types} onChange={v => set('work_preferences.contract_types', v)} placeholder={t('profile.work.contractPlaceholder')} /></Field>
-        <div className="row">
-          <Field label={t('profile.work.schedule')}><input type="text" value={pf.work_preferences.schedule} onChange={e => set('work_preferences.schedule', e.target.value)} placeholder={t('profile.work.schedulePlaceholder')} /></Field>
-          <Field label={t('profile.work.availability')}><input type="text" value={pf.work_preferences.availability} onChange={e => set('work_preferences.availability', e.target.value)} placeholder={t('profile.work.availabilityPlaceholder')} /></Field>
-        </div>
-        <Field label={t('profile.work.travel')}><input type="text" value={pf.work_preferences.travel} onChange={e => set('work_preferences.travel', e.target.value)} placeholder={t('profile.work.travelPlaceholder')} /></Field>
-        <Field label={t('profile.work.languagePrefs')}><TagInput value={pf.work_preferences.language_preferences} onChange={v => set('work_preferences.language_preferences', v)} /></Field>
-        <Field label={t('profile.work.orgPrefs')}><textarea value={pf.work_preferences.organisation_preferences} onChange={e => set('work_preferences.organisation_preferences', e.target.value)} placeholder={t('profile.work.orgPrefsPlaceholder')} /></Field>
-        <label style={{ fontWeight: 600, fontSize: 'var(--fs-sm)', margin: 'var(--space-3) 0 var(--space-1)', display: 'block' }}>{t('profile.work.expectedSalary')}</label>
-        <div className="row" style={{ alignItems: 'flex-end' }}>
-          <Field label={t('profile.work.from')}><input type="number" value={pf.work_preferences.salary.min ?? ''} onChange={e => set('work_preferences.salary.min', e.target.value ? +e.target.value : null)} /></Field>
-          <Field label={t('profile.work.to')}><input type="number" value={pf.work_preferences.salary.max ?? ''} onChange={e => set('work_preferences.salary.max', e.target.value ? +e.target.value : null)} /></Field>
-          <Field label={t('profile.work.currency')}><input type="text" value={pf.work_preferences.salary.currency} onChange={e => set('work_preferences.salary.currency', e.target.value)} style={{ maxWidth: 90 }} placeholder="EUR" /></Field>
-          <Field label={t('profile.work.per')}>
-            <select value={pf.work_preferences.salary.period} onChange={e => set('work_preferences.salary.period', e.target.value)}>
-              <option value="month">{t('profile.work.month')}</option><option value="year">{t('profile.work.year')}</option><option value="hour">{t('profile.work.hour')}</option><option value="day">{t('profile.work.day')}</option>
-            </select>
-          </Field>
-        </div>
-        <Field label={t('profile.work.salaryNotes')}><input type="text" value={pf.work_preferences.salary.notes} onChange={e => set('work_preferences.salary.notes', e.target.value)} placeholder={t('profile.work.salaryNotesPlaceholder')} /></Field>
       </Section>
 
       {/* ── OPTIONAL (shown on demand, in registry order) ── */}

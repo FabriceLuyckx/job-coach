@@ -3,6 +3,7 @@
     "brand": "Job",
     "brandEm": "Coach",
     "profile": "Profile",
+    "preferences": "Preferences",
     "cv": "CV Generator",
     "jobs": "Job Suggestions",
     "settings": "Settings"
@@ -152,10 +153,7 @@
     "hasContent": "has content",
     "notesForAi": "Notes for the AI (optional)",
     "notesForAiHelp": "Not printed — helps the AI decide when to feature this role and how to phrase it.",
-    "whenRelevant": "When is this role most relevant?",
-    "whenRelevantPlaceholder": "e.g. Best for leadership or data-heavy roles",
-    "anythingElse": "Anything else worth knowing?",
-    "anythingElsePlaceholder": "e.g. Reported to the CTO; part-time; high-scale systems",
+    "aiNotesPlaceholder": "e.g. Best for leadership or data-heavy roles; reported to the CTO; part-time",
     "currentlyWorkHere": "I currently work here",
     "currentlyVolunteering": "Currently volunteering here",
     "untitled": "(untitled)",
@@ -170,19 +168,19 @@
       "startDate": "Start date",
       "endDate": "End date",
       "whatYouDid": "What you did (these become your CV bullets)",
+      "responsibilityPlaceholder": "Start with a verb; include measurable results where you can",
       "technologies": "Technologies / tools (optional)",
+      "roleSkillsTools": "Skills & tools used in this role",
       "name": "Name",
       "fullName": "Full name",
       "professionalTitle": "Professional title",
-      "headline": "Headline / tagline (optional)",
-      "headlinePlaceholder": "A short line shown under your name on the CV",
       "email": "Email",
       "phone": "Phone",
       "city": "City",
       "country": "Country",
-      "keywords": "Keywords",
       "links": "Links",
       "summary": "Summary",
+      "summaryPlaceholder": "2–4 sentences: who you are professionally, your strongest expertise, and what you're aiming for",
       "degree": "Degree",
       "degreePlaceholder": "(degree)",
       "field": "Field",
@@ -193,14 +191,18 @@
       "distinctionOptional": "Distinction (optional)",
       "description": "Description",
       "descriptionOptional": "Description (optional)",
+      "projectDescriptionPlaceholder": "What was it, who was it for, and what was the outcome?",
+      "educationDescriptionOptional": "Notes (optional)",
+      "educationDescriptionPlaceholder": "Thesis topic, specialisation, or coursework relevant to the jobs you want",
       "url": "URL (optional)",
       "role": "Role",
       "organisation": "Organisation",
       "issuer": "Issuer",
       "provider": "Provider",
       "year": "Year",
-      "yearStart": "Year start",
-      "yearEnd": "Year end",
+      "years": "Years",
+      "funderOptional": "Funder (optional)",
+      "amountOptional": "Amount (optional)",
       "courseTraining": "Course / training",
       "since": "Since (year)",
       "roleOptional": "Role (optional)",
@@ -210,8 +212,7 @@
       "sectionTitle": "Section title",
       "heading": "Heading",
       "subheading": "Subheading (optional)",
-      "dateOptional": "Date (optional)",
-      "multiYear": "Multi-year (date range)"
+      "dateOptional": "Date (optional)"
     },
     "help": {
       "personal": "Your name, contact details and links — shown at the top of every CV.",
@@ -220,7 +221,6 @@
       "experience": "Your roles, newest first. The bullet points become the body of your CV.",
       "skills": "Group your skills under any headings that fit your field (e.g. Technical skills, Clinical skills, Design tools) — each group with content shows on your CV.",
       "education": "Degrees, newest first — shown in your CV sidebar.",
-      "workPreferences": "Not shown on your CV — helps the Job Coach tailor suggested jobs and write motivational letters (coming soon).",
       "projects": "Notable projects or side work — shown on your CV.",
       "volunteering": "Volunteer roles and community work — shown on your CV.",
       "certifications": "Professional certifications — shown on your CV.",
@@ -230,16 +230,14 @@
       "publications": "For academic/research roles. Paste the full APA citation; the AI can drop this section for non-academic jobs.",
       "grants": "For academic/research roles — shown in the CV sidebar.",
       "academic": "Not printed on your CV — helps the AI tailor and match research-oriented roles.",
-      "teaching": "Shown on your CV as a compact line when the role is teaching-related — the AI includes it only when relevant. Also helps tailoring & matching.",
-      "careerContext": "Not printed on your CV — guides how the AI tailors your CV and suggestions.",
-      "customSections": "Add any section your field needs — each becomes its own titled block on your CV.",
-      "methods": "Group any methods, techniques or tools under headings that fit your field."
+      "teaching": "Printed on your CV as a list of your teaching roles; the AI drops it for roles where it's irrelevant.",
+      "customSections": "Add any section your field needs — each becomes its own titled block on your CV."
     },
     "add": {
       "project": "+ Add project", "volunteering": "+ Add volunteering", "certification": "+ Add certification",
       "course": "+ Add course", "award": "+ Add award", "membership": "+ Add membership",
-      "publication": "+ Add publication", "grant": "+ Add grant", "methodGroup": "+ Add method group",
-      "collaborator": "+ Add collaborator", "customSection": "+ Add custom section", "job": "+ Add job",
+      "publication": "+ Add publication", "grant": "+ Add grant", "customSection": "+ Add custom section",
+      "job": "+ Add job",
       "skillGroup": "+ Add skill group", "language": "+ Add language", "education": "+ Add education",
       "link": "+ Add link", "generic": "+ Add"
     },
@@ -253,37 +251,25 @@
     },
     "academic": {
       "researchAreas": "Research areas", "researchThemes": "Research themes",
-      "topicsToTeach": "Topics you like to teach", "methodsTitle": "Methods & techniques",
-      "methodGroupPlaceholder": "Group name (e.g. Statistical methods)",
-      "interdisciplinary": "Interdisciplinary work", "collaborators": "Collaborators",
-      "namePlaceholder": "Name", "affiliationPlaceholder": "Affiliation"
+      "researchThemesPlaceholder": "e.g. Methods, collaborators, interdisciplinary work — anything for the AI"
     },
     "teaching": {
-      "subjects": "Subjects you can teach", "supervision": "Student supervision",
-      "mentoring": "Mentoring", "materials": "Educational materials created",
-      "formalRoles": "Formal teaching roles", "type": "Type", "course": "Course",
-      "years": "Years", "guestLectures": "Guest lectures",
-      "coursePlaceholder": "Course", "institutionPlaceholder": "Institution"
-    },
-    "career": {
-      "lookingFor": "What are you looking for next?", "targetIndustries": "Target industries",
-      "differentiation": "What differentiates you?", "problemsEnjoyed": "Problems you enjoy solving",
-      "workToAvoid": "Work to avoid"
+      "type": "Type", "typePlaceholder": "Select a type…",
+      "typeOther": "Type (please specify)",
+      "subject": "Subject / course title", "years": "Years",
+      "descriptionPlaceholder": "Who did you teach (level, group size), and what did you do?",
+      "types": {
+        "course_instructor": "Course instructor",
+        "guest_lecture": "Guest lecture",
+        "tutorials_seminars": "Tutorials & seminars",
+        "workshop_training": "Workshop / training",
+        "supervision": "Supervision",
+        "other": "Other"
+      }
     },
     "work": {
-      "locations": "Preferred locations / commute (cities)",
       "remoteHybrid": "Remote / hybrid / on-site",
-      "remote": "Remote", "hybrid": "Hybrid", "onSite": "On-site", "noPreference": "No preference",
-      "relocation": "Relocation", "relocationPlaceholder": "e.g. Open to discussion",
-      "contractTypes": "Contract types you'd consider", "contractPlaceholder": "Permanent, Freelance, Part-time…",
-      "schedule": "Schedule", "schedulePlaceholder": "e.g. Full-time, 4/5",
-      "availability": "Availability / notice period", "availabilityPlaceholder": "e.g. Two months' notice",
-      "travel": "Willingness to travel", "travelPlaceholder": "e.g. Occasional travel is fine",
-      "languagePrefs": "Language preferences",
-      "orgPrefs": "Organisation preferences (optional)", "orgPrefsPlaceholder": "Type of employer, culture, mission you're drawn to…",
-      "expectedSalary": "Expected salary (optional)", "from": "From", "to": "To",
-      "currency": "Currency", "per": "Per", "month": "Month", "year": "Year", "hour": "Hour", "day": "Day",
-      "salaryNotes": "Salary notes (optional)", "salaryNotesPlaceholder": "e.g. Flexible for the right role; benefits matter"
+      "remote": "Remote", "hybrid": "Hybrid", "onSite": "On-site", "noPreference": "No preference"
     },
     "import": {
       "title": "Import from an existing CV",
@@ -298,10 +284,31 @@
       "importBtn": "Import"
     }
   },
+  "preferences": {
+    "title": "Preferences",
+    "help": "Not shown on your CV — this is what the Job Coach uses to filter suggested jobs and (soon) write motivational letters.",
+    "lookingFor": {
+      "title": "What I'm looking for",
+      "help": "Guides how the AI tailors your CV and filters job suggestions."
+    },
+    "practical": {
+      "title": "Practical preferences",
+      "help": "Location, remote/hybrid and languages — used for job matching."
+    },
+    "fields": {
+      "lookingFor": "What are you looking for?",
+      "lookingForPlaceholder": "What kind of role are you looking for next? Which industries appeal to you? What sets you apart? What problems do you enjoy working on?",
+      "avoid": "What should a job not have?",
+      "avoidPlaceholder": "E.g. purely administrative work, constant travel, industries you'd rule out",
+      "locations": "Preferred locations / commute (cities)",
+      "languages": "Language preferences",
+      "notes": "Anything else practical",
+      "notesPlaceholder": "Contract type, full-time/part-time, schedule, salary expectations, travel, relocation, what kind of organisation suits you"
+    }
+  },
   "badges": {
     "cv": "On your CV",
-    "ai": "Helps the AI",
-    "jobs": "Job matching & letters"
+    "ai": "Helps the AI"
   },
   "sections": {
     "personal": { "label": "Personal Info", "description": "Name, contact details and links." },
@@ -309,7 +316,6 @@
     "experience": { "label": "Experience", "description": "Your roles and what you did in them." },
     "skills": { "label": "Skills", "description": "Grouped skills and languages." },
     "education": { "label": "Education", "description": "Degrees and studies." },
-    "work_preferences": { "label": "Work Preferences", "description": "What you want next — powers job matching." },
     "projects": { "label": "Projects", "description": "Notable projects or side work, shown on your CV." },
     "volunteering": { "label": "Volunteering", "description": "Volunteer roles and community work." },
     "certifications": { "label": "Certifications", "description": "Professional certifications." },
@@ -320,7 +326,6 @@
     "grants": { "label": "Grants & Fellowships", "description": "For academic/research roles — shown in the CV sidebar." },
     "academic": { "label": "Research & academic background", "description": "Research areas, methods and themes — helps the AI tailor academic roles." },
     "teaching": { "label": "Teaching", "description": "Teaching, supervision and lecturing — shown when relevant." },
-    "career_context": { "label": "Career preferences & AI context", "description": "Target industries and what makes you distinctive — guides the AI." },
     "custom_sections": { "label": "Custom sections", "description": "Add any section your field needs — licences, exhibitions, service…" }
   },
   "cv": {

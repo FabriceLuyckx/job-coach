@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, NavLink, Routes, Route, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { UserRound, FileText, Briefcase, Settings } from 'lucide-react'
+import { UserRound, SlidersHorizontal, FileText, Briefcase, Settings } from 'lucide-react'
 import ProfilePage from './pages/Profile'
+import PreferencesPage from './pages/Preferences'
 import CVGeneratorPage from './pages/CVGenerator'
 import JobsPage from './pages/Jobs'
 import SettingsPage from './pages/Settings'
@@ -41,6 +42,7 @@ export default function App() {
               <nav className="sidebar-nav">
                 <div className="nav-logo">{t('nav.brand')} <em>{t('nav.brandEm')}</em></div>
                 <NavLink to="/profile"><UserRound size={17} aria-hidden />{t('nav.profile')}</NavLink>
+                <NavLink to="/preferences"><SlidersHorizontal size={17} aria-hidden />{t('nav.preferences')}</NavLink>
                 <NavLink to="/jobs"><Briefcase size={17} aria-hidden />{t('nav.jobs')}</NavLink>
                 <NavLink to="/cv"><FileText size={17} aria-hidden />{t('nav.cv')}</NavLink>
                 <div className="nav-spacer" />
@@ -53,6 +55,7 @@ export default function App() {
                   <Routes>
                     <Route path="/" element={<Navigate to="/profile" replace />} />
                     <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/preferences" element={<PreferencesPage />} />
                     <Route path="/cv" element={<CVGeneratorPage />} />
                     <Route path="/jobs" element={<JobsPage />} />
                     <Route path="/settings" element={<SettingsPage />} />

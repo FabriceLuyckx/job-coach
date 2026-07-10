@@ -246,31 +246,39 @@ Alternatively, upload via the **Settings** page in the web UI.
 
 ## Edit your profile
 
-Use the **Profile** page in the web UI, or open `profile/profile.json` directly in any text editor.
+Use the **Profile** and **Preferences** pages in the web UI, or open
+`profile/profile.json` directly in any text editor — both pages edit the same file,
+just different parts of it.
 
-**Everything on the Profile page saves automatically as you type** — a status
+**Everything on both pages saves automatically as you type** — a status
 indicator in the header shows *Saving… / All changes saved* (with a Retry button
 if a save fails). Removing an item (a job, degree, publication, …) shows a
 5-second **Undo** toast.
 
-The Profile page is organised into **core** sections that are always shown — Personal
-Info, Professional Summary, Experience, Skills, Education, and Work Preferences — and
-**optional** sections you add on demand via **+ Add a section** (Projects,
-Volunteering, Certifications, Courses & training, Awards, Professional memberships,
-Publications, Grants, Research & academic background, Teaching, Career preferences & AI
-context, and **Custom sections** for anything your field needs). The add-a-section menu
-explains what each one does. Each section carries a small badge showing where its data
-goes:
+**Profile** holds only what can end up on a generated CV. It's organised into
+**core** sections that are always shown — Personal Info, Professional Summary,
+Experience, Skills, Education — and **optional** sections you add on demand via
+**+ Add a section** (Projects, Volunteering, Certifications, Courses & training,
+Awards, Professional memberships, Publications, Grants, Research & academic
+background, Teaching, and **Custom sections** for anything your field needs). The
+add-a-section menu explains what each one does. Each section carries a small badge
+showing where its data goes:
 
 - **On your CV** — printed on the generated CV.
-- **Helps the AI** — not printed; guides how the AI tailors your CV.
-- **Job matching & letters** — not printed; powers job suggestions and (soon)
-  motivational letters. (Work Preferences.)
+- **Helps the AI** — not printed; guides how the AI tailors your CV (e.g. Research
+  & academic background).
 
 Every section is career-neutral, so the same page works whether you're a nurse, a
 designer, a lawyer or a researcher. To remove an optional section, use **Hide** in its
 header — this keeps your data (it reappears in **+ Add a section** with a *has content*
 hint); only the per-item ✕ actually deletes anything (with a 5-second Undo).
+
+**Preferences** holds what's *not* on the CV: "What I'm looking for" (target
+industries, what makes you distinctive, work to avoid) and practical preferences
+(location, remote/hybrid, contract type, schedule, salary range). This is what
+powers Job Suggestions' matching today, and will power motivational letters in a
+future phase — it's kept separate from the Profile page precisely so it can grow
+into its own interactive flow without cluttering your CV data.
 
 ### Start from an existing CV
 

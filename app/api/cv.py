@@ -17,7 +17,9 @@ from app.services.cv_generator import (
 )
 from app.api.i18n import ensure_cv_labels
 from app.i18n.languages import is_valid_code, lang_name
-from app.services.cv_renderer import OUTPUT_DIR, PROFILE_PATH, build_env, cv_labels, load_photo, load_profile
+from app.services.cv_renderer import (
+    OUTPUT_DIR, PROFILE_PATH, build_env, cv_labels, load_photo, load_profile, profile_for_tailoring,
+)
 from app.services.llm import AIResponseError, complete, message_text
 
 
@@ -318,7 +320,7 @@ def _retailor(history_id: str, row: dict, lang: str, keep_edits: bool = False) -
         plan.summary = old.get("summary", plan.summary)
         plan.selected_experience_ids = old.get("selected_experience_ids") or plan.selected_experience_ids
         plan.adjusted_responsibilities = old.get("adjusted_responsibilities") or plan.adjusted_responsibilities
-        plan.include_publications = old.get("include_publications", plan.include_publications)
+        plan.excluded_sections = old.get("excluded_sections", plan.excluded_sections)
         plan.job_title = old.get("job_title", plan.job_title)
         plan.employer = old.get("employer", plan.employer)
 
@@ -484,7 +486,7 @@ def generate_cv_summary(history_id: str):
                     "content": (
                         f"You are an expert career coach. Write a professional CV summary in {lang_display}.\n"
                         "Rules: first person (I, my), maximum 4 sentences, direct and specific to the role.\n\n"
-                        f"CANDIDATE PROFILE:\n{json.dumps(profile, ensure_ascii=False, indent=2)}"
+                        f"CANDIDATE PROFILE:\n{json.dumps(profile_for_tailoring(profile), ensure_ascii=False, indent=2)}"
                     ),
                 },
                 {

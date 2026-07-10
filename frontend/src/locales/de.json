@@ -3,6 +3,7 @@
     "brand": "Job",
     "brandEm": "Coach",
     "profile": "Profil",
+    "preferences": "Einstellungen",
     "cv": "Lebenslauf-Generator",
     "jobs": "Jobvorschläge",
     "settings": "Einstellungen"
@@ -18,6 +19,32 @@
     "edit": "Bearbeiten",
     "download": "Herunterladen",
     "unsavedChange": "nicht gespeicherte Änderung"
+  },
+  "onboarding": {
+    "welcome": "Willkommen bei Job Coach",
+    "intro": "Zwei kurze Einstellungen und du bist startklar. Beides kannst du später in den Einstellungen ändern.",
+    "skip": "Vorerst überspringen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "done": "Fertig",
+    "step": "Schritt {{n}} von {{total}}",
+    "langTitle": "Wählen Sie Ihre Sprache",
+    "langHelp": "Die App ist standardmäßig auf Englisch. Wähle eine Sprache – andere sind KI-übersetzt.",
+    "langOther": "Andere Sprache…",
+    "langOtherHelp": "Gib einen 2-Buchstaben-Code ein (z. B. sv, ja). Die Übersetzung erfolgt auf deinem Gerät, sobald deine KI-Engine eingerichtet ist.",
+    "langQueued": "Wir übersetzen die Benutzeroberfläche, sobald Sie eine KI-Engine eingerichtet haben.",
+    "engineTitle": "KI einrichten",
+    "engineHelp": "Die KI passt deine Lebensläufe an und scannt Stellenanzeigen. Wähle, wie sie arbeiten soll.",
+    "engineLocalCta": "Kostenloses Modell herunterladen",
+    "engineDownloading": "Wird heruntergeladen… {{pct}}%",
+    "engineLocalReady": "Kostenloses Modell bereit.",
+    "engineKeyPlaceholder": "OpenRouter-API-Schlüssel einfügen (sk-or-…)",
+    "engineSaveKey": "Schlüssel speichern",
+    "engineKeySaved": "API-Schlüssel gespeichert.",
+    "engineGetKey": "Schlüssel auf openrouter.ai holen",
+    "doneTitle": "Alles erledigt",
+    "doneBody": "Weiter: Erstelle dein Profil (importiere einen vorhandenen Lebenslauf für einen schnellen Start) und füge dann Jobquellen unter Jobvorschläge hinzu.",
+    "finish": "Job Coach verwenden"
   },
   "banner": {
     "engineNotReady": "Willkommen! Um Lebensläufe zu erstellen und Stellenanzeigen zu scannen, richte eine KI-Engine in den <settings>Einstellungen</settings> ein – lade das kostenlose lokale Modell herunter oder füge einen OpenRouter-API-Schlüssel hinzu.",
@@ -126,10 +153,7 @@
     "hasContent": "hat Inhalt",
     "notesForAi": "Hinweise für die KI (optional)",
     "notesForAiHelp": "Wird nicht gedruckt – hilft der KI zu entscheiden, wann diese Stelle hervorgehoben und wie sie formuliert werden soll.",
-    "whenRelevant": "Wann ist diese Stelle am relevantesten?",
-    "whenRelevantPlaceholder": "z. B. Am besten für Führungs- oder datenintensive Stellen",
-    "anythingElse": "Noch etwas Erwähnenswertes?",
-    "anythingElsePlaceholder": "z. B. Berichtete an den CTO; Teilzeit; hochskalierte Systeme",
+    "aiNotesPlaceholder": "z. B. Ideal für Führungs- oder datenintensive Stellen; berichtete an den CTO; Teilzeit",
     "currentlyWorkHere": "Ich arbeite derzeit hier",
     "currentlyVolunteering": "Derzeit hier ehrenamtlich tätig",
     "untitled": "(ohne Titel)",
@@ -148,13 +172,10 @@
       "name": "Name",
       "fullName": "Vollständiger Name",
       "professionalTitle": "Berufsbezeichnung",
-      "headline": "Überschrift / Slogan (optional)",
-      "headlinePlaceholder": "Eine kurze Zeile, die unter Ihrem Namen im Lebenslauf angezeigt wird",
       "email": "E-Mail",
       "phone": "Telefon",
       "city": "Stadt",
       "country": "Land",
-      "keywords": "Schlagwörter",
       "links": "Links",
       "summary": "Zusammenfassung",
       "degree": "Abschluss",
@@ -173,8 +194,6 @@
       "issuer": "Aussteller",
       "provider": "Anbieter",
       "year": "Jahr",
-      "yearStart": "Startjahr",
-      "yearEnd": "Endjahr",
       "courseTraining": "Kurs / Schulung",
       "since": "Seit (Jahr)",
       "roleOptional": "Rolle (optional)",
@@ -185,7 +204,15 @@
       "heading": "Überschrift",
       "subheading": "Untertitel (optional)",
       "dateOptional": "Datum (optional)",
-      "multiYear": "Mehrjährig (Zeitraum)"
+      "responsibilityPlaceholder": "Beginnen Sie mit einem Verb; beinhalten Sie messbare Ergebnisse, wenn möglich",
+      "roleSkillsTools": "Fertigkeiten & Werkzeuge, die in dieser Rolle verwendet wurden",
+      "summaryPlaceholder": "2–4 Sätze: wer Sie beruflich sind, Ihre stärksten Expertisen und was Sie erreichen möchten",
+      "projectDescriptionPlaceholder": "Was war es, für wen war es gedacht und wie war das Ergebnis?",
+      "educationDescriptionOptional": "Anmerkungen (optional)",
+      "educationDescriptionPlaceholder": "Thesen-Thema, Spezialisierung oder Kursinhalte, die relevant sind für die Jobs, die Sie suchen",
+      "years": "Jahre",
+      "funderOptional": "Finanzierer (optional)",
+      "amountOptional": "Betrag (optional)"
     },
     "help": {
       "personal": "Ihr Name, Kontaktdaten und Links – erscheinen oben auf jedem Lebenslauf.",
@@ -194,7 +221,6 @@
       "experience": "Ihre Stellen, neueste zuerst. Die Aufzählungspunkte bilden den Hauptteil Ihres Lebenslaufs.",
       "skills": "Gruppieren Sie Ihre Fähigkeiten unter passenden Überschriften (z. B. Technische Fähigkeiten, Klinische Fähigkeiten, Design-Tools) – jede Gruppe mit Inhalt erscheint in Ihrem Lebenslauf.",
       "education": "Abschlüsse, neueste zuerst – erscheinen in der Seitenleiste Ihres Lebenslaufs.",
-      "workPreferences": "Wird nicht im Lebenslauf angezeigt – hilft dem Job-Coach, passende Stellen vorzuschlagen und Motivationsschreiben zu verfassen (demnächst verfügbar).",
       "projects": "Nennenswerte Projekte oder Nebentätigkeiten – erscheinen in Ihrem Lebenslauf.",
       "volunteering": "Ehrenamtliche Tätigkeiten und gemeinnützige Arbeit – erscheinen in Ihrem Lebenslauf.",
       "certifications": "Berufliche Zertifizierungen – erscheinen in Ihrem Lebenslauf.",
@@ -204,10 +230,8 @@
       "publications": "Für akademische/Forschungsstellen. Fügen Sie die vollständige APA-Zitation ein; die KI kann diesen Abschnitt für nicht-akademische Stellen weglassen.",
       "grants": "Für akademische/Forschungsstellen – erscheinen in der Seitenleiste des Lebenslaufs.",
       "academic": "Wird nicht im Lebenslauf gedruckt – hilft der KI, forschungsorientierte Stellen anzupassen und zu finden.",
-      "teaching": "Erscheint als kompakte Zeile in Ihrem Lebenslauf, wenn die Stelle lehrbezogen ist – die KI fügt es nur bei Relevanz ein. Unterstützt auch die Anpassung & das Matching.",
-      "careerContext": "Wird nicht im Lebenslauf gedruckt – steuert, wie die KI Ihren Lebenslauf und Vorschläge anpasst.",
       "customSections": "Fügen Sie beliebige Abschnitte für Ihr Fachgebiet hinzu – jeder wird als eigener Titelblock in Ihrem Lebenslauf dargestellt.",
-      "methods": "Gruppieren Sie Methoden, Techniken oder Tools unter passenden Überschriften für Ihr Fachgebiet."
+      "teaching": "Druckt sich auf Ihr CV als Liste Ihrer Lehraufgaben; die KI lässt es bei Rollen weg, bei denen es nicht relevant ist."
     },
     "add": {
       "project": "+ Projekt hinzufügen",
@@ -218,8 +242,6 @@
       "membership": "+ Mitgliedschaft hinzufügen",
       "publication": "+ Publikation hinzufügen",
       "grant": "+ Förderung hinzufügen",
-      "methodGroup": "+ Methodengruppe hinzufügen",
-      "collaborator": "+ Mitarbeiter hinzufügen",
       "customSection": "+ Benutzerdefinierten Abschnitt hinzufügen",
       "job": "+ Job hinzufügen",
       "skillGroup": "+ Kompetenzgruppe hinzufügen",
@@ -239,65 +261,14 @@
     "academic": {
       "researchAreas": "Forschungsbereiche",
       "researchThemes": "Forschungsthemen",
-      "topicsToTeach": "Themen, die Sie gerne lehren",
-      "methodsTitle": "Methoden & Techniken",
-      "methodGroupPlaceholder": "Gruppenname (z. B. Statistische Methoden)",
-      "interdisciplinary": "Interdisziplinäre Arbeit",
-      "collaborators": "Mitarbeiter",
-      "namePlaceholder": "Name",
-      "affiliationPlaceholder": "Zugehörigkeit"
-    },
-    "teaching": {
-      "subjects": "Fächer, die Sie unterrichten können",
-      "supervision": "Studentenbetreuung",
-      "mentoring": "Mentoring",
-      "materials": "Erstellte Lernmaterialien",
-      "formalRoles": "Formelle Lehrtätigkeiten",
-      "type": "Typ",
-      "course": "Kurs",
-      "years": "Jahre",
-      "guestLectures": "Gastvorlesungen",
-      "coursePlaceholder": "Kurs",
-      "institutionPlaceholder": "Institution"
-    },
-    "career": {
-      "lookingFor": "Was suchen Sie als Nächstes?",
-      "targetIndustries": "Zielbranchen",
-      "differentiation": "Was zeichnet Sie aus?",
-      "problemsEnjoyed": "Probleme, die Sie gerne lösen",
-      "workToAvoid": "Arbeit, die Sie vermeiden möchten"
+      "researchThemesPlaceholder": "z. B. Methoden, Kooperationspartner, interdisziplinäre Arbeit – alles für die KI"
     },
     "work": {
-      "locations": "Bevorzugte Standorte / Pendelweg (Städte)",
       "remoteHybrid": "Remote / Hybrid / Vor Ort",
       "remote": "Remote",
       "hybrid": "Hybrid",
       "onSite": "Vor Ort",
-      "noPreference": "Keine Präferenz",
-      "relocation": "Umzug",
-      "relocationPlaceholder": "z. B. Offen für Gespräche",
-      "contractTypes": "Vertragsarten, die Sie in Betracht ziehen",
-      "contractPlaceholder": "Festanstellung, Freelance, Teilzeit…",
-      "schedule": "Arbeitszeit",
-      "schedulePlaceholder": "z. B. Vollzeit, 4/5",
-      "availability": "Verfügbarkeit / Kündigungsfrist",
-      "availabilityPlaceholder": "z. B. Zwei Monate Kündigungsfrist",
-      "travel": "Reisebereitschaft",
-      "travelPlaceholder": "z. B. Gelegentliche Reisen sind kein Problem",
-      "languagePrefs": "Sprachpräferenzen",
-      "orgPrefs": "Organisationspräferenzen (optional)",
-      "orgPrefsPlaceholder": "Arbeitgebertyp, Unternehmenskultur, Mission, die Sie ansprechen…",
-      "expectedSalary": "Gehaltsvorstellung (optional)",
-      "from": "Von",
-      "to": "Bis",
-      "currency": "Währung",
-      "per": "Pro",
-      "month": "Monat",
-      "year": "Jahr",
-      "hour": "Stunde",
-      "day": "Tag",
-      "salaryNotes": "Gehaltshinweise (optional)",
-      "salaryNotesPlaceholder": "z. B. Flexibel bei der richtigen Stelle; Benefits sind wichtig"
+      "noPreference": "Keine Präferenz"
     },
     "import": {
       "title": "Aus bestehendem Lebenslauf importieren",
@@ -310,12 +281,49 @@
       "chooseError": "Fügen Sie Ihren Lebenslauftext ein oder wählen Sie eine PDF.",
       "importing": "Importiere…",
       "importBtn": "Importieren"
+    },
+    "teaching": {
+      "type": "Typ",
+      "typePlaceholder": "Typ auswählen…",
+      "typeOther": "Typ (bitte spezifizieren)",
+      "subject": "Fach / Kursbezeichnung",
+      "years": "Jahre",
+      "descriptionPlaceholder": "Für wen haben Sie unterrichtet (Niveau, Gruppengröße) und was haben Sie getan?",
+      "types": {
+        "course_instructor": "Kursleiter",
+        "guest_lecture": "Gastvortrag",
+        "tutorials_seminars": "Übungen & Seminare",
+        "workshop_training": "Workshop / Schulung",
+        "supervision": "Betreuung",
+        "other": "Andere"
+      }
+    }
+  },
+  "preferences": {
+    "title": "Einstellungen",
+    "help": "Wird nicht im Lebenslauf angezeigt – diese Angaben nutzt der Job-Coach, um Stellenvorschläge zu filtern und (demnächst) Motivationsschreiben zu verfassen.",
+    "lookingFor": {
+      "title": "Was ich suche",
+      "help": "Hilft der KI, Ihren Lebenslauf anzupassen und Stellenvorschläge zu filtern."
+    },
+    "practical": {
+      "title": "Praktische Vorlieben",
+      "help": "Ort, Remote/Hybrid und Sprachen – werden für die Stellenvergabe verwendet."
+    },
+    "fields": {
+      "lookingFor": "Was suchen Sie?",
+      "lookingForPlaceholder": "Welche Art von Rolle suchen Sie als Nächstes? Welche Branchen interessieren Sie? Was macht Sie einzigartig? Welche Probleme begeistern Sie?",
+      "avoid": "Was sollte ein Job nicht haben?",
+      "avoidPlaceholder": "z. B. rein administrative Tätigkeit, ständige Reisen, Branchen, die Sie ausschließen",
+      "locations": "Bevorzugte Orte / Pendel (Städte)",
+      "languages": "Sprachvorerwartungen",
+      "notes": "Sonstiges praktisches",
+      "notesPlaceholder": "Vertragsart, Vollzeit/Teilzeit, Arbeitszeit, Gehaltsvorstellungen, Reisen, Umzug, welche Art von Organisation passt Ihnen"
     }
   },
   "badges": {
     "cv": "Im Lebenslauf",
-    "ai": "Unterstützt die KI",
-    "jobs": "Job-Matching & Anschreiben"
+    "ai": "Unterstützt die KI"
   },
   "sections": {
     "personal": {
@@ -337,10 +345,6 @@
     "education": {
       "label": "Ausbildung",
       "description": "Abschlüsse und Studium."
-    },
-    "work_preferences": {
-      "label": "Arbeitspräferenzen",
-      "description": "Was Sie als Nächstes möchten – verbessert das Job-Matching."
     },
     "projects": {
       "label": "Projekte",
@@ -381,10 +385,6 @@
     "teaching": {
       "label": "Lehrtätigkeit",
       "description": "Lehre, Betreuung und Vorlesungen – wird bei Relevanz angezeigt."
-    },
-    "career_context": {
-      "label": "Karrierepräferenzen & KI-Kontext",
-      "description": "Zielbranchen und Ihre besonderen Stärken – leitet die KI an."
     },
     "custom_sections": {
       "label": "Benutzerdefinierte Abschnitte",
@@ -537,31 +537,5 @@
       "title": "OpenRouter",
       "desc": "Beste Qualität – benötigt einen API-Schlüssel, kostet wenige Cent pro Nutzung."
     }
-  },
-  "onboarding": {
-    "welcome": "Willkommen bei Job Coach",
-    "intro": "Zwei kurze Einstellungen und du bist startklar. Beides kannst du später in den Einstellungen ändern.",
-    "skip": "Vorerst überspringen",
-    "back": "Zurück",
-    "next": "Weiter",
-    "done": "Fertig",
-    "step": "Schritt {{n}} von {{total}}",
-    "langTitle": "Wählen Sie Ihre Sprache",
-    "langHelp": "Die App ist standardmäßig auf Englisch. Wähle eine Sprache – andere sind KI-übersetzt.",
-    "langOther": "Andere Sprache…",
-    "langOtherHelp": "Gib einen 2-Buchstaben-Code ein (z. B. sv, ja). Die Übersetzung erfolgt auf deinem Gerät, sobald deine KI-Engine eingerichtet ist.",
-    "langQueued": "Wir übersetzen die Benutzeroberfläche, sobald Sie eine KI-Engine eingerichtet haben.",
-    "engineTitle": "KI einrichten",
-    "engineHelp": "Die KI passt deine Lebensläufe an und scannt Stellenanzeigen. Wähle, wie sie arbeiten soll.",
-    "engineLocalCta": "Kostenloses Modell herunterladen",
-    "engineDownloading": "Wird heruntergeladen… {{pct}}%",
-    "engineLocalReady": "Kostenloses Modell bereit.",
-    "engineKeyPlaceholder": "OpenRouter-API-Schlüssel einfügen (sk-or-…)",
-    "engineSaveKey": "Schlüssel speichern",
-    "engineKeySaved": "API-Schlüssel gespeichert.",
-    "engineGetKey": "Schlüssel auf openrouter.ai holen",
-    "doneTitle": "Alles erledigt",
-    "doneBody": "Weiter: Erstelle dein Profil (importiere einen vorhandenen Lebenslauf für einen schnellen Start) und füge dann Jobquellen unter Jobvorschläge hinzu.",
-    "finish": "Job Coach verwenden"
   }
 }

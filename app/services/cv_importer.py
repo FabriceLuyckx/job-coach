@@ -2,10 +2,10 @@
 CV import — extract a structured career profile from an existing CV (pasted text
 or an uploaded PDF) via one forced-tool LLM call.
 
-The extraction schema mirrors the v2 profile subset; the caller runs the result
-through normalize_profile() so it becomes a full, editable profile. Anything that
-doesn't fit a schema field is placed into a custom section rather than invented
-away, so nothing from the source CV is silently lost.
+The extraction schema mirrors the current profile subset; the caller runs the
+result through normalize_profile() so it becomes a full, editable profile.
+Anything that doesn't fit a schema field is placed into a custom section rather
+than invented away, so nothing from the source CV is silently lost.
 """
 
 import io
@@ -43,12 +43,10 @@ _IMPORT_TOOL = {
                     "properties": {
                         "name": {"type": "string"},
                         "professional_title": {"type": "string"},
-                        "headline": {"type": "string"},
                         "email": {"type": "string"},
                         "phone": {"type": "string"},
                         "city": {"type": "string"},
                         "country": {"type": "string"},
-                        "keywords": {"type": "array", "items": {"type": "string"}},
                         "links": {
                             "type": "array",
                             "items": {
@@ -89,6 +87,7 @@ _IMPORT_TOOL = {
                             "start_year": {"type": "integer"},
                             "end_year": {"type": "integer"},
                             "distinction": {"type": "string"},
+                            "description": {"type": "string", "description": "Thesis topic, specialisation, or relevant coursework, if mentioned"},
                         },
                     },
                 },
@@ -152,7 +151,8 @@ _IMPORT_TOOL = {
                 },
                 "publications": {
                     "type": "array",
-                    "items": {"type": "object", "properties": {"citation": {"type": "string"}}},
+                    "items": {"type": "object", "properties": {
+                        "citation": {"type": "string"}, "url": {"type": "string", "description": "DOI or link, if mentioned"}}},
                 },
                 "custom_sections": {
                     "type": "array",
@@ -181,19 +181,16 @@ def _raw_to_v2(d: dict) -> dict:
     """Reshape the flat extraction output into the nested v2 profile shape."""
     per = d.get("personal") or {}
     profile = {
-        "meta": {"version": "2.0", "schema": "career-profile-v2"},
+        "meta": {"version": "4.0", "schema": "career-profile-v4"},
         "personal": {
             "name": per.get("name", ""),
             "professional_title": per.get("professional_title", ""),
-            "headline": per.get("headline", ""),
             "email": per.get("email", ""),
             "phone": per.get("phone", ""),
             "location": {"city": per.get("city", ""), "country": per.get("country", "")},
-            "keywords": per.get("keywords", []) or [],
             "links": [l for l in (per.get("links") or []) if l.get("url")],
         },
         "summary": d.get("summary", "") or "",
-        "narrative": {},
         "experience": [
             {
                 "title": e.get("title", ""), "employer": e.get("employer", ""),
@@ -206,7 +203,6 @@ def _raw_to_v2(d: dict) -> dict:
         ],
         "education": d.get("education") or [],
         "skills": d.get("skills") or {},
-        "work_preferences": {},
         "certifications": d.get("certifications") or [],
         "courses": d.get("courses") or [],
         "awards": d.get("awards") or [],

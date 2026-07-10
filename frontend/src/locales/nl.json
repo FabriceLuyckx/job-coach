@@ -3,6 +3,7 @@
     "brand": "Job",
     "brandEm": "Coach",
     "profile": "Profiel",
+    "preferences": "Voorkeuren",
     "cv": "CV-generator",
     "jobs": "Vacaturesuggesties",
     "settings": "Instellingen"
@@ -18,6 +19,32 @@
     "edit": "Bewerken",
     "download": "Downloaden",
     "unsavedChange": "niet-opgeslagen wijziging"
+  },
+  "onboarding": {
+    "welcome": "Welkom bij Job Coach",
+    "intro": "Twee snelle keuzes en je bent klaar. Je kunt beide later wijzigen via Instellingen.",
+    "skip": "Voorlopig overslaan",
+    "back": "Terug",
+    "next": "Volgende",
+    "done": "Klaar",
+    "step": "Stap {{n}} van {{total}}",
+    "langTitle": "Kies je taal",
+    "langHelp": "De app is standaard in het Engels. Kies een taal — andere talen zijn AI-vertaald.",
+    "langOther": "Andere taal…",
+    "langOtherHelp": "Voer een 2-letterige code in (bijv. sv, ja). De vertaling gebeurt op je apparaat zodra je AI-engine is ingesteld.",
+    "langQueued": "We vertalen de interface zodra je een AI-engine hebt ingesteld.",
+    "engineTitle": "AI instellen",
+    "engineHelp": "De AI past je cv's aan en scant vacatures. Kies hoe het werkt.",
+    "engineLocalCta": "Gratis model downloaden",
+    "engineDownloading": "Downloaden… {{pct}}%",
+    "engineLocalReady": "Gratis model klaar.",
+    "engineKeyPlaceholder": "Plak je OpenRouter API-sleutel (sk-or-…)",
+    "engineSaveKey": "Sleutel opslaan",
+    "engineKeySaved": "API-sleutel opgeslagen.",
+    "engineGetKey": "Vraag een sleutel aan op openrouter.ai",
+    "doneTitle": "Je bent helemaal klaar",
+    "doneBody": "Volgende stap: maak je Profiel aan (importeer een bestaand cv om snel te beginnen) en voeg vacaturebronnen toe via Vacaturesuggesties.",
+    "finish": "Job Coach starten"
   },
   "banner": {
     "engineNotReady": "Welkom! Om cv's te genereren en vacatures te scannen, stel een AI-engine in via <settings>Instellingen</settings> — download het gratis lokale model of voeg een OpenRouter API-sleutel toe.",
@@ -126,10 +153,7 @@
     "hasContent": "heeft inhoud",
     "notesForAi": "Notities voor de AI (optioneel)",
     "notesForAiHelp": "Niet afgedrukt — helpt de AI te bepalen wanneer deze rol wordt uitgelicht en hoe deze wordt verwoord.",
-    "whenRelevant": "Wanneer is deze rol het meest relevant?",
-    "whenRelevantPlaceholder": "bijv. Het beste voor leiderschaps- of data-intensieve functies",
-    "anythingElse": "Nog iets wat de moeite waard is om te weten?",
-    "anythingElsePlaceholder": "bijv. Rapporteerde aan de CTO; deeltijd; grootschalige systemen",
+    "aiNotesPlaceholder": "bijv. Beste voor leiderschaps- of data-intensieve functies; rapporteerde aan de CTO; deeltijd",
     "currentlyWorkHere": "Ik werk hier momenteel",
     "currentlyVolunteering": "Doe hier momenteel vrijwilligerswerk",
     "untitled": "(zonder titel)",
@@ -148,13 +172,10 @@
       "name": "Naam",
       "fullName": "Volledige naam",
       "professionalTitle": "Professionele titel",
-      "headline": "Koptekst / tagline (optioneel)",
-      "headlinePlaceholder": "Een korte regel onder je naam op het cv",
       "email": "E-mail",
       "phone": "Telefoon",
       "city": "Stad",
       "country": "Land",
-      "keywords": "Trefwoorden",
       "links": "Links",
       "summary": "Samenvatting",
       "degree": "Diploma",
@@ -173,8 +194,6 @@
       "issuer": "Uitgever",
       "provider": "Aanbieder",
       "year": "Jaar",
-      "yearStart": "Beginjaar",
-      "yearEnd": "Eindjaar",
       "courseTraining": "Cursus / training",
       "since": "Sinds (jaar)",
       "roleOptional": "Rol (optioneel)",
@@ -185,7 +204,15 @@
       "heading": "Kop",
       "subheading": "Subtitel (optioneel)",
       "dateOptional": "Datum (optioneel)",
-      "multiYear": "Meerdere jaren (datumbereik)"
+      "responsibilityPlaceholder": "Begin met een werkwoord; voeg meetbare resultaten toe waar mogelijk",
+      "roleSkillsTools": "Vaardigheden & hulpmiddelen gebruikt in deze functie",
+      "summaryPlaceholder": "2–4 zinnen: wie je professioneel bent, je sterkste expertise en wat je zoekt",
+      "projectDescriptionPlaceholder": "Wat was het, voor wie was het, en wat was het resultaat?",
+      "educationDescriptionOptional": "Notities (optioneel)",
+      "educationDescriptionPlaceholder": "Thesisonderwerp, specialisatie of cursus die relevant zijn voor de functies die je wilt",
+      "years": "Jaar",
+      "funderOptional": "Funder (optioneel)",
+      "amountOptional": "Bedrag (optioneel)"
     },
     "help": {
       "personal": "Uw naam, contactgegevens en links — weergegeven bovenaan elk cv.",
@@ -194,7 +221,6 @@
       "experience": "Uw functies, nieuwste eerst. De bulletpunten vormen de inhoud van uw cv.",
       "skills": "Groepeer uw vaardigheden onder passende koppen (bijv. Technische vaardigheden, Klinische vaardigheden, Ontwerptools) — elke groep met inhoud wordt weergegeven op uw cv.",
       "education": "Opleidingen, nieuwste eerst — weergegeven in de zijbalk van uw cv.",
-      "workPreferences": "Niet weergegeven op uw cv — helpt de Jobcoach bij het afstemmen van vacaturesuggesties en het schrijven van motivatiebrieven (binnenkort beschikbaar).",
       "projects": "Opvallende projecten of nevenwerk — weergegeven op uw cv.",
       "volunteering": "Vrijwilligerswerk en maatschappelijke activiteiten — weergegeven op uw cv.",
       "certifications": "Professionele certificeringen — weergegeven op uw cv.",
@@ -204,10 +230,8 @@
       "publications": "Voor academische/onderzoeksfuncties. Plak de volledige APA-referentie; de AI kan deze sectie weglaten voor niet-academische vacatures.",
       "grants": "Voor academische/onderzoeksfuncties — weergegeven in de zijbalk van uw cv.",
       "academic": "Niet afgedrukt op uw cv — helpt de AI bij het afstemmen op en matchen met onderzoeksgerichte functies.",
-      "teaching": "Weergegeven op uw cv als compacte regel bij onderwijsgerelateerde functies — de AI voegt het alleen toe wanneer relevant. Helpt ook bij het afstemmen en matchen.",
-      "careerContext": "Niet afgedrukt op uw cv — stuurt hoe de AI uw cv en suggesties afstemt.",
       "customSections": "Voeg secties toe die uw vakgebied vereist — elke sectie wordt een eigen blok met titel op uw cv.",
-      "methods": "Groepeer methoden, technieken of tools onder koppen die passen bij uw vakgebied."
+      "teaching": "Afgewerkt op je CV als lijst van je docentenrollen; de AI negeert deze voor functies waar het niet relevant is."
     },
     "add": {
       "project": "+ Project toevoegen",
@@ -218,8 +242,6 @@
       "membership": "+ Lidmaatschap toevoegen",
       "publication": "+ Publicatie toevoegen",
       "grant": "+ Subsidie toevoegen",
-      "methodGroup": "+ Methodegroep toevoegen",
-      "collaborator": "+ Medewerker toevoegen",
       "customSection": "+ Aangepaste sectie toevoegen",
       "job": "+ Functie toevoegen",
       "skillGroup": "+ Vaardigheidsgroep toevoegen",
@@ -239,65 +261,14 @@
     "academic": {
       "researchAreas": "Onderzoeksgebieden",
       "researchThemes": "Onderzoeksthema's",
-      "topicsToTeach": "Onderwerpen die u graag doceert",
-      "methodsTitle": "Methoden & technieken",
-      "methodGroupPlaceholder": "Groepsnaam (bijv. Statistische methoden)",
-      "interdisciplinary": "Interdisciplinair werk",
-      "collaborators": "Medewerkers",
-      "namePlaceholder": "Naam",
-      "affiliationPlaceholder": "Affiliatie"
-    },
-    "teaching": {
-      "subjects": "Vakken die u kunt doceren",
-      "supervision": "Studentbegeleiding",
-      "mentoring": "Mentoring",
-      "materials": "Ontwikkeld lesmateriaal",
-      "formalRoles": "Formele docentrollen",
-      "type": "Type",
-      "course": "Cursus",
-      "years": "Jaren",
-      "guestLectures": "Gastcolleges",
-      "coursePlaceholder": "Cursus",
-      "institutionPlaceholder": "Instelling"
-    },
-    "career": {
-      "lookingFor": "Wat zoekt u als volgende stap?",
-      "targetIndustries": "Doelsectoren",
-      "differentiation": "Wat onderscheidt u?",
-      "problemsEnjoyed": "Problemen die u graag oplost",
-      "workToAvoid": "Werk dat u wilt vermijden"
+      "researchThemesPlaceholder": "bijv. Methoden, samenwerkingspartners, interdisciplinair werk — alles voor de AI"
     },
     "work": {
-      "locations": "Voorkeurlocaties / woon-werkverkeer (steden)",
       "remoteHybrid": "Op afstand / hybride / op locatie",
       "remote": "Op afstand",
       "hybrid": "Hybride",
       "onSite": "Op locatie",
-      "noPreference": "Geen voorkeur",
-      "relocation": "Verhuizing",
-      "relocationPlaceholder": "bijv. Open voor overleg",
-      "contractTypes": "Contracttypen die u overweegt",
-      "contractPlaceholder": "Vast, Freelance, Deeltijd…",
-      "schedule": "Werkrooster",
-      "schedulePlaceholder": "bijv. Voltijd, 4/5",
-      "availability": "Beschikbaarheid / opzegtermijn",
-      "availabilityPlaceholder": "bijv. Twee maanden opzegtermijn",
-      "travel": "Bereidheid om te reizen",
-      "travelPlaceholder": "bijv. Occasioneel reizen is prima",
-      "languagePrefs": "Taalvoorkeuren",
-      "orgPrefs": "Organisatievoorkeuren (optioneel)",
-      "orgPrefsPlaceholder": "Type werkgever, cultuur, missie die je aanspreken…",
-      "expectedSalary": "Verwacht salaris (optioneel)",
-      "from": "Van",
-      "to": "Tot",
-      "currency": "Valuta",
-      "per": "Per",
-      "month": "Maand",
-      "year": "Jaar",
-      "hour": "Uur",
-      "day": "Dag",
-      "salaryNotes": "Salarisnotities (optioneel)",
-      "salaryNotesPlaceholder": "bijv. Flexibel voor de juiste functie; secundaire arbeidsvoorwaarden zijn belangrijk"
+      "noPreference": "Geen voorkeur"
     },
     "import": {
       "title": "Importeren vanuit een bestaand cv",
@@ -310,12 +281,49 @@
       "chooseError": "Plak je cv-tekst of kies een PDF.",
       "importing": "Importeren…",
       "importBtn": "Importeren"
+    },
+    "teaching": {
+      "type": "Type",
+      "typePlaceholder": "Selecteer een type…",
+      "typeOther": "Type (specificeer alsjeblieft)",
+      "subject": "Onderwerp / cursustitel",
+      "years": "Jaar",
+      "descriptionPlaceholder": "Voor wie heb je geleerd (niveau, groepsgrootte), en wat heb je gedaan?",
+      "types": {
+        "course_instructor": "Cursusinstructor",
+        "guest_lecture": "Bezoekcollege",
+        "tutorials_seminars": "Tutorials & seminars",
+        "workshop_training": "Workshop / opleiding",
+        "supervision": "Begeleiding",
+        "other": "Anders"
+      }
+    }
+  },
+  "preferences": {
+    "title": "Voorkeuren",
+    "help": "Wordt niet weergegeven op uw cv — dit is wat de Jobcoach gebruikt om voorgestelde vacatures te filteren en (binnenkort) motivatiebrieven te schrijven.",
+    "lookingFor": {
+      "title": "Wat ik zoek",
+      "help": "Bepaalt hoe de AI uw cv aanpast en vacaturesuggesties filtert."
+    },
+    "practical": {
+      "title": "Praktische voorkeuren",
+      "help": "Locatie, hybride of afstandswerk en talen — gebruikt voor functieovereenkomsten."
+    },
+    "fields": {
+      "lookingFor": "Wat zoekt u?",
+      "lookingForPlaceholder": "Welke functie zoekt u volgende? Welke industrieën interesseren u? Wat maakt u uniek? Welke problemen genieten u van oplossen?",
+      "avoid": "Wat moet een functie niet hebben?",
+      "avoidPlaceholder": "Bv. uitsluitend administratieve werkzaamheden, veel reizen, industrieën die u uitsluit",
+      "locations": "Voorkeurlocaties / reisafstand (steden)",
+      "languages": "Taalvoorkeuren",
+      "notes": "Eventueel nog iets praktisch",
+      "notesPlaceholder": "Contracttype, volledig-tijd/onderdeel-tijd, schema, salarisvoorkeuren, reizen, verhuizing, welk soort organisatie past u"
     }
   },
   "badges": {
     "cv": "Op je cv",
-    "ai": "Helpt de AI",
-    "jobs": "Vacaturematching & brieven"
+    "ai": "Helpt de AI"
   },
   "sections": {
     "personal": {
@@ -337,10 +345,6 @@
     "education": {
       "label": "Opleiding",
       "description": "Diploma's en studies."
-    },
-    "work_preferences": {
-      "label": "Werkvoorkeuren",
-      "description": "Wat je zoekt — voor betere vacaturematches."
     },
     "projects": {
       "label": "Projecten",
@@ -381,10 +385,6 @@
     "teaching": {
       "label": "Onderwijs",
       "description": "Onderwijs, begeleiding en colleges — getoond waar relevant."
-    },
-    "career_context": {
-      "label": "Loopbaanvoorkeuren & AI-context",
-      "description": "Doelsectoren en wat jou onderscheidt — stuurt de AI."
     },
     "custom_sections": {
       "label": "Aangepaste secties",
@@ -537,31 +537,5 @@
       "title": "OpenRouter",
       "desc": "Beste kwaliteit — vereist een API-sleutel, betaal een paar cent per gebruik."
     }
-  },
-  "onboarding": {
-    "welcome": "Welkom bij Job Coach",
-    "intro": "Twee snelle keuzes en je bent klaar. Je kunt beide later wijzigen via Instellingen.",
-    "skip": "Voorlopig overslaan",
-    "back": "Terug",
-    "next": "Volgende",
-    "done": "Klaar",
-    "step": "Stap {{n}} van {{total}}",
-    "langTitle": "Kies je taal",
-    "langHelp": "De app is standaard in het Engels. Kies een taal — andere talen zijn AI-vertaald.",
-    "langOther": "Andere taal…",
-    "langOtherHelp": "Voer een 2-letterige code in (bijv. sv, ja). De vertaling gebeurt op je apparaat zodra je AI-engine is ingesteld.",
-    "langQueued": "We vertalen de interface zodra je een AI-engine hebt ingesteld.",
-    "engineTitle": "AI instellen",
-    "engineHelp": "De AI past je cv's aan en scant vacatures. Kies hoe het werkt.",
-    "engineLocalCta": "Gratis model downloaden",
-    "engineDownloading": "Downloaden… {{pct}}%",
-    "engineLocalReady": "Gratis model klaar.",
-    "engineKeyPlaceholder": "Plak je OpenRouter API-sleutel (sk-or-…)",
-    "engineSaveKey": "Sleutel opslaan",
-    "engineKeySaved": "API-sleutel opgeslagen.",
-    "engineGetKey": "Vraag een sleutel aan op openrouter.ai",
-    "doneTitle": "Je bent helemaal klaar",
-    "doneBody": "Volgende stap: maak je Profiel aan (importeer een bestaand cv om snel te beginnen) en voeg vacaturebronnen toe via Vacaturesuggesties.",
-    "finish": "Job Coach starten"
   }
 }

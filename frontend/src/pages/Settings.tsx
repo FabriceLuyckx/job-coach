@@ -13,12 +13,6 @@ import LanguageSettings from '../components/LanguageSettings'
 import type { EngineProvider } from '../api'
 import { errMsg } from '../lib/errors'
 
-const FONT_OPTIONS = [
-  { value: 'Sans-serif', label: 'Sans-serif (current default — Inter)' },
-  { value: 'Serif', label: 'Serif (professional, traditional)' },
-  { value: 'Mono', label: 'Monospace (technical / developer)' },
-]
-
 const ACCENT_PRESETS = [
   { value: '#1B3A6B', label: 'Dark Blue (default)' },
   { value: '#1a4a3a', label: 'Forest Green' },
@@ -365,24 +359,6 @@ export default function SettingsPage() {
             onChange={e => setProfile({ ...profile, cv_design_preferences: { ...profile.cv_design_preferences, accent_color: e.target.value } })}
             placeholder={t('settings.visual.accentPlaceholder')}
             style={{ width: 200 }}
-          />
-        </div>
-        <div className="field">
-          <label>{t('settings.visual.font')}</label>
-          <select
-            value={profile.cv_design_preferences.font_type}
-            onChange={e => setProfile({ ...profile, cv_design_preferences: { ...profile.cv_design_preferences, font_type: e.target.value } })}
-          >
-            {FONT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
-        </div>
-        <div className="field">
-          <label>{t('settings.visual.styleNotes')}</label>
-          <input
-            type="text"
-            value={profile.cv_design_preferences.style}
-            onChange={e => setProfile({ ...profile, cv_design_preferences: { ...profile.cv_design_preferences, style: e.target.value } })}
-            placeholder={t('settings.visual.stylePlaceholder')}
           />
         </div>
         <SaveButton dirty={prefsDirty} onSave={saveVisualPrefs} idleLabel={t('settings.visual.save')} />
