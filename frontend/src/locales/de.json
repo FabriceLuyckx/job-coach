@@ -229,9 +229,9 @@
       "memberships": "Verbände und Berufsorganisationen, denen Sie angehören – erscheinen in Ihrem Lebenslauf.",
       "publications": "Für akademische/Forschungsstellen. Fügen Sie die vollständige APA-Zitation ein; die KI kann diesen Abschnitt für nicht-akademische Stellen weglassen.",
       "grants": "Für akademische/Forschungsstellen – erscheinen in der Seitenleiste des Lebenslaufs.",
-      "academic": "Wird nicht im Lebenslauf gedruckt – hilft der KI, forschungsorientierte Stellen anzupassen und zu finden.",
       "customSections": "Fügen Sie beliebige Abschnitte für Ihr Fachgebiet hinzu – jeder wird als eigener Titelblock in Ihrem Lebenslauf dargestellt.",
-      "teaching": "Druckt sich auf Ihr CV als Liste Ihrer Lehraufgaben; die KI lässt es bei Rollen weg, bei denen es nicht relevant ist."
+      "teaching": "Druckt sich auf Ihr CV als Liste Ihrer Lehraufgaben; die KI lässt es bei Rollen weg, bei denen es nicht relevant ist.",
+      "languages": "Die Sprachen, die Sie sprechen, und in welcher Sprache — angezeigt in der Seitenleiste Ihres Lebenslaufes."
     },
     "add": {
       "project": "+ Projekt hinzufügen",
@@ -254,14 +254,8 @@
       "groupNamePlaceholder": "Gruppenname (z. B. Technische Fähigkeiten)",
       "removeGroup": "Gruppe entfernen",
       "addSkillPlaceholder": "Fähigkeit eingeben und Enter drücken",
-      "languages": "Sprachen",
       "languagePlaceholder": "Sprache",
       "scaleLegend": "★ A1 Anfänger · ★★ A2 Grundkenntnisse · ★★★ B1 Mittelstufe · ★★★★ B2/C1 Fortgeschritten · ★★★★★ C2 Muttersprache/Fließend"
-    },
-    "academic": {
-      "researchAreas": "Forschungsbereiche",
-      "researchThemes": "Forschungsthemen",
-      "researchThemesPlaceholder": "z. B. Methoden, Kooperationspartner, interdisziplinäre Arbeit – alles für die KI"
     },
     "work": {
       "remoteHybrid": "Remote / Hybrid / Vor Ort",
@@ -378,10 +372,6 @@
       "label": "Förderungen & Stipendien",
       "description": "Für akademische/Forschungsrollen – wird in der Lebenslauf-Seitenleiste angezeigt."
     },
-    "academic": {
-      "label": "Forschungs- & akademischer Hintergrund",
-      "description": "Forschungsbereiche, Methoden und Themen – hilft der KI, akademische Stellen anzupassen."
-    },
     "teaching": {
       "label": "Lehrtätigkeit",
       "description": "Lehre, Betreuung und Vorlesungen – wird bei Relevanz angezeigt."
@@ -389,6 +379,10 @@
     "custom_sections": {
       "label": "Benutzerdefinierte Abschnitte",
       "description": "Fügen Sie beliebige Abschnitte hinzu – Lizenzen, Ausstellungen, Tätigkeiten …"
+    },
+    "languages": {
+      "label": "Sprachen",
+      "description": "Die Sprachen, die Sie sprechen, mit der Profilierung."
     }
   },
   "cv": {

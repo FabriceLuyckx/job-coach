@@ -229,9 +229,9 @@
       "memberships": "Asociaciones y organismos profesionales a los que perteneces — se muestran en tu CV.",
       "publications": "Para puestos académicos o de investigación. Pega la cita APA completa; la IA puede omitir esta sección para empleos no académicos.",
       "grants": "Para puestos académicos o de investigación — se muestran en la barra lateral del CV.",
-      "academic": "No se imprime en tu CV — ayuda a la IA a adaptar y encontrar roles orientados a la investigación.",
       "customSections": "Añade cualquier sección que tu campo necesite — cada una se convierte en su propio bloque con título en tu CV.",
-      "teaching": "Impreso en tu CV como una lista de tus roles docentes; el IA lo omite para roles donde no sea relevante."
+      "teaching": "Impreso en tu CV como una lista de tus roles docentes; el IA lo omite para roles donde no sea relevante.",
+      "languages": "Idiomas que hablas y en qué medida — mostrados en el panel lateral de tu CV."
     },
     "add": {
       "project": "+ Añadir proyecto",
@@ -254,14 +254,8 @@
       "groupNamePlaceholder": "Nombre del grupo (p. ej. Habilidades técnicas)",
       "removeGroup": "Eliminar grupo",
       "addSkillPlaceholder": "Añade una habilidad y pulsa Intro",
-      "languages": "Idiomas",
       "languagePlaceholder": "Idioma",
       "scaleLegend": "★ A1 Principiante · ★★ A2 Elemental · ★★★ B1 Intermedio · ★★★★ B2/C1 Avanzado · ★★★★★ C2 Nativo/Fluido"
-    },
-    "academic": {
-      "researchAreas": "Áreas de investigación",
-      "researchThemes": "Temas de investigación",
-      "researchThemesPlaceholder": "Ej. Métodos, colaboradores, trabajo interdisciplinario — cualquier cosa para la IA"
     },
     "work": {
       "remoteHybrid": "Remoto / híbrido / presencial",
@@ -378,10 +372,6 @@
       "label": "Becas y ayudas",
       "description": "Para roles académicos/de investigación — se muestran en la barra lateral del CV."
     },
-    "academic": {
-      "label": "Trayectoria investigadora y académica",
-      "description": "Áreas de investigación, métodos y temáticas — ayuda a la IA a adaptar roles académicos."
-    },
     "teaching": {
       "label": "Docencia",
       "description": "Docencia, supervisión y conferencias — se muestra cuando es relevante."
@@ -389,6 +379,10 @@
     "custom_sections": {
       "label": "Secciones personalizadas",
       "description": "Añade cualquier sección que tu campo necesite — licencias, exposiciones, servicios…"
+    },
+    "languages": {
+      "label": "Idiomas",
+      "description": "Idiomas que hablas, con nivel de dominio."
     }
   },
   "cv": {

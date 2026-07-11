@@ -1,8 +1,8 @@
 {
   "meta": {
-    "version": "4.0",
+    "version": "5.0",
     "last_updated": "2026-01-01",
-    "schema": "career-profile-v4",
+    "schema": "career-profile-v5",
     "enabled_sections": [
       "projects",
       "certifications",
@@ -47,7 +47,7 @@
     "languages": [
       "English"
     ],
-    "notes": "Relocation: Open to discussion\nContract types: Permanent, Freelance\nSchedule: Full-time\nAvailability: Two months' notice\nTravel: Occasional travel is fine\nOrganisation preferences: No strong preference on organisation type; value teams that ship real products.\nSalary: 4500–6000 EUR/month (Open to discussion for the right role.)"
+    "notes": "Relocation: Open to discussion\nContract types: Permanent, Freelance\nSchedule: Full-time\nAvailability: Two months' notice\nTravel: Occasional travel is fine\nOrganisation preferences: No strong preference on organisation type; value teams that ship real products.\nSalary: 4500–6000 EUR/month (Open to discussion for the right role.)\n\nResearch background: Applying modern statistical and machine-learning methods to understand human behaviour and improve decision-making.\nComputational modelling: Regression models, Bayesian inference\nData types: Behavioural data, Time series\nInterdisciplinary work: Applying machine learning across domains\nCollaborators: John Smith (Example University)\nTeaching notes: Student supervision: Supervised undergraduate students on data analysis projects.\nMentoring: Mentored junior colleagues and interns.\nEducational materials: Created interactive notebooks to illustrate statistical concepts."
   },
   "experience": [
     {
@@ -146,6 +146,13 @@
           "Communication",
           "Team leadership"
         ]
+      },
+      {
+        "label": "Research areas",
+        "items": [
+          "Machine Learning",
+          "Statistical Modelling"
+        ]
       }
     ],
     "languages": [
@@ -160,13 +167,6 @@
         "label": "B1 Intermediate"
       }
     ]
-  },
-  "academic": {
-    "research_areas": [
-      "Machine Learning",
-      "Statistical Modelling"
-    ],
-    "research_themes": "Applying modern statistical and machine-learning methods to understand human behaviour and improve decision-making.\nComputational modelling: Regression models, Bayesian inference\nData types: Behavioural data, Time series\nInterdisciplinary work: Applying machine learning across domains\nCollaborators: John Smith (Example University)\nTeaching notes: Student supervision: Supervised undergraduate students on data analysis projects.\nMentoring: Mentored junior colleagues and interns.\nEducational materials: Created interactive notebooks to illustrate statistical concepts."
   },
   "publications": [
     {

@@ -214,7 +214,7 @@ uv run python scripts/tailor_cv.py --url https://... --lang nl
 **Features**:
 - Profile editor (CV data only, since the v3 restructure — see Data Formats below)
   split into always-visible **core** sections (Personal, Summary, Experience,
-  Skills, Education) and **optional** sections added via **+ Add a section**; each
+  Skills, Languages, Education) and **optional** sections added via **+ Add a section**; each
   section badged by where its data goes (On your CV / Helps the AI). The separate
   **Preferences** page holds "what I'm looking for" and practical work preferences
   — the data that drives job matching, not the CV
@@ -452,14 +452,21 @@ language is generated on-device by the engine (Phase D).
 
 ## Data Formats
 
-### profile.json — schema v4 (`career-profile-v4`)
+### profile.json — schema v5 (`career-profile-v5`)
 
 The schema is **career-neutral**: it works for any field, not the original owner's
 academic/data questionnaire. `load_profile()` runs every file through
 `normalize_profile()` (in `app/services/cv_renderer.py`), which upgrades older
-v1/v2/v3 files to v4 **in memory** on load (v1→v2→v3→v4); the next auto-save
-persists the v4 shape. The migration is idempotent, so v4 files pass through
+v1/v2/v3/v4 files to v5 **in memory** on load (v1→v2→v3→v4→v5); the next auto-save
+persists the v5 shape. The migration is idempotent, so v5 files pass through
 untouched.
+
+v5 (2026-07) dissolves the `academic` section — the schema's last non-printable,
+academic-specific holdout. Its `research_areas[]` migrate into a **"Research
+areas" skills group** (printable, tag-shaped, deduped against an existing group of
+that name); its free-text `research_themes` append to **`preferences.notes`**
+(AI-only prose — skill chips can't hold paragraphs). See
+`docs/plans/remove-academic-section.md`.
 
 v4 (2026-07) is a per-section refinement on top of the v3 CV/preferences split:
 every section keeps (or gains) structure **tailored to its topic** rather than
@@ -482,11 +489,10 @@ generic/free-form section is (and remains) `custom_sections`, the escape hatch.
 | `preferences` | **Preferences page.** `looking_for`, `avoid` (free text), `locations[]`, `remote` (Remote/Hybrid/On-site/No preference), `languages[]`, and one free-text `notes` catch-all (contract type, schedule, salary, travel, relocation, organisation fit — v3's `narrative` + `work_preferences`, including the salary widget, collapse into this on migration) |
 | `experience[]` | `title`, `employer`, `location`, `start_date`, `end_date` (empty ⇒ current — the single source of truth), `responsibilities[]` (CV bullets), `technologies[]`, and one optional free-text `ai_notes` field (never printed — v3 merged the old `relevance_note` + `ai_context` pair) |
 | `education[]` | Degree, field, institution, years, distinction, optional `description` (thesis topic/specialisation/coursework — v4, for early-career users) |
-| `skills` | `groups[]` (user-named `{label, items[]}`, any field) + `languages[]` (`{language, level 1–5, label}`, CEFR star scale). Legacy fixed categories auto-migrate to groups |
-| `academic` | (optional) `research_areas[]` + free-text `research_themes` — never printed, helps the AI tailor research-oriented roles. Teaching's old free-text `notes` folds into this on v4 migration ("Teaching notes: …") |
+| `skills` | `groups[]` (user-named `{label, items[]}`, any field) + `languages[]` (`{language, level 1–5, label}`, CEFR star scale — its own always-visible Profile section). Legacy fixed categories auto-migrate to groups; v4's `academic.research_areas[]` migrate into a "Research areas" group on v5 load |
 | `publications[]` | (optional) Full APA `citation` string, optional `description`, optional `url` (DOI/link — v4) |
 | `grants[]` | (optional) `{name, years, funder?, amount?}` — `years` is free text ("2021" or "2019–2021"); `funder`/`amount` are optional and print only when set |
-| `teaching` | (optional) `entries[]` only — each `{type, type_other, subject, institution, years, description}`. `type` is an enum (`course_instructor`, `guest_lecture`, `tutorials_seminars`, `workshop_training`, `supervision`, `other` + free-text `type_other`); `subject` was `course` in v3. Prints on the CV as a real entry list (not an AI one-liner); the model can still drop the whole section via `excluded_sections`. v3's `subjects_to_teach[]` moved to `preferences.looking_for`, its `notes` moved to `academic.research_themes` — forward-looking/free-form data doesn't belong in a CV history section |
+| `teaching` | (optional) `entries[]` only — each `{type, type_other, subject, institution, years, description}`. `type` is an enum (`course_instructor`, `guest_lecture`, `tutorials_seminars`, `workshop_training`, `supervision`, `other` + free-text `type_other`); `subject` was `course` in v3. Prints on the CV as a real entry list (not an AI one-liner); the model can still drop the whole section via `excluded_sections`. v3's `subjects_to_teach[]` moved to `preferences.looking_for`, its `notes` moved (via the now-removed `academic.research_themes`) to `preferences.notes` — forward-looking/free-form data doesn't belong in a CV history section |
 | `projects[]` | (optional) `name`, `description`, `url?`, `technologies[]` |
 | `certifications[]` | (optional) `name`, `issuer`, `year?` |
 | `courses[]` | (optional) Courses & training — `name`, `provider`, `year?` |

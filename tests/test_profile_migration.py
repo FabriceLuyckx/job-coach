@@ -1,4 +1,4 @@
-"""Profile schema v1 → v4 migration tests. Run with: uv run pytest"""
+"""Profile schema v1 → v5 migration tests. Run with: uv run pytest"""
 
 import copy
 
@@ -136,18 +136,21 @@ def test_experience_collapsed_to_ai_notes():
         assert k not in e
 
 
-def test_academic_folded_to_research_themes():
+def test_academic_dissolved_v5():
     p = normalize_profile(copy.deepcopy(V1))
-    a = p["academic"]
-    assert set(a.keys()) == {"research_areas", "research_themes"}
-    assert a["research_areas"] == ["ML"]
-    themes = a["research_themes"]
-    assert "Human behaviour." in themes  # original text preserved
-    assert "Neural / brain analysis: EEG" in themes
-    assert "Computational modelling: Bayesian inference" in themes
-    assert "Data types: Time series" in themes
-    assert "Interdisciplinary work: Cross-domain ML" in themes
-    assert "Collaborators: John (Uni)" in themes
+    # academic section is gone entirely
+    assert "academic" not in p
+    # research_areas → a "Research areas" skills group (printable, tag-shaped)
+    ra = next(g for g in p["skills"]["groups"] if g["label"] == "Research areas")
+    assert ra["items"] == ["ML"]
+    # research_themes prose → preferences.notes (AI-only)
+    notes = p["preferences"]["notes"]
+    assert "Human behaviour." in notes  # original text preserved
+    assert "Neural / brain analysis: EEG" in notes
+    assert "Computational modelling: Bayesian inference" in notes
+    assert "Data types: Time series" in notes
+    assert "Interdisciplinary work: Cross-domain ML" in notes
+    assert "Collaborators: John (Uni)" in notes
     # academic.topics_to_teach (via narrative) + teaching.subjects_to_teach both
     # relocate to preferences.looking_for (R3: forward-looking data, not a CV section)
     looking_for = p["preferences"]["looking_for"]
@@ -167,11 +170,11 @@ def test_teaching_entries_v4_shape():
     assert tutorial["type_other"] == ""
     guest = next(e for e in t["entries"] if e["type"] == "guest_lecture")
     assert guest["institution"] == "VUB"
-    # student_supervision + mentoring (folded into v3 teaching.notes) relocate to
-    # academic.research_themes — AI-only, never printed on the CV
-    assert "Teaching notes:" in p["academic"]["research_themes"]
-    assert "Supervised 3 undergrads." in p["academic"]["research_themes"]
-    assert "Mentored junior engineers." in p["academic"]["research_themes"]
+    # student_supervision + mentoring (folded into v3 teaching.notes) relocate via
+    # academic.research_themes into preferences.notes — AI-only, never printed on the CV
+    assert "Teaching notes:" in p["preferences"]["notes"]
+    assert "Supervised 3 undergrads." in p["preferences"]["notes"]
+    assert "Mentored junior engineers." in p["preferences"]["notes"]
 
 
 def test_teaching_type_unmatched_keyword_becomes_other():
@@ -250,10 +253,11 @@ def test_new_sections_and_meta():
     p = normalize_profile(copy.deepcopy(V1))
     for k in ("volunteering", "courses", "memberships", "custom_sections"):
         assert p[k] == []
-    assert p["meta"]["schema"] == "career-profile-v4"
-    # enabled_sections seeded from data presence; career_context no longer exists
+    assert p["meta"]["schema"] == "career-profile-v5"
+    # enabled_sections seeded from data presence; academic/career_context no longer exist
     es = p["meta"]["enabled_sections"]
-    assert "academic" in es and "publications" in es
+    assert "publications" in es
+    assert "academic" not in es
     assert "career_context" not in es
 
 
@@ -269,8 +273,28 @@ def test_profile_for_tailoring_excludes_preferences():
     assert "preferences" not in tailoring_view
     assert "cv_design_preferences" not in tailoring_view
     assert "meta" not in tailoring_view
-    # printable/AI content still present
-    assert "experience" in tailoring_view and "academic" in tailoring_view
+    # printable content still present; academic dissolved in v5
+    assert "experience" in tailoring_view
+    assert "academic" not in tailoring_view
+
+
+def test_academic_merges_into_existing_research_areas_group_v4():
+    """v4→v5: research_areas merge into an existing 'Research areas' skills group
+    without duplicates; academic drops out of a stored enabled_sections list."""
+    p = normalize_profile({
+        "meta": {"schema": "career-profile-v4",
+                 "enabled_sections": ["academic", "publications"]},
+        "personal": {"name": "X"},
+        "skills": {"groups": [{"label": "Research areas", "items": ["ML", "Old"]}],
+                   "languages": []},
+        "academic": {"research_areas": ["ML", "New"], "research_themes": "Themes text"},
+    })
+    assert "academic" not in p
+    ra = next(g for g in p["skills"]["groups"] if g["label"] == "Research areas")
+    assert ra["items"] == ["ML", "Old", "New"]  # deduped, order preserved
+    assert "Themes text" in p["preferences"]["notes"]
+    assert "academic" not in p["meta"]["enabled_sections"]
+    assert "publications" in p["meta"]["enabled_sections"]
 
 
 def test_professional_title_reaches_matcher(monkeypatch):

@@ -229,9 +229,9 @@
       "memberships": "Associazioni e ordini professionali a cui appartieni — mostrati nel tuo CV.",
       "publications": "Per ruoli accademici/di ricerca. Incolla la citazione APA completa; l'AI può omettere questa sezione per lavori non accademici.",
       "grants": "Per ruoli accademici/di ricerca — mostrati nella barra laterale del CV.",
-      "academic": "Non stampato nel tuo CV — aiuta l'AI ad adattare e abbinare ruoli orientati alla ricerca.",
       "customSections": "Aggiungi le sezioni di cui il tuo settore ha bisogno — ognuna diventa un blocco con titolo nel tuo CV.",
-      "teaching": "Stampato sul tuo CV come elenco dei tuoi ruoli di insegnamento; l'AI lo elimina per ruoli in cui non è rilevante."
+      "teaching": "Stampato sul tuo CV come elenco dei tuoi ruoli di insegnamento; l'AI lo elimina per ruoli in cui non è rilevante.",
+      "languages": "Lingue che parli e il livello di competenza — visualizzate nella barra laterale del vostro CV."
     },
     "add": {
       "project": "+ Aggiungi progetto",
@@ -254,14 +254,8 @@
       "groupNamePlaceholder": "Nome gruppo (es. Competenze tecniche)",
       "removeGroup": "Rimuovi gruppo",
       "addSkillPlaceholder": "Aggiungi una competenza e premi Invio",
-      "languages": "Lingue",
       "languagePlaceholder": "Lingua",
       "scaleLegend": "★ A1 Principiante · ★★ A2 Elementare · ★★★ B1 Intermedio · ★★★★ B2/C1 Avanzato · ★★★★★ C2 Madrelingua/Fluente"
-    },
-    "academic": {
-      "researchAreas": "Aree di ricerca",
-      "researchThemes": "Temi di ricerca",
-      "researchThemesPlaceholder": "es. Metodi, collaboratori, lavoro interdisciplinare — qualsiasi cosa per l'AI"
     },
     "work": {
       "remoteHybrid": "Da remoto / ibrido / in sede",
@@ -378,10 +372,6 @@
       "label": "Borse e fellowship",
       "description": "Per ruoli accademici/di ricerca — mostrati nella barra laterale del CV."
     },
-    "academic": {
-      "label": "Background di ricerca e accademico",
-      "description": "Aree di ricerca, metodi e tematiche — aiuta l'AI a personalizzare i ruoli accademici."
-    },
     "teaching": {
       "label": "Insegnamento",
       "description": "Insegnamento, supervisione e docenza — mostrati quando pertinenti."
@@ -389,6 +379,10 @@
     "custom_sections": {
       "label": "Sezioni personalizzate",
       "description": "Aggiungi qualsiasi sezione di cui hai bisogno — licenze, mostre, attività…"
+    },
+    "languages": {
+      "label": "Lingue",
+      "description": "Lingue che parli, con livello di competenza."
     }
   },
   "cv": {

@@ -229,9 +229,9 @@
       "memberships": "Associations et organismes professionnels dont vous êtes membre — affichés sur votre CV.",
       "publications": "Pour les postes académiques/de recherche. Collez la citation APA complète ; l'IA peut supprimer cette section pour les postes non académiques.",
       "grants": "Pour les postes académiques/de recherche — affichés dans la barre latérale du CV.",
-      "academic": "Non imprimé sur votre CV — aide l'IA à personnaliser et faire correspondre les postes orientés recherche.",
       "customSections": "Ajoutez toute section utile à votre domaine — chacune devient un bloc titré sur votre CV.",
-      "teaching": "Imprimé sur votre CV sous forme d'une liste de vos fonctions d'enseignement ; l'IA l'omite pour les postes où ce n'est pas pertinent."
+      "teaching": "Imprimé sur votre CV sous forme d'une liste de vos fonctions d'enseignement ; l'IA l'omite pour les postes où ce n'est pas pertinent.",
+      "languages": "Les langues que vous parlez et le niveau de maîtrise — affichées dans le panneau de votre CV."
     },
     "add": {
       "project": "+ Ajouter un projet",
@@ -254,14 +254,8 @@
       "groupNamePlaceholder": "Nom du groupe (ex. Compétences techniques)",
       "removeGroup": "Supprimer le groupe",
       "addSkillPlaceholder": "Ajoutez une compétence et appuyez sur Entrée",
-      "languages": "Langues",
       "languagePlaceholder": "Langue",
       "scaleLegend": "★ A1 Débutant · ★★ A2 Élémentaire · ★★★ B1 Intermédiaire · ★★★★ B2/C1 Avancé · ★★★★★ C2 Natif/Courant"
-    },
-    "academic": {
-      "researchAreas": "Domaines de recherche",
-      "researchThemes": "Thèmes de recherche",
-      "researchThemesPlaceholder": "ex. Méthodes, collaborateurs, travaux interdisciplinaires — tout ce qui est utile à l'IA"
     },
     "work": {
       "remoteHybrid": "Télétravail / hybride / présentiel",
@@ -378,10 +372,6 @@
       "label": "Bourses & fellowships",
       "description": "Pour les postes académiques/recherche — affichés dans la barre latérale du CV."
     },
-    "academic": {
-      "label": "Recherche & parcours académique",
-      "description": "Domaines, méthodes et thèmes de recherche — aide l'IA à cibler les postes académiques."
-    },
     "teaching": {
       "label": "Enseignement",
       "description": "Enseignement, encadrement et cours magistraux — affiché si pertinent."
@@ -389,6 +379,10 @@
     "custom_sections": {
       "label": "Sections personnalisées",
       "description": "Ajoutez toute section utile à votre domaine — licences, expositions, services…"
+    },
+    "languages": {
+      "label": "Langues",
+      "description": "Les langues que vous parlez, avec votre niveau de maîtrise."
     }
   },
   "cv": {

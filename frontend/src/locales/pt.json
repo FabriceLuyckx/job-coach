@@ -229,9 +229,9 @@
       "memberships": "Associações e ordens profissionais a que pertence — exibidas no seu CV.",
       "publications": "Para funções académicas/de investigação. Cole a citação APA completa; a IA pode omitir esta secção em vagas não académicas.",
       "grants": "Para funções académicas/de investigação — exibidos na barra lateral do CV.",
-      "academic": "Não aparece no seu CV — ajuda a IA a personalizar e a encontrar funções orientadas para a investigação.",
       "customSections": "Adicione as secções que a sua área exige — cada uma torna-se um bloco com título próprio no seu CV.",
-      "teaching": "Impresso em seu CV como uma lista de suas funções de ensino; a IA o remove para funções onde não é relevante."
+      "teaching": "Impresso em seu CV como uma lista de suas funções de ensino; a IA o remove para funções onde não é relevante.",
+      "languages": "Idiomas que você fala e o nível de domínio — exibidos na barra lateral do seu CV."
     },
     "add": {
       "project": "+ Adicionar projeto",
@@ -254,14 +254,8 @@
       "groupNamePlaceholder": "Nome do grupo (ex.: Competências técnicas)",
       "removeGroup": "Remover grupo",
       "addSkillPlaceholder": "Adicione uma competência e pressione Enter",
-      "languages": "Idiomas",
       "languagePlaceholder": "Idioma",
       "scaleLegend": "★ A1 Iniciante · ★★ A2 Básico · ★★★ B1 Intermediário · ★★★★ B2/C1 Avançado · ★★★★★ C2 Nativo/Fluente"
-    },
-    "academic": {
-      "researchAreas": "Áreas de pesquisa",
-      "researchThemes": "Temas de pesquisa",
-      "researchThemesPlaceholder": "ex.: Métodos, colaboradores, trabalho interdisciplinar — qualquer coisa para a IA"
     },
     "work": {
       "remoteHybrid": "Remoto / híbrido / presencial",
@@ -378,10 +372,6 @@
       "label": "Bolsas e Fellowships",
       "description": "Para funções académicas/investigação — exibido na barra lateral do CV."
     },
-    "academic": {
-      "label": "Investigação e historial académico",
-      "description": "Áreas, métodos e temas de investigação — ajuda a IA a adaptar funções académicas."
-    },
     "teaching": {
       "label": "Ensino",
       "description": "Ensino, supervisão e docência — exibido quando relevante."
@@ -389,6 +379,10 @@
     "custom_sections": {
       "label": "Secções personalizadas",
       "description": "Adicione qualquer secção que a sua área necessite — licenças, exposições, serviços…"
+    },
+    "languages": {
+      "label": "Idiomas",
+      "description": "Idiomas que você fala, com nível de competência."
     }
   },
   "cv": {

@@ -25,7 +25,7 @@ import { useKeyStatus } from '../components/KeyStatus'
 import { errMsg } from '../lib/errors'
 import { useProfileAutosave } from '../lib/useProfileAutosave'
 import {
-  OPTIONAL_SECTIONS, OPTIONAL_BY_KEY, ALL_OPTIONAL_KEYS,
+  OPTIONAL_SECTIONS, OPTIONAL_BY_KEY,
   BADGE_LABELS,
 } from '../lib/profileSections'
 
@@ -84,7 +84,7 @@ function ExperienceCard({
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const set = (k: keyof Experience, v: unknown) => onChange({ ...exp, [k]: v })
-  const current = !exp.end_date
+  const [current, setCurrent] = useState(!exp.end_date)
 
   return (
     <ItemCard summary={`${exp.title || t('profile.untitled')} — ${exp.employer || '…'}`} open={open} setOpen={setOpen} onRemove={onRemove} handle={handle}>
@@ -101,7 +101,7 @@ function ExperienceCard({
         </Field>
       </div>
       <label className="checkbox-row">
-        <input type="checkbox" checked={current} onChange={e => set('end_date', e.target.checked ? null : '')} />
+        <input type="checkbox" checked={current} onChange={e => { setCurrent(e.target.checked); set('end_date', e.target.checked ? null : '') }} />
         {t('profile.currentlyWorkHere')}
       </label>
       <Field label={t('profile.fields.whatYouDid')}>
@@ -198,7 +198,7 @@ function VolunteeringCard({ vol, onChange, onRemove, handle }: { vol: Volunteeri
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const set = (k: keyof Volunteering, v: unknown) => onChange({ ...vol, [k]: v })
-  const current = !vol.end_date
+  const [current, setCurrent] = useState(!vol.end_date)
   return (
     <ItemCard summary={`${vol.role || t('profile.fields.role')} — ${vol.organisation || '…'}`} open={open} setOpen={setOpen} onRemove={onRemove} handle={handle}>
       <div className="row">
@@ -210,7 +210,7 @@ function VolunteeringCard({ vol, onChange, onRemove, handle }: { vol: Volunteeri
         <Field label={t('profile.fields.endDate')}><input type="month" value={vol.end_date ?? ''} disabled={current} onChange={e => set('end_date', e.target.value || null)} /></Field>
       </div>
       <label className="checkbox-row">
-        <input type="checkbox" checked={current} onChange={e => set('end_date', e.target.checked ? null : '')} />
+        <input type="checkbox" checked={current} onChange={e => { setCurrent(e.target.checked); set('end_date', e.target.checked ? null : '') }} />
         {t('profile.currentlyVolunteering')}
       </label>
       <Field label={t('profile.fields.description')}><textarea value={vol.description} onChange={e => set('description', e.target.value)} /></Field>
@@ -254,14 +254,16 @@ function CustomSectionCard({ sec, onChange, onRemove }: { sec: CustomSection; on
     <ItemCard summary={sec.title || t('profile.untitledSection')} open={open} setOpen={setOpen} onRemove={onRemove}>
       <Field label={t('profile.fields.sectionTitle')}><input type="text" value={sec.title} onChange={e => onChange({ ...sec, title: e.target.value })} placeholder="e.g. Licences, Exhibitions, Military service" /></Field>
       {sec.items.map((it, i) => (
-        <div key={i} className="card" style={{ marginBottom: 'var(--space-2)', padding: '12px 18px' }}>
+        <div key={i} className="card" style={{ marginBottom: 'var(--space-2)', padding: '12px 18px', position: 'relative', paddingRight: 'var(--space-8)' }}>
+          <div style={{ position: 'absolute', top: 'var(--space-2)', right: 'var(--space-2)' }}>
+            <RemoveButton onClick={() => onChange({ ...sec, items: sec.items.filter((_, idx) => idx !== i) })} />
+          </div>
           <div className="row">
             <Field label={t('profile.fields.heading')}><input type="text" value={it.heading} onChange={e => setItem(i, { heading: e.target.value })} /></Field>
             <Field label={t('profile.fields.subheading')}><input type="text" value={it.subheading ?? ''} onChange={e => setItem(i, { subheading: e.target.value || undefined })} /></Field>
             <Field label={t('profile.fields.dateOptional')}><input type="text" value={it.date ?? ''} onChange={e => setItem(i, { date: e.target.value || undefined })} placeholder="2023" /></Field>
           </div>
           <Field label={t('profile.fields.descriptionOptional')}><textarea value={it.description ?? ''} onChange={e => setItem(i, { description: e.target.value || undefined })} /></Field>
-          <RemoveButton onClick={() => onChange({ ...sec, items: sec.items.filter((_, idx) => idx !== i) })} />
         </div>
       ))}
       <Button variant="secondary" onClick={() => onChange({ ...sec, items: [...sec.items, { heading: '' }] })}>{t('profile.addEntry')}</Button>
@@ -375,11 +377,11 @@ export default function ProfilePage() {
   }
 
   function showSection(key: string) {
-    set('meta.enabled_sections', [...ALL_OPTIONAL_KEYS.filter(k => enabled.has(k) || k === key)])
+    set('meta.enabled_sections', [...(pf.meta.enabled_sections ?? []).filter(k => k !== key), key])
     setMenuOpen(false)
   }
   function hideSection(key: string) {
-    set('meta.enabled_sections', ALL_OPTIONAL_KEYS.filter(k => k !== key && enabled.has(k)))
+    set('meta.enabled_sections', (pf.meta.enabled_sections ?? []).filter(k => k !== key))
     toast.info(t('profile.hidToast', { label: t(OPTIONAL_BY_KEY[key].label) }), {
       duration: 5000,
       action: { label: t('cv.undo'), onClick: () => showSection(key) },
@@ -393,10 +395,6 @@ export default function ProfilePage() {
     if (['projects', 'certifications', 'awards', 'publications', 'grants',
          'volunteering', 'courses', 'memberships', 'custom_sections'].includes(key)) {
       return (anyPf[key] ?? []).length > 0
-    }
-    if (key === 'academic') {
-      const a = pf.academic
-      return a.research_areas.length > 0 || !!a.research_themes
     }
     if (key === 'teaching') {
       return pf.teaching.entries.length > 0
@@ -522,22 +520,15 @@ export default function ProfilePage() {
             <Button variant="secondary" onClick={() => set('grants', [...pf.grants, { name: '', years: '', funder: '', amount: '' } as Grant])}>{t('profile.add.grant')}</Button>
           </Section>
         )
-      case 'academic':
-        return (
-          <Section key={key} title={t(def.label)} badge="ai" help={t('profile.help.academic')} {...hideProps}>
-            <Field label={t('profile.academic.researchAreas')}><TagInput value={pf.academic.research_areas} onChange={v => set('academic.research_areas', v)} /></Field>
-            <Field label={t('profile.academic.researchThemes')}>
-              <textarea value={pf.academic.research_themes} onChange={e => set('academic.research_themes', e.target.value)}
-                placeholder={t('profile.academic.researchThemesPlaceholder')} style={{ minHeight: 100 }} />
-            </Field>
-          </Section>
-        )
       case 'teaching': {
         const entries = pf.teaching.entries
         return (
           <Section key={key} title={t(def.label)} badge="cv" help={t('profile.help.teaching')} {...hideProps}>
             {entries.map((te, i) => (
-              <div key={i} className="card" style={{ marginBottom: 'var(--space-2)' }}>
+              <div key={i} className="card" style={{ marginBottom: 'var(--space-2)', position: 'relative', paddingRight: 'var(--space-8)' }}>
+                <div style={{ position: 'absolute', top: 'var(--space-2)', right: 'var(--space-2)' }}>
+                  <RemoveButton onClick={() => set('teaching.entries', entries.filter((_, idx) => idx !== i))} />
+                </div>
                 <div className="row">
                   <Field label={t('profile.teaching.type')}>
                     <select value={te.type} onChange={e => { const next = [...entries]; next[i] = { ...te, type: e.target.value as TeachingEntry['type'] }; set('teaching.entries', next) }}>
@@ -557,7 +548,6 @@ export default function ProfilePage() {
                 <Field label={t('profile.fields.description')}>
                   <textarea value={te.description} placeholder={t('profile.teaching.descriptionPlaceholder')} onChange={e => { const next = [...entries]; next[i] = { ...te, description: e.target.value }; set('teaching.entries', next) }} />
                 </Field>
-                <RemoveButton onClick={() => set('teaching.entries', entries.filter((_, idx) => idx !== i))} />
               </div>
             ))}
             <Button variant="secondary" onClick={() => set('teaching.entries', [...entries, { type: '', type_other: '', subject: '', institution: '', years: '', description: '' } as TeachingEntry])}>{t('profile.add.generic')}</Button>
@@ -693,19 +683,18 @@ export default function ProfilePage() {
           </div>
         ))}
         <Button variant="secondary" onClick={() => set('skills.groups', [...pf.skills.groups, { label: '', items: [] }])}>{t('profile.add.skillGroup')}</Button>
+      </Section>
 
-        <div style={{ marginTop: 'var(--space-5)' }}>
-          <label style={{ fontWeight: 600, fontSize: 'var(--fs-sm)', marginBottom: 'var(--space-1)', display: 'block' }}>{t('profile.skills.languages')}</label>
-          {pf.skills.languages.map((l, i) => (
-            <div key={i} className="row" style={{ marginBottom: 'var(--space-2)', alignItems: 'center' }}>
-              <input type="text" value={l.language} placeholder={t('profile.skills.languagePlaceholder')} onChange={e => { const next = [...pf.skills.languages]; next[i] = { ...l, language: e.target.value }; set('skills.languages', next) }} />
-              <StarRating value={l.level} onChange={n => { const next = [...pf.skills.languages]; next[i] = { ...l, level: n, label: CEFR_LABELS[n] ?? '' }; set('skills.languages', next) }} />
-              <RemoveButton onClick={() => set('skills.languages', pf.skills.languages.filter((_, idx) => idx !== i))} />
-            </div>
-          ))}
-          <div className="skill-scale-legend">{t('profile.skills.scaleLegend')}</div>
-          <Button variant="secondary" onClick={() => set('skills.languages', [...pf.skills.languages, { language: '', level: 3, label: CEFR_LABELS[3] }])}>{t('profile.add.language')}</Button>
-        </div>
+      <Section title={t('sections.languages.label')} badge="cv" count={pf.skills.languages.length} help={t('profile.help.languages')}>
+        {pf.skills.languages.map((l, i) => (
+          <div key={i} className="row" style={{ marginBottom: 'var(--space-2)', alignItems: 'center' }}>
+            <input type="text" value={l.language} placeholder={t('profile.skills.languagePlaceholder')} onChange={e => { const next = [...pf.skills.languages]; next[i] = { ...l, language: e.target.value }; set('skills.languages', next) }} />
+            <StarRating value={l.level} onChange={n => { const next = [...pf.skills.languages]; next[i] = { ...l, level: n, label: CEFR_LABELS[n] ?? '' }; set('skills.languages', next) }} />
+            <RemoveButton onClick={() => removeItem(l.language || t('sections.languages.label'), 'skills.languages', pf.skills.languages, i)} />
+          </div>
+        ))}
+        <div className="skill-scale-legend">{t('profile.skills.scaleLegend')}</div>
+        <Button variant="secondary" onClick={() => set('skills.languages', [...pf.skills.languages, { language: '', level: 3, label: CEFR_LABELS[3] }])}>{t('profile.add.language')}</Button>
       </Section>
 
       <Section title={t('sections.education.label')} badge="cv" count={pf.education.length} help={t('profile.help.education')}>
@@ -720,8 +709,8 @@ export default function ProfilePage() {
         }])}>{t('profile.add.education')}</Button>
       </Section>
 
-      {/* ── OPTIONAL (shown on demand, in registry order) ── */}
-      {OPTIONAL_SECTIONS.filter(s => enabled.has(s.key)).map(s => renderOptional(s.key))}
+      {/* ── OPTIONAL (shown on demand, in the order the user added them) ── */}
+      {(pf.meta.enabled_sections ?? []).map(key => renderOptional(key))}
 
       {/* Add a section */}
       {hidden.length > 0 && (

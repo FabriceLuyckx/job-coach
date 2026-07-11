@@ -10,9 +10,9 @@ from app.services.cv_importer import pdf_to_text
 client = TestClient(app)
 
 
-def test_blank_profile_is_valid_v4():
+def test_blank_profile_is_valid_v5():
     b = blank_profile()
-    assert b["meta"]["schema"] == "career-profile-v4"
+    assert b["meta"]["schema"] == "career-profile-v5"
     assert b["personal"]["name"] == ""
     assert "keywords" not in b["personal"]
     assert "headline" not in b["personal"]
@@ -61,7 +61,8 @@ def test_import_happy_path(monkeypatch):
     assert r.status_code == 200
     body = r.json()
     assert body["personal"]["name"] == "Zed"
-    assert body["meta"]["schema"] == "career-profile-v4"
+    # extract_profile returned a v4-shaped dict; normalize upgrades it to v5
+    assert body["meta"]["schema"] == "career-profile-v5"
 
 
 def test_excluded_sections_gate():

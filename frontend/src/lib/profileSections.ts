@@ -35,6 +35,7 @@ export const CORE_SECTIONS: SectionDef[] = [
   def('summary', 'cv', true),
   def('experience', 'cv', true),
   def('skills', 'cv', true),
+  def('languages', 'cv', true),
   def('education', 'cv', true),
 ]
 
@@ -47,7 +48,6 @@ export const OPTIONAL_SECTIONS: SectionDef[] = [
   def('memberships', 'cv', false),
   def('publications', 'cv', false),
   def('grants', 'cv', false),
-  def('academic', 'ai', false),
   def('teaching', 'cv', false),
   def('custom_sections', 'cv', false),
 ]

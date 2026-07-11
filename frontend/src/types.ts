@@ -45,12 +45,6 @@ export interface Education {
   description?: string
 }
 
-export interface Academic {
-  research_areas: string[]
-  /** Free text — research themes, methods, collaborators, anything else for the AI. */
-  research_themes: string
-}
-
 export interface Publication {
   /** Full pre-formatted APA reference, e.g. "Doe, J. (2020). Title. Journal, 1(2), 3-4." */
   citation: string
@@ -189,7 +183,6 @@ export interface Profile {
   summary: string
   experience: Experience[]
   education: Education[]
-  academic: Academic
   publications: Publication[]
   grants: Grant[]
   teaching: Teaching

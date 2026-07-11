@@ -220,6 +220,7 @@
       "summary": "2–4 sentences shown at the top of your CV. When tailoring for a job, the AI rewrites this; what you put here is your default.",
       "experience": "Your roles, newest first. The bullet points become the body of your CV.",
       "skills": "Group your skills under any headings that fit your field (e.g. Technical skills, Clinical skills, Design tools) — each group with content shows on your CV.",
+      "languages": "Languages you speak and how well — shown in your CV sidebar.",
       "education": "Degrees, newest first — shown in your CV sidebar.",
       "projects": "Notable projects or side work — shown on your CV.",
       "volunteering": "Volunteer roles and community work — shown on your CV.",
@@ -229,7 +230,6 @@
       "memberships": "Associations and professional bodies you belong to — shown on your CV.",
       "publications": "For academic/research roles. Paste the full APA citation; the AI can drop this section for non-academic jobs.",
       "grants": "For academic/research roles — shown in the CV sidebar.",
-      "academic": "Not printed on your CV — helps the AI tailor and match research-oriented roles.",
       "teaching": "Printed on your CV as a list of your teaching roles; the AI drops it for roles where it's irrelevant.",
       "customSections": "Add any section your field needs — each becomes its own titled block on your CV."
     },
@@ -245,13 +245,8 @@
       "groupNamePlaceholder": "Group name (e.g. Technical skills)",
       "removeGroup": "Remove group",
       "addSkillPlaceholder": "Add a skill and press Enter",
-      "languages": "Languages",
       "languagePlaceholder": "Language",
       "scaleLegend": "★ A1 Beginner · ★★ A2 Elementary · ★★★ B1 Intermediate · ★★★★ B2/C1 Advanced · ★★★★★ C2 Native/Fluent"
-    },
-    "academic": {
-      "researchAreas": "Research areas", "researchThemes": "Research themes",
-      "researchThemesPlaceholder": "e.g. Methods, collaborators, interdisciplinary work — anything for the AI"
     },
     "teaching": {
       "type": "Type", "typePlaceholder": "Select a type…",
@@ -314,7 +309,8 @@
     "personal": { "label": "Personal Info", "description": "Name, contact details and links." },
     "summary": { "label": "Professional Summary", "description": "A short intro shown at the top of your CV." },
     "experience": { "label": "Experience", "description": "Your roles and what you did in them." },
-    "skills": { "label": "Skills", "description": "Grouped skills and languages." },
+    "skills": { "label": "Skills", "description": "Skills grouped under your own headings." },
+    "languages": { "label": "Languages", "description": "Languages you speak, with proficiency." },
     "education": { "label": "Education", "description": "Degrees and studies." },
     "projects": { "label": "Projects", "description": "Notable projects or side work, shown on your CV." },
     "volunteering": { "label": "Volunteering", "description": "Volunteer roles and community work." },
@@ -324,7 +320,6 @@
     "memberships": { "label": "Professional memberships", "description": "Associations and bodies you belong to." },
     "publications": { "label": "Publications", "description": "For academic/research roles — full APA citations." },
     "grants": { "label": "Grants & Fellowships", "description": "For academic/research roles — shown in the CV sidebar." },
-    "academic": { "label": "Research & academic background", "description": "Research areas, methods and themes — helps the AI tailor academic roles." },
     "teaching": { "label": "Teaching", "description": "Teaching, supervision and lecturing — shown when relevant." },
     "custom_sections": { "label": "Custom sections", "description": "Add any section your field needs — licences, exhibitions, service…" }
   },

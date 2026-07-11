@@ -229,9 +229,9 @@
       "memberships": "Verenigingen en beroepsorganisaties waarbij u aangesloten bent — weergegeven op uw cv.",
       "publications": "Voor academische/onderzoeksfuncties. Plak de volledige APA-referentie; de AI kan deze sectie weglaten voor niet-academische vacatures.",
       "grants": "Voor academische/onderzoeksfuncties — weergegeven in de zijbalk van uw cv.",
-      "academic": "Niet afgedrukt op uw cv — helpt de AI bij het afstemmen op en matchen met onderzoeksgerichte functies.",
       "customSections": "Voeg secties toe die uw vakgebied vereist — elke sectie wordt een eigen blok met titel op uw cv.",
-      "teaching": "Afgewerkt op je CV als lijst van je docentenrollen; de AI negeert deze voor functies waar het niet relevant is."
+      "teaching": "Afgewerkt op je CV als lijst van je docentenrollen; de AI negeert deze voor functies waar het niet relevant is.",
+      "languages": "De talen die u spreekt en hoe goed — weergegeven in de zijbalk van uw CV."
     },
     "add": {
       "project": "+ Project toevoegen",
@@ -254,14 +254,8 @@
       "groupNamePlaceholder": "Groepsnaam (bijv. Technische vaardigheden)",
       "removeGroup": "Groep verwijderen",
       "addSkillPlaceholder": "Voeg een vaardigheid toe en druk op Enter",
-      "languages": "Talen",
       "languagePlaceholder": "Taal",
       "scaleLegend": "★ A1 Beginner · ★★ A2 Elementair · ★★★ B1 Gemiddeld · ★★★★ B2/C1 Gevorderd · ★★★★★ C2 Moedertaal/Vloeiend"
-    },
-    "academic": {
-      "researchAreas": "Onderzoeksgebieden",
-      "researchThemes": "Onderzoeksthema's",
-      "researchThemesPlaceholder": "bijv. Methoden, samenwerkingspartners, interdisciplinair werk — alles voor de AI"
     },
     "work": {
       "remoteHybrid": "Op afstand / hybride / op locatie",
@@ -378,10 +372,6 @@
       "label": "Beurzen & fellowships",
       "description": "Voor academische/onderzoeksrollen — zichtbaar in de cv-zijbalk."
     },
-    "academic": {
-      "label": "Onderzoeks- & academische achtergrond",
-      "description": "Onderzoeksgebieden, methoden en thema's — helpt de AI academische rollen op maat te maken."
-    },
     "teaching": {
       "label": "Onderwijs",
       "description": "Onderwijs, begeleiding en colleges — getoond waar relevant."
@@ -389,6 +379,10 @@
     "custom_sections": {
       "label": "Aangepaste secties",
       "description": "Voeg elke sectie toe die jouw vakgebied nodig heeft — licenties, tentoonstellingen, diensten…"
+    },
+    "languages": {
+      "label": "Talen",
+      "description": "De talen die u spreekt, met behoefte aan vaardigheid."
     }
   },
   "cv": {

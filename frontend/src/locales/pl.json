@@ -229,9 +229,9 @@
       "memberships": "Stowarzyszenia i organizacje zawodowe, do których należysz — widoczne w CV.",
       "publications": "Dla ról akademickich/badawczych. Wklej pełne cytowanie APA; AI może pominąć tę sekcję przy ofertach pozaakademickich.",
       "grants": "Dla ról akademickich/badawczych — widoczne na pasku bocznym CV.",
-      "academic": "Niedrukowane w CV — pomaga AI dopasowywać i kojarzyć role zorientowane na badania.",
       "customSections": "Dodaj dowolną sekcję potrzebną w Twojej branży — każda staje się osobnym, zatytułowanym blokiem w CV.",
-      "teaching": "Wydrukowane na Twoim CV jako lista Twoich stanowisk nauczycielskich; AI usuwa je dla stanowisk, gdzie nie jest to istotne."
+      "teaching": "Wydrukowane na Twoim CV jako lista Twoich stanowisk nauczycielskich; AI usuwa je dla stanowisk, gdzie nie jest to istotne.",
+      "languages": "Języki, które mówisz i w jakim stopniu — pokazane w bokowym panelu Twojego CV."
     },
     "add": {
       "project": "+ Dodaj projekt",
@@ -254,14 +254,8 @@
       "groupNamePlaceholder": "Nazwa grupy (np. Umiejętności techniczne)",
       "removeGroup": "Usuń grupę",
       "addSkillPlaceholder": "Dodaj umiejętność i naciśnij Enter",
-      "languages": "Języki",
       "languagePlaceholder": "Język",
       "scaleLegend": "★ A1 Początkujący · ★★ A2 Podstawowy · ★★★ B1 Średniozaawansowany · ★★★★ B2/C1 Zaawansowany · ★★★★★ C2 Ojczysty/Biegły"
-    },
-    "academic": {
-      "researchAreas": "Obszary badań",
-      "researchThemes": "Tematy badań",
-      "researchThemesPlaceholder": "np. Metody, współpracownicy, prace interdyscyplinarne — cokolwiek dla AI"
     },
     "work": {
       "remoteHybrid": "Zdalnie / hybrydowo / stacjonarnie",
@@ -378,10 +372,6 @@
       "label": "Granty i stypendia",
       "description": "Dla ról akademickich/badawczych — widoczne na pasku bocznym CV."
     },
-    "academic": {
-      "label": "Działalność badawcza i akademicka",
-      "description": "Obszary badań, metody i tematy — pomaga AI dopasować role akademickie."
-    },
     "teaching": {
       "label": "Dydaktyka",
       "description": "Nauczanie, opieka i wykłady — widoczne gdy odpowiednie."
@@ -389,6 +379,10 @@
     "custom_sections": {
       "label": "Własne sekcje",
       "description": "Dodaj dowolną sekcję potrzebną w Twojej branży — licencje, wystawy, działalność…"
+    },
+    "languages": {
+      "label": "Języki",
+      "description": "Języki, które mówisz, z poziomem znajomości."
     }
   },
   "cv": {

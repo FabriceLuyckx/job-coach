@@ -150,7 +150,7 @@ def normalize_skills(skills: dict | None) -> dict:
 # Preferences page, so it's no longer a toggle.
 OPTIONAL_SECTIONS = (
     "projects", "certifications", "awards", "publications", "grants",
-    "academic", "teaching",
+    "teaching",
     "volunteering", "courses", "memberships", "custom_sections",
 )
 
@@ -323,9 +323,6 @@ def _optional_has_data(p: dict, key: str) -> bool:
     if key in ("projects", "certifications", "awards", "publications", "grants",
                "volunteering", "courses", "memberships", "custom_sections"):
         return bool(p.get(key))
-    if key == "academic":
-        a = p.get("academic") or {}
-        return bool(a.get("research_areas") or a.get("research_themes"))
     if key == "teaching":
         return bool((p.get("teaching") or {}).get("entries"))
     return False
@@ -601,9 +598,9 @@ def _migrate_preferences_v4(narrative: dict, wp: dict, extra_looking_for: list[s
 
 
 def normalize_profile(profile: dict) -> dict:
-    """Upgrade a v1/partial profile to the current (v4) shape in memory.
+    """Upgrade a v1/partial profile to the current (v5) shape in memory.
 
-    Idempotent: an already-v4 profile passes through unchanged. Callers persist
+    Idempotent: an already-v5 profile passes through unchanged. Callers persist
     the result on the next save, so old files migrate transparently.
     """
     p = dict(profile)
@@ -685,12 +682,32 @@ def normalize_profile(profile: dict) -> dict:
     p.pop("narrative", None)
     p.pop("work_preferences", None)
 
+    # ── v4 → v5 ── academic dissolves: research_areas → a "Research areas" skills
+    # group (printable, tag-shaped); research_themes → preferences.notes (AI-only prose).
+    a = p.pop("academic", None) or {}
+    areas = [str(x).strip() for x in (a.get("research_areas") or []) if str(x).strip()]
+    if areas:
+        groups = p["skills"]["groups"]
+        tgt = next((g for g in groups
+                    if str(g.get("label", "")).strip().lower() == "research areas"), None)
+        if tgt is None:
+            tgt = {"label": "Research areas", "items": []}
+            groups.append(tgt)
+        tgt["items"] = list(tgt["items"]) + [x for x in areas if x not in tgt["items"]]
+    themes = str(a.get("research_themes") or "").strip()
+    if themes:
+        notes = str(p["preferences"].get("notes") or "")
+        if themes not in notes:  # guard against re-appending on a restored/merged file
+            block = f"Research background: {themes}"
+            p["preferences"]["notes"] = f"{notes}\n\n{block}".strip()
+
     meta = dict(p.get("meta") or {})
-    meta["schema"] = "career-profile-v4"
+    meta["schema"] = "career-profile-v5"
     if "enabled_sections" not in meta:
         meta["enabled_sections"] = [k for k in OPTIONAL_SECTIONS if _optional_has_data(p, k)]
     else:
-        meta["enabled_sections"] = [k for k in meta["enabled_sections"] if k != "career_context"]
+        meta["enabled_sections"] = [k for k in meta["enabled_sections"]
+                                    if k not in ("career_context", "academic")]
     p["meta"] = meta
     return p
 
@@ -704,10 +721,10 @@ def profile_for_tailoring(profile: dict) -> dict:
 
 
 def blank_profile() -> dict:
-    """A pristine, career-neutral v4 profile — seeded for a brand-new user instead
+    """A pristine, career-neutral v5 profile — seeded for a brand-new user instead
     of an example person's data. normalize_profile fills in the rest of the shape."""
     return normalize_profile({
-        "meta": {"version": "4.0", "schema": "career-profile-v4"},
+        "meta": {"version": "5.0", "schema": "career-profile-v5"},
         "personal": {
             "name": "", "professional_title": "", "email": "", "phone": "",
             "location": {"city": "", "country": ""}, "links": [],
