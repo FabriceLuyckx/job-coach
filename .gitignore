@@ -224,6 +224,9 @@ jobs/
 models/
 .venv/
 
+# Planning docs are local-only — never pushed to GitHub.
+docs/plans/
+
 # The `*.spec` rule above ignores auto-generated PyInstaller specs, but our
 # packaging spec is hand-written and must be committed.
 !packaging/jobcoach.spec
