@@ -19,7 +19,7 @@ def test_blank_profile_is_valid_v5():
     assert b["experience"] == []
     assert b["meta"]["enabled_sections"] == []
     assert b["preferences"] == {
-        "looking_for": "", "avoid": "", "locations": [],
+        "target_roles": [], "looking_for": "", "avoid": "", "locations": [],
         "remote": "Hybrid", "languages": [], "notes": "",
     }
 

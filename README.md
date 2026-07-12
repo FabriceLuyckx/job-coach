@@ -273,12 +273,13 @@ designer, a lawyer or a researcher. To remove an optional section, use **Hide** 
 header — this keeps your data (it reappears in **+ Add a section** with a *has content*
 hint); only the per-item ✕ actually deletes anything (with a 5-second Undo).
 
-**Preferences** holds what's *not* on the CV: "What I'm looking for" (target
-industries, what makes you distinctive, work to avoid) and practical preferences
-(location, remote/hybrid, contract type, schedule, salary range). This is what
-powers Job Suggestions' matching today, and will power motivational letters in a
-future phase — it's kept separate from the Profile page precisely so it can grow
-into its own interactive flow without cluttering your CV data.
+**Preferences** holds what's *not* on the CV. It's a five-question form: the job
+titles to watch for, where and how you want to work (locations, working style,
+languages), what makes a job a great match, your dealbreakers (with one-tap
+examples), and the practical small print (salary, contract, hours, travel).
+The answers drive Job Suggestions' matching — since the scanner reads each full
+posting, even free-text answers like dealbreakers and salary expectations
+actually take effect — and will power motivational letters in a future phase.
 
 ### Start from an existing CV
 

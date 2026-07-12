@@ -145,6 +145,17 @@ def test_cv_prompt_requires_lang_placeholder():
     r = client.put("/api/settings", json={"cv_prompt": "no placeholder here"})
     assert r.status_code == 400
     assert "lang_name" in r.json()["detail"]
+
+
+# ---------- profile normalization ----------
+
+def test_normalize_defaults_target_roles():
+    from app.services.cv_renderer import normalize_profile
+    p = normalize_profile({"meta": {"schema": "career-profile-v5"},
+                           "preferences": {"looking_for": "x"}})
+    assert p["preferences"]["target_roles"] == []
+
+
 # ---------- job scanner: prescreen skip + posting review ----------
 
 def test_prescreen_skips_llm_at_or_below_threshold(monkeypatch):
@@ -175,6 +186,7 @@ def test_review_posting_builds_digest_and_verdict(monkeypatch):
     r = js.review_posting({"title": "X", "url": "http://x"}, "text", {}, {})
     assert r["match"] is True and r["lang"] == "nl"
     assert r["digest"] == {"employer": "Acme", "requirements": ["Python"]}
+
 
 # ---------- i18n changed-key detection (pre-commit hook) ----------
 

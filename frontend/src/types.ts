@@ -155,6 +155,7 @@ export interface Skills {
 
 /** Feeds the job-matching prompt only — never printed on the CV. */
 export interface Preferences {
+  target_roles: string[]
   looking_for: string
   avoid: string
   locations: string[]

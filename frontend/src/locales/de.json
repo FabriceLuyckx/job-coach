@@ -295,24 +295,33 @@
   },
   "preferences": {
     "title": "Einstellungen",
-    "help": "Wird nicht im Lebenslauf angezeigt – diese Angaben nutzt der Job-Coach, um Stellenvorschläge zu filtern und (demnächst) Motivationsschreiben zu verfassen.",
-    "lookingFor": {
-      "title": "Was ich suche",
-      "help": "Hilft der KI, Ihren Lebenslauf anzupassen und Stellenvorschläge zu filtern."
+    "help": "Fünf schnelle Fragen. Der Job-Coach vergleicht jede neue Stellenanzeige mit Ihren Antworten hier — nichts auf dieser Seite erscheint auf Ihrem Lebenslauf.",
+    "q": {
+      "roles": "Welche Berufsbezeichnungen sollen wir beobachten?",
+      "rolesSub": "Fügen Sie alle Titel hinzu, an die Sie tatsächlich bewerben würden, einschließlich Varianten und Übersetzungen. Dies ist das erste, was der Scanner mit einer Stellenanzeige vergleicht.",
+      "rolesPlaceholder": "z. B. Data Scientist — drücken Sie Enter, um hinzuzufügen",
+      "where": "Wo — und wie — möchten Sie arbeiten?",
+      "whereSub": "Stellenaufrufe außerhalb dieser Orte, Sprachen oder Arbeitsstile werden filtriert.",
+      "locations": "Städte oder Regionen, zu denen Sie pendeln können",
+      "locationsPlaceholder": "z. B. Gent — drücken Sie Enter, um hinzuzufügen",
+      "workingStyle": "Arbeitsweise",
+      "languages": "Sprachen, in denen Sie arbeiten können",
+      "languagesPlaceholder": "z. B. Niederländisch — drücken Sie Enter, um hinzuzufügen",
+      "great": "Was macht eine Stelle zu einem tollen Fit?",
+      "greatSub": "Die Arbeit, die Branche, die Mission — alles, was Sie wirklich wollen, um sich zu bewerben. Vollständige Sätze sind in Ordnung; der AI liest das wie ein Kollege.",
+      "greatPlaceholder": "z. B. Forschungsorientierte Arbeit, bei der ich end-to-end Datenprodukte entwickeln kann, idealerweise mit sozialer Auswirkung",
+      "dealbreakers": "Was ausschließt eine Stelle?",
+      "dealbreakersSub": "Auch wenn der Titel passt. Stellen, die auf diese Punkte stoßen, werden abgelehnt.",
+      "dealbreakersPlaceholder": "z. B. rein administrativer Arbeit, kalte Akquise, Wochenendarbeit",
+      "practical": "Ist noch etwas praktisches zu überprüfen?",
+      "practicalSub": "Lohnvorstellungen, Vertragsart, Arbeitszeiten, Startdatum, Reisen — die kleinen Dinge, die vor der eigentlichen Lesung einer Stellenanzeige beachtet werden sollten.",
+      "practicalPlaceholder": "z. B. Vollzeit ab September, mindestens €3.500/Monat, maximal ein Tag Reise pro Woche"
     },
-    "practical": {
-      "title": "Praktische Vorlieben",
-      "help": "Ort, Remote/Hybrid und Sprachen – werden für die Stellenvergabe verwendet."
-    },
-    "fields": {
-      "lookingFor": "Was suchen Sie?",
-      "lookingForPlaceholder": "Welche Art von Rolle suchen Sie als Nächstes? Welche Branchen interessieren Sie? Was macht Sie einzigartig? Welche Probleme begeistern Sie?",
-      "avoid": "Was sollte ein Job nicht haben?",
-      "avoidPlaceholder": "z. B. rein administrative Tätigkeit, ständige Reisen, Branchen, die Sie ausschließen",
-      "locations": "Bevorzugte Orte / Pendel (Städte)",
-      "languages": "Sprachvorerwartungen",
-      "notes": "Sonstiges praktisches",
-      "notesPlaceholder": "Vertragsart, Vollzeit/Teilzeit, Arbeitszeit, Gehaltsvorstellungen, Reisen, Umzug, welche Art von Organisation passt Ihnen"
+    "suggest": {
+      "admin": "Rein administrativer Arbeit",
+      "travel": "Frequent Reisen",
+      "shifts": "Abend- oder Wochenendarbeit",
+      "sales": "Kalte Anrufe oder Türen-zu-Türen-Verkäufe"
     }
   },
   "badges": {
@@ -421,7 +430,6 @@
     "findNew": "Neue Stellenanzeigen finden",
     "scanning": "Wird gescannt…",
     "scanProgress": "{{source}} wird gescannt ({{current}} von {{total}})…",
-    "readingPosting": "Lesen der Stellenausschreibung {{current}} von {{total}}…",
     "starting": "Wird gestartet…",
     "lastScan": "Letzter Scan: {{time}}",
     "neverScanned": "Nie gescannt",
@@ -447,7 +455,8 @@
     "restore": "Wiederherstellen",
     "openCv": "Lebenslauf öffnen",
     "regenerateTitle": "CV-Generierung für diese Stelle erneut ausführen",
-    "regenerateCv": "Lebenslauf neu generieren"
+    "regenerateCv": "Lebenslauf neu generieren",
+    "readingPosting": "Lesen der Stellenausschreibung {{current}} von {{total}}…"
   },
   "cveditor": {
     "sections": {

@@ -295,24 +295,33 @@
   },
   "preferences": {
     "title": "Preferencias",
-    "help": "No aparece en tu CV — es lo que usa el Coach de Empleo para filtrar ofertas sugeridas y (próximamente) redactar cartas de motivación.",
-    "lookingFor": {
-      "title": "Qué estoy buscando",
-      "help": "Orienta cómo la IA adapta tu CV y filtra las sugerencias de empleo."
+    "help": "Cinco preguntas rápidas. El Coach de Empleo revisa cada nuevo anuncio de empleo contra tus respuestas aquí — nada de lo que aparece en esta página se incluye en tu CV.",
+    "q": {
+      "roles": "¿Qué títulos de empleo deberíamos monitorear?",
+      "rolesSub": "Añade cada título en el que realmente aplicarías, incluyendo variantes y traducciones. Este es el primer elemento que revisa el escáner contra un anuncio.",
+      "rolesPlaceholder": "e.g. Data Scientist — presiona Enter para añadir",
+      "where": "¿Dónde — y cómo — quieres trabajar?",
+      "whereSub": "Los anuncios fuera de estos lugares, idiomas o estilos de trabajo se filtran.",
+      "locations": "Ciudades o regiones a las que podrías desplazarte",
+      "locationsPlaceholder": "e.g. Ghent — presiona Enter para añadir",
+      "workingStyle": "Estilo de trabajo",
+      "languages": "Idiomas en los que puedes trabajar",
+      "languagesPlaceholder": "e.g. Neerlandés — presiona Enter para añadir",
+      "great": "¿Qué hace que un trabajo sea un buen ajuste?",
+      "greatSub": "El trabajo, la industria, la misión — cualquier cosa que te haga realmente querer aplicar. Se aceptan frases completas; el IA lo lee como un colega.",
+      "greatPlaceholder": "e.g. Trabajo basado en investigación donde puedo construir productos de datos desde cero, idealmente con impacto social",
+      "dealbreakers": "¿Qué condiciones eliminan un trabajo?",
+      "dealbreakersSub": "Aunque el título encaje. Los anuncios que tocan cualquiera de estos se descartan.",
+      "dealbreakersPlaceholder": "e.g. Trabajo puramente administrativo, ventas por contacto, turnos los fines de semana",
+      "practical": "¿Algo práctico que deberíamos verificar?",
+      "practicalSub": "Expectativas de salario, tipo de contrato, horas, fecha de inicio, viajes — los detalles pequeños que vale la pena revisar antes de leer un anuncio por ti mismo.",
+      "practicalPlaceholder": "e.g. Tiempo completo a partir de septiembre, al menos €3.500 al mes, máximo un día de viaje por semana"
     },
-    "practical": {
-      "title": "Preferencias prácticas",
-      "help": "Ubicación, remoto/híbrido y idiomas — utilizados para el ajuste de empleos."
-    },
-    "fields": {
-      "lookingFor": "¿Qué estás buscando?",
-      "lookingForPlaceholder": "¿Qué tipo de rol estás buscando? ¿Qué industrias te atraen? ¿Qué te hace único? ¿Qué problemas te gustan resolver?",
-      "avoid": "¿Qué no debería tener un trabajo?",
-      "avoidPlaceholder": "Por ejemplo: trabajo puramente administrativo, viajes constantes, industrias que descartarías",
-      "locations": "Ubicaciones preferidas / desplazamiento (ciudades)",
-      "languages": "Preferencias lingüísticas",
-      "notes": "Cualquier otra cosa práctica",
-      "notesPlaceholder": "Tipo de contrato, tiempo completo/parcial, horario, expectativas salariales, viajes, mudanza, qué tipo de organización te conviene"
+    "suggest": {
+      "admin": "Trabajo puramente administrativo",
+      "travel": "Viajes frecuentes",
+      "shifts": "Turnos de noche o fines de semana",
+      "sales": "Ventas por contacto o de puerta en puerta"
     }
   },
   "badges": {
@@ -421,7 +430,6 @@
     "findNew": "Buscar nuevas ofertas",
     "scanning": "Escaneando…",
     "scanProgress": "Analizando {{source}} ({{current}} de {{total}})…",
-    "readingPosting": "Leyendo el anuncio {{current}} de {{total}}…",
     "starting": "Iniciando…",
     "lastScan": "Último escaneo: {{time}}",
     "neverScanned": "Nunca escaneado",
@@ -447,7 +455,8 @@
     "restore": "Restaurar",
     "openCv": "Abrir CV",
     "regenerateTitle": "Volver a generar el CV para esta vacante",
-    "regenerateCv": "Regenerar CV"
+    "regenerateCv": "Regenerar CV",
+    "readingPosting": "Leyendo el anuncio {{current}} de {{total}}…"
   },
   "cveditor": {
     "sections": {

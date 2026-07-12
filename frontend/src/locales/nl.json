@@ -295,24 +295,33 @@
   },
   "preferences": {
     "title": "Voorkeuren",
-    "help": "Wordt niet weergegeven op uw cv — dit is wat de Jobcoach gebruikt om voorgestelde vacatures te filteren en (binnenkort) motivatiebrieven te schrijven.",
-    "lookingFor": {
-      "title": "Wat ik zoek",
-      "help": "Bepaalt hoe de AI uw cv aanpast en vacaturesuggesties filtert."
+    "help": "Vijf snelle vragen. De Job Coach vergelijkt elke nieuwe functieaanbod met je antwoorden hier — niets op deze pagina verschijnt op je CV.",
+    "q": {
+      "roles": "Welke functietitels moeten we volgen?",
+      "rolesSub": "Voeg elke titel toe die je daadwerkelijk zou aanvragen, inclusief varianten en vertalingen. Dit is het eerste wat de scanner controleert tegen een aanbod.",
+      "rolesPlaceholder": "bijv. Data Scientist — druk Enter om toe te voegen",
+      "where": "Waar — en hoe — wil je werken?",
+      "whereSub": "Aanbiedingen buiten deze plaatsen, talen of werkstijlen worden gefilterd.",
+      "locations": "Steden of regio's waar je zou kunnen reizen",
+      "locationsPlaceholder": "bijv. Gent — druk Enter om toe te voegen",
+      "workingStyle": "Werkstijl",
+      "languages": "Talen waarin je kunt werken",
+      "languagesPlaceholder": "bijv. Nederlands — druk Enter om toe te voegen",
+      "great": "Wat maakt een functie een geweldige match?",
+      "greatSub": "Het werk, de sector, de missie — alles wat je echt zou willen aanvragen. Volledige zinnen zijn prima; de AI leest dit alsof een collega het zou lezen.",
+      "greatPlaceholder": "bijv. Onderzoek gerichte werkzaamheden waar ik dataproducten eind tot eind kan bouwen, ideale met sociale impact",
+      "dealbreakers": "Wat zet een functie uit?",
+      "dealbreakersSub": "Zelfs als de titel past. Aanbiedingen die een van deze punten raakt worden verwijderd.",
+      "dealbreakersPlaceholder": "bijv. Uitsluitend administratief werk, koude aanbieding, weekendverzorging",
+      "practical": "Wat praktische dingen moeten we controleren?",
+      "practicalSub": "Salariestelling, contracttype, uren, startdatum, reizen — de kleine details die vooraf moeten worden gecontroleerd voordat je een aanbod zelf leest.",
+      "practicalPlaceholder": "bijv. Volledige tijd van september, minimaal €3.500 per maand, maximaal één dag reizen per week"
     },
-    "practical": {
-      "title": "Praktische voorkeuren",
-      "help": "Locatie, hybride of afstandswerk en talen — gebruikt voor functieovereenkomsten."
-    },
-    "fields": {
-      "lookingFor": "Wat zoekt u?",
-      "lookingForPlaceholder": "Welke functie zoekt u volgende? Welke industrieën interesseren u? Wat maakt u uniek? Welke problemen genieten u van oplossen?",
-      "avoid": "Wat moet een functie niet hebben?",
-      "avoidPlaceholder": "Bv. uitsluitend administratieve werkzaamheden, veel reizen, industrieën die u uitsluit",
-      "locations": "Voorkeurlocaties / reisafstand (steden)",
-      "languages": "Taalvoorkeuren",
-      "notes": "Eventueel nog iets praktisch",
-      "notesPlaceholder": "Contracttype, volledig-tijd/onderdeel-tijd, schema, salarisvoorkeuren, reizen, verhuizing, welk soort organisatie past u"
+    "suggest": {
+      "admin": "Uitsluitend administratief werk",
+      "travel": "Frequent reizen",
+      "shifts": "Avond- of weekendverzorging",
+      "sales": "Koude aanroepen of deur tot deur verkoop"
     }
   },
   "badges": {
@@ -421,7 +430,6 @@
     "findNew": "Nieuwe vacatures zoeken",
     "scanning": "Scannen…",
     "scanProgress": "{{source}} scannen ({{current}} van {{total}})…",
-    "readingPosting": "Leest functieaanbieding {{current}} van {{total}}…",
     "starting": "Bezig met starten…",
     "lastScan": "Laatste scan: {{time}}",
     "neverScanned": "Nooit gescand",
@@ -447,7 +455,8 @@
     "restore": "Herstellen",
     "openCv": "CV openen",
     "regenerateTitle": "Voer de cv-generatie voor deze vacature opnieuw uit",
-    "regenerateCv": "CV opnieuw genereren"
+    "regenerateCv": "CV opnieuw genereren",
+    "readingPosting": "Leest functieaanbieding {{current}} van {{total}}…"
   },
   "cveditor": {
     "sections": {

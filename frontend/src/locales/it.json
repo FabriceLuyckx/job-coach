@@ -295,24 +295,33 @@
   },
   "preferences": {
     "title": "Preferenze",
-    "help": "Non mostrato nel tuo CV — viene usato dal Job Coach per filtrare i lavori suggeriti e (presto) scrivere lettere motivazionali.",
-    "lookingFor": {
-      "title": "Cosa sto cercando",
-      "help": "Guida l'AI nel personalizzare il tuo CV e filtrare i suggerimenti di lavoro."
+    "help": "Five quick questions. The Job Coach reads every new job posting against your answers here — nothing on this page ever appears on your CV.",
+    "q": {
+      "roles": "Quali titoli di lavoro dovremmo monitorare?",
+      "rolesSub": "Aggiungi ogni titolo a cui veramente ti candidate, inclusi varianti e traduzioni. Questo è il primo elemento che il rilevatore verifica contro un annuncio.",
+      "rolesPlaceholder": "e.g. Data Scientist — premi Invio per aggiungere",
+      "where": "Dove — e come — vuoi lavorare?",
+      "whereSub": "Gli annunci esterni a questi luoghi, lingue o stili di lavoro vengono filtrati.",
+      "locations": "Città o regioni da cui potresti spostarti",
+      "locationsPlaceholder": "e.g. Ghent — premi Invio per aggiungere",
+      "workingStyle": "Stile di lavoro",
+      "languages": "Lingue in cui puoi lavorare",
+      "languagesPlaceholder": "e.g. Olandese — premi Invio per aggiungere",
+      "great": "Quali caratteristiche rendono un lavoro un ottimo match?",
+      "greatSub": "Il lavoro, l'industria, la missione — qualsiasi cosa ti farbbe realmente voler candidarti. Frasi complete sono ammesse; l'AI le legge come un collega.",
+      "greatPlaceholder": "e.g. Lavoro orientato alla ricerca in cui costruisco prodotti dati da zero a fine, idealmente con impatto sociale",
+      "dealbreakers": "Quali regole escludono un lavoro?",
+      "dealbreakersSub": "Anche se il titolo corrisponde. Gli annunci che colgono qualsiasi punto di questo vengono eliminati.",
+      "dealbreakersPlaceholder": "e.g. Lavoro puramente amministrativo, vendite a freddo, turni nei weekend",
+      "practical": "Qualsiasi cosa pratica dobbiamo verificare?",
+      "practicalSub": "Aspettative di stipendio, tipo di contratto, orari, data di inizio, viaggi — i dettagli minori da notare prima di leggere un annuncio da te stesso.",
+      "practicalPlaceholder": "e.g. Full-time a partire settembre, stipendio minimo di €3.500/mese, massimo un giorno di viaggio a settimana"
     },
-    "practical": {
-      "title": "Preferenze pratiche",
-      "help": "Località, modalità remoto/hibrido e lingue — utilizzate per la corrispondenza dei lavori."
-    },
-    "fields": {
-      "lookingFor": "Cosa stai cercando?",
-      "lookingForPlaceholder": "Che tipo di ruolo stai cercando successivamente? Quali settori ti interessano? Cosa ti distingue? Quali problemi ti piacciono risolvere?",
-      "avoid": "Cosa non deve avere un lavoro?",
-      "avoidPlaceholder": "Esempio: lavoro puramente amministrativo, viaggi costanti, settori da escludere",
-      "locations": "Località preferite / tempo di percorso (città)",
-      "languages": "Preferenze linguistiche",
-      "notes": "Qualsiasi altro dettaglio pratico",
-      "notesPlaceholder": "Tipo di contratto, full-time/part-time, orario, aspettative di salario, viaggi, trasloco, che tipo di organizzazione ti piace"
+    "suggest": {
+      "admin": "Lavoro puramente amministrativo",
+      "travel": "Frequente viaggio",
+      "shifts": "Turni serali o nei weekend",
+      "sales": "Vendite a freddo o a porta a porta"
     }
   },
   "badges": {
@@ -421,7 +430,6 @@
     "findNew": "Trova nuove offerte",
     "scanning": "Scansione in corso…",
     "scanProgress": "Scansione di {{source}} ({{current}} di {{total}})…",
-    "readingPosting": "Sto leggendo l'annuncio {{current}} di {{total}}…",
     "starting": "Avvio in corso…",
     "lastScan": "Ultima scansione: {{time}}",
     "neverScanned": "Mai scansionato",
@@ -447,7 +455,8 @@
     "restore": "Ripristina",
     "openCv": "Apri CV",
     "regenerateTitle": "Esegui nuovamente la generazione del CV per questa offerta",
-    "regenerateCv": "Rigenera CV"
+    "regenerateCv": "Rigenera CV",
+    "readingPosting": "Sto leggendo l'annuncio {{current}} di {{total}}…"
   },
   "cveditor": {
     "sections": {

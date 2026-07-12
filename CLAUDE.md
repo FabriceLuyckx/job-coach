@@ -90,7 +90,7 @@ job-coach/
 │   └── src/
 │       ├── pages/
 │       │   ├── Profile.tsx       # View/edit CV data only (auto-saves as you type)
-│       │   ├── Preferences.tsx   # "What I'm looking for" + practical work preferences
+│       │   ├── Preferences.tsx   # Five-question job-matching form (flat, no collapsibles)
 │       │   ├── CVGenerator.tsx   # Paste job URL → generate CV + history
 │       │   ├── Jobs.tsx          # Job sources, AI suggestions, accept/reject (Phase 5)
 │       │   └── Settings.tsx      # OpenRouter API key, model, photo; Advanced → AI prompts
@@ -216,8 +216,11 @@ uv run python scripts/tailor_cv.py --url https://... --lang nl
   split into always-visible **core** sections (Personal, Summary, Experience,
   Skills, Languages, Education) and **optional** sections added via **+ Add a section**; each
   section badged by where its data goes (On your CV / Helps the AI). The separate
-  **Preferences** page holds "what I'm looking for" and practical work preferences
-  — the data that drives job matching, not the CV
+  **Preferences** page is a flat five-question form (numbered cards, no
+  collapsibles): target job titles, where/how to work (locations, a segmented
+  working-style control, languages), what makes a great match, dealbreakers
+  (with one-tap example chips), and practical notes — the data that drives job
+  matching, not the CV
 - Inline editing of any field (text, lists, dates) with **auto-save** (debounced
   ~1.5s, single-flight; status shown in the page header; item removals get a 5s
   Undo toast) — there are no manual Save buttons on the Profile or Preferences page
@@ -500,7 +503,7 @@ generic/free-form section is (and remains) `custom_sections`, the escape hatch.
 | `meta` | `version`, `schema`, `last_updated`, and **`enabled_sections[]`** — the optional sections the user has turned on (survives reload; this is section presence, not derived from data) |
 | `personal` | Name, `professional_title`, contact details, and **`links[]`** — an ordered list of `{label, url}` (was a fixed LinkedIn/GitHub/Scholar dict in v1; `keywords[]` was dropped in v3, `headline` dropped in v4 — folds into `summary` on migration) |
 | `summary` | **Top-level** CV professional summary (was `narrative.target_roles_description` in v1/v2) |
-| `preferences` | **Preferences page.** `looking_for`, `avoid` (free text), `locations[]`, `remote` (Remote/Hybrid/On-site/No preference), `languages[]`, and one free-text `notes` catch-all (contract type, schedule, salary, travel, relocation, organisation fit — v3's `narrative` + `work_preferences`, including the salary widget, collapse into this on migration) |
+| `preferences` | **Preferences page.** `target_roles[]` (job titles the user would apply for — the cheapest job-filter signal, matchable from a listing title alone; additive v5 field, defaulted to `[]` in `normalize_profile`), `looking_for`, `avoid` (free text), `locations[]`, `remote` (Remote/Hybrid/On-site/No preference), `languages[]`, and one free-text `notes` catch-all (contract type, schedule, salary, travel, relocation, organisation fit — v3's `narrative` + `work_preferences`, including the salary widget, collapse into this on migration) |
 | `experience[]` | `title`, `employer`, `location`, `start_date`, `end_date` (empty ⇒ current — the single source of truth), `responsibilities[]` (CV bullets), `technologies[]`, and one optional free-text `ai_notes` field (never printed — v3 merged the old `relevance_note` + `ai_context` pair) |
 | `education[]` | Degree, field, institution, years, distinction, optional `description` (thesis topic/specialisation/coursework — v4, for early-career users) |
 | `skills` | `groups[]` (user-named `{label, items[]}`, any field) + `languages[]` (`{language, level 1–5, label}`, CEFR star scale — its own always-visible Profile section). Legacy fixed categories auto-migrate to groups; v4's `academic.research_areas[]` migrate into a "Research areas" group on v5 load |

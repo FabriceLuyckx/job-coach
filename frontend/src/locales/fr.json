@@ -295,24 +295,33 @@
   },
   "preferences": {
     "title": "Préférences",
-    "help": "Non affiché sur votre CV — ces informations sont utilisées par le Coach Emploi pour filtrer les offres suggérées et (bientôt) rédiger des lettres de motivation.",
-    "lookingFor": {
-      "title": "Ce que je recherche",
-      "help": "Indique à l'IA comment adapter votre CV et filtrer les offres d'emploi."
+    "help": "Cinq questions simples. Le Coach d'emploi compare chaque nouvelle offre d'emploi avec vos réponses ici — rien sur cette page ne figure sur votre CV.",
+    "q": {
+      "roles": "Quels titres de poste devons-nous surveiller ?",
+      "rolesSub": "Ajoutez chaque titre que vous seriez prêt à postuler, y compris les variantes et les traductions. C'est la première chose que le lecteur vérifie dans une offre.",
+      "rolesPlaceholder": "ex. Data Scientist — appuyez sur Entrée pour l'ajouter",
+      "where": "Où — et comment — souhaitez-vous travailler ?",
+      "whereSub": "Les offres en dehors de ces lieux, langues ou styles de travail sont filtrées.",
+      "locations": "Villes ou régions que vous pourriez atteindre en déplacement",
+      "locationsPlaceholder": "ex. Gand — appuyez sur Entrée pour l'ajouter",
+      "workingStyle": "Style de travail",
+      "languages": "Langues que vous pouvez utiliser",
+      "languagesPlaceholder": "ex. Néerlandais — appuyez sur Entrée pour l'ajouter",
+      "great": "Qu'est-ce qui rend un emploi un bon match ?",
+      "greatSub": "Le travail, l'industrie, la mission — tout ce qui vous ferait vraiment vouloir postuler. Des phrases complètes sont acceptées ; l'IA les lit comme un collègue.",
+      "greatPlaceholder": "ex. Un travail centré sur la recherche où je peux construire des produits de données de bout en bout, idéalement avec un impact social",
+      "dealbreakers": "Quels critères éliminent un emploi ?",
+      "dealbreakersSub": "Même si le titre correspond. Les offres qui touchent l'un de ces critères sont ignorées.",
+      "dealbreakersPlaceholder": "ex. Travail purement administratif, acquisition froide, shifts le week-end",
+      "practical": "N'oubliez pas les points pratiques à vérifier ?",
+      "practicalSub": "Expectations salariales, type de contrat, heures, date de début, déplacements — les détails importants à vérifier avant de lire une offre vous-même.",
+      "practicalPlaceholder": "ex. Temps plein à partir de septembre, au moins 3 500 €/mois, un maximum de 1 jour de déplacement par semaine"
     },
-    "practical": {
-      "title": "Préférences pratiques",
-      "help": "Localisation, mode hybride/remote et langues — utilisées pour la correspondance des emplois."
-    },
-    "fields": {
-      "lookingFor": "Qu'est-ce que vous recherchez ?",
-      "lookingForPlaceholder": "Quel type de poste recherchez-vous ? Quels secteurs vous intéressent ? Quels points vous distinguent ? Quels problèmes vous enthousiasment ?",
-      "avoid": "Quels éléments un emploi ne doit pas avoir ?",
-      "avoidPlaceholder": "Par exemple : du travail purement administratif, des déplacements constants, des secteurs que vous exclurez",
-      "locations": "Localisations préférées / trajet (villes)",
-      "languages": "Préférences linguistiques",
-      "notes": "Autre chose pratique",
-      "notesPlaceholder": "Type de contrat, temps plein/temps partiel, horaires, attentes salariales, déplacements, rélocation, quel type d'organisation vous convient"
+    "suggest": {
+      "admin": "Travail purement administratif",
+      "travel": "Déplacements fréquents",
+      "shifts": "Départs le soir ou les week-ends",
+      "sales": "Ventes par appel ou en personne"
     }
   },
   "badges": {
@@ -421,7 +430,6 @@
     "findNew": "Rechercher de nouvelles offres",
     "scanning": "Analyse en cours…",
     "scanProgress": "Analyse de {{source}} ({{current}} sur {{total}})…",
-    "readingPosting": "Lecture de l'annonce {{current}} sur {{total}}…",
     "starting": "Démarrage…",
     "lastScan": "Dernière analyse : {{time}}",
     "neverScanned": "Jamais analysé",
@@ -447,7 +455,8 @@
     "restore": "Restaurer",
     "openCv": "Ouvrir le CV",
     "regenerateTitle": "Relancer la génération du CV pour cette offre",
-    "regenerateCv": "Régénérer le CV"
+    "regenerateCv": "Régénérer le CV",
+    "readingPosting": "Lecture de l'annonce {{current}} sur {{total}}…"
   },
   "cveditor": {
     "sections": {

@@ -281,24 +281,33 @@
   },
   "preferences": {
     "title": "Preferences",
-    "help": "Not shown on your CV — this is what the Job Coach uses to filter suggested jobs and (soon) write motivational letters.",
-    "lookingFor": {
-      "title": "What I'm looking for",
-      "help": "Guides how the AI tailors your CV and filters job suggestions."
+    "help": "Five quick questions. The Job Coach reads every new job posting against your answers here — nothing on this page ever appears on your CV.",
+    "q": {
+      "roles": "Which job titles should we watch for?",
+      "rolesSub": "Add every title you'd actually apply to, including variants and translations. This is the first thing the scanner checks against a listing.",
+      "rolesPlaceholder": "e.g. Data Scientist — press Enter to add",
+      "where": "Where — and how — do you want to work?",
+      "whereSub": "Postings outside these places, languages or working styles get filtered out.",
+      "locations": "Cities or regions you could commute to",
+      "locationsPlaceholder": "e.g. Ghent — press Enter to add",
+      "workingStyle": "Working style",
+      "languages": "Languages you can work in",
+      "languagesPlaceholder": "e.g. Dutch — press Enter to add",
+      "great": "What makes a job a great match?",
+      "greatSub": "The work, the industry, the mission — whatever would make you genuinely want to apply. Full sentences are fine; the AI reads this like a colleague would.",
+      "greatPlaceholder": "e.g. Research-driven work where I get to build data products end to end, ideally with social impact",
+      "dealbreakers": "What rules a job out?",
+      "dealbreakersSub": "Even when the title fits. Postings that hit any of these are dropped.",
+      "dealbreakersPlaceholder": "e.g. Purely administrative work, cold acquisition, weekend shifts",
+      "practical": "Anything practical we should check?",
+      "practicalSub": "Salary expectations, contract type, hours, start date, travel — the small print worth catching before you read a posting yourself.",
+      "practicalPlaceholder": "e.g. Full-time from September, at least €3,500/month, max one day of travel a week"
     },
-    "practical": {
-      "title": "Practical preferences",
-      "help": "Location, remote/hybrid and languages — used for job matching."
-    },
-    "fields": {
-      "lookingFor": "What are you looking for?",
-      "lookingForPlaceholder": "What kind of role are you looking for next? Which industries appeal to you? What sets you apart? What problems do you enjoy working on?",
-      "avoid": "What should a job not have?",
-      "avoidPlaceholder": "E.g. purely administrative work, constant travel, industries you'd rule out",
-      "locations": "Preferred locations / commute (cities)",
-      "languages": "Language preferences",
-      "notes": "Anything else practical",
-      "notesPlaceholder": "Contract type, full-time/part-time, schedule, salary expectations, travel, relocation, what kind of organisation suits you"
+    "suggest": {
+      "admin": "Purely administrative work",
+      "travel": "Frequent travel",
+      "shifts": "Evening or weekend shifts",
+      "sales": "Cold-calling or door-to-door sales"
     }
   },
   "badges": {

@@ -267,6 +267,54 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 .badge-lang    { background: transparent; color: var(--ink); border: 1px solid var(--border); }
 .badge-neutral { background: transparent; color: var(--muted); border: 1px solid color-mix(in srgb, var(--ink) 45%, transparent); }
 
+/* ── Preferences questionnaire ──────────────────────────────────────────── */
+/* Numbered question card: ink number block + bold question, poster-style. */
+.q-head { display: flex; align-items: baseline; gap: var(--space-3); margin-bottom: var(--space-1); }
+.q-num {
+  background: var(--accent);
+  color: var(--paper);
+  font-weight: 700;
+  font-size: var(--fs-base);
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transform: translateY(4px);
+}
+.q-title { font-size: var(--fs-lg); }
+.q-sub { font-size: var(--fs-sm); color: var(--muted); line-height: 1.55; margin: 0 0 var(--space-4); }
+
+/* Squared segmented control (single choice) — ink fill marks the active option. */
+.seg { display: inline-flex; border: 1px solid var(--ink); width: fit-content; }
+.seg button {
+  padding: 6px 14px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--ink);
+  font: inherit;
+  font-size: var(--fs-sm);
+  color: var(--ink);
+  cursor: pointer;
+}
+.seg button:last-child { border-right: none; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); font-weight: 600; }
+
+/* One-tap example chips that append to a textarea. */
+.suggest-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-2); }
+.suggest-row button {
+  font-size: var(--fs-sm);
+  padding: 3px 10px;
+  background: transparent;
+  border: 1px dashed color-mix(in srgb, var(--ink) 45%, transparent);
+  border-radius: var(--chip-radius);
+  color: var(--muted);
+  cursor: pointer;
+}
+.suggest-row button:hover:not(:disabled) { border-color: var(--ink); color: var(--ink); border-style: solid; }
+.suggest-row button:disabled { opacity: 0.35; cursor: default; }
+
 /* Legacy names still used by TagInput */
 .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-1); }
 .tag {

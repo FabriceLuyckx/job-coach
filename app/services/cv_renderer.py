@@ -681,6 +681,9 @@ def normalize_profile(profile: dict) -> dict:
             p.get("narrative") or {}, p.get("work_preferences") or {}, extra_looking_for)
     p.pop("narrative", None)
     p.pop("work_preferences", None)
+    # target_roles: job titles the user would apply for — the cheapest relevance
+    # signal (matchable from a listing title alone). Additive, no version bump.
+    p["preferences"].setdefault("target_roles", [])
 
     # ── v4 → v5 ── academic dissolves: research_areas → a "Research areas" skills
     # group (printable, tag-shaped); research_themes → preferences.notes (AI-only prose).

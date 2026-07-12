@@ -37,10 +37,11 @@ export function Section({ title, badge, help, count, onHide, children, defaultOp
   )
 }
 
-export function Field({ label, children }: { label: string; children: React.ReactNode }) {
+export function Field({ label, help, children }: { label: string; help?: string; children: React.ReactNode }) {
   return (
     <div className="field">
       <label>{label}</label>
+      {help && <p className="section-help" style={{ margin: '0 0 var(--space-2)' }}>{help}</p>}
       {children}
     </div>
   )

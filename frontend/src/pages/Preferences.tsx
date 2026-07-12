@@ -2,8 +2,65 @@ import { useTranslation } from 'react-i18next'
 import { Check, CloudUpload } from 'lucide-react'
 import Button from '../components/Button'
 import TagInput from '../components/TagInput'
-import { Section, Field } from '../components/ProfileSection'
 import { useProfileAutosave } from '../lib/useProfileAutosave'
+
+// ── Building blocks ──────────────────────────────────────────────────────────
+
+/** One numbered question card: accent number block, bold question, one sub-line. */
+function Question({ n, title, sub, children }: {
+  n: number
+  title: string
+  sub: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="card">
+      <div className="q-head">
+        <span className="q-num" aria-hidden>{n}</span>
+        <span className="q-title">{title}</span>
+      </div>
+      <p className="q-sub">{sub}</p>
+      {children}
+    </div>
+  )
+}
+
+/** Squared single-choice control — friendlier than a dropdown for 4 options. */
+function Segmented({ value, options, onChange, label }: {
+  value: string
+  options: { value: string; label: string }[]
+  onChange: (v: string) => void
+  label: string
+}) {
+  return (
+    <div className="seg" role="group" aria-label={label}>
+      {options.map(o => (
+        <button key={o.value} type="button" aria-pressed={value === o.value}
+          onClick={() => onChange(o.value)}>
+          {o.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+/** One-tap examples that append to a free-text answer (disabled once present). */
+function Suggestions({ items, value, onPick }: {
+  items: string[]
+  value: string
+  onPick: (v: string) => void
+}) {
+  return (
+    <div className="suggest-row">
+      {items.map(s => (
+        <button key={s} type="button" disabled={value.toLowerCase().includes(s.toLowerCase())}
+          onClick={() => onPick(value.trim() ? `${value.replace(/[\s,;]+$/, '')}, ${s.toLowerCase()}` : s)}>
+          + {s}
+        </button>
+      ))}
+    </div>
+  )
+}
 
 // ── Main page ────────────────────────────────────────────────────────────────
 
@@ -13,7 +70,7 @@ export default function PreferencesPage() {
 
   if (!profile) return <div style={{ padding: 32, color: 'var(--muted)' }}>{error || t('profile.loading')}</div>
 
-  const pf = profile
+  const p = profile.preferences
 
   return (
     <div>
@@ -36,32 +93,56 @@ export default function PreferencesPage() {
         {t('preferences.help')}
       </p>
 
-      <Section title={t('preferences.lookingFor.title')} help={t('preferences.lookingFor.help')} defaultOpen>
-        <Field label={t('preferences.fields.lookingFor')}>
-          <textarea value={pf.preferences.looking_for} placeholder={t('preferences.fields.lookingForPlaceholder')}
-            onChange={e => set('preferences.looking_for', e.target.value)} style={{ minHeight: 100 }} />
-        </Field>
-        <Field label={t('preferences.fields.avoid')}>
-          <textarea value={pf.preferences.avoid} placeholder={t('preferences.fields.avoidPlaceholder')}
-            onChange={e => set('preferences.avoid', e.target.value)} />
-        </Field>
-      </Section>
+      <Question n={1} title={t('preferences.q.roles')} sub={t('preferences.q.rolesSub')}>
+        <TagInput value={p.target_roles} onChange={v => set('preferences.target_roles', v)}
+          placeholder={t('preferences.q.rolesPlaceholder')} />
+      </Question>
 
-      <Section title={t('preferences.practical.title')} help={t('preferences.practical.help')} defaultOpen>
-        <Field label={t('preferences.fields.locations')}><TagInput value={pf.preferences.locations} onChange={v => set('preferences.locations', v)} /></Field>
-        <div className="row">
-          <Field label={t('profile.work.remoteHybrid')}>
-            <select value={pf.preferences.remote} onChange={e => set('preferences.remote', e.target.value)}>
-              <option value="Remote">{t('profile.work.remote')}</option><option value="Hybrid">{t('profile.work.hybrid')}</option><option value="On-site">{t('profile.work.onSite')}</option><option value="No preference">{t('profile.work.noPreference')}</option>
-            </select>
-          </Field>
-          <Field label={t('preferences.fields.languages')}><TagInput value={pf.preferences.languages} onChange={v => set('preferences.languages', v)} /></Field>
+      <Question n={2} title={t('preferences.q.where')} sub={t('preferences.q.whereSub')}>
+        <div className="field">
+          <label>{t('preferences.q.locations')}</label>
+          <TagInput value={p.locations} onChange={v => set('preferences.locations', v)}
+            placeholder={t('preferences.q.locationsPlaceholder')} />
         </div>
-        <Field label={t('preferences.fields.notes')}>
-          <textarea value={pf.preferences.notes} placeholder={t('preferences.fields.notesPlaceholder')}
-            onChange={e => set('preferences.notes', e.target.value)} style={{ minHeight: 100 }} />
-        </Field>
-      </Section>
+        <div className="field">
+          <label>{t('preferences.q.workingStyle')}</label>
+          <Segmented label={t('preferences.q.workingStyle')} value={p.remote}
+            onChange={v => set('preferences.remote', v)}
+            options={[
+              { value: 'Remote', label: t('profile.work.remote') },
+              { value: 'Hybrid', label: t('profile.work.hybrid') },
+              { value: 'On-site', label: t('profile.work.onSite') },
+              { value: 'No preference', label: t('profile.work.noPreference') },
+            ]} />
+        </div>
+        <div className="field">
+          <label>{t('preferences.q.languages')}</label>
+          <TagInput value={p.languages} onChange={v => set('preferences.languages', v)}
+            placeholder={t('preferences.q.languagesPlaceholder')} />
+        </div>
+      </Question>
+
+      <Question n={3} title={t('preferences.q.great')} sub={t('preferences.q.greatSub')}>
+        <textarea value={p.looking_for} placeholder={t('preferences.q.greatPlaceholder')}
+          onChange={e => set('preferences.looking_for', e.target.value)} style={{ minHeight: 100 }} />
+      </Question>
+
+      <Question n={4} title={t('preferences.q.dealbreakers')} sub={t('preferences.q.dealbreakersSub')}>
+        <textarea value={p.avoid} placeholder={t('preferences.q.dealbreakersPlaceholder')}
+          onChange={e => set('preferences.avoid', e.target.value)} style={{ minHeight: 80 }} />
+        <Suggestions value={p.avoid} onPick={v => set('preferences.avoid', v)}
+          items={[
+            t('preferences.suggest.admin'),
+            t('preferences.suggest.travel'),
+            t('preferences.suggest.shifts'),
+            t('preferences.suggest.sales'),
+          ]} />
+      </Question>
+
+      <Question n={5} title={t('preferences.q.practical')} sub={t('preferences.q.practicalSub')}>
+        <textarea value={p.notes} placeholder={t('preferences.q.practicalPlaceholder')}
+          onChange={e => set('preferences.notes', e.target.value)} style={{ minHeight: 80 }} />
+      </Question>
 
       {error && <p className="error-msg" style={{ marginBottom: 'var(--space-2)' }}>{error}</p>}
     </div>

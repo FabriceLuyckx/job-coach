@@ -295,24 +295,33 @@
   },
   "preferences": {
     "title": "Preferencje",
-    "help": "Niewidoczne w CV — używane przez Asystenta Kariery do filtrowania proponowanych ofert pracy i (wkrótce) pisania listów motywacyjnych.",
-    "lookingFor": {
-      "title": "Czego szukam",
-      "help": "Pomaga AI dostosować Twoje CV i filtrować sugestie ofert pracy."
+    "help": "Pięć szybkich pytań. Job Coach porównuje każdą nową ofertę pracy z Twoimi odpowiedziami tutaj — nic na tej stronie nigdy nie pojawia się na Twoim CV.",
+    "q": {
+      "roles": "Które tytuły stanowisk powinny być śledzone?",
+      "rolesSub": "Dodaj każdy tytuł, do którego naprawdę byś się zastosował, w tym warianty i tłumaczenia. To pierwsze, co sprawdza analizator w ofercie.",
+      "rolesPlaceholder": "np. Data Scientist — naciśnij Enter, aby dodać",
+      "where": "Gdzie — i jak — chcesz pracować?",
+      "whereSub": "Oferty poza tymi miejscami, językami lub stylami pracy są filtrowane.",
+      "locations": "Miasta lub regiony, do których możesz się przewieść",
+      "locationsPlaceholder": "np. Gent — naciśnij Enter, aby dodać",
+      "workingStyle": "Styl pracy",
+      "languages": "Języki, w których możesz pracować",
+      "languagesPlaceholder": "np. Holenderski — naciśnij Enter, aby dodać",
+      "great": "Co robi kwalifikację pracy?",
+      "greatSub": "Praca, branża, misja — wszystko, co by Cię naprawdę skłoniło do zastosowania. Można podać pełne zdania; AI czyta to jak kolegę.",
+      "greatPlaceholder": "np. Praca oparta na badaniach, w której mogę budować produkty danych od razu, najlepiej z wpływem społecznym",
+      "dealbreakers": "Co eliminuje ofertę?",
+      "dealbreakersSub": "Nawet jeśli tytuł pasuje. Oferty, które trafiają do tych punktów, są odrzucone.",
+      "dealbreakersPlaceholder": "np. Praca wyłącznie administracyjna, sprzedaż bez kontaktu, weekendowe zmiany",
+      "practical": "Czy coś praktycznego powinno być sprawdzone?",
+      "practicalSub": "Oczekiwane wynagrodzenie, typ umowy, godziny, data rozpoczęcia, podróż — szczegóły, które warto zauważyć przed tym, jak przeczytasz ofertę samodzielnie.",
+      "practicalPlaceholder": "np. Całkowita praca od września, co najmniej €3500/miesiąc, maksymalnie jeden dzień podróży w tygodniu"
     },
-    "practical": {
-      "title": "Praktyczne preferencje",
-      "help": "Miejsce, zdalne/hybrida i języki — używane do dopasowania stanowisk."
-    },
-    "fields": {
-      "lookingFor": "Co szukasz?",
-      "lookingForPlaceholder": "Jaki rodzaj stanowiska szukasz dalej? Które sektory Cię interesują? Co Cię wydaje się wyjątkowe? Jakie problemy Cię interesują?",
-      "avoid": "Co powinno być w stanowisku, które nie powinno być?",
-      "avoidPlaceholder": "Na przykład: wyłącznie administracyjne zadania, stałe podróże, sektory, które byś wykluczył",
-      "locations": "Preferowane miejsca / czas przejazdu (miasta)",
-      "languages": "Preferencje językowe",
-      "notes": "Coś innego praktycznego",
-      "notesPlaceholder": "Typ umowy, pełni czas/częściowy, harmonogram, oczekiwane wynagrodzenie, podróże, przeniesienie, jaki rodzaj organizacji Cię pasuje"
+    "suggest": {
+      "admin": "Praca wyłącznie administracyjna",
+      "travel": "Częste podróże",
+      "shifts": "Zmiany wieczorne lub w weekendy",
+      "sales": "Sprzedaż bez kontaktu lub w terenie"
     }
   },
   "badges": {
@@ -421,7 +430,6 @@
     "findNew": "Znajdź nowe oferty",
     "scanning": "Skanowanie…",
     "scanProgress": "Skanowanie {{source}} ({{current}} z {{total}})…",
-    "readingPosting": "Odczytuję ofertę {{current}} z {{total}}…",
     "starting": "Uruchamianie…",
     "lastScan": "Ostatnie skanowanie: {{time}}",
     "neverScanned": "Nigdy nie skanowano",
@@ -447,7 +455,8 @@
     "restore": "Przywróć",
     "openCv": "Otwórz CV",
     "regenerateTitle": "Uruchom ponownie generowanie CV dla tej oferty",
-    "regenerateCv": "Wygeneruj CV ponownie"
+    "regenerateCv": "Wygeneruj CV ponownie",
+    "readingPosting": "Odczytuję ofertę {{current}} z {{total}}…"
   },
   "cveditor": {
     "sections": {
