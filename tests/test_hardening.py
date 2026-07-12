@@ -145,3 +145,11 @@ def test_cv_prompt_requires_lang_placeholder():
     r = client.put("/api/settings", json={"cv_prompt": "no placeholder here"})
     assert r.status_code == 400
     assert "lang_name" in r.json()["detail"]
+# ---------- i18n changed-key detection (pre-commit hook) ----------
+
+def test_changed_keys_detects_new_and_updated():
+    from scripts.translate_locales import changed_keys
+    en = {"a": "one", "b": "two", "c": "three"}
+    head = {"a": "one", "b": "TWO-old"}  # a unchanged, b edited, c new
+    assert changed_keys(en, head) == {"b", "c"}
+    assert changed_keys(en, en) == set()

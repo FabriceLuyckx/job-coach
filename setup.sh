@@ -70,6 +70,10 @@ if [[ ! -f config.json ]]; then
   cp config.json.example config.json
 fi
 
+# 8. Git pre-commit hook: auto-translate new/updated UI strings on commit.
+say "Enabling the translation pre-commit hook (git hooksPath)..."
+git config core.hooksPath scripts/hooks
+
 cat <<'DONE'
 
 ==> Setup complete! Next steps:

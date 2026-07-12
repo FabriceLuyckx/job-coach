@@ -2,13 +2,16 @@
 
 Diffs frontend/src/locales/en.json against each target locale and translates only
 keys missing from the target (so routine releases cost cents, not a full
-re-translation), using the configured AI engine. A key whose English *text*
-changed keeps its old translation — use --full (or delete the key from the
-target locale) to refresh it. Placeholders like {{name}} and tags like <b> are
-preserved verbatim.
+re-translation), using the configured AI engine. Placeholders like {{name}} and
+tags like <b> are preserved verbatim.
+
+The pre-commit hook runs this with --changed: it re-translates keys whose English
+text is new OR changed since HEAD, so translations stay in sync automatically and
+you never have to run this by hand. --full forces a complete re-translation.
 
 Usage:
     uv run python scripts/translate_locales.py                # all shipped locales, new keys only
+    uv run python scripts/translate_locales.py --changed      # new + updated keys (pre-commit hook)
     uv run python scripts/translate_locales.py --lang nl fr   # specific locales
     uv run python scripts/translate_locales.py --lang de --full   # full re-translation
 """
@@ -16,13 +19,16 @@ Usage:
 import argparse
 import json
 import re
+import subprocess
 from pathlib import Path
 
 from app import config
 from app.services.llm import complete, tool_args
 
-LOCALES_DIR = Path(__file__).resolve().parent.parent / "frontend" / "src" / "locales"
+REPO_ROOT = Path(__file__).resolve().parent.parent
+LOCALES_DIR = REPO_ROOT / "frontend" / "src" / "locales"
 EN_PATH = LOCALES_DIR / "en.json"
+EN_REL = "frontend/src/locales/en.json"
 
 # Native-name targets; keep in sync with SHIPPED_LOCALES in frontend/src/i18n.ts.
 SHIPPED = {
@@ -114,13 +120,33 @@ def _placeholders_ok(src: str, dst: str) -> bool:
             and sorted(_TAG.findall(src)) == sorted(_TAG.findall(dst)))
 
 
-def translate_locale(lang: str, full: bool, cfg: dict) -> None:
+def _head_en() -> dict[str, str]:
+    """The committed (HEAD) en.json, flattened. Empty when there's no prior
+    version (first commit, or the file is new), which makes every key 'changed'."""
+    try:
+        blob = subprocess.run(
+            ["git", "show", f"HEAD:{EN_REL}"],
+            capture_output=True, text=True, cwd=REPO_ROOT, check=True,
+        ).stdout
+        return flatten(json.loads(blob))
+    except Exception:
+        return {}
+
+
+def changed_keys(en: dict[str, str], head: dict[str, str]) -> set[str]:
+    """Keys whose English text is new or differs from HEAD."""
+    return {k for k, v in en.items() if head.get(k) != v}
+
+
+def translate_locale(lang: str, full: bool, cfg: dict, force: set[str] | None = None) -> None:
     lang_name = SHIPPED[lang]
     en = flatten(json.loads(EN_PATH.read_text()))
     dest_path = LOCALES_DIR / f"{lang}.json"
     existing = flatten(json.loads(dest_path.read_text())) if dest_path.exists() and not full else {}
+    force = force or set()
 
-    todo = {k: v for k, v in en.items() if k not in existing}
+    # Translate keys missing from the target, plus any explicitly forced (changed).
+    todo = {k: v for k, v in en.items() if k not in existing or k in force}
     print(f"[{lang}] {len(todo)} keys to translate ({len(en) - len(todo)} reused)")
 
     result = dict(existing)
@@ -150,7 +176,18 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--lang", nargs="*", choices=list(SHIPPED), help="Locales (default: all shipped)")
     ap.add_argument("--full", action="store_true", help="Re-translate every key, not just new/changed ones")
+    ap.add_argument("--changed", action="store_true",
+                    help="Translate keys new or changed since HEAD (used by the pre-commit hook)")
     args = ap.parse_args()
+
+    force: set[str] | None = None
+    if args.changed:
+        en = flatten(json.loads(EN_PATH.read_text()))
+        force = changed_keys(en, _head_en())
+        if not force:
+            print("No new or changed UI strings — nothing to translate.")
+            return
+        print(f"{len(force)} new/changed key(s) to translate across {len(args.lang or SHIPPED)} locale(s).")
 
     cfg = config.load()
     try:
@@ -159,7 +196,7 @@ def main() -> None:
         raise SystemExit(f"Configure an AI engine first: {e}")
 
     for lang in (args.lang or list(SHIPPED)):
-        translate_locale(lang, args.full, cfg)
+        translate_locale(lang, args.full, cfg, force)
 
 
 if __name__ == "__main__":

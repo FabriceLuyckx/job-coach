@@ -428,9 +428,17 @@ For CLI use without the web UI, create `config.json` manually:
 The UI is fully internationalized. English is the source catalog
 (`frontend/src/locales/en.json`); reviewed **shipped** locales (nl, fr, de, es, it, pt, pl)
 sit beside it and are loaded on demand. `app_language` (config) is server-stored and
-applied at boot. Regenerate shipped locales after English changes with
-`uv run python scripts/translate_locales.py` (diffs and translates only keys missing from
-the target via the configured AI engine; `--full` forces a complete pass). CV **section
+applied at boot.
+
+**Translation is automatic on commit — you (Claude) do NOT need to run it after
+editing `en.json`.** A pre-commit hook (`scripts/hooks/pre-commit`, enabled by
+`setup.sh` via `git config core.hooksPath scripts/hooks`) runs
+`scripts/translate_locales.py --changed`, which translates every key whose English
+text is **new or changed since HEAD** into all shipped locales and stages them.
+So: just edit `en.json` and commit; the localized files update themselves. Manual
+runs are only for out-of-band refreshes — `uv run python scripts/translate_locales.py`
+(new keys only) or `--full` (re-translate everything). `--changed` compares the
+working-tree `en.json` against HEAD, so stage `en.json` as a whole. CV **section
 labels** are separate: reviewed sets for every shipped locale live in
 `app/i18n/cv_labels.json`, resolved by `cv_labels(lang)` in `cv_renderer.py` with per-key
 English fallback; for any other CV language, `ensure_cv_labels()` (app/api/i18n.py)

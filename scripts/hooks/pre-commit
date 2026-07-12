@@ -1,0 +1,18 @@
+#!/bin/sh
+# Auto-translate new/updated UI strings into the shipped locales whenever the
+# English catalog (en.json) is part of the commit. Uses the configured AI engine;
+# with the default local provider it's free and offline.
+#
+# Installed via `git config core.hooksPath scripts/hooks` (setup.sh does this).
+# ponytail: compares the working-tree en.json against HEAD — assumes en.json is
+# staged as a whole (the normal case). Skip with `git commit --no-verify`.
+
+git diff --cached --quiet -- frontend/src/locales/en.json && exit 0
+
+echo "en.json changed — translating new/updated strings…"
+if ! uv run python scripts/translate_locales.py --changed; then
+  echo "Translation failed. Configure an AI engine, or commit with --no-verify to skip." >&2
+  exit 1
+fi
+
+git add frontend/src/locales/*.json
