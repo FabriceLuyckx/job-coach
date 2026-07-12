@@ -1,4 +1,18 @@
 <!DOCTYPE html>
+{#
+  CV TEMPLATE CONTRACT (freeze — any future template must honour all of this):
+  A template is rendered with the tailored profile keys (personal, summary,
+  experience, skills, education, grants, publications, teaching, projects, …),
+  plus: `labels` (from cv_labels(lang)), `lang`, `photo` (a data URI or None),
+  and `hidden_sections` (list of section keys the user toggled off).
+  It MUST:
+    (a) tag every section root with data-section="<key>" — the editor toggles,
+        WS1 hidden_sections, and the section chips all key off these;
+    (b) honour cv_design_preferences.accent_color for the accent colour;
+    (c) hide any section whose key is in hidden_sections (see `hidden` below);
+    (d) contain its own print CSS — the PDF renderer just prints the page.
+  Satisfy the contract and the whole editor / PDF / i18n pipeline works for free.
+#}
 <html lang="{{ lang }}">
 <head>
 <meta charset="UTF-8">
@@ -386,6 +400,9 @@
 </style>
 </head>
 <body>
+{# Sections the user toggled off in the editor. Defaulted so the CLIs
+   (generate_cv.py / tailor_cv.py), which don't pass it, still render. #}
+{% set hidden = hidden_sections | default([], true) %}
 <div class="doc">
 
   <!-- HEADER -->
@@ -412,11 +429,11 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
 
-    {% if photo %}
+    {% if photo and 'photo' not in hidden %}
     <img src="{{ photo }}" class="photo" alt="{{ personal.name }}" data-section="photo">
     {% endif %}
 
-    {% if personal.links %}
+    {% if personal.links and 'links' not in hidden %}
     <div class="section" data-section="links">
       <div class="section-title">{{ labels.links }}</div>
       {% for link in personal.links %}{% if link.url %}
@@ -428,6 +445,7 @@
     </div>
     {% endif %}
 
+    {% if 'skills' not in hidden %}
     <div class="section" data-section="skills">
       <div class="section-title">{{ labels.skills }}</div>
 
@@ -440,7 +458,9 @@
       </div>
       {% endif %}{% endfor %}
     </div>
+    {% endif %}
 
+    {% if 'languages' not in hidden %}
     <div class="section" data-section="languages">
       <div class="section-title">{{ labels.languages }}</div>
       {% for lang_item in skills.languages %}
@@ -452,7 +472,9 @@
       </div>
       {% endfor %}
     </div>
+    {% endif %}
 
+    {% if 'education' not in hidden %}
     <div class="section" data-section="education">
       <div class="section-title">{{ labels.education }}</div>
       {% for edu in education %}
@@ -469,7 +491,9 @@
       {% endif %}
       {% endfor %}
     </div>
+    {% endif %}
 
+    {% if grants and 'grants' not in hidden %}
     <div class="section" data-section="grants">
       <div class="section-title">{{ labels.grants }}</div>
       {% for grant in grants %}
@@ -479,14 +503,16 @@
       </div>
       {% endfor %}
     </div>
+    {% endif %}
 
   </aside>
 
   <!-- MAIN CONTENT -->
   <main class="main">
 
-    {% if summary %}<div class="summary" data-section="summary">{{ summary | richtext }}</div>{% endif %}
+    {% if summary and 'summary' not in hidden %}<div class="summary" data-section="summary">{{ summary | richtext }}</div>{% endif %}
 
+    {% if 'experience' not in hidden %}
     <div class="section" data-section="experience">
       <div class="section-title">{{ labels.experience }}</div>
       {% for job in experience %}
@@ -507,6 +533,7 @@
       </div>
       {% endfor %}
     </div>
+    {% endif %}
 
     {% if projects %}
     <div class="section" data-section="projects">
@@ -523,7 +550,7 @@
     </div>
     {% endif %}
 
-    {% if publications %}
+    {% if publications and 'publications' not in hidden %}
     <div class="section" data-section="publications">
       <div class="section-title">{{ labels.publications }}</div>
       {% for pub in publications %}

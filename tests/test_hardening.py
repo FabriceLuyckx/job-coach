@@ -339,6 +339,58 @@ def test_check_existing_url_returns_row_without_llm(monkeypatch):
             conn.execute("DELETE FROM job_openings WHERE url = ?", (url,))
 
 
+# ---------- CV plan: hidden_sections round-trip + bullet cap ----------
+
+def test_tailoring_plan_backcompat_hidden_sections():
+    """Old stored plans (no hidden_sections key) still deserialize, defaulting []."""
+    from app.services.cv_generator import TailoringPlan
+    p = TailoringPlan(job_title="t", employer="e", slug="s", summary="x",
+                      selected_experience_ids=[], adjusted_responsibilities={},
+                      highlighted_skills=[], tailoring_notes="n")
+    assert p.hidden_sections == []
+
+
+def test_put_plan_saves_hidden_and_caps_bullets(monkeypatch, tmp_path):
+    """PUT /plan persists hidden_sections and never keeps more than 4 bullets;
+    GET /plan hydrates hidden_sections + highlighted_skills for the editor."""
+    from app import db
+    import app.api.cv as cvapi
+    from app.services.cv_renderer import blank_profile
+    db.init_db()
+    hid = "test-plan-hidden-xyz"
+    plan = {
+        "job_title": "T", "employer": "E", "slug": "s", "summary": "sum",
+        "selected_experience_ids": ["e1"], "adjusted_responsibilities": {"e1": ["a"]},
+        "highlighted_skills": ["Python"], "tailoring_notes": "n",
+    }
+    with db.get_db() as conn:
+        conn.execute("DELETE FROM cv_history WHERE id = ?", (hid,))
+        conn.execute(
+            """INSERT INTO cv_history (id, slug, job_title, employer, job_url, lang,
+               plans_json, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+            (hid, "s", "T", "E", "http://x", "en", json.dumps({"en": plan}),
+             "2026-01-01T00:00:00Z"),
+        )
+    prof = blank_profile()
+    prof["experience"] = [{"id": "e1", "title": "Dev", "employer": "E", "responsibilities": []}]
+    monkeypatch.setattr(cvapi, "load_profile", lambda: prof)
+    monkeypatch.setattr(cvapi, "PROFILE_PATH", tmp_path)  # .exists() → True
+    try:
+        r = client.put(f"/api/cv/plan/{hid}", json={
+            "summary": "new", "roles": [{"id": "e1", "bullets": ["1", "2", "3", "4", "5"]}],
+            "hidden_sections": ["publications", "grants"], "excluded_sections": [],
+        })
+        assert r.status_code == 200
+        g = client.get(f"/api/cv/plan/{hid}").json()
+        assert g["hidden_sections"] == ["publications", "grants"]
+        assert g["highlighted_skills"] == ["Python"]
+        role = next(x for x in g["roles"] if x["id"] == "e1")
+        assert role["bullets"] == ["1", "2", "3", "4"]  # capped at 4
+    finally:
+        with db.get_db() as conn:
+            conn.execute("DELETE FROM cv_history WHERE id = ?", (hid,))
+
+
 # ---------- i18n changed-key detection (pre-commit hook) ----------
 
 def test_changed_keys_detects_new_and_updated():

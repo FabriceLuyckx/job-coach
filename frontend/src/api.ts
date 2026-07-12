@@ -55,6 +55,20 @@ export interface CVPlan {
   lang: string
   summary: string
   roles: CVPlanRole[]
+  hidden_sections: string[]       // sections the user toggled off
+  excluded_sections: string[]     // sections the AI judged irrelevant and dropped
+  highlighted_skills: string[]    // skills the AI chose to emphasise (read-only)
+}
+
+/** Coarse progress stage reported by async CV jobs. */
+export type CVJobStage = 'fetching' | 'thinking' | 'rendering'
+
+/** Payload for PUT /cv/plan — the whole editable plan, auto-saved on every edit. */
+export interface PlanEdit {
+  summary: string
+  roles: { id: string; bullets: string[] }[]
+  hidden_sections: string[]
+  excluded_sections: string[]
 }
 
 export interface CvHistoryEntry {
@@ -151,8 +165,8 @@ export const api = {
       body: JSON.stringify({ url, lang }),
     }),
 
-  getCVJobStatus: (jobId: string) =>
-    request<{ status: JobStatus; result?: CVResult; error?: string }>(`/cv/status/${jobId}`),
+  getCVJobStatus: <T = CVResult>(jobId: string) =>
+    request<{ status: JobStatus; stage?: CVJobStage; result?: T; error?: string }>(`/cv/status/${jobId}`),
 
   getCVHistory: () => request<CvHistoryEntry[]>('/cv/history'),
 
@@ -166,15 +180,17 @@ export const api = {
       body: JSON.stringify({ summary }),
     }),
 
+  // relang / regenerate / summary are async: they return a job_id to poll via
+  // getCVJobStatus (pollCVJob wraps that loop), so a slow engine never times out.
   relangCV: (id: string, lang: string) =>
-    request<CVMutation>(`/cv/relang/${id}`, {
+    request<{ job_id: string }>(`/cv/relang/${id}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ lang }),
     }),
 
   regenerateCV: (id: string, keepEdits: boolean) =>
-    request<CVMutation>(`/cv/regenerate/${id}`, {
+    request<{ job_id: string }>(`/cv/regenerate/${id}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ keep_edits: keepEdits }),
@@ -183,7 +199,7 @@ export const api = {
   getCVPlan: (id: string) =>
     request<CVPlan>(`/cv/plan/${id}`),
 
-  putCVPlan: (id: string, plan: { summary: string; roles: { id: string; bullets: string[] }[] }) =>
+  putCVPlan: (id: string, plan: PlanEdit) =>
     request<{ ok: boolean; summary: string }>(`/cv/plan/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -191,7 +207,7 @@ export const api = {
     }),
 
   generateCVSummary: (id: string) =>
-    request<{ summary: string }>(`/cv/summary/${id}/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }),
+    request<{ job_id: string }>(`/cv/summary/${id}/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }),
 
   // Jobs
   getJobSources: () => request<JobSource[]>('/jobs/sources'),
@@ -300,4 +316,24 @@ export const api = {
     form.append('file', file)
     return request<{ ok: boolean }>('/backup/import', { method: 'POST', body: form })
   },
+}
+
+/** Poll an async CV job to completion. Reports each stage; tolerates up to 3
+ * consecutive transient poll failures before giving up (WS6/L3). */
+export async function pollCVJob<T>(jobId: string, onStage?: (s: CVJobStage) => void): Promise<T> {
+  let misses = 0
+  for (;;) {
+    await new Promise(r => setTimeout(r, 1500))
+    let st: { status: JobStatus; stage?: CVJobStage; result?: T; error?: string }
+    try {
+      st = await api.getCVJobStatus<T>(jobId)
+      misses = 0
+    } catch (e) {
+      if (++misses >= 3) throw e
+      continue
+    }
+    if (st.stage) onStage?.(st.stage)
+    if (st.status === 'done') return st.result as T
+    if (st.status === 'error') throw new Error(st.error ?? 'Job failed')
+  }
 }

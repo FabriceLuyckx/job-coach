@@ -191,7 +191,8 @@ def test_teaching_type_unmatched_keyword_becomes_other():
 
 def test_design_prefs_trimmed():
     p = normalize_profile(copy.deepcopy(V1))
-    assert p["cv_design_preferences"] == {"accent_color": "#123456", "include_photo": True}
+    assert p["cv_design_preferences"] == {
+        "accent_color": "#123456", "include_photo": True, "template": "default"}
 
 
 def test_preferences_migrated():

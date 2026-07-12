@@ -9,11 +9,13 @@ from datetime import datetime, timezone
 import httpx
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import HTMLResponse, Response
+from jinja2 import TemplateNotFound
 from pydantic import BaseModel
 
 from app import config, db
 from app.services.cv_generator import (
-    DEFAULT_CV_PROMPT, TailoringPlan, apply_tailoring, tailor, _is_active, _start_key,
+    DEFAULT_CV_PROMPT, TailoringPlan, apply_tailoring, fetch_job_description,
+    tailor, _is_active, _start_key,
 )
 from app.api.i18n import ensure_cv_labels
 from app.i18n.languages import is_valid_code, lang_name
@@ -43,6 +45,39 @@ def _evict_jobs() -> None:
         del _jobs[jid]
 
 
+def _set_stage(job_id: str, stage: str) -> None:
+    """Record a coarse progress stage (fetching|thinking|rendering) for polling."""
+    with _jobs_lock:
+        if job_id in _jobs:
+            _jobs[job_id]["stage"] = stage
+
+
+def run_async(fn) -> str:
+    """Run fn(set_stage) on a daemon thread; return a job_id the client polls via
+    GET /status/{job_id}. fn's return value becomes the job's `result`; exceptions
+    become an `error`. The one pattern behind every long AI call (C3/H1)."""
+    job_id = str(uuid.uuid4())
+    with _jobs_lock:
+        _evict_jobs()
+        _jobs[job_id] = {"status": "pending", "created": time.time()}
+
+    def worker():
+        try:
+            with _jobs_lock:
+                _jobs[job_id]["status"] = "running"
+            result = fn(lambda s: _set_stage(job_id, s))
+            with _jobs_lock:
+                _jobs[job_id].update({"status": "done", "result": result})
+        except Exception as e:
+            with _jobs_lock:
+                # HTTPExceptions carry their message in .detail; everything else in str(e).
+                _jobs[job_id].update({"status": "error",
+                                      "error": getattr(e, "detail", None) or str(e)})
+
+    threading.Thread(target=worker, daemon=True).start()
+    return job_id
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -52,13 +87,12 @@ def _clean_slug(slug: str) -> str:
     return re.sub(r"[^a-z0-9\-]", "", slug)
 
 
-def _tailor_or_502(profile: dict, job_url: str, cfg: dict,
-                   lang: str, prompt: str) -> TailoringPlan:
-    """tailor() with fetch/AI failures mapped to clean HTTP errors, for the
-    synchronous endpoints (relang/regenerate) where exceptions would otherwise
-    surface as bare 500s."""
+def _tailor_or_502(profile: dict, job_url: str, cfg: dict, lang: str, prompt: str,
+                   job_text: str | None = None) -> TailoringPlan:
+    """tailor() with fetch/AI failures mapped to clean HTTP errors (surfaced as the
+    async job's error), for relang/regenerate."""
     try:
-        return tailor(profile, job_url, cfg, lang, prompt)
+        return tailor(profile, job_url, cfg, lang, prompt, job_text=job_text)
     except AIResponseError as e:
         raise HTTPException(502, str(e))
     except httpx.HTTPError as e:
@@ -86,6 +120,9 @@ class RoleEdit(BaseModel):
 class PlanEdit(BaseModel):
     summary: str
     roles: list[RoleEdit]
+    # None = leave unchanged (older clients). The editor always sends both.
+    hidden_sections: list[str] | None = None
+    excluded_sections: list[str] | None = None
 
 
 def _load_plans(row: dict) -> dict[str, dict]:
@@ -115,11 +152,19 @@ def _persist_plans(history_id: str, lang: str, plans: dict[str, dict]) -> None:
 def _render_html(plan: TailoringPlan, profile: dict, lang: str) -> str:
     """Apply tailoring plan and render the CV HTML (current template + profile)."""
     tailored = apply_tailoring(profile, plan)
-    include_photo = profile.get("cv_design_preferences", {}).get("include_photo", False)
-    photo_uri = load_photo() if include_photo else None
+    design = profile.get("cv_design_preferences", {})
+    photo_uri = load_photo() if design.get("include_photo", False) else None
     env = build_env()
-    return env.get_template("default.html").render(
+    # Groundwork for the template-chooser phase: the template name comes from the
+    # profile's design prefs, defaulting to "default"; unknown names fall back.
+    name = design.get("template") or "default"
+    try:
+        template = env.get_template(f"{name}.html")
+    except TemplateNotFound:
+        template = env.get_template("default.html")
+    return template.render(
         **tailored, labels=cv_labels(lang), lang=lang, photo=photo_uri,
+        hidden_sections=plan.hidden_sections,
     )
 
 
@@ -166,7 +211,12 @@ def _run_generation(job_id: str, url: str, lang: str, job_text: str | None = Non
         config.require_engine(cfg)  # fail fast before fetching the job page
         profile = load_profile()
         prompt = cfg.get("cv_prompt") or DEFAULT_CV_PROMPT
+        if job_text is None:
+            _set_stage(job_id, "fetching")
+            job_text = fetch_job_description(url)
+        _set_stage(job_id, "thinking")
         plan = tailor(profile, url, cfg, lang, prompt, job_text=job_text)
+        _set_stage(job_id, "rendering")
         ensure_cv_labels(lang, cfg)  # no-op for reviewed/already-generated languages
         slug = _render_and_save(plan, profile, lang)
 
@@ -292,13 +342,15 @@ def rerender_cv(history_id: str, body: RerenderRequest):
     return {"ok": True}
 
 
-def _retailor(history_id: str, row: dict, lang: str, keep_edits: bool = False) -> dict:
+def _retailor(history_id: str, row: dict, lang: str, keep_edits: bool = False,
+              on_stage=None) -> dict:
     """Re-run AI tailoring from the stored job URL for the given language, save
     the new HTML, and store the plan for that language. Used by relang + regenerate.
 
     keep_edits: preserve the user's edited summary, role selection and bullets,
     only pulling in the freshly generated bits (e.g. sidebar translations,
-    tailoring notes) — so a regenerate can add new content without losing edits."""
+    tailoring notes) — so a regenerate can add new content without losing edits.
+    on_stage: optional progress callback for the async job pattern."""
     if not row.get("job_url"):
         raise HTTPException(400, "No job URL stored for this CV, so it can't be regenerated.")
 
@@ -309,7 +361,17 @@ def _retailor(history_id: str, row: dict, lang: str, keep_edits: bool = False) -
     except ValueError as e:
         raise HTTPException(400, str(e))
     prompt = cfg.get("cv_prompt") or DEFAULT_CV_PROMPT
-    plan = _tailor_or_502(profile, row["job_url"], cfg, lang, prompt)
+    if on_stage:
+        on_stage("fetching")
+    try:
+        job_text = fetch_job_description(row["job_url"])
+    except httpx.HTTPError as e:
+        raise HTTPException(502, f"Couldn't fetch the job page: {e}")
+    if on_stage:
+        on_stage("thinking")
+    plan = _tailor_or_502(profile, row["job_url"], cfg, lang, prompt, job_text=job_text)
+    if on_stage:
+        on_stage("rendering")
     ensure_cv_labels(lang, cfg)  # no-op for reviewed/already-generated languages
     plan.slug = row["slug"]  # keep slug so history identity is stable
 
@@ -322,6 +384,7 @@ def _retailor(history_id: str, row: dict, lang: str, keep_edits: bool = False) -
         plan.selected_experience_ids = old.get("selected_experience_ids") or plan.selected_experience_ids
         plan.adjusted_responsibilities = old.get("adjusted_responsibilities") or plan.adjusted_responsibilities
         plan.excluded_sections = old.get("excluded_sections", plan.excluded_sections)
+        plan.hidden_sections = old.get("hidden_sections", plan.hidden_sections)
         plan.job_title = old.get("job_title", plan.job_title)
         plan.employer = old.get("employer", plan.employer)
 
@@ -337,7 +400,8 @@ def _retailor(history_id: str, row: dict, lang: str, keep_edits: bool = False) -
 @router.post("/relang/{history_id}")
 def relang_cv(history_id: str, body: RelangRequest):
     """Switch a CV to another language. If a plan for that language already exists
-    (incl. your edits), reuse it — no AI call, no lost edits. Otherwise re-tailor."""
+    (incl. your edits), reuse it — no AI call, no lost edits. Otherwise re-tailor.
+    Async (job+poll) so the AI path never holds an HTTP request open (C3)."""
     body.lang = _clean_lang(body.lang)
     if not is_valid_code(body.lang):
         raise HTTPException(400, f"Unknown language code '{body.lang}'.")
@@ -346,16 +410,19 @@ def relang_cv(history_id: str, body: RelangRequest):
     if not row:
         raise HTTPException(404, "Entry not found")
     row = dict(row)
-    plans = _load_plans(row)
+    lang = body.lang
 
-    if body.lang in plans:
-        _persist_plans(history_id, body.lang, plans)
-        cur = plans[body.lang]
-        return {"lang": body.lang, "slug": row["slug"],
-                "summary": cur.get("summary", ""), "tailoring_notes": cur.get("tailoring_notes", ""),
-                "preview_url": f"/api/cv/preview/{row['slug']}/{body.lang}"}
+    def work(set_stage):
+        plans = _load_plans(row)
+        if lang in plans:  # reuse the stored plan — cheap, finishes on first poll
+            _persist_plans(history_id, lang, plans)
+            cur = plans[lang]
+            return {"lang": lang, "slug": row["slug"],
+                    "summary": cur.get("summary", ""), "tailoring_notes": cur.get("tailoring_notes", ""),
+                    "preview_url": f"/api/cv/preview/{row['slug']}/{lang}"}
+        return _retailor(history_id, row, lang, on_stage=set_stage)
 
-    return _retailor(history_id, row, body.lang)
+    return {"job_id": run_async(work)}
 
 
 class RegenerateRequest(BaseModel):
@@ -366,13 +433,15 @@ class RegenerateRequest(BaseModel):
 def regenerate_cv(history_id: str, body: RegenerateRequest):
     """Re-run AI tailoring for the CV's CURRENT language. With keep_edits=True the
     user's summary, role selection and bullets are preserved and only the rest is
-    refreshed; otherwise the whole CV is regenerated from scratch."""
+    refreshed; otherwise the whole CV is regenerated from scratch. Async (job+poll)."""
     with db.get_db() as conn:
         row = conn.execute("SELECT * FROM cv_history WHERE id = ?", (history_id,)).fetchone()
     if not row:
         raise HTTPException(404, "Entry not found")
     row = dict(row)
-    return _retailor(history_id, row, row["lang"], keep_edits=body.keep_edits)
+    return {"job_id": run_async(
+        lambda set_stage: _retailor(history_id, row, row["lang"],
+                                    keep_edits=body.keep_edits, on_stage=set_stage))}
 
 
 @router.get("/plan/{history_id}")
@@ -405,7 +474,12 @@ def get_plan(history_id: str):
         "employer": e.get("employer", ""),
         "bullets": plan.adjusted_responsibilities.get(e["id"], e.get("responsibilities", [])),
     } for e in ordered]
-    return {"lang": lang, "summary": plan.summary, "roles": roles}
+    return {
+        "lang": lang, "summary": plan.summary, "roles": roles,
+        "hidden_sections": plan.hidden_sections,
+        "excluded_sections": plan.excluded_sections,
+        "highlighted_skills": plan.highlighted_skills,
+    }
 
 
 @router.put("/plan/{history_id}")
@@ -427,7 +501,11 @@ def put_plan(history_id: str, body: PlanEdit):
     plan = TailoringPlan(**plans[lang])
     plan.summary = body.summary
     for r in body.roles:
-        plan.adjusted_responsibilities[r.id] = r.bullets[:4]
+        plan.adjusted_responsibilities[r.id] = r.bullets[:4]  # guard; client caps at 4
+    if body.hidden_sections is not None:
+        plan.hidden_sections = body.hidden_sections
+    if body.excluded_sections is not None:
+        plan.excluded_sections = body.excluded_sections
     plans[lang] = asdict(plan)
     _persist_plans(history_id, lang, plans)
 
@@ -452,7 +530,8 @@ def _maybe_print(html: str, autoprint: bool) -> str:
 
 @router.post("/summary/{history_id}/generate")
 def generate_cv_summary(history_id: str):
-    """Regenerate just the professional summary via AI, patch the HTML, update DB."""
+    """Regenerate just the professional summary via AI, patch the HTML, update DB.
+    Async (job+poll) so a slow local engine never times out the request (C3)."""
     with db.get_db() as conn:
         row = conn.execute("SELECT * FROM cv_history WHERE id = ?", (history_id,)).fetchone()
     if not row:
@@ -461,60 +540,63 @@ def generate_cv_summary(history_id: str):
 
     cfg = config.load()
     try:
-        config.require_engine(cfg)
-        profile = load_profile()
+        config.require_engine(cfg)  # fail fast before launching the thread
+        load_profile()
     except ValueError as e:
         raise HTTPException(400, str(e))
-    lang = row["lang"]
-    lang_display = lang_name(lang)
 
-    plans = _load_plans(row)
-    plan_data = plans.get(lang)
-    if plan_data:
-        job_context = (
-            f"Job title: {plan_data.get('job_title', row['job_title'])}\n"
-            f"Employer: {plan_data.get('employer', row['employer'])}\n"
-            f"Tailoring notes: {plan_data.get('tailoring_notes', '')}"
-        )
-    else:
-        job_context = f"Job title: {row['job_title']}\nEmployer: {row['employer']}"
+    def work(set_stage):
+        profile = load_profile()
+        lang = row["lang"]
+        plans = _load_plans(row)
+        plan_data = plans.get(lang)
+        if plan_data:
+            job_context = (
+                f"Job title: {plan_data.get('job_title', row['job_title'])}\n"
+                f"Employer: {plan_data.get('employer', row['employer'])}\n"
+                f"Tailoring notes: {plan_data.get('tailoring_notes', '')}"
+            )
+        else:
+            job_context = f"Job title: {row['job_title']}\nEmployer: {row['employer']}"
 
-    try:
-        response = complete(
-            [
-                {
-                    "role": "system",
-                    "content": (
-                        f"You are an expert career coach. Write a professional CV summary in {lang_display}.\n"
-                        "Rules: first person (I, my), maximum 4 sentences, direct and specific to the role.\n\n"
-                        f"CANDIDATE PROFILE:\n{json.dumps(profile_for_tailoring(profile), ensure_ascii=False, indent=2)}"
-                    ),
-                },
-                {
-                    "role": "user",
-                    "content": f"Write a professional summary for this application:\n\n{job_context}",
-                },
-            ],
-            cfg=cfg,
-            max_tokens=512,
-        )
-        new_summary = message_text(response)
-    except AIResponseError as e:
-        raise HTTPException(502, str(e))
+        set_stage("thinking")
+        try:
+            response = complete(
+                [
+                    {
+                        "role": "system",
+                        "content": (
+                            f"You are an expert career coach. Write a professional CV summary in {lang_name(lang)}.\n"
+                            "Rules: first person (I, my), maximum 4 sentences, direct and specific to the role.\n\n"
+                            f"CANDIDATE PROFILE:\n{json.dumps(profile_for_tailoring(profile), ensure_ascii=False, indent=2)}"
+                        ),
+                    },
+                    {
+                        "role": "user",
+                        "content": f"Write a professional summary for this application:\n\n{job_context}",
+                    },
+                ],
+                cfg=cfg,
+                max_tokens=512,
+            )
+            new_summary = message_text(response)
+        except AIResponseError as e:
+            raise HTTPException(502, str(e))
 
-    if plan_data:
-        # Persist into the per-language plan and re-render from it.
-        plan_data["summary"] = new_summary
-        plans[lang] = plan_data
-        _persist_plans(history_id, lang, plans)
-        plan = TailoringPlan(**plan_data)
-        plan.slug = row["slug"]
-        _render_and_save(plan, profile, lang)
-    else:
-        with db.get_db() as conn:
-            conn.execute("UPDATE cv_history SET summary = ? WHERE id = ?", (new_summary, history_id))
+        set_stage("rendering")
+        if plan_data:
+            plan_data["summary"] = new_summary
+            plans[lang] = plan_data
+            _persist_plans(history_id, lang, plans)
+            plan = TailoringPlan(**plan_data)
+            plan.slug = row["slug"]
+            _render_and_save(plan, profile, lang)
+        else:
+            with db.get_db() as conn:
+                conn.execute("UPDATE cv_history SET summary = ? WHERE id = ?", (new_summary, history_id))
+        return {"summary": new_summary}
 
-    return {"summary": new_summary}
+    return {"job_id": run_async(work)}
 
 
 @router.get("/preview/{slug}", response_class=HTMLResponse)

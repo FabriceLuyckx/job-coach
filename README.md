@@ -138,31 +138,40 @@ prompt.
 
 ### Edit a generated CV
 
-Every generated CV has an **Edit generated content** panel below the preview. You
-can edit the professional summary and each role's bullet points (up to 4 per job),
-drag the handle to reorder bullets within a job, and apply formatting by
-selecting text and pressing **⌘/Ctrl+B** (bold) or **⌘/Ctrl+I** (italic).
-Click **Save all edits** to apply everything at once and re-render.
+Every generated CV shows the live preview and an **Edit generated content** panel
+side by side (they stack on a narrow window; the preview scales to fit). You can
+edit the professional summary and each role's bullet points (up to 4 per job — the
+**+ Add** button disappears at 4), drag the handle to reorder bullets, and apply
+formatting by selecting text and pressing **⌘/Ctrl+B** (bold) or **⌘/Ctrl+I**
+(italic). **Edits save automatically** (a *Saving… / Saved* status shows in the
+panel header) and the preview refreshes itself — there is no Save button.
 
 Edits are stored **per language**, so switching the **Language** dropdown back and
 forth keeps each language's edits intact.
 
+**Sections.** Under the preview, tick sections on/off to show or hide them. Unlike
+before, the choice is **real**: it applies to the preview, the PDF, "open in new
+tab", and the next time you open the CV. The same cluster shows the AI's decisions
+— which **skills it emphasised**, and any sections it **left out** as irrelevant
+(each with a one-tap **restore**).
+
 ### Update an existing CV
 
-The **Update CV…** button on any generated CV opens one menu with the three ways
-to refresh it:
+The AI actions are:
 
-- **Refresh the preview** — re-renders your saved edits with the latest design
-  settings. Free, instant. (Labelled **Save my edits & refresh** when you have
-  unsaved edits.)
-- **Pull in my latest profile** — re-renders from the stored tailoring plan using
-  your current profile data. Free.
-- **Ask the AI to re-tailor** — re-runs the AI against the job listing
-  (~30 seconds, uses credits). You choose whether to **keep your edits** (summary,
-  role selection, bullets are preserved; the rest is refreshed) or **start fresh**.
+- **Update with AI…** — re-runs the AI against the job listing (~30 seconds, uses
+  credits). You choose whether to **keep your edits** (summary, role selection,
+  bullets, and section toggles are preserved; the rest is refreshed) or **start
+  fresh**. (For a legacy CV with no editable plan this button reads **Build
+  editable CV from listing**.)
+- The **Language** dropdown re-tailors the CV into the other language; the summary
+  and bullets are written in the CV's language by the AI.
 
-The **Language** dropdown re-tailors the CV into the other language; the summary
-and bullets are written in the CV's language by the AI.
+These AI calls, plus generation, all run in the background with a coarse progress
+stage (*reading the listing → tailoring → building*) so a slow local model never
+times out the browser. Design/profile changes appear on the next preview
+automatically; the small **refresh** icon reloads it on demand. **Download PDF**
+saves the file directly and reports any error instead of opening a blank tab.
 
 ---
 

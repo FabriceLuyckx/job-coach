@@ -9,9 +9,10 @@ interface Props {
   placeholder?: string
   reorder?: boolean   // drag-and-drop to move a line up/down
   format?: boolean    // Cmd/Ctrl+B / Cmd/Ctrl+I wrap the selection in **bold**/*italic*
+  max?: number        // cap the list length: the + Add button hides once reached
 }
 
-export default function BulletListEditor({ value, onChange, placeholder = 'Add item…', reorder = false, format = false }: Props) {
+export default function BulletListEditor({ value, onChange, placeholder = 'Add item…', reorder = false, format = false, max }: Props) {
   const inputs = useRef<(HTMLInputElement | null)[]>([])
   const [dragIdx, setDragIdx] = useState<number | null>(null)
   const [dropAt, setDropAt] = useState<number | null>(null)  // insertion index 0..length
@@ -97,7 +98,9 @@ export default function BulletListEditor({ value, onChange, placeholder = 'Add i
           <RemoveButton onClick={() => remove(i)} />
         </div>
       ))}
-      <Button variant="secondary" style={{ alignSelf: 'flex-start' }} onClick={add}>+ Add</Button>
+      {(max === undefined || value.length < max) && (
+        <Button variant="secondary" style={{ alignSelf: 'flex-start' }} onClick={add}>+ Add</Button>
+      )}
     </div>
   )
 }

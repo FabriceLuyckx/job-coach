@@ -44,6 +44,10 @@ class TailoringPlan:
     # Optional printable sections the model judged irrelevant to this role and
     # wants dropped (e.g. "volunteering", "publications", "teaching").
     excluded_sections: list[str] = field(default_factory=list)
+    # Sections the *user* chose to hide (section toggles in the editor). Distinct
+    # from excluded_sections (the AI's relevance call): this is a pure display
+    # choice, applied via the template so preview, PDF, and next session agree.
+    hidden_sections: list[str] = field(default_factory=list)
 
 
 _TOOL = {
@@ -183,7 +187,7 @@ def tailor(
         tools=[_TOOL],
         tool_choice={"type": "function", "function": {"name": "cv_tailoring_plan"}},
         cfg=cfg,
-        max_tokens=2048,
+        max_tokens=4096,  # 2048 truncated the JSON plan on large profiles → AIResponseError
     )
 
     d = tool_args(response, required=(

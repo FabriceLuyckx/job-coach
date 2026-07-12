@@ -316,6 +316,31 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 .suggest-row button:hover:not(:disabled) { border-color: var(--ink); color: var(--ink); border-style: solid; }
 .suggest-row button:disabled { opacity: 0.35; cursor: default; }
 
+/* CV editor: two-column split on wide viewports, stacked below. */
+.cv-editor-split { display: grid; grid-template-columns: 1fr; gap: var(--space-5); }
+@media (min-width: 1200px) {
+  .cv-editor-split { grid-template-columns: 55fr 45fr; align-items: start; }
+}
+.editor-cluster-label {
+  font-size: var(--fs-xs); font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+/* Read-only AI-decision chip (emphasised skills). */
+.chip-readonly {
+  display: inline-flex; align-items: center; margin: 2px 4px 2px 0;
+  font-size: var(--fs-sm); padding: 2px 8px;
+  border: 1px solid var(--border); border-radius: var(--chip-radius); color: var(--ink);
+}
+/* AI-excluded section chip with a one-tap restore. */
+.chip-restore {
+  display: inline-flex; align-items: center; gap: 4px; margin: 2px 4px 2px 0;
+  font-size: var(--fs-sm); padding: 2px 8px; cursor: pointer;
+  background: transparent; color: var(--muted);
+  border: 1px dashed color-mix(in srgb, var(--ink) 45%, transparent);
+  border-radius: var(--chip-radius);
+}
+.chip-restore:hover { border-style: solid; border-color: var(--ink); color: var(--ink); }
+
 /* Legacy names still used by TagInput */
 .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-1); }
 .tag {

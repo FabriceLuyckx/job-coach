@@ -426,6 +426,8 @@ def _migrate_design_prefs_v3(prefs: dict | None) -> dict:
     return {
         "accent_color": d.get("accent_color") or "#1B3A6B",
         "include_photo": bool(d.get("include_photo", False)),
+        # Groundwork for the template-chooser phase; only "default" ships today.
+        "template": d.get("template") or "default",
     }
 
 

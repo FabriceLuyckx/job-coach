@@ -38,11 +38,13 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
 
   function startPolling(jobId: string) {
     setLoadingMsg(t('cv.fetchingListing'))
+    let misses = 0 // tolerate transient poll failures before declaring defeat (L3)
     poller.start(async () => {
       try {
         const status = await api.getCVJobStatus(jobId)
+        misses = 0
         if (status.status === 'running') {
-          setLoadingMsg(t('cv.tailoring'))
+          setLoadingMsg(status.stage ? t(`cv.stage.${status.stage}`) : t('cv.tailoring'))
           return false
         }
         if (status.status === 'done' && status.result) {
@@ -69,6 +71,7 @@ function CVNewSlot({ hasPhoto, onGenerated, onClose }: {
         }
         return false
       } catch {
+        if (++misses < 3) return false
         setLoading(false)
         setLoadingMsg('')
         setError(t('cv.generationFailedRestart'))
@@ -251,6 +254,7 @@ export default function CVGeneratorPage() {
   const [hasPhoto, setHasPhoto] = useState(false)
   const [loadError, setLoadError] = useState('')
   const [newSlotResultId, setNewSlotResultId] = useState<string | null>(null)
+  const [query, setQuery] = useState('')
   // Set when arriving from "Open CV" on the Job Suggestions page — the matching
   // history entry (by job_url) is auto-expanded.
   const [openEntryId, setOpenEntryId] = useState<string | null>(null)
@@ -325,7 +329,11 @@ export default function CVGeneratorPage() {
     })
   }
 
-  const visibleHistory = history.filter(e => e.id !== newSlotResultId)
+  const inHistory = history.filter(e => e.id !== newSlotResultId)
+  const q = query.trim().toLowerCase()
+  const visibleHistory = q
+    ? inHistory.filter(e => `${e.job_title} ${e.employer}`.toLowerCase().includes(q))
+    : inHistory
 
   return (
     <div>
@@ -368,6 +376,20 @@ export default function CVGeneratorPage() {
         >
           {t('cv.noCvsBody')}
         </EmptyState>
+      )}
+
+      {inHistory.length > 8 && (
+        <div className="field" style={{ marginBottom: 'var(--space-2)' }}>
+          <input
+            type="search" value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder={t('cv.searchPlaceholder')}
+          />
+        </div>
+      )}
+
+      {q && visibleHistory.length === 0 && (
+        <p className="muted-sm">{t('cv.noMatches')}</p>
       )}
 
       {visibleHistory.length > 0 && (
