@@ -145,6 +145,37 @@ def test_cv_prompt_requires_lang_placeholder():
     r = client.put("/api/settings", json={"cv_prompt": "no placeholder here"})
     assert r.status_code == 400
     assert "lang_name" in r.json()["detail"]
+# ---------- job scanner: prescreen skip + posting review ----------
+
+def test_prescreen_skips_llm_at_or_below_threshold(monkeypatch):
+    """≤ _PRESCREEN_MIN new openings ⇒ keep them all without an LLM call."""
+    import app.services.job_scanner as js
+
+    def boom(*a, **k):
+        raise AssertionError("prescreen should not call the LLM at this size")
+
+    monkeypatch.setattr(js, "complete", boom)
+    openings = [{"title": f"J{i}", "url": f"http://x/{i}"} for i in range(js._PRESCREEN_MIN)]
+    assert js.prescreen_openings(openings, {}, {}) == openings
+
+
+def test_review_posting_builds_digest_and_verdict(monkeypatch):
+    """review_posting returns a 2-letter lang and a digest with only stated fields
+    (empty/'unknown' dropped)."""
+    import app.services.job_scanner as js
+
+    def fake_complete(messages, **kw):
+        return _fake_response(json.dumps({
+            "match": True, "reason": "fits", "lang": "NL-be",
+            "employer": "Acme", "remote": "unknown", "salary": "",
+            "requirements": ["Python"],
+        }))
+
+    monkeypatch.setattr(js, "complete", fake_complete)
+    r = js.review_posting({"title": "X", "url": "http://x"}, "text", {}, {})
+    assert r["match"] is True and r["lang"] == "nl"
+    assert r["digest"] == {"employer": "Acme", "requirements": ["Python"]}
+
 # ---------- i18n changed-key detection (pre-commit hook) ----------
 
 def test_changed_keys_detects_new_and_updated():

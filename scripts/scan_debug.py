@@ -5,14 +5,17 @@ Usage:
     uv run python scripts/scan_debug.py --url https://example.com/jobs
 
 Prints: the links found (and whether the Playwright fallback fired), the
-openings the LLM extracted from those links, and — against your profile — the
-ones it judged interesting with their reason + detected language.
+openings the LLM extracted from those links, which survive the title prescreen
+against your profile, and a full Stage-2 review (verdict + digest) of the first
+survivor's posting.
 """
 
 import argparse
+import json
 
 from app import config
 from app.services import job_scanner
+from app.services.cv_generator import fetch_job_description
 from app.services.cv_renderer import load_profile
 
 
@@ -40,11 +43,20 @@ def main() -> None:
         print(f"    {o['title'][:60]!r:64} {o['url']}")
 
     profile = load_profile()
-    matches = job_scanner.filter_openings(openings, profile, cfg,
-                                          cfg.get("scan_filter_prompt") or None)
-    print(f"\n[3] {len(matches)} judged interesting:")
-    for url, m in matches.items():
-        print(f"    [{m['lang']}] {url}\n        {m['reason']}")
+    survivors = job_scanner.prescreen_openings(openings, profile, cfg)
+    print(f"\n[3] {len(survivors)} survive the title prescreen:")
+    for o in survivors:
+        print(f"    {o['title'][:60]!r:64} {o['url']}")
+
+    if survivors:
+        o = survivors[0]
+        print(f"\n[4] Stage-2 review of: {o['title']}\n    {o['url']}")
+        text = fetch_job_description(o["url"])
+        r = job_scanner.review_posting(o, text, profile, cfg,
+                                       cfg.get("scan_filter_prompt") or None)
+        print(f"    match={r['match']}  lang={r['lang']}")
+        print(f"    reason: {r['reason']}")
+        print(f"    digest: {json.dumps(r['digest'], ensure_ascii=False, indent=2)}")
     print()
 
 

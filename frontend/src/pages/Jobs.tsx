@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Trans, useTranslation } from 'react-i18next'
-import { Search, Inbox, RotateCcw, ExternalLink, Check, X } from 'lucide-react'
-import { api, type JobSource, type JobOpening } from '../api'
+import { Search, Inbox, RotateCcw, ExternalLink, Check, X,
+  Building2, MapPin, Laptop, FileText, Banknote, CalendarClock, type LucideIcon } from 'lucide-react'
+import { api, type JobSource, type JobOpening, type JobDigest } from '../api'
 import Button from '../components/Button'
 import RemoveButton from '../components/RemoveButton'
 import Badge from '../components/Badge'
@@ -17,6 +18,38 @@ import { usePoller } from '../lib/usePoller'
 
 function host(url: string): string {
   try { return new URL(url).hostname.replace('www.', '') } catch { return url }
+}
+
+// Structured fields read from the posting (Phase 6). Shown as squared chips
+// under the title; the ~50-word summary as muted text.
+function Digest({ digest }: { digest: JobDigest | null }) {
+  if (!digest) return null
+  const chips: [LucideIcon, string | undefined][] = [
+    [Building2, digest.employer],
+    [MapPin, digest.location],
+    [Laptop, digest.remote && digest.remote !== 'unknown' ? digest.remote : undefined],
+    [FileText, digest.contract],
+    [Banknote, digest.salary],
+    [CalendarClock, digest.deadline],
+  ]
+  const shown = chips.filter(([, v]) => v)
+  if (!shown.length && !digest.summary) return null
+  return (
+    <>
+      {shown.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', marginTop: 'var(--space-2)' }}>
+          {shown.map(([Icon, v], i) => (
+            <Badge key={i} variant="neutral">
+              <Icon size={12} style={{ marginRight: 4, verticalAlign: -2 }} aria-hidden />{v}
+            </Badge>
+          ))}
+        </div>
+      )}
+      {digest.summary && (
+        <div className="muted-sm" style={{ marginTop: 'var(--space-2)' }}>{digest.summary}</div>
+      )}
+    </>
+  )
 }
 
 export default function JobsPage() {
@@ -79,7 +112,9 @@ export default function JobsPage() {
         try {
           const s = await api.getScanStatus(scan_id)
           if (s.status === 'running' && s.total) {
-            setScanProgress(t('jobs.scanProgress', { source: s.source ?? '', current: s.current, total: s.total }))
+            setScanProgress(s.reading_total
+              ? t('jobs.readingPosting', { current: s.reading_current, total: s.reading_total })
+              : t('jobs.scanProgress', { source: s.source ?? '', current: s.current, total: s.total }))
             return false
           }
           if (s.status === 'done') {
@@ -243,6 +278,7 @@ export default function JobsPage() {
             </div>
             <div className="muted-sm">{host(o.source_url)}</div>
             {o.reason && <div style={{ fontSize: 'var(--fs-sm)', marginTop: 'var(--space-2)' }}>{o.reason}</div>}
+            <Digest digest={o.digest} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', flexShrink: 0 }}>
             <Button variant="primary" onClick={() => accept(o)} busy={busy === o.id}
@@ -277,6 +313,7 @@ export default function JobsPage() {
                     {host(o.source_url)} · {rejected ? t('jobs.rejected') : t('jobs.accepted')}
                   </div>
                   {o.reason && <div style={{ fontSize: 'var(--fs-sm)', marginTop: 'var(--space-2)' }}>{o.reason}</div>}
+                  <Digest digest={o.digest} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', flexShrink: 0 }}>
                   {rejected ? (

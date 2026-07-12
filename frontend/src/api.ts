@@ -76,6 +76,17 @@ export interface JobSource {
   name: string
 }
 
+export interface JobDigest {
+  employer?: string
+  location?: string
+  remote?: string
+  contract?: string
+  salary?: string
+  deadline?: string
+  summary?: string
+  requirements?: string[]
+}
+
 export interface JobOpening {
   id: string
   url: string
@@ -84,6 +95,7 @@ export interface JobOpening {
   status: 'suggested' | 'accepted' | 'rejected'
   reason: string | null
   lang: string
+  digest: JobDigest | null // structured fields read from the posting (Phase 6)
   created_at: string
   decided_at: string | null
 }
@@ -202,6 +214,8 @@ export const api = {
       current?: number // 1-based index of the source being scanned
       total?: number
       source?: string // name of the source being scanned
+      reading_current?: number // 1-based index of the posting being read in Stage 2
+      reading_total?: number // postings to read for the current source (0 if none)
     }>(`/jobs/scan/status/${id}`),
   getLastScan: () => request<{ last_scan: string | null }>('/jobs/last-scan'),
 

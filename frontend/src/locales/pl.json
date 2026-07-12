@@ -125,7 +125,7 @@
       "extractTitle": "Sugestie ofert — prompt ekstrakcji linków",
       "extractHelp": "Wskazuje, które linki na stronie są rzeczywistymi ofertami pracy. Lista linków znalezionych na stronie jest dodawana automatycznie poniżej.",
       "filterTitle": "Sugestie ofert — prompt filtrowania trafności",
-      "filterHelp": "Decyduje, które nowe oferty pasują do Twojego profilu. Odpowiednie fragmenty Twojego profilu są dodawane automatycznie poniżej."
+      "filterHelp": "Ocenia nowe oferty, czytając pełny opis: decyduje, czy pasuje Ci i wyciąga krótką podsumowanie (firmę, lokalizację, wynagrodzenie, termin, wymagania). Współczesne części Twojego profilu są automatycznie dodawane poniżej."
     }
   },
   "profile": {
@@ -421,6 +421,7 @@
     "findNew": "Znajdź nowe oferty",
     "scanning": "Skanowanie…",
     "scanProgress": "Skanowanie {{source}} ({{current}} z {{total}})…",
+    "readingPosting": "Odczytuję ofertę {{current}} z {{total}}…",
     "starting": "Uruchamianie…",
     "lastScan": "Ostatnie skanowanie: {{time}}",
     "neverScanned": "Nigdy nie skanowano",

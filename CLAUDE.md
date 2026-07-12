@@ -20,7 +20,7 @@ The app runs locally first, designed for easy cloud deployment. AI is powered vi
 | `scripts/generate_cv.py` | Done | CLI: `--lang`, `--job`, photo support, job-slug output dirs |
 | `app/services/cv_generator.py` | Done | `tailor()` + `apply_tailoring()` — called by CLI and API |
 | `app/services/cv_renderer.py` | Done | Shared Jinja2 utilities (LABELS, filters, photo) |
-| `app/services/job_scanner.py` | Done | Phase 5 — extract openings from a page + profile-filter new ones |
+| `app/services/job_scanner.py` | Done | Phase 5/6 — extract openings, link-hash skip, title prescreen, per-posting read → verdict + digest |
 | `scripts/tailor_cv.py` | Done | CLI: fetch URL → Claude → tailored HTML |
 | `app/db.py` | Done | SQLite: `cv_history` (P4), `job_sources` + `job_openings` (P5) |
 | FastAPI backend | Done | Phases 4–5 — all endpoints live |
@@ -291,19 +291,19 @@ cd frontend && npm run dev
 
 **User flow** (Job Suggestions page):
 1. Add job-listing page URLs one by one (stored in `job_sources`).
-2. **Find new listings** scans every source. Per source: read the page's actual `<a href>` links, have the LLM pick which are real openings, dedup against `job_openings` by URL, then AI-filter only the genuinely new ones against the profile (also detecting each posting's language). Last-scan time shows beside the button (`jobs_last_scan` in config.json).
-3. Interesting openings show as **Suggestions** (info left, Accept/red-Reject right) with a one-line reason and detected language; the rest are stored as `seen` (dedup memory only).
-4. **Accept** → marks `accepted`, kicks off CV generation from its URL in the *detected language* (reuses `cv.start_generation`), and hands off to the CV Generator (via `cv_pending_job_id` + `cv_pending_job_url` localStorage keys) which shows the build and the URL used. **Reject** greys it out.
+2. **Find new listings** scans every source. Per source, in cost order: (a) read the page's actual `<a href>` links; if their hash equals last scan's (`job_sources.links_hash`), skip the source entirely — nothing new can exist. (b) LLM picks which links are real openings; dedup against `job_openings` by URL. (c) **Title prescreen** — a high-recall LLM triage drops only clearly off-target new openings (skipped, keep-all, at ≤5 new). (d) For each survivor: **fetch the posting page once** and make **one LLM call** returning a match verdict *and* a structured digest (employer, location, remote, contract, salary, deadline, ~50-word summary, top requirements). This is what lets preferences a title can't express (`avoid`, `notes`, `remote`) actually filter. Last-scan time shows beside the button (`jobs_last_scan` in config.json).
+3. Matching openings show as **Suggestions** (info left, Accept/red-Reject right) with a one-line reason, detected language, and the digest fields as chips + summary; the rest are stored as `seen` (dedup memory only, but their scraped text/digest are cached). A posting whose page can't be read still shows as a suggestion with a "couldn't read the posting page" caveat rather than being buried.
+4. **Accept** → marks `accepted`, kicks off CV generation from its URL in the *detected language* (reuses `cv.start_generation`, passing the cached `posting_text` so the page is **not** re-scraped), and hands off to the CV Generator (via `cv_pending_job_id` + `cv_pending_job_url` localStorage keys) which shows the build and the URL used. **Reject** greys it out.
 5. **History** keeps accepted + rejected openings (full info, recency-first; rejected greyed). Accepted rows have **Open CV** (deep-links to the matching CV via `cv_open_url` → matched by `job_url`) and can still be rejected.
 
 **Reading the page**: `fetch_listing_links()` uses httpx and falls back to a headless Playwright render when a page yields too few links (JS-built boards). The LLM only ever returns URLs that were actually on the page (hallucination guard). Verify a source with `uv run python scripts/scan_debug.py --url <page>`.
 
-**Token-cost design**: link extraction carries no profile context; the expensive profile-filter call runs only on new openings and is skipped entirely when a scan finds nothing new.
+**Token-cost design**: unchanged sources cost **zero** LLM calls (link-hash skip). For a changed source, link extraction carries no profile context; the title prescreen runs only when >5 new openings survive dedup; the expensive per-posting call is paid **exactly once per opening ever** (URL dedup + `posting_text`/`posting_json` cache) and only for openings that survive the prescreen. The expensive text is read at the moment it can change a decision, and never again.
 
-**Editable prompts** (Settings → **Advanced — AI prompts**, collapsed by default): the link-extraction and relevance-filter prompts (`scan_extract_prompt`, `scan_filter_prompt`) mirror the CV Generator prompt. The CV prompt must keep the `{lang_name}` placeholder (validated client- and server-side).
+**Editable prompts** (Settings → **Advanced — AI prompts**, collapsed by default): the link-extraction and relevance-filter prompts (`scan_extract_prompt`, `scan_filter_prompt`) mirror the CV Generator prompt. `scan_filter_prompt` now drives the per-posting verdict+digest call; the title prescreen has its own non-editable default (`DEFAULT_PRESCREEN_PROMPT`) — no third Settings prompt. The CV prompt must keep the `{lang_name}` placeholder (validated client- and server-side).
 
 **Key files**:
-- `app/services/job_scanner.py` — `fetch_listing_links()`, `extract_openings()`, `filter_openings()` (returns `{url: {reason, lang}}`); `DEFAULT_EXTRACT_PROMPT`, `DEFAULT_SCAN_PROMPT`
+- `app/services/job_scanner.py` — `fetch_listing_links()`, `links_hash()`, `extract_openings(…, links=)`, `prescreen_openings()` (high-recall title triage → survivor list), `review_posting()` (fetch+judge one posting → `{match, reason, lang, digest}`); `DEFAULT_EXTRACT_PROMPT`, `DEFAULT_PRESCREEN_PROMPT`, `DEFAULT_SCAN_PROMPT`. Posting-page fetch + Playwright fallback lives in `cv_generator.fetch_job_description()`.
 - `app/api/jobs.py` — source CRUD, threaded `/scan`, `/last-scan`, openings list, accept/reject
 - `frontend/src/pages/Jobs.tsx` — sources, scan, suggestions, history; `scripts/scan_debug.py` — verification CLI
 
@@ -328,11 +328,17 @@ silently skipped.
 
 **Data model** (SQLite):
 ```
-job_sources:  id, url (UNIQUE), name, created_at
+job_sources:  id, url (UNIQUE), name, created_at, links_hash
 job_openings: id, url (UNIQUE), title, source_url,
               status (seen|suggested|accepted|rejected),
-              reason, lang, cv_slug, created_at, decided_at
+              reason, lang, cv_slug, created_at, decided_at,
+              posting_text (scrape cache, ≤20k chars),
+              posting_json (digest: employer/location/remote/contract/
+                            salary/deadline/summary/requirements)
 ```
+`GET /api/jobs/openings` parses `posting_json` into a `digest` object and never
+ships `posting_text` to the client. Scan status also reports
+`reading_current`/`reading_total` during the per-posting Stage-2 loop.
 
 ---
 
@@ -391,9 +397,9 @@ The app is currently localhost-only, where these are low-risk; on a public host
 they are exploitable:
 1. **Authentication on every `/api/*` route.** All endpoints are open today.
 2. **SSRF protection on user-supplied URLs.** `fetch_job_description()`
-   (`app/services/cv_generator.py`) and `fetch_listing_links()`
-   (`app/services/job_scanner.py`, incl. the Playwright fallback) fetch arbitrary
-   URLs with redirects. Before fetching (and again after every redirect), resolve
+   (`app/services/cv_generator.py`, **incl. its Playwright fallback**) and
+   `fetch_listing_links()` (`app/services/job_scanner.py`, incl. the Playwright
+   fallback) fetch arbitrary URLs with redirects. Before fetching (and again after every redirect), resolve
    the host and reject private/loopback/link-local ranges and cloud metadata IPs
    (`169.254.169.254`).
 3. **Real CORS policy** — `app/main.py` currently allows only the Vite dev origin.

@@ -125,7 +125,7 @@
       "extractTitle": "Jobvorschläge – Link-Extraktions-Prompt",
       "extractHelp": "Wählt aus, welche Links einer Seite echte Stellenangebote sind. Die auf der Seite gefundenen Links werden automatisch darunter eingefügt.",
       "filterTitle": "Jobvorschläge – Relevanzfilter-Prompt",
-      "filterHelp": "Entscheidet, welche neuen Stellen zu dir passen. Die relevanten Teile deines Profils werden automatisch darunter eingefügt."
+      "filterHelp": "Beurteilt jedes neue Stellenausschreibung, indem es den vollständigen Text liest: entscheidet, ob es zu Ihnen passt und extrahiert eine kurze Zusammenfassung (Unternehmen, Ort, Lohn, Frist, Anforderungen). Die relevanten Teile Ihres Profils werden automatisch unterhalb angezeigt."
     }
   },
   "profile": {
@@ -421,6 +421,7 @@
     "findNew": "Neue Stellenanzeigen finden",
     "scanning": "Wird gescannt…",
     "scanProgress": "{{source}} wird gescannt ({{current}} von {{total}})…",
+    "readingPosting": "Lesen der Stellenausschreibung {{current}} von {{total}}…",
     "starting": "Wird gestartet…",
     "lastScan": "Letzter Scan: {{time}}",
     "neverScanned": "Nie gescannt",

@@ -197,7 +197,8 @@ def test_design_prefs_trimmed():
 def test_preferences_migrated():
     p = normalize_profile(copy.deepcopy(V1))
     prefs = p["preferences"]
-    assert set(prefs.keys()) == {"looking_for", "avoid", "locations", "remote", "languages", "notes"}
+    assert set(prefs.keys()) == {"target_roles", "looking_for", "avoid", "locations", "remote", "languages", "notes"}
+    assert prefs["target_roles"] == []
     assert prefs["locations"] == ["Ghent"]
     assert prefs["remote"] == "Hybrid"
     assert prefs["languages"] == ["English"]
@@ -298,7 +299,7 @@ def test_academic_merges_into_existing_research_areas_group_v4():
 
 
 def test_professional_title_reaches_matcher(monkeypatch):
-    """Regression for F8: filter_openings must read professional_title, not title."""
+    """Regression for F8: the per-posting review must read professional_title, not title."""
     import app.services.job_scanner as js
 
     captured = {}
@@ -310,5 +311,6 @@ def test_professional_title_reaches_matcher(monkeypatch):
     monkeypatch.setattr(js, "complete", fake_complete)
     p = normalize_profile(copy.deepcopy(V1))
     with pytest.raises(RuntimeError):
-        js.filter_openings([{"title": "X", "url": "http://x"}], p, {"openrouter_api_key": "k"})
+        js.review_posting({"title": "X", "url": "http://x"}, "posting text",
+                          p, {"openrouter_api_key": "k"})
     assert "Data Scientist" in captured.get("system", "")

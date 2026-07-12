@@ -125,7 +125,7 @@
       "extractTitle": "Suggerimenti lavoro — prompt di estrazione link",
       "extractHelp": "Seleziona quali link di una pagina sono vere offerte di lavoro. L'elenco dei link trovati nella pagina viene aggiunto automaticamente in fondo.",
       "filterTitle": "Suggerimenti lavoro — prompt di filtro pertinenza",
-      "filterHelp": "Determina quali nuove offerte sono adatte a te. Le parti pertinenti del tuo profilo vengono aggiunte automaticamente in fondo."
+      "filterHelp": "Valuta ogni nuovo annuncio leggendo l'intero testo: decide se corrisponde a te e estrae un breve riassunto (della ditta, località, stipendio, scadenza, requisiti). Le parti rilevanti del tuo profilo vengono aggiunte automaticamente sotto."
     }
   },
   "profile": {
@@ -421,6 +421,7 @@
     "findNew": "Trova nuove offerte",
     "scanning": "Scansione in corso…",
     "scanProgress": "Scansione di {{source}} ({{current}} di {{total}})…",
+    "readingPosting": "Sto leggendo l'annuncio {{current}} di {{total}}…",
     "starting": "Avvio in corso…",
     "lastScan": "Ultima scansione: {{time}}",
     "neverScanned": "Mai scansionato",

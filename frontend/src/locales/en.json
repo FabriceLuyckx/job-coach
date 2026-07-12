@@ -125,7 +125,7 @@
       "extractTitle": "Job Suggestions — link extraction prompt",
       "extractHelp": "Picks which of a page's links are real job openings. The list of links found on the page is added automatically below it.",
       "filterTitle": "Job Suggestions — relevance filter prompt",
-      "filterHelp": "Decides which new openings match you. The relevant parts of your profile are added automatically below it."
+      "filterHelp": "Judges each new opening by reading its full posting: decides whether it matches you and pulls out a short digest (employer, location, salary, deadline, requirements). The relevant parts of your profile are added automatically below it."
     }
   },
   "profile": {
@@ -359,6 +359,7 @@
     "findNew": "Find new listings",
     "scanning": "Scanning…",
     "scanProgress": "Scanning {{source}} ({{current}} of {{total}})…",
+    "readingPosting": "Reading posting {{current}} of {{total}}…",
     "starting": "Starting…",
     "lastScan": "Last scan: {{time}}",
     "neverScanned": "Never scanned",

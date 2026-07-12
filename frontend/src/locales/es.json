@@ -125,7 +125,7 @@
       "extractTitle": "Sugerencias de empleo — instrucción de extracción de enlaces",
       "extractHelp": "Selecciona cuáles de los enlaces de una página son ofertas de empleo reales. La lista de enlaces encontrados en la página se añade automáticamente a continuación.",
       "filterTitle": "Sugerencias de empleo — instrucción de filtro de relevancia",
-      "filterHelp": "Determina qué nuevas ofertas se ajustan a tu perfil. Las partes relevantes de tu perfil se añaden automáticamente a continuación."
+      "filterHelp": "Evalúa cada nuevo anuncio leyendo su descripción completa: decide si coincide contigo y extrae un resumen breve (empresa, ubicación, salario, plazo, requisitos). Las partes relevantes de tu perfil se agregan automáticamente debajo."
     }
   },
   "profile": {
@@ -421,6 +421,7 @@
     "findNew": "Buscar nuevas ofertas",
     "scanning": "Escaneando…",
     "scanProgress": "Analizando {{source}} ({{current}} de {{total}})…",
+    "readingPosting": "Leyendo el anuncio {{current}} de {{total}}…",
     "starting": "Iniciando…",
     "lastScan": "Último escaneo: {{time}}",
     "neverScanned": "Nunca escaneado",

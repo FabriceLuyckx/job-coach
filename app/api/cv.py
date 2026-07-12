@@ -157,7 +157,7 @@ def _current_html(slug: str, lang: str) -> str | None:
     return path.read_text(encoding="utf-8") if path.exists() else None
 
 
-def _run_generation(job_id: str, url: str, lang: str) -> None:
+def _run_generation(job_id: str, url: str, lang: str, job_text: str | None = None) -> None:
     try:
         with _jobs_lock:
             _jobs[job_id]["status"] = "running"
@@ -166,7 +166,7 @@ def _run_generation(job_id: str, url: str, lang: str) -> None:
         config.require_engine(cfg)  # fail fast before fetching the job page
         profile = load_profile()
         prompt = cfg.get("cv_prompt") or DEFAULT_CV_PROMPT
-        plan = tailor(profile, url, cfg, lang, prompt)
+        plan = tailor(profile, url, cfg, lang, prompt, job_text=job_text)
         ensure_cv_labels(lang, cfg)  # no-op for reviewed/already-generated languages
         slug = _render_and_save(plan, profile, lang)
 
@@ -208,9 +208,10 @@ def _run_generation(job_id: str, url: str, lang: str) -> None:
                                   "error": getattr(e, "detail", None) or str(e)})
 
 
-def start_generation(url: str, lang: str = "en") -> str:
+def start_generation(url: str, lang: str = "en", job_text: str | None = None) -> str:
     """Kick off async CV generation for a job URL; returns the poll job_id.
-    Shared by the /generate endpoint and the Jobs 'accept' flow."""
+    Shared by the /generate endpoint and the Jobs 'accept' flow. Pass job_text
+    to reuse the scanner's cached posting and skip a re-scrape."""
     lang = _clean_lang(lang)
     if not is_valid_code(lang):
         raise HTTPException(400, f"Unknown language code '{lang}'.")
@@ -218,7 +219,7 @@ def start_generation(url: str, lang: str = "en") -> str:
     with _jobs_lock:
         _evict_jobs()
         _jobs[job_id] = {"status": "pending", "created": time.time()}
-    threading.Thread(target=_run_generation, args=(job_id, url, lang), daemon=True).start()
+    threading.Thread(target=_run_generation, args=(job_id, url, lang, job_text), daemon=True).start()
     return job_id
 
 

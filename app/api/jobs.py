@@ -1,5 +1,6 @@
 """Phase 5 — job sources, scanning, and suggestion accept/reject."""
 
+import json
 import threading
 import time
 import uuid
@@ -11,8 +12,12 @@ from pydantic import BaseModel
 
 from app import config, db
 from app.api.cv import start_generation
+from app.services.cv_generator import fetch_job_description
 from app.services.cv_renderer import load_profile
-from app.services.job_scanner import extract_openings, filter_openings
+from app.services.job_scanner import (
+    extract_openings, fetch_listing_links, links_hash,
+    prescreen_openings, review_posting,
+)
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
@@ -87,32 +92,67 @@ def _run_scan(scan_id: str) -> None:
         found = 0
         errors: dict[str, str] = {}  # source name → what went wrong
         for i, src in enumerate(sources):
+            name = src["name"] or src["url"]
             with _scans_lock:
                 _scans[scan_id].update({"current": i + 1, "total": len(sources),
-                                        "source": src["name"] or src["url"]})
+                                        "source": name, "reading_total": 0})
             # One bad source shouldn't abort the whole scan — but the user must
             # be able to see which source failed and why.
             try:
-                openings = extract_openings(src["url"], cfg, extract_prompt)
+                # Phase C: skip the LLM entirely when the page's link set is
+                # unchanged since last scan — nothing new can exist.
+                links = fetch_listing_links(src["url"])
+                lhash = links_hash(links)
+                if lhash and lhash == src.get("links_hash"):
+                    continue
+                openings = extract_openings(src["url"], cfg, extract_prompt, links=links)
                 new = [o for o in openings if o["url"] not in known]
-                matches = filter_openings(new, profile, cfg, filter_prompt) if new else {}
+                survivors = prescreen_openings(new, profile, cfg) if new else []
             except Exception as e:
-                errors[src["name"] or src["url"]] = str(e)
+                errors[name] = str(e)
                 continue
+
+            for j, o in enumerate(survivors):
+                with _scans_lock:
+                    _scans[scan_id].update({"reading_current": j + 1,
+                                            "reading_total": len(survivors)})
+                row = {"status": "seen", "reason": None, "lang": "en",
+                       "posting_text": None, "posting_json": None}
+                try:
+                    text = fetch_job_description(o["url"])
+                    r = review_posting(o, text, profile, cfg, filter_prompt)
+                    row["posting_text"] = text[:20000]
+                    row["posting_json"] = json.dumps(r["digest"]) if r["digest"] else None
+                    row["lang"] = r["lang"]
+                    if r["match"]:
+                        row["status"], row["reason"] = "suggested", r["reason"]
+                except Exception:
+                    # A fetch/parse failure must not silently bury a plausible
+                    # job: it survived the title prescreen, so keep it suggested
+                    # with a caveat. (Surfaced on the card, not the source-error
+                    # banner, which is reserved for whole-source failures.)
+                    row["status"] = "suggested"
+                    row["reason"] = "Matched by title — couldn't read the posting page."
+                o["_row"] = row
+
             with db.get_db() as conn:
                 for o in new:
-                    m = matches.get(o["url"])
+                    r = o.get("_row") or {"status": "seen", "reason": None, "lang": "en",
+                                          "posting_text": None, "posting_json": None}
                     conn.execute(
                         """INSERT OR IGNORE INTO job_openings
-                           (id, url, title, source_url, status, reason, lang, created_at)
-                           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                           (id, url, title, source_url, status, reason, lang,
+                            posting_text, posting_json, created_at)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                         (str(uuid.uuid4()), o["url"], o["title"], src["url"],
-                         "suggested" if m else "seen",
-                         m["reason"] if m else None, m["lang"] if m else "en", _now()),
+                         r["status"], r["reason"], r["lang"],
+                         r["posting_text"], r["posting_json"], _now()),
                     )
                     known.add(o["url"])
-                    if m:
+                    if r["status"] == "suggested":
                         found += 1
+                conn.execute("UPDATE job_sources SET links_hash = ? WHERE id = ?",
+                             (lhash, src["id"]))
 
         config.save({"jobs_last_scan": _now()})  # ponytail: scan time in config.json to avoid a one-value table.
         with _scans_lock:
@@ -155,7 +195,14 @@ def list_openings():
             """SELECT * FROM job_openings WHERE status != 'seen'
                ORDER BY COALESCE(decided_at, created_at) DESC"""
         ).fetchall()
-    return [dict(r) for r in rows]
+    out = []
+    for r in rows:
+        d = dict(r)
+        pj = d.pop("posting_json", None)
+        d.pop("posting_text", None)  # cache only — never shipped to the client
+        d["digest"] = json.loads(pj) if pj else None
+        out.append(d)
+    return out
 
 
 @router.post("/openings/{oid}/reject")
@@ -192,7 +239,9 @@ def accept_opening(oid: str):
         if not row:
             raise HTTPException(404, "Opening not found")
         row = dict(row)
-    job_id = start_generation(row["url"], row.get("lang") or "en")
+    # Reuse the posting text the scan already fetched — no re-scrape.
+    job_id = start_generation(row["url"], row.get("lang") or "en",
+                              job_text=row.get("posting_text") or None)
     with db.get_db() as conn:
         conn.execute(
             "UPDATE job_openings SET status = 'accepted', decided_at = ? WHERE id = ?",

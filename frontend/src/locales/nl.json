@@ -125,7 +125,7 @@
       "extractTitle": "Vacaturesuggesties — linkextractieprompt",
       "extractHelp": "Bepaalt welke links op een pagina echte vacatures zijn. De lijst met gevonden links op de pagina wordt er automatisch onder toegevoegd.",
       "filterTitle": "Vacaturesuggesties — relevantiefilterprompt",
-      "filterHelp": "Bepaalt welke nieuwe vacatures bij je passen. De relevante delen van je profiel worden er automatisch onder toegevoegd."
+      "filterHelp": "Beoordeelt elke nieuwe functie door de volledige aanbieding te lezen: bepaalt of het past bij u en haalt een korte samenvatting (bedrijf, locatie, salaris, deadline, eisen) op. De relevante delen van uw profiel worden automatisch hieronder toegevoegd."
     }
   },
   "profile": {
@@ -421,6 +421,7 @@
     "findNew": "Nieuwe vacatures zoeken",
     "scanning": "Scannen…",
     "scanProgress": "{{source}} scannen ({{current}} van {{total}})…",
+    "readingPosting": "Leest functieaanbieding {{current}} van {{total}}…",
     "starting": "Bezig met starten…",
     "lastScan": "Laatste scan: {{time}}",
     "neverScanned": "Nooit gescand",

@@ -70,6 +70,13 @@ def init_db() -> None:
             )
         """)
         _add_column(conn, "job_openings", "lang TEXT NOT NULL DEFAULT 'en'")
+        # Phase 6 (job-search rework): cache the scraped posting text (so accept
+        # doesn't re-fetch) and the structured digest JSON (employer, location,
+        # salary, deadline, requirements, summary) shown on the suggestion card.
+        _add_column(conn, "job_openings", "posting_text TEXT")
+        _add_column(conn, "job_openings", "posting_json TEXT")
+        # Skip the LLM link-extraction for a source whose link set is unchanged.
+        _add_column(conn, "job_sources", "links_hash TEXT")
 
 
 @contextmanager

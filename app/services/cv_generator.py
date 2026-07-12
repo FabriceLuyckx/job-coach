@@ -134,23 +134,45 @@ Rules:
 - Use each role's ai_notes field in the profile to decide which entries best match the role type"""
 
 
-def fetch_job_description(url: str) -> str:
-    r = httpx.get(
-        url,
-        follow_redirects=True,
-        timeout=15,
-        headers={"User-Agent": "Mozilla/5.0 (compatible; job-coach/1.0)"},
-    )
-    r.raise_for_status()
-    soup = BeautifulSoup(r.text, "html.parser")
+def _text_from_html(html: str) -> str:
+    soup = BeautifulSoup(html, "html.parser")
     for tag in soup(["nav", "header", "footer", "script", "style", "aside"]):
         tag.decompose()
     return soup.get_text(separator="\n", strip=True)
 
 
+def fetch_job_description(url: str) -> str:
+    """Extract the readable text of a job posting. Falls back to a headless
+    Playwright render for JS-built postings, mirroring fetch_listing_links()."""
+    try:
+        r = httpx.get(
+            url,
+            follow_redirects=True,
+            timeout=15,
+            headers={"User-Agent": "Mozilla/5.0 (compatible; job-coach/1.0)"},
+        )
+        r.raise_for_status()
+        text = _text_from_html(r.text)
+    except Exception:
+        text = ""
+    if len(text) >= 500:
+        return text
+    # ponytail: <500 chars ⇒ assume JS-rendered; re-render headless. Bump the
+    # threshold if a real posting slips through as near-empty.
+    from playwright.sync_api import sync_playwright
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        try:
+            page = browser.new_page()
+            page.goto(url, wait_until="networkidle", timeout=30000)
+            return _text_from_html(page.content())
+        finally:
+            browser.close()
+
+
 def tailor(
     profile: dict, job_url: str, cfg: dict,
-    lang: str = "en", prompt: str | None = None,
+    lang: str = "en", prompt: str | None = None, job_text: str | None = None,
 ) -> TailoringPlan:
     """
     Call the configured LLM engine to produce a CV tailoring plan for a job URL.
@@ -161,11 +183,14 @@ def tailor(
         cfg:      App config dict (selects the AI engine)
         lang:     Output language code (e.g. 'en', 'nl')
         prompt:   System instructions (DEFAULT_CV_PROMPT if None); {lang_name} is substituted
+        job_text: Pre-fetched posting text (from the scanner's cache); if None the
+                  posting is fetched here. Skips a redundant re-scrape on accept.
 
     Returns:
         TailoringPlan with all fields needed to render a tailored CV
     """
-    job_text = fetch_job_description(job_url)
+    if job_text is None:
+        job_text = fetch_job_description(job_url)
 
     instructions = (prompt or DEFAULT_CV_PROMPT).replace("{lang_name}", lang_name(lang))
 
