@@ -92,7 +92,7 @@ export interface JobOpening {
   url: string
   title: string
   source_url: string
-  status: 'suggested' | 'accepted' | 'rejected'
+  status: 'suggested' | 'accepted' | 'rejected' | 'seen' // 'seen' = filtered out
   reason: string | null
   lang: string
   digest: JobDigest | null // structured fields read from the posting (Phase 6)
@@ -205,6 +205,7 @@ export const api = {
     request<{ ok: boolean }>(`/jobs/sources/${id}`, { method: 'DELETE' }),
 
   startScan: () => request<{ scan_id: string }>('/jobs/scan', { method: 'POST' }),
+  recheckOpenings: () => request<{ scan_id: string }>('/jobs/recheck', { method: 'POST' }),
   getScanStatus: (id: string) =>
     request<{
       status: JobStatus
@@ -217,9 +218,16 @@ export const api = {
       reading_current?: number // 1-based index of the posting being read in Stage 2
       reading_total?: number // postings to read for the current source (0 if none)
     }>(`/jobs/scan/status/${id}`),
-  getLastScan: () => request<{ last_scan: string | null }>('/jobs/last-scan'),
+  getLastScan: () => request<{ last_scan: string | null; profile_changed: boolean }>('/jobs/last-scan'),
 
-  getOpenings: () => request<JobOpening[]>('/jobs/openings'),
+  getOpenings: (includeSeen = false) =>
+    request<JobOpening[]>(`/jobs/openings${includeSeen ? '?include_seen=true' : ''}`),
+  checkOpening: (url: string) =>
+    request<JobOpening>('/jobs/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    }),
   acceptOpening: (id: string) =>
     request<{ cv_job_id: string; job_url: string; lang: string }>(`/jobs/openings/${id}/accept`, { method: 'POST' }),
   rejectOpening: (id: string) =>

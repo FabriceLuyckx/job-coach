@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 
@@ -28,6 +29,8 @@ def put_profile(body: dict):
     # Minimal shape check: a bad save would brick every CV render afterwards.
     if "personal" not in body:
         raise HTTPException(400, "Profile must include at least a 'personal' section.")
+    # Stamp the edit time so the Jobs page can nudge "profile changed — re-check?".
+    body.setdefault("meta", {})["last_updated"] = datetime.now(timezone.utc).isoformat()
     # Atomic write: a GET racing an in-flight save must never see a truncated file.
     tmp = PROFILE_PATH.with_name(PROFILE_PATH.name + ".tmp")
     tmp.write_text(json.dumps(body, indent=2, ensure_ascii=False), encoding="utf-8")

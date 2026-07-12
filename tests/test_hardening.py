@@ -188,6 +188,157 @@ def test_review_posting_builds_digest_and_verdict(monkeypatch):
     assert r["digest"] == {"employer": "Acme", "requirements": ["Python"]}
 
 
+# ---------- job suggestions: review / recheck / check ----------
+
+def test_review_one_keeps_reason_for_non_match(monkeypatch):
+    """A non-match still records the reviewer's reason (so it's auditable in the
+    'Filtered out' list) and caches the posting text + digest."""
+    import app.api.jobs as jobs
+    monkeypatch.setattr(jobs, "review_posting", lambda *a, **k: {
+        "match": False, "reason": "too senior", "lang": "en", "digest": {"employer": "X"}})
+    row = jobs._review_one({"title": "T", "url": "u"}, "posting text", {}, {}, None)
+    assert row["status"] == "seen"
+    assert row["reason"] == "too senior"
+    assert row["posting_text"] == "posting text"
+    assert json.loads(row["posting_json"]) == {"employer": "X"}
+
+
+def test_review_one_empty_text_is_suggested_caveat(monkeypatch):
+    """Empty text ⇒ suggested-with-caveat, and the reviewer is never called."""
+    import app.api.jobs as jobs
+
+    def boom(*a, **k):
+        raise AssertionError("must not review empty text")
+
+    monkeypatch.setattr(jobs, "review_posting", boom)
+    row = jobs._review_one({"title": "T", "url": "u"}, "", {}, {}, None)
+    assert row["status"] == "suggested"
+    assert "couldn't read" in row["reason"].lower()
+    assert row["posting_text"] is None
+
+
+def test_review_one_review_error_is_suggested_caveat(monkeypatch):
+    """A review exception must not bury the job — it stays suggested-with-caveat."""
+    import app.api.jobs as jobs
+
+    def boom(*a, **k):
+        raise RuntimeError("llm down")
+
+    monkeypatch.setattr(jobs, "review_posting", boom)
+    row = jobs._review_one({"title": "T", "url": "u"}, "some text", {}, {}, None)
+    assert row["status"] == "suggested"
+    assert "couldn't read" in row["reason"].lower()
+
+
+def test_fetch_texts_parallel_http_skips_render(monkeypatch):
+    """When HTTP text is long enough, fetch_texts dedupes and never touches the
+    headless browser."""
+    import app.services.headless as h
+    monkeypatch.setattr(h, "http_get", lambda url: "<p>" + "x" * 600 + "</p>")
+
+    def no_render(*a, **k):
+        raise AssertionError("render must not run when HTTP text is long enough")
+
+    monkeypatch.setattr(h, "render_html", no_render)
+    out = h.fetch_texts(["http://a", "http://b", "http://a"])  # 'a' duplicated
+    assert set(out) == {"http://a", "http://b"}
+    assert all(len(v) >= 500 for v in out.values())
+
+
+def test_recheck_llm_failure_keeps_old_verdict(monkeypatch):
+    """An LLM error during /recheck must keep the row's old verdict + digest —
+    never mass-promote filtered rows with the fetch caveat."""
+    import app.api.jobs as jobs
+    from app import db
+    db.init_db()
+    url = "http://example.test/recheck-fail-xyz"
+    oid = "test-recheck-fail-xyz"
+
+    monkeypatch.setattr(jobs.config, "require_engine", lambda cfg: None)
+    monkeypatch.setattr(jobs.config, "save", lambda d: None)  # don't touch real config.json
+    monkeypatch.setattr(jobs, "load_profile", lambda: {})
+
+    def boom(*a, **k):
+        raise RuntimeError("llm down")
+
+    monkeypatch.setattr(jobs, "review_posting", boom)
+    with db.get_db() as conn:
+        conn.execute("DELETE FROM job_openings WHERE url = ?", (url,))
+        conn.execute(
+            """INSERT INTO job_openings (id, url, title, source_url, status, reason,
+               lang, posting_text, posting_json, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (oid, url, "Old", url, "seen", "old reason", "en", "cached text",
+             '{"employer": "ACME"}', "2026-01-01T00:00:00Z"),
+        )
+    sid = "test-recheck-scan"
+    jobs._scans[sid] = {"status": "pending", "created": 0}
+    try:
+        jobs._run_recheck(sid)
+        assert jobs._scans[sid]["status"] == "done"
+        assert jobs._scans[sid]["found"] == 0
+        with db.get_db() as conn:
+            row = dict(conn.execute("SELECT * FROM job_openings WHERE id = ?", (oid,)).fetchone())
+        assert row["status"] == "seen"
+        assert row["reason"] == "old reason"
+        assert row["posting_json"] == '{"employer": "ACME"}'
+    finally:
+        jobs._scans.pop(sid, None)
+        with db.get_db() as conn:
+            conn.execute("DELETE FROM job_openings WHERE url = ?", (url,))
+
+
+def test_add_source_disambiguates_same_host():
+    """Two boards on one host get distinguishable names (second gains its path)."""
+    from app import db
+    db.init_db()
+    u1, u2 = "http://dupe-host.test/jobs", "http://dupe-host.test/teaching/vacancies"
+    with db.get_db() as conn:
+        conn.execute("DELETE FROM job_sources WHERE url IN (?, ?)", (u1, u2))
+    try:
+        r1 = client.post("/api/jobs/sources", json={"url": u1})
+        r2 = client.post("/api/jobs/sources", json={"url": u2})
+        assert r1.json()["name"] == "dupe-host.test"
+        assert r2.json()["name"] == "dupe-host.test/teaching"
+    finally:
+        with db.get_db() as conn:
+            conn.execute("DELETE FROM job_sources WHERE url IN (?, ?)", (u1, u2))
+
+
+def test_check_existing_url_returns_row_without_llm(monkeypatch):
+    """POST /jobs/check on a URL already in the DB returns the stored row (with
+    digest, no posting_text) and never calls the LLM."""
+    from app import db
+    import app.services.job_scanner as js
+    db.init_db()
+    url = "http://example.test/check-existing-xyz"
+    oid = "test-check-existing-xyz"
+
+    def no_llm(*a, **k):
+        raise AssertionError("existing URL must not trigger an LLM call")
+
+    monkeypatch.setattr(js, "complete", no_llm)
+    with db.get_db() as conn:
+        conn.execute("DELETE FROM job_openings WHERE url = ?", (url,))
+        conn.execute(
+            """INSERT INTO job_openings (id, url, title, source_url, status, reason,
+               lang, posting_text, posting_json, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (oid, url, "Cached", url, "seen", "nope", "en", "cached text",
+             '{"employer": "ACME"}', "2026-01-01T00:00:00Z"),
+        )
+    try:
+        r = client.post("/api/jobs/check", json={"url": url})
+        assert r.status_code == 200
+        body = r.json()
+        assert body["title"] == "Cached"
+        assert body["digest"] == {"employer": "ACME"}
+        assert "posting_text" not in body
+    finally:
+        with db.get_db() as conn:
+            conn.execute("DELETE FROM job_openings WHERE url = ?", (url,))
+
+
 # ---------- i18n changed-key detection (pre-commit hook) ----------
 
 def test_changed_keys_detects_new_and_updated():

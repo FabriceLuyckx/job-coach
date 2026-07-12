@@ -14,12 +14,25 @@ from app import config, db
 from app.api.cv import start_generation
 from app.services.cv_generator import fetch_job_description
 from app.services.cv_renderer import load_profile
+from app.services.headless import fetch_texts
 from app.services.job_scanner import (
     extract_openings, fetch_listing_links, links_hash,
     prescreen_openings, review_posting,
 )
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
+
+_FETCH_CAVEAT = "Matched by title — couldn't read the posting page."
+
+
+def _opening_dict(r: dict) -> dict:
+    """Shape a job_openings row for the client: parse the digest JSON, drop the
+    bulky posting_text cache (server-only)."""
+    d = dict(r)
+    pj = d.pop("posting_json", None)
+    d.pop("posting_text", None)
+    d["digest"] = json.loads(pj) if pj else None
+    return d
 
 # In-memory scan status, mirroring the CV-generate pattern.
 _scans: dict[str, dict] = {}
@@ -55,11 +68,18 @@ def add_source(body: SourceRequest):
     url = body.url.strip()
     if not url.startswith(("http://", "https://")):
         raise HTTPException(400, "Enter a full URL starting with http:// or https://")
-    name = urlparse(url).netloc.replace("www.", "") or url
+    parsed = urlparse(url)
+    name = parsed.netloc.replace("www.", "") or url
     sid = str(uuid.uuid4())
     with db.get_db() as conn:
         if conn.execute("SELECT 1 FROM job_sources WHERE url = ?", (url,)).fetchone():
             raise HTTPException(409, "That source is already added.")
+        # Two boards on one host would be indistinguishable — disambiguate the
+        # new one with its first path segment ("example.com/teaching").
+        if conn.execute("SELECT 1 FROM job_sources WHERE name = ?", (name,)).fetchone():
+            segment = next((s for s in parsed.path.split("/") if s), "")
+            if segment:
+                name = f"{name}/{segment}"
         conn.execute(
             "INSERT INTO job_sources (id, url, name, created_at) VALUES (?, ?, ?, ?)",
             (sid, url, name, _now()),
@@ -72,6 +92,28 @@ def delete_source(sid: str):
     with db.get_db() as conn:
         conn.execute("DELETE FROM job_sources WHERE id = ?", (sid,))
     return {"ok": True}
+
+
+def _review_one(opening: dict, text: str, profile: dict, cfg: dict,
+                filter_prompt: str | None) -> dict:
+    """Judge one posting from its (already-fetched) text and shape a DB row.
+    Empty text or a review error ⇒ suggested-with-caveat: a plausible job that
+    survived the title prescreen must never be silently buried."""
+    row = {"status": "seen", "reason": None, "lang": "en",
+           "posting_text": None, "posting_json": None}
+    if not text:
+        return {**row, "status": "suggested", "reason": _FETCH_CAVEAT}
+    try:
+        r = review_posting(opening, text, profile, cfg, filter_prompt)
+    except Exception:
+        return {**row, "status": "suggested", "reason": _FETCH_CAVEAT}
+    row["posting_text"] = text[:20000]
+    row["posting_json"] = json.dumps(r["digest"]) if r["digest"] else None
+    row["lang"] = r["lang"]
+    row["reason"] = r["reason"]  # keep the reason even for non-matches (auditable)
+    if r["match"]:
+        row["status"] = "suggested"
+    return row
 
 
 def _run_scan(scan_id: str) -> None:
@@ -112,28 +154,16 @@ def _run_scan(scan_id: str) -> None:
                 errors[name] = str(e)
                 continue
 
+            # Fetch every surviving posting in parallel (I/O-bound), then review
+            # them one at a time — the local engine serialises LLM calls anyway,
+            # so the parallelism that matters is the fetching.
+            texts = fetch_texts([o["url"] for o in survivors])
             for j, o in enumerate(survivors):
                 with _scans_lock:
                     _scans[scan_id].update({"reading_current": j + 1,
                                             "reading_total": len(survivors)})
-                row = {"status": "seen", "reason": None, "lang": "en",
-                       "posting_text": None, "posting_json": None}
-                try:
-                    text = fetch_job_description(o["url"])
-                    r = review_posting(o, text, profile, cfg, filter_prompt)
-                    row["posting_text"] = text[:20000]
-                    row["posting_json"] = json.dumps(r["digest"]) if r["digest"] else None
-                    row["lang"] = r["lang"]
-                    if r["match"]:
-                        row["status"], row["reason"] = "suggested", r["reason"]
-                except Exception:
-                    # A fetch/parse failure must not silently bury a plausible
-                    # job: it survived the title prescreen, so keep it suggested
-                    # with a caveat. (Surfaced on the card, not the source-error
-                    # banner, which is reserved for whole-source failures.)
-                    row["status"] = "suggested"
-                    row["reason"] = "Matched by title — couldn't read the posting page."
-                o["_row"] = row
+                o["_row"] = _review_one(o, texts.get(o["url"]) or "",
+                                        profile, cfg, filter_prompt)
 
             with db.get_db() as conn:
                 for o in new:
@@ -172,6 +202,65 @@ def scan():
     return {"scan_id": scan_id}
 
 
+def _run_recheck(scan_id: str) -> None:
+    """Re-judge already-seen openings against the CURRENT profile, using their
+    cached posting text (no fetching). Newly matching ones become suggestions.
+    Reuses the scan status dict so the UI poller works unchanged."""
+    try:
+        with _scans_lock:
+            _scans[scan_id]["status"] = "running"
+        cfg = config.load()
+        config.require_engine(cfg)
+        filter_prompt = cfg.get("scan_filter_prompt") or None
+        profile = load_profile()
+
+        with db.get_db() as conn:
+            rows = [dict(r) for r in conn.execute(
+                """SELECT * FROM job_openings
+                   WHERE status = 'seen' AND posting_text IS NOT NULL AND posting_text != ''
+                   ORDER BY created_at DESC LIMIT 100"""
+            ).fetchall()]
+
+        found = 0
+        for i, row in enumerate(rows):
+            with _scans_lock:
+                _scans[scan_id].update({"reading_current": i + 1, "reading_total": len(rows)})
+            r = _review_one({"title": row["title"], "url": row["url"]},
+                            row["posting_text"], profile, cfg, filter_prompt)
+            # The caveat path (posting_text None despite non-empty input) means
+            # the REVIEW failed, not the page read. Unlike a scan — where a new
+            # opening must not be buried — these rows already hold a valid old
+            # verdict: keep it rather than promoting on an LLM hiccup (which
+            # would also wipe the stored digest).
+            if r["posting_text"] is None:
+                continue
+            with db.get_db() as conn:
+                conn.execute(
+                    "UPDATE job_openings SET status = ?, reason = ?, lang = ?, posting_json = ? WHERE id = ?",
+                    (r["status"], r["reason"], r["lang"], r["posting_json"], row["id"]),
+                )
+            if r["status"] == "suggested":
+                found += 1
+
+        config.save({"jobs_last_recheck": _now()})  # clears the profile-changed nudge
+        with _scans_lock:
+            _scans[scan_id].update({"status": "done", "found": found, "errors": {}})
+    except Exception as e:
+        with _scans_lock:
+            _scans[scan_id].update({"status": "error", "error": str(e)})
+
+
+@router.post("/recheck")
+def recheck():
+    """Re-judge past 'filtered out' openings against your current Preferences."""
+    scan_id = str(uuid.uuid4())
+    with _scans_lock:
+        _evict_scans()
+        _scans[scan_id] = {"status": "pending", "created": time.time()}
+    threading.Thread(target=_run_recheck, args=(scan_id,), daemon=True).start()
+    return {"scan_id": scan_id}
+
+
 @router.get("/scan/status/{scan_id}")
 def scan_status(scan_id: str):
     with _scans_lock:
@@ -183,25 +272,37 @@ def scan_status(scan_id: str):
 
 @router.get("/last-scan")
 def last_scan():
-    return {"last_scan": config.load().get("jobs_last_scan")}
+    """Last scan time, plus whether the profile was edited since the last scan
+    OR re-check — a nudge to re-check filtered jobs against changed Preferences."""
+    cfg = config.load()
+    scanned = cfg.get("jobs_last_scan")
+    # ISO-8601 UTC strings, so max() is chronological.
+    judged = max(filter(None, [scanned, cfg.get("jobs_last_recheck")]), default=None)
+    changed = False
+    try:
+        updated = load_profile().get("meta", {}).get("last_updated")
+        changed = bool(updated) and (not judged or updated > judged)
+    except Exception:
+        pass  # a missing/broken profile just means "no nudge"
+    return {"last_scan": scanned, "profile_changed": changed}
 
 
 @router.get("/openings")
-def list_openings():
-    """Suggested + decided openings, newest decision/discovery first.
-    'seen' rows are dedup memory only and stay hidden."""
+def list_openings(include_seen: bool = False):
+    """Suggested + decided openings, newest decision/discovery first. With
+    include_seen, also append the 50 most recent 'filtered out' (seen) rows so
+    the user can audit — and rescue — what the filter dropped."""
     with db.get_db() as conn:
         rows = conn.execute(
             """SELECT * FROM job_openings WHERE status != 'seen'
                ORDER BY COALESCE(decided_at, created_at) DESC"""
         ).fetchall()
-    out = []
-    for r in rows:
-        d = dict(r)
-        pj = d.pop("posting_json", None)
-        d.pop("posting_text", None)  # cache only — never shipped to the client
-        d["digest"] = json.loads(pj) if pj else None
-        out.append(d)
+        out = [_opening_dict(r) for r in rows]
+        if include_seen:
+            seen = conn.execute(
+                "SELECT * FROM job_openings WHERE status = 'seen' ORDER BY created_at DESC LIMIT 50"
+            ).fetchall()
+            out += [_opening_dict(r) for r in seen]
     return out
 
 
@@ -248,3 +349,48 @@ def accept_opening(oid: str):
             (_now(), oid),
         )
     return {"cv_job_id": job_id, "job_url": row["url"], "lang": row.get("lang") or "en"}
+
+
+@router.post("/check")
+def check_opening(body: SourceRequest):
+    """Judge a single job URL the same way a scan would — for a posting the user
+    found elsewhere. Returns the opening row (with digest) whether it matches or
+    not: a non-match is stored as 'seen' but always reported back, never hidden."""
+    url = body.url.strip()
+    if not url.startswith(("http://", "https://")):
+        raise HTTPException(400, "Enter a full URL starting with http:// or https://")
+
+    with db.get_db() as conn:
+        existing = conn.execute("SELECT * FROM job_openings WHERE url = ?", (url,)).fetchone()
+    if existing:
+        return _opening_dict(dict(existing))  # already known — no second LLM call
+
+    cfg = config.load()
+    try:
+        config.require_engine(cfg)
+        profile = load_profile()
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    filter_prompt = cfg.get("scan_filter_prompt") or None
+    try:
+        text = fetch_job_description(url)
+    except Exception as e:
+        raise HTTPException(502, f"Couldn't read that job page: {e}")
+    # _review_one never raises (a bad read ⇒ suggested-with-caveat), so the
+    # user always gets an opening back rather than an error.
+    r = _review_one({"title": "", "url": url}, text, profile, cfg, filter_prompt)
+
+    digest = json.loads(r["posting_json"]) if r["posting_json"] else {}
+    title = digest.get("employer") or (digest.get("summary") or "")[:60] or urlparse(url).netloc.replace("www.", "")
+    oid = str(uuid.uuid4())
+    with db.get_db() as conn:
+        conn.execute(
+            """INSERT INTO job_openings
+               (id, url, title, source_url, status, reason, lang,
+                posting_text, posting_json, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (oid, url, title, url, r["status"], r["reason"], r["lang"],
+             r["posting_text"], r["posting_json"], _now()),
+        )
+        row = conn.execute("SELECT * FROM job_openings WHERE id = ?", (oid,)).fetchone()
+    return _opening_dict(dict(row))

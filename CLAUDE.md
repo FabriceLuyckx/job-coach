@@ -295,20 +295,22 @@ cd frontend && npm run dev
 **User flow** (Job Suggestions page):
 1. Add job-listing page URLs one by one (stored in `job_sources`).
 2. **Find new listings** scans every source. Per source, in cost order: (a) read the page's actual `<a href>` links; if their hash equals last scan's (`job_sources.links_hash`), skip the source entirely — nothing new can exist. (b) LLM picks which links are real openings; dedup against `job_openings` by URL. (c) **Title prescreen** — a high-recall LLM triage drops only clearly off-target new openings (skipped, keep-all, at ≤5 new). (d) For each survivor: **fetch the posting page once** and make **one LLM call** returning a match verdict *and* a structured digest (employer, location, remote, contract, salary, deadline, ~50-word summary, top requirements). This is what lets preferences a title can't express (`avoid`, `notes`, `remote`) actually filter. Last-scan time shows beside the button (`jobs_last_scan` in config.json).
-3. Matching openings show as **Suggestions** (info left, Accept/red-Reject right) with a one-line reason, detected language, and the digest fields as chips + summary; the rest are stored as `seen` (dedup memory only, but their scraped text/digest are cached). A posting whose page can't be read still shows as a suggestion with a "couldn't read the posting page" caveat rather than being buried.
+3. Matching openings show as **Suggestions** (info left, Accept/red-Reject right) with a one-line reason, detected language, and the digest fields as chips + summary (the deadline chip is accented). Non-matches are stored as `seen` **with their reason kept** and their scraped text/digest cached — surfaced in a collapsible **Filtered out** section (each with **Suggest anyway** → restore). A posting whose page can't be read still shows as a suggestion with a "couldn't read the posting page" caveat rather than being buried. Past the 5th suggestion, a search box + source filter appear.
 4. **Accept** → marks `accepted`, kicks off CV generation from its URL in the *detected language* (reuses `cv.start_generation`, passing the cached `posting_text` so the page is **not** re-scraped), and hands off to the CV Generator (via `cv_pending_job_id` + `cv_pending_job_url` localStorage keys) which shows the build and the URL used. **Reject** greys it out.
-5. **History** keeps accepted + rejected openings (full info, recency-first; rejected greyed). Accepted rows have **Open CV** (deep-links to the matching CV via `cv_open_url` → matched by `job_url`) and can still be rejected.
+5. **History** keeps accepted + rejected openings (full info, recency-first, paged with "Show more"; rejected greyed). Accepted rows have **Open CV** (deep-links to the matching CV via `cv_open_url` → matched by `job_url`) and can still be rejected.
+6. **Re-check filtered jobs** re-judges the cached `seen` openings against the current profile (rescuing ones improved Preferences now match); **Check a specific job** runs any pasted URL through the same review — for a posting found off-platform.
 
-**Reading the page**: `fetch_listing_links()` uses httpx and falls back to a headless Playwright render when a page yields too few links (JS-built boards). The LLM only ever returns URLs that were actually on the page (hallucination guard). Verify a source with `uv run python scripts/scan_debug.py --url <page>`.
+**Reading the page** (`app/services/headless.py` — the one place HTTP+headless fetching lives): `http_get()` tries plain httpx; `render_html(url, browser=None)` falls back to a headless render (reusing a passed-in browser when given). `fetch_listing_links()` uses these when a page yields too few links (JS-built boards). During a scan, all surviving postings are fetched via `fetch_texts()` — parallel httpx (pool of 4), then the too-short ones rendered sequentially through **one** shared browser — so a scan launches Chromium at most once, not per posting. LLM review stays sequential (the local engine serialises it behind a lock). The LLM only ever returns URLs actually on the page (hallucination guard). Verify a source with `uv run python scripts/scan_debug.py --url <page>`.
 
 **Token-cost design**: unchanged sources cost **zero** LLM calls (link-hash skip). For a changed source, link extraction carries no profile context; the title prescreen runs only when >5 new openings survive dedup; the expensive per-posting call is paid **exactly once per opening ever** (URL dedup + `posting_text`/`posting_json` cache) and only for openings that survive the prescreen. The expensive text is read at the moment it can change a decision, and never again.
 
 **Editable prompts** (Settings → **Advanced — AI prompts**, collapsed by default): the link-extraction and relevance-filter prompts (`scan_extract_prompt`, `scan_filter_prompt`) mirror the CV Generator prompt. `scan_filter_prompt` now drives the per-posting verdict+digest call; the title prescreen has its own non-editable default (`DEFAULT_PRESCREEN_PROMPT`) — no third Settings prompt. The CV prompt must keep the `{lang_name}` placeholder (validated client- and server-side).
 
 **Key files**:
-- `app/services/job_scanner.py` — `fetch_listing_links()`, `links_hash()`, `extract_openings(…, links=)`, `prescreen_openings()` (high-recall title triage → survivor list), `review_posting()` (fetch+judge one posting → `{match, reason, lang, digest}`); `DEFAULT_EXTRACT_PROMPT`, `DEFAULT_PRESCREEN_PROMPT`, `DEFAULT_SCAN_PROMPT`. Posting-page fetch + Playwright fallback lives in `cv_generator.fetch_job_description()`.
-- `app/api/jobs.py` — source CRUD, threaded `/scan`, `/last-scan`, openings list, accept/reject
-- `frontend/src/pages/Jobs.tsx` — sources, scan, suggestions, history; `scripts/scan_debug.py` — verification CLI
+- `app/services/headless.py` — `http_get()`, `render_html(url, browser=)`, `text_from_html()`, `fetch_text()` (one URL) and `fetch_texts()` (many, parallel + shared browser). Both `job_scanner` and `cv_generator.fetch_job_description()` fetch through here (no import cycle).
+- `app/services/job_scanner.py` — `fetch_listing_links()`, `links_hash()`, `extract_openings(…, links=)`, `prescreen_openings()` (high-recall title triage → survivor list), `review_posting()` (judge one posting → `{match, reason, lang, digest}`); `DEFAULT_EXTRACT_PROMPT`, `DEFAULT_PRESCREEN_PROMPT`, `DEFAULT_SCAN_PROMPT`.
+- `app/api/jobs.py` — source CRUD; `_review_one()` (shared shape-a-row helper: empty text/review error ⇒ suggested-with-caveat); threaded `/scan` + `/recheck`; `/check`; `/last-scan`; openings list; accept/reject/restore
+- `frontend/src/pages/Jobs.tsx` — sources, scan, **check a specific job**, suggestions (with search/source filter past 5), **filtered-out** collapsible, history (paged); `scripts/scan_debug.py` — verification CLI
 
 **API endpoints**:
 ```
@@ -316,18 +318,33 @@ GET    /api/jobs/sources                List watched sources
 POST   /api/jobs/sources                Add a source {url} (name derived from host)
 DELETE /api/jobs/sources/{id}           Remove a source
 POST   /api/jobs/scan                   Async scan of all sources → {scan_id}
-GET    /api/jobs/scan/status/{scan_id}  Poll scan status
-GET    /api/jobs/last-scan              Last scan timestamp
-GET    /api/jobs/openings               Suggested + decided openings, newest first
-POST   /api/jobs/openings/{id}/accept   Mark accepted + generate CV → {cv_job_id, job_url, lang}
+POST   /api/jobs/recheck                Async re-judge of 'filtered out' openings against the current profile → {scan_id}
+GET    /api/jobs/scan/status/{scan_id}  Poll scan/recheck status (shared dict)
+GET    /api/jobs/last-scan              {last_scan, profile_changed} (nudge to re-check after profile edits)
+GET    /api/jobs/openings[?include_seen] Suggested + decided openings; include_seen also appends the 50 newest 'filtered out'
+POST   /api/jobs/check                  Judge one pasted URL {url} → the opening row (existing rows returned as-is, no LLM call)
+POST   /api/jobs/openings/{id}/accept   Mark accepted + generate CV (reuses cached posting_text) → {cv_job_id, job_url, lang}
 POST   /api/jobs/openings/{id}/reject   Mark rejected (also works from History)
-POST   /api/jobs/openings/{id}/restore  Back to 'suggested' (Undo for reject)
+POST   /api/jobs/openings/{id}/restore  Back to 'suggested' (Undo for reject; also "Suggest anyway" for filtered rows)
 ```
 
-**Scan status** (`GET /api/jobs/scan/status/{scan_id}`) reports progress while
-running (`current`/`total`/`source`) and, when done, `found` plus a per-source
-`errors` map (`{source name: message}`) so a broken source is visible instead of
-silently skipped.
+**Scan status** (`GET /api/jobs/scan/status/{scan_id}`, shared by scan +
+recheck) reports progress while running (`current`/`total`/`source` for the
+source loop, `reading_current`/`reading_total` for the per-posting loop) and,
+when done, `found` plus a per-source `errors` map (`{source name: message}`) so
+a broken source is visible instead of silently skipped.
+
+**Trust & recall**: a review's `reason` is stored even for non-matches, so the
+`seen` rows are auditable. The **Filtered out** UI section (a collapsible fed by
+`?include_seen`) shows them with **Suggest anyway** (→ restore). **Re-check
+filtered jobs** (`/recheck`) re-runs `review_posting` on the cached
+`posting_text` of up to 100 recent `seen` rows against the current profile — no
+fetching — so improved Preferences can rescue past openings for free.
+`PUT /api/profile` stamps `meta.last_updated`; `/last-scan` compares it to the
+newest of `jobs_last_scan`/`jobs_last_recheck` (config keys) to nudge a
+re-check — running either clears the nudge. A review failure during recheck
+keeps the row's old verdict (the suggested-with-caveat fallback is scan-only,
+where a new opening must not be buried).
 
 **Data model** (SQLite):
 ```

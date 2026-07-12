@@ -12,11 +12,9 @@ import json
 import re
 from dataclasses import dataclass, field
 
-import httpx
-from bs4 import BeautifulSoup
-
 from app.i18n.languages import lang_name
 from app.services.cv_renderer import profile_for_tailoring
+from app.services.headless import fetch_text
 from app.services.llm import complete, tool_args
 
 
@@ -134,40 +132,11 @@ Rules:
 - Use each role's ai_notes field in the profile to decide which entries best match the role type"""
 
 
-def _text_from_html(html: str) -> str:
-    soup = BeautifulSoup(html, "html.parser")
-    for tag in soup(["nav", "header", "footer", "script", "style", "aside"]):
-        tag.decompose()
-    return soup.get_text(separator="\n", strip=True)
-
-
 def fetch_job_description(url: str) -> str:
     """Extract the readable text of a job posting. Falls back to a headless
-    Playwright render for JS-built postings, mirroring fetch_listing_links()."""
-    try:
-        r = httpx.get(
-            url,
-            follow_redirects=True,
-            timeout=15,
-            headers={"User-Agent": "Mozilla/5.0 (compatible; job-coach/1.0)"},
-        )
-        r.raise_for_status()
-        text = _text_from_html(r.text)
-    except Exception:
-        text = ""
-    if len(text) >= 500:
-        return text
-    # ponytail: <500 chars ⇒ assume JS-rendered; re-render headless. Bump the
-    # threshold if a real posting slips through as near-empty.
-    from playwright.sync_api import sync_playwright
-    with sync_playwright() as p:
-        browser = p.chromium.launch()
-        try:
-            page = browser.new_page()
-            page.goto(url, wait_until="networkidle", timeout=30000)
-            return _text_from_html(page.content())
-        finally:
-            browser.close()
+    Playwright render for JS-built postings (launch-per-call — the scanner's
+    batch path in headless.fetch_texts reuses one browser instead)."""
+    return fetch_text(url)
 
 
 def tailor(

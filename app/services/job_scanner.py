@@ -24,9 +24,9 @@ headless Playwright render — both for listing pages (here) and posting pages
 import json
 from urllib.parse import urljoin
 
-import httpx
 from bs4 import BeautifulSoup
 
+from app.services.headless import http_get, render_html
 from app.services.llm import complete, tool_args
 
 # Below this many usable links we assume the page is JS-rendered and re-fetch it
@@ -155,25 +155,11 @@ def _links_from_html(html: str, page_url: str) -> list[dict]:
 def fetch_listing_links(url: str) -> list[dict]:
     """Return the page's links as [{text, href}]. Tries a plain HTTP fetch first
     and falls back to a headless Playwright render for JS-built job boards."""
-    try:
-        r = httpx.get(url, follow_redirects=True, timeout=15,
-                      headers={"User-Agent": "Mozilla/5.0 (compatible; job-coach/1.0)"})
-        r.raise_for_status()
-        links = _links_from_html(r.text, url)
-    except Exception:
-        links = []
+    links = _links_from_html(http_get(url), url)
     if len(links) >= _MIN_LINKS:
         return links
     # ponytail: link-count threshold heuristic; bump _MIN_LINKS if a real board slips through.
-    from playwright.sync_api import sync_playwright
-    with sync_playwright() as p:
-        browser = p.chromium.launch()
-        try:
-            page = browser.new_page()
-            page.goto(url, wait_until="networkidle", timeout=30000)
-            return _links_from_html(page.content(), url)
-        finally:
-            browser.close()
+    return _links_from_html(render_html(url), url)
 
 
 def links_hash(links: list[dict]) -> str:

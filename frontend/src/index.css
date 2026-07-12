@@ -266,6 +266,7 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 .badge-jobs    { background: var(--ink); color: var(--paper); }
 .badge-lang    { background: transparent; color: var(--ink); border: 1px solid var(--border); }
 .badge-neutral { background: transparent; color: var(--muted); border: 1px solid color-mix(in srgb, var(--ink) 45%, transparent); }
+.badge-deadline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
 
 /* ── Preferences questionnaire ──────────────────────────────────────────── */
 /* Numbered question card: ink number block + bold question, poster-style. */
