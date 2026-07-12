@@ -83,6 +83,15 @@
   border-bottom: 4px solid var(--heading);
 }
 
+.app-footer {
+  max-width: 880px;
+  padding: var(--space-3) var(--space-8);
+  text-align: right;
+  font-size: var(--fs-xs);
+  color: color-mix(in srgb, var(--paper) 70%, transparent);
+}
+.app-footer a { color: var(--paper); text-decoration: underline; }
+
 /* Page header row: title left, actions right. */
 .page-head {
   display: flex;

@@ -573,5 +573,8 @@
       "title": "OpenRouter",
       "desc": "Beste kwaliteit — vereist een API-sleutel, betaal een paar cent per gebruik."
     }
+  },
+  "footer": {
+    "credit": "Gemaakt voor jou door <a>Fabrice Luyckx</a> onder GPLv3"
   }
 }

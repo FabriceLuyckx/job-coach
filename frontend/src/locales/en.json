@@ -8,6 +8,9 @@
     "jobs": "Job Suggestions",
     "settings": "Settings"
   },
+  "footer": {
+    "credit": "Created for you by <a>Fabrice Luyckx</a> under GPLv3"
+  },
   "common": {
     "loading": "Loading…",
     "save": "Save",

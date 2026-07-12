@@ -573,5 +573,8 @@
       "title": "OpenRouter",
       "desc": "Najlepsza jakość — wymaga klucza API, koszt kilku centów za użycie."
     }
+  },
+  "footer": {
+    "credit": "Stworzone dla Ciebie przez <a>Fabrice Luyckx</a> pod licencją GPLv3"
   }
 }

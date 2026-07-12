@@ -573,5 +573,8 @@
       "title": "OpenRouter",
       "desc": "Melhor qualidade — requer uma chave de API, pague alguns centavos por uso."
     }
+  },
+  "footer": {
+    "credit": "Criado para você por <a>Fabrice Luyckx</a> sob GPLv3"
   }
 }

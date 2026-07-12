@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, NavLink, Routes, Route, Navigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { UserRound, SlidersHorizontal, FileText, Briefcase, Settings } from 'lucide-react'
 import ProfilePage from './pages/Profile'
 import PreferencesPage from './pages/Preferences'
@@ -61,6 +61,14 @@ export default function App() {
                     <Route path="/settings" element={<SettingsPage />} />
                   </Routes>
                 </div>
+                <footer className="app-footer">
+                  <Trans
+                    i18nKey="footer.credit"
+                    components={{
+                      a: <a href="https://github.com/FabriceLuyckx/job-coach" target="_blank" rel="noreferrer" />,
+                    }}
+                  />
+                </footer>
               </main>
             </div>
           </KeyStatusProvider>
