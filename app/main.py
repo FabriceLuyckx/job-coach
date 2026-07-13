@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-from app.api import profile, cv, settings, jobs, system, backup, engine, i18n
+from app.api import profile, cv, settings, jobs, system, backup, engine, i18n, letters
 from app import db, paths
 
 
@@ -29,6 +29,7 @@ app.add_middleware(
 
 app.include_router(profile.router)
 app.include_router(cv.router)
+app.include_router(letters.router)
 app.include_router(settings.router)
 app.include_router(jobs.router)
 app.include_router(system.router)

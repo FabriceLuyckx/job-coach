@@ -4,9 +4,9 @@
     "brandEm": "Coach",
     "profile": "Perfil",
     "preferences": "Preferências",
-    "cv": "Gerador de CV",
     "jobs": "Sugestões de Emprego",
-    "settings": "Configurações"
+    "settings": "Configurações",
+    "applications": "Aplicações"
   },
   "common": {
     "loading": "A carregar…",
@@ -125,7 +125,9 @@
       "extractTitle": "Sugestões de Emprego — prompt de extração de links",
       "extractHelp": "Seleciona quais os links de uma página que são ofertas de emprego reais. A lista de links encontrados na página é adicionada automaticamente abaixo.",
       "filterTitle": "Sugestões de Emprego — prompt de filtro de relevância",
-      "filterHelp": "Avalia cada novo anúncio lendo a publicação completa: decide se ele se encaixa com você e extrai um resumo curto (empregador, local, salário, prazo, requisitos). As partes relevantes do seu perfil são adicionadas automaticamente abaixo."
+      "filterHelp": "Avalia cada novo anúncio lendo a publicação completa: decide se ele se encaixa com você e extrai um resumo curto (empregador, local, salário, prazo, requisitos). As partes relevantes do seu perfil são adicionadas automaticamente abaixo.",
+      "letterTitle": "Carta de apresentação — prompt de guia",
+      "letterHelp": "Enviado ao criar um guia de carta de apresentação. Seu perfil e o anúncio de emprego são adicionados automaticamente abaixo. Isso produz um plano de escrita (outline, dicas, evidências) — nunca texto final da carta. <code>{lang_name}</code> é substituído pela linguagem de saída — deve permanecer no prompt."
     }
   },
   "profile": {
@@ -460,7 +462,7 @@
     "accepted": "Aceito",
     "rejected": "Rejeitado",
     "restore": "Restaurar",
-    "openCv": "Abrir CV",
+    "openCv": "Abrir aplicação",
     "regenerateTitle": "Executar novamente a geração de CV para esta vaga",
     "regenerateCv": "Regenerar CV",
     "readingPosting": "Lendo o anúncio {{current}} de {{total}}…",
@@ -576,5 +578,55 @@
   },
   "footer": {
     "credit": "Criado para você por <a>Fabrice Luyckx</a> sob GPLv3"
+  },
+  "applications": {
+    "title": "Aplicações",
+    "new": "Nova aplicação",
+    "newTitle": "Nova aplicação",
+    "generate": "Gerar",
+    "tailoredCv": "CV personalizado",
+    "letterGuide": "Guia de carta",
+    "cvTab": "CV",
+    "letterTab": "Carta",
+    "artifactDone": "Concluído",
+    "noCvYet": "Ainda não há CV personalizado para este emprego.",
+    "noLetterYet": "Ainda não há guia de carta para este emprego.",
+    "createCv": "Gerar CV",
+    "createLetter": "Criar guia de carta",
+    "noUrl": "Este item não tem URL do emprego salvo, portanto nada mais pode ser gerado para ele.",
+    "deleteApp": "Excluir aplicação para {{title}}",
+    "deleteLetter": "Excluir este guia de carta",
+    "deletedToast": "Aplicação excluída para \"{{title}}\"",
+    "noneForJob": "Nada encontrado para este emprego ainda — a geração pode ter falhado. Tente novamente a partir da página de sugestões de empregos.",
+    "emptyTitle": "Nenhuma aplicação ainda",
+    "emptyBody": "Cole a URL do anúncio de emprego e o AI cria um CV personalizado e um guia para escrever a carta de apresentação — pronto para visualizar, editar e baixar.",
+    "searchPlaceholder": "Pesquisar suas aplicações…",
+    "noMatches": "Nenhuma aplicação corresponde à sua pesquisa.",
+    "loadError": "Não foi possível carregar suas aplicações: {{error}}"
+  },
+  "letters": {
+    "title": "Carta de apresentação",
+    "jobUrl": "URL do anúncio de emprego",
+    "generate": "Criar guia",
+    "generating": "Criando…",
+    "starting": "Iniciando…",
+    "emptyTitle": "Nenhum guia de carta ainda",
+    "emptyBody": "Cole a URL do anúncio de emprego acima para obter um plano personalizado para escrever sua carta.",
+    "deletedToast": "Guia excluído para \"{{title}}\"",
+    "explainer": {
+      "headline": "Esta ferramenta não escreve sua carta — isso é o ponto.",
+      "body": "Uma carta de apresentação só funciona se for escrita em suas próprias palavras; os recrutadores descartam cada vez mais cartas escritas por IA. Em vez disso, você recebe um plano personalizado: o que dizer, em que ordem e quais partes do seu perfil usar como evidência. A escrita permanece sua."
+    },
+    "guide": {
+      "headingFor": "Guia de carta para",
+      "angle": "Ângulo",
+      "structure": "Estrutura",
+      "evidence": "Evidência a citar",
+      "gaps": "Falta a ser honestamente abordada",
+      "tone": "Tom e comprimento",
+      "copyMarkdown": "Copiar como Markdown",
+      "copied": "Guia copiado como Markdown",
+      "copyFailed": "Impossível copiar para o clipboard"
+    }
   }
 }

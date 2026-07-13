@@ -78,6 +78,20 @@ def init_db() -> None:
         # Skip the LLM link-extraction for a source whose link set is unchanged.
         _add_column(conn, "job_sources", "links_hash TEXT")
 
+        # Cover-letter writing guides (job posting → outline+pointers, pure JSON).
+        # job_url is the join key for a future CV+letter "Application" view.
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS letter_history (
+                id          TEXT PRIMARY KEY,
+                job_title   TEXT NOT NULL,
+                employer    TEXT NOT NULL,
+                job_url     TEXT,
+                lang        TEXT NOT NULL DEFAULT 'en',
+                guide_json  TEXT NOT NULL,
+                created_at  TEXT NOT NULL
+            )
+        """)
+
 
 @contextmanager
 def get_db():

@@ -1,4 +1,4 @@
-import type { Profile } from './types'
+import type { Profile, LetterHistoryEntry } from './types'
 
 const BASE = '/api'
 
@@ -209,6 +209,17 @@ export const api = {
   generateCVSummary: (id: string) =>
     request<{ job_id: string }>(`/cv/summary/${id}/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }),
 
+  // Cover-letter guide (async; poll via getCVJobStatus / pollCVJob)
+  generateLetter: (url: string, lang: string) =>
+    request<{ job_id: string }>('/letters/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, lang }),
+    }),
+  getLetterHistory: () => request<LetterHistoryEntry[]>('/letters/history'),
+  deleteLetter: (id: string) =>
+    request<{ ok: boolean }>(`/letters/history/${id}`, { method: 'DELETE' }),
+
   // Jobs
   getJobSources: () => request<JobSource[]>('/jobs/sources'),
   addJobSource: (url: string) =>
@@ -245,7 +256,7 @@ export const api = {
       body: JSON.stringify({ url }),
     }),
   acceptOpening: (id: string) =>
-    request<{ cv_job_id: string; job_url: string; lang: string }>(`/jobs/openings/${id}/accept`, { method: 'POST' }),
+    request<{ cv_job_id: string; letter_job_id: string; job_url: string; lang: string }>(`/jobs/openings/${id}/accept`, { method: 'POST' }),
   rejectOpening: (id: string) =>
     request<{ ok: boolean }>(`/jobs/openings/${id}/reject`, { method: 'POST' }),
   restoreOpening: (id: string) =>
@@ -259,6 +270,8 @@ export const api = {
       openrouter_model: string
       cv_prompt: string
       cv_prompt_default: string
+      letter_prompt: string
+      letter_prompt_default: string
       scan_extract_prompt: string
       scan_extract_prompt_default: string
       scan_filter_prompt: string
@@ -268,7 +281,7 @@ export const api = {
       app_language: string
       onboarding_done: boolean
     }>('/settings'),
-  putSettings: (data: { openrouter_api_key?: string; openrouter_model?: string; cv_prompt?: string; scan_extract_prompt?: string; scan_filter_prompt?: string; llm_provider?: EngineProvider; local_model_id?: string; app_language?: string; onboarding_done?: boolean }) =>
+  putSettings: (data: { openrouter_api_key?: string; openrouter_model?: string; cv_prompt?: string; letter_prompt?: string; scan_extract_prompt?: string; scan_filter_prompt?: string; llm_provider?: EngineProvider; local_model_id?: string; app_language?: string; onboarding_done?: boolean }) =>
     request<{ ok: boolean }>('/settings', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },

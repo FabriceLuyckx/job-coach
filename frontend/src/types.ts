@@ -199,3 +199,24 @@ export interface Profile {
   memberships: Membership[]
   custom_sections: CustomSection[]
 }
+
+// Cover-letter writing guide (not a written letter).
+export interface LetterGuide {
+  job_title: string
+  employer: string
+  angle: string
+  structure: { title: string; goal: string; pointers: string[] }[]
+  evidence: { job_need: string; your_match: string }[]
+  gaps: string[]
+  tone: string
+}
+
+export interface LetterHistoryEntry {
+  id: string
+  job_title: string
+  employer: string
+  job_url: string | null
+  lang: string
+  guide: LetterGuide
+  created_at: string
+}

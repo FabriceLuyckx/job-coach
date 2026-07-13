@@ -4,9 +4,9 @@
     "brandEm": "Coach",
     "profile": "Profil",
     "preferences": "Préférences",
-    "cv": "Générateur de CV",
     "jobs": "Offres d'emploi",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "applications": "Applications"
   },
   "common": {
     "loading": "Chargement…",
@@ -125,7 +125,9 @@
       "extractTitle": "Suggestions d'offres — prompt d'extraction de liens",
       "extractHelp": "Sélectionne parmi les liens d'une page ceux qui correspondent à de vraies offres d'emploi. La liste des liens trouvés sur la page est ajoutée automatiquement en dessous.",
       "filterTitle": "Suggestions d'offres — prompt de filtre de pertinence",
-      "filterHelp": "Évalue chaque nouveau poste en le lisant en entier : décide s'il correspond à vous et extrait une synthèse courte (employeur, localisation, salaire, délai, exigences). Les parties pertinentes de votre profil sont ajoutées automatiquement ci-dessous."
+      "filterHelp": "Évalue chaque nouveau poste en le lisant en entier : décide s'il correspond à vous et extrait une synthèse courte (employeur, localisation, salaire, délai, exigences). Les parties pertinentes de votre profil sont ajoutées automatiquement ci-dessous.",
+      "letterTitle": "Lettre de motivation — prompt de guide",
+      "letterHelp": "Envoyé lors de la création d'un guide de lettre. Votre profil et le poste sont ajoutés automatiquement ci-dessous. Cela produit un plan de rédaction (structure, indices, preuves) — jamais du texte complet de lettre. <code>{lang_name}</code> est remplacé par la langue de sortie — il doit rester dans le prompt."
     }
   },
   "profile": {
@@ -460,7 +462,7 @@
     "accepted": "Accepté",
     "rejected": "Rejeté",
     "restore": "Restaurer",
-    "openCv": "Ouvrir le CV",
+    "openCv": "Ouvrir l'application",
     "regenerateTitle": "Relancer la génération du CV pour cette offre",
     "regenerateCv": "Régénérer le CV",
     "readingPosting": "Lecture de l'annonce {{current}} sur {{total}}…",
@@ -576,5 +578,55 @@
   },
   "footer": {
     "credit": "Créé pour vous par <a>Fabrice Luyckx</a> sous GPLv3"
+  },
+  "applications": {
+    "title": "Applications",
+    "new": "Nouvelle application",
+    "newTitle": "Nouvelle application",
+    "generate": "Générer",
+    "tailoredCv": "CV adapté",
+    "letterGuide": "Guide de lettre",
+    "cvTab": "CV",
+    "letterTab": "Lettre",
+    "artifactDone": "Terminé",
+    "noCvYet": "Aucun CV adapté pour ce poste encore.",
+    "noLetterYet": "Aucun guide de lettre pour ce poste encore.",
+    "createCv": "Générer le CV",
+    "createLetter": "Créer un guide de lettre",
+    "noUrl": "Cette entrée n'a pas de URL de poste enregistrée, donc rien ne peut être généré.",
+    "deleteApp": "Supprimer l'application pour {{title}}",
+    "deleteLetter": "Supprimer ce guide de lettre",
+    "deletedToast": "L'application pour «{{title}}» a été supprimée",
+    "noneForJob": "Aucun résultat pour ce poste — la génération a peut-être échoué. Réessayez depuis la page des suggestions de poste.",
+    "emptyTitle": "Aucune application encore",
+    "emptyBody": "Collez l'URL d'un poste et l'IA construit un CV adapté et un guide de rédaction de lettre — prêt à être consulté, édité et téléchargé.",
+    "searchPlaceholder": "Rechercher vos applications…",
+    "noMatches": "Aucune application ne correspond à votre recherche.",
+    "loadError": "Impossible de charger vos applications : {{error}}"
+  },
+  "letters": {
+    "title": "Lettre de motivation",
+    "jobUrl": "URL du poste",
+    "generate": "Créer le guide",
+    "generating": "En cours de création…",
+    "starting": "En cours…",
+    "emptyTitle": "Aucun guide de lettre encore",
+    "emptyBody": "Collez l'URL d'un poste ci-dessus pour obtenir un plan adapté à la rédaction de votre lettre.",
+    "deletedToast": "Le guide pour «{{title}}» a été supprimé",
+    "explainer": {
+      "headline": "Ce outil ne rédige pas votre lettre — c'est le point.",
+      "body": "Une lettre de motivation ne fonctionne que si elle est écrite par vous-même ; les recruteurs rejettent de plus en plus les lettres générées par l'IA. Vous obtenez au contraire un plan adapté : ce qu'il faut dire, dans quel ordre, et quelles parties de votre profil utiliser comme preuves. L'écriture reste à vous."
+    },
+    "guide": {
+      "headingFor": "Guide de lettre pour",
+      "angle": "Angle",
+      "structure": "Structure",
+      "evidence": "Des éléments à citer",
+      "gaps": "Des lacunes à traiter honnêtement",
+      "tone": "Ton et longueur",
+      "copyMarkdown": "Copier sous Markdown",
+      "copied": "Le guide a été copié sous Markdown",
+      "copyFailed": "Impossible de copier dans le presse-papiers"
+    }
   }
 }

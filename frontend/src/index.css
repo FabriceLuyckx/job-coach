@@ -316,11 +316,6 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 .suggest-row button:hover:not(:disabled) { border-color: var(--ink); color: var(--ink); border-style: solid; }
 .suggest-row button:disabled { opacity: 0.35; cursor: default; }
 
-/* CV editor: two-column split on wide viewports, stacked below. */
-.cv-editor-split { display: grid; grid-template-columns: 1fr; gap: var(--space-5); }
-@media (min-width: 1200px) {
-  .cv-editor-split { grid-template-columns: 55fr 45fr; align-items: start; }
-}
 .editor-cluster-label {
   font-size: var(--fs-xs); font-weight: 600; color: var(--muted);
   text-transform: uppercase; letter-spacing: 0.06em;

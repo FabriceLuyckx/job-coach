@@ -4,9 +4,9 @@
     "brandEm": "Coach",
     "profile": "Profilo",
     "preferences": "Preferenze",
-    "cv": "Generatore CV",
     "jobs": "Offerte di lavoro",
-    "settings": "Impostazioni"
+    "settings": "Impostazioni",
+    "applications": "Applicazioni"
   },
   "common": {
     "loading": "Caricamento…",
@@ -125,7 +125,9 @@
       "extractTitle": "Suggerimenti lavoro — prompt di estrazione link",
       "extractHelp": "Seleziona quali link di una pagina sono vere offerte di lavoro. L'elenco dei link trovati nella pagina viene aggiunto automaticamente in fondo.",
       "filterTitle": "Suggerimenti lavoro — prompt di filtro pertinenza",
-      "filterHelp": "Valuta ogni nuovo annuncio leggendo l'intero testo: decide se corrisponde a te e estrae un breve riassunto (della ditta, località, stipendio, scadenza, requisiti). Le parti rilevanti del tuo profilo vengono aggiunte automaticamente sotto."
+      "filterHelp": "Valuta ogni nuovo annuncio leggendo l'intero testo: decide se corrisponde a te e estrae un breve riassunto (della ditta, località, stipendio, scadenza, requisiti). Le parti rilevanti del tuo profilo vengono aggiunte automaticamente sotto.",
+      "letterTitle": "Lettera — prompt della guida",
+      "letterHelp": "Invia quando si costruisce una guida alla lettera. Il tuo profilo e l'annuncio del lavoro vengono aggiunti automaticamente sotto. Questo produce un piano di scrittura (outline, suggerimenti, prove) — mai testo finale della lettera. <code>{lang_name}</code> viene sostituito con il linguaggio di output — deve rimanere nel prompt."
     }
   },
   "profile": {
@@ -460,7 +462,7 @@
     "accepted": "Accettato",
     "rejected": "Rifiutato",
     "restore": "Ripristina",
-    "openCv": "Apri CV",
+    "openCv": "Apri l'applicazione",
     "regenerateTitle": "Esegui nuovamente la generazione del CV per questa offerta",
     "regenerateCv": "Rigenera CV",
     "readingPosting": "Sto leggendo l'annuncio {{current}} di {{total}}…",
@@ -576,5 +578,55 @@
   },
   "footer": {
     "credit": "Creato per te da <a>Fabrice Luyckx</a> under GPLv3"
+  },
+  "applications": {
+    "title": "Applicazioni",
+    "new": "Nuova applicazione",
+    "newTitle": "Nuova applicazione",
+    "generate": "Genera",
+    "tailoredCv": "CV personalizzato",
+    "letterGuide": "Guida alla lettera",
+    "cvTab": "CV",
+    "letterTab": "Lettera",
+    "artifactDone": "Fatto",
+    "noCvYet": "Nessun CV personalizzato per questo lavoro ancora.",
+    "noLetterYet": "Nessuna guida alla lettera per questo lavoro ancora.",
+    "createCv": "Genera CV",
+    "createLetter": "Crea guida alla lettera",
+    "noUrl": "Questo elemento non ha un URL del lavoro salvato, quindi nulla può essere generato per esso.",
+    "deleteApp": "Elimina l'applicazione per {{title}}",
+    "deleteLetter": "Elimina questa guida alla lettera",
+    "deletedToast": "Eliminata l'applicazione per \"{{title}}\"",
+    "noneForJob": "Niente trovato per questo lavoro ancora — la generazione potrebbe essersi rotta. Riprova dalla pagina Suggerimenti per il lavoro.",
+    "emptyTitle": "Nessuna applicazione ancora",
+    "emptyBody": "Incolla l'URL del lavoro e l'AI genera un CV personalizzato e una guida alla scrittura della lettera — pronto per la visione, la modifica e il download.",
+    "searchPlaceholder": "Cerca le tue applicazioni…",
+    "noMatches": "Nessuna applicazione corrisponde alla tua ricerca.",
+    "loadError": "Impossibile caricare le tue applicazioni: {{error}}"
+  },
+  "letters": {
+    "title": "Lettera",
+    "jobUrl": "URL dell'annuncio del lavoro",
+    "generate": "Crea guida",
+    "generating": "Sto creando…",
+    "starting": "Inizio…",
+    "emptyTitle": "Nessuna guida alla lettera ancora",
+    "emptyBody": "Incolla l'URL dell'annuncio del lavoro sopra per ottenere un piano personalizzato per la scrittura della tua lettera.",
+    "deletedToast": "Eliminata la guida per \"{{title}}\"",
+    "explainer": {
+      "headline": "Questo strumento non scrive la tua lettera — questo è il punto.",
+      "body": "Una lettera di presentazione funziona solo se è scritta in parole tue; i reclutatori eliminano sempre di più le lettere scritte con AI. Invece, ottieni un piano personalizzato: cosa dire, in quale ordine e quali parti del tuo profilo usare come prova. La scrittura rimane tua."
+    },
+    "guide": {
+      "headingFor": "Guida alla lettera per",
+      "angle": "Angolo",
+      "structure": "Struttura",
+      "evidence": "Elementi da citare",
+      "gaps": "Difetti da affrontare in modo onesto",
+      "tone": "Tono e lunghezza",
+      "copyMarkdown": "Copia come Markdown",
+      "copied": "Guida copiata come Markdown",
+      "copyFailed": "Impossibile copiare nel clipboard"
+    }
   }
 }

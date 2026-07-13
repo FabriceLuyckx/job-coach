@@ -21,6 +21,8 @@ The app runs locally first, designed for easy cloud deployment. AI is powered vi
 | `app/services/cv_generator.py` | Done | `tailor()` + `apply_tailoring()` — called by CLI and API |
 | `app/services/cv_renderer.py` | Done | Shared Jinja2 utilities (LABELS, filters, photo) |
 | `app/services/job_scanner.py` | Done | Phase 5/6 — extract openings, link-hash skip, title prescreen, per-posting read → verdict + digest |
+| `app/services/letter_guide.py` | Done | Cover-letter **writing guide** (angle, outline, evidence map) from a posting URL — never writes the letter |
+| `app/api/letters.py` | Done | `/api/letters/*` — generate (async, reuses cv job store) + history CRUD |
 | `scripts/tailor_cv.py` | Done | CLI: fetch URL → Claude → tailored HTML |
 | `app/db.py` | Done | SQLite: `cv_history` (P4), `job_sources` + `job_openings` (P5) |
 | FastAPI backend | Done | Phases 4–5 — all endpoints live |
@@ -76,11 +78,13 @@ job-coach/
 │   │   ├── profile.py            # Profile CRUD endpoints
 │   │   ├── cv.py                 # CV generation, history, preview endpoints
 │   │   ├── settings.py           # Settings + photo upload endpoints
+│   │   ├── letters.py            # Cover-letter guide: generate (async) + history
 │   │   └── jobs.py               # Job sources, scan, accept/reject (Phase 5)
 │   └── services/
 │       ├── llm.py                # Provider-neutral complete() + LLMResponse/ToolCall + response validation
 │       ├── engines/              # AI providers: openrouter.py, local.py (llama.cpp), registry.py
 │       ├── cv_generator.py       # OpenRouter-powered tailored CV generation
+│       ├── letter_guide.py       # Posting URL → cover-letter writing guide (not a letter)
 │       ├── cv_renderer.py        # Shared Jinja2 utilities (+ PHOTO_EXTS, load_profile)
 │       ├── job_scanner.py        # Extract openings from a page + profile-filter (Phase 5)
 │       └── job_matcher.py        # Job scoring/filtering via Claude (Phase 6)
@@ -91,13 +95,14 @@ job-coach/
 │       ├── pages/
 │       │   ├── Profile.tsx       # View/edit CV data only (auto-saves as you type)
 │       │   ├── Preferences.tsx   # Five-question job-matching form (flat, no collapsibles)
-│       │   ├── CVGenerator.tsx   # Paste job URL → generate CV + history
+│       │   ├── Applications.tsx  # One row per job (CV + cover-letter guide joined on job_url), CV|Letter tabs; replaces the old CVGenerator + Letters pages
 │       │   ├── Jobs.tsx          # Job sources, AI suggestions, accept/reject (Phase 5)
 │       │   └── Settings.tsx      # OpenRouter API key, model, photo; Advanced → AI prompts
 │       ├── components/           # Shared UI: Button/SaveButton/RemoveButton, Toast,
 │       │   │                     #   Modal, Collapsible, Badge, EmptyState, ErrorBoundary,
 │       │   │                     #   KeyStatus (API-key onboarding), CreditChip
 │       │   ├── cv/CVEditor.tsx   # Per-CV editor panel (preview, Update-CV modal, plan edits)
+│       │   ├── letters/GuideView.tsx # Renders one cover-letter guide (+ Copy as Markdown); reused by future Application view
 │       │   ├── ProfileSection.tsx # Section/Field primitives shared by Profile + Preferences
 │       │   ├── TagInput.tsx
 │       │   └── BulletListEditor.tsx
@@ -252,9 +257,38 @@ POST /api/cv/generate          Generate tailored CV → saves HTML + history row
 GET  /api/cv/history           Return all generated CVs, newest first
 GET  /api/cv/preview/{slug}    Return CV HTML for browser preview
 GET  /api/cv/pdf/{slug}/{lang} Render CV to a real PDF (headless Chromium) for download
+POST /api/letters/generate     Async: posting URL → cover-letter writing guide (poll via /api/cv/status/{job_id})
+GET  /api/letters/history      Generated guides, newest first (guide JSON parsed)
+DELETE /api/letters/history/{id} Delete a guide
 GET  /api/backup/export        Download a .zip of user data (config sans secrets, profile, photo, jobs.db, output)
 POST /api/backup/import        Restore a backup .zip (full replace, API key preserved) → re-runs db migrations
 ```
+
+**Cover Letter** (`app/api/letters.py`, `app/services/letter_guide.py`): given a
+posting URL, one forced-tool LLM call (`letter_guide`) returns a *writing guide* —
+angle, a 3–5 paragraph outline (each with a goal + pointers), an evidence map
+(posting requirement → real profile fact), honest gaps, and a tone note — **never a
+written letter** (a deliberate product stance, surfaced in the page's explainer).
+Reuses the CV router's async job store (`run_async` + `/api/cv/status`), reuses a
+scan's cached `posting_text` when the URL was seen before (no re-scrape), and passes
+the profile minus `meta`/`cv_design_preferences` (keeping `preferences`, the
+motivation data a letter needs — unlike `profile_for_tailoring`). Stored in
+`letter_history` (pure JSON, one row per generation). `job_url` is the join key the
+**Applications** page uses to pair a guide with its CV; `GuideView` is standalone and
+rendered there in the Letter tab. `start_letter_generation()` is the reusable async
+starter (shared by `POST /api/letters/generate` and the Jobs accept flow). Editable
+prompt: `letter_prompt` (Settings → Advanced), `{lang_name}`-guarded.
+
+**Applications page** (`frontend/src/pages/Applications.tsx`) merges the former CV
+Generator and Cover Letter pages into one: it client-side-joins `GET /api/cv/history`
+and `GET /api/letters/history` on `job_url` into one row per job, each row a
+`Collapsible` with a `.seg` **CV | Letter** tab strip (only one artifact rendered at a
+time, so neither editor gets denser). Reuses `CVEditor` and `GuideView` unchanged. A
+missing artifact's tab is the creation CTA (URL + language prefilled from the sibling).
+The **New** slot generates CV and/or letter (checkboxes, both default on), polled
+independently. Handoff from Jobs lands here via the `application_pending` localStorage
+key. No new backend endpoint — the join is purely client-side. Old `/cv` and `/letters`
+routes redirect here.
 
 **Backup & restore** (`app/api/backup.py`): export bundles the writable data dir —
 `config.json` (with `openrouter_api_key` stripped), `profile/profile.json` + photo,
@@ -296,7 +330,7 @@ cd frontend && npm run dev
 1. Add job-listing page URLs one by one (stored in `job_sources`).
 2. **Find new listings** scans every source. Per source, in cost order: (a) read the page's actual `<a href>` links; if their hash equals last scan's (`job_sources.links_hash`), skip the source entirely — nothing new can exist. (b) LLM picks which links are real openings; dedup against `job_openings` by URL. (c) **Title prescreen** — a high-recall LLM triage drops only clearly off-target new openings (skipped, keep-all, at ≤5 new). (d) For each survivor: **fetch the posting page once** and make **one LLM call** returning a match verdict *and* a structured digest (employer, location, remote, contract, salary, deadline, ~50-word summary, top requirements). This is what lets preferences a title can't express (`avoid`, `notes`, `remote`) actually filter. Last-scan time shows beside the button (`jobs_last_scan` in config.json).
 3. Matching openings show as **Suggestions** (info left, Accept/red-Reject right) with a one-line reason, detected language, and the digest fields as chips + summary (the deadline chip is accented). Non-matches are stored as `seen` **with their reason kept** and their scraped text/digest cached — surfaced in a collapsible **Filtered out** section (each with **Suggest anyway** → restore). A posting whose page can't be read still shows as a suggestion with a "couldn't read the posting page" caveat rather than being buried. Past the 5th suggestion, a search box + source filter appear.
-4. **Accept** → marks `accepted`, kicks off CV generation from its URL in the *detected language* (reuses `cv.start_generation`, passing the cached `posting_text` so the page is **not** re-scraped), and hands off to the CV Generator (via `cv_pending_job_id` + `cv_pending_job_url` localStorage keys) which shows the build and the URL used. **Reject** greys it out.
+4. **Accept** → marks `accepted`, kicks off **both** CV generation (reuses `cv.start_generation`, passing the cached `posting_text` so the page is **not** re-scraped) **and** cover-letter-guide generation (`letters.start_letter_generation`, which reuses the same cached posting itself) from its URL in the *detected language*, and hands off to the **Applications** page (via the `application_pending` localStorage key holding `{jobUrl, cvJobId, letterJobId}`) which shows both artifacts building. **Reject** greys it out.
 5. **History** keeps accepted + rejected openings (full info, recency-first, paged with "Show more"; rejected greyed). Accepted rows have **Open CV** (deep-links to the matching CV via `cv_open_url` → matched by `job_url`) and can still be rejected.
 6. **Re-check filtered jobs** re-judges the cached `seen` openings against the current profile (rescuing ones improved Preferences now match); **Check a specific job** runs any pasted URL through the same review — for a posting found off-platform.
 
@@ -323,7 +357,7 @@ GET    /api/jobs/scan/status/{scan_id}  Poll scan/recheck status (shared dict)
 GET    /api/jobs/last-scan              {last_scan, profile_changed} (nudge to re-check after profile edits)
 GET    /api/jobs/openings[?include_seen] Suggested + decided openings; include_seen also appends the 50 newest 'filtered out'
 POST   /api/jobs/check                  Judge one pasted URL {url} → the opening row (existing rows returned as-is, no LLM call)
-POST   /api/jobs/openings/{id}/accept   Mark accepted + generate CV (reuses cached posting_text) → {cv_job_id, job_url, lang}
+POST   /api/jobs/openings/{id}/accept   Mark accepted + generate CV AND cover-letter guide (both reuse cached posting_text) → {cv_job_id, letter_job_id, job_url, lang}
 POST   /api/jobs/openings/{id}/reject   Mark rejected (also works from History)
 POST   /api/jobs/openings/{id}/restore  Back to 'suggested' (Undo for reject; also "Suggest anyway" for filtered rows)
 ```
@@ -456,14 +490,19 @@ The UI is fully internationalized. English is the source catalog
 sit beside it and are loaded on demand. `app_language` (config) is server-stored and
 applied at boot.
 
-**Translation is automatic on commit — you (Claude) do NOT need to run it after
-editing `en.json`.** A pre-commit hook (`scripts/hooks/pre-commit`, enabled by
-`setup.sh` via `git config core.hooksPath scripts/hooks`) runs
+**Translation is automatic on commit — you (Claude) MUST NOT run it after editing
+`en.json`.** A pre-commit hook (`scripts/hooks/pre-commit`, enabled by `setup.sh`
+via `git config core.hooksPath scripts/hooks`) runs
 `scripts/translate_locales.py --changed`, which translates every key whose English
 text is **new or changed since HEAD** into all shipped locales and stages them.
-So: just edit `en.json` and commit; the localized files update themselves. Manual
-runs are only for out-of-band refreshes — `uv run python scripts/translate_locales.py`
-(new keys only) or `--full` (re-translate everything). `--changed` compares the
+So: just edit `en.json` and stop; the localized files update themselves at commit
+time. **Do not run `translate_locales.py` yourself — not even when
+`tests/test_i18n.py`'s shipped-catalog parity test fails after you edit
+`en.json`.** That failure is EXPECTED between an `en.json` edit and the commit that
+triggers the hook; it is not a regression to fix and not a reason to translate.
+Leave the catalogs alone. (Manual runs exist only for a human doing an out-of-band
+refresh — `uv run python scripts/translate_locales.py` for new keys or `--full` to
+re-translate everything — never Claude's job.) `--changed` compares the
 working-tree `en.json` against HEAD, so stage `en.json` as a whole. CV **section
 labels** are separate: reviewed sets for every shipped locale live in
 `app/i18n/cv_labels.json`, resolved by `cv_labels(lang)` in `cv_renderer.py` with per-key

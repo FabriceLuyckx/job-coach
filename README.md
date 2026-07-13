@@ -128,11 +128,12 @@ the language you ask for. Some backend error messages remain in English.
 
 ### Customise the AI prompts (advanced)
 
-**Settings → Advanced — AI prompts** (collapsed by default) holds the three
-editable prompts: the CV tailoring prompt and the two job-scanner prompts (link
-extraction, relevance filter). Edit and save to change tone, rules, or emphasis.
-The tailoring prompt must keep the `{lang_name}` placeholder (where the output
-language appears) — saves without it are rejected. Your profile and the job
+**Settings → Advanced — AI prompts** (collapsed by default) holds the four
+editable prompts: the CV tailoring prompt, the cover-letter guide prompt, and the
+two job-scanner prompts (link extraction, relevance filter). Edit and save to
+change tone, rules, or emphasis. The CV and cover-letter prompts must keep the
+`{lang_name}` placeholder (where the output language appears) — saves without it
+are rejected. Your profile and the job
 listing are appended automatically. **Reset to default** restores the built-in
 prompt.
 
@@ -323,17 +324,42 @@ The **Job Suggestions** page watches job-listing pages and surfaces openings tha
 
 1. **Add sources** — paste the URL of any job-listing page (e.g. a careers or vacancies page) and click **Add**. Add as many as you like.
 2. **Find new listings** — scans each source, showing progress (*Scanning example.com (2 of 5)…*, then *Reading posting 3 of 7…*). It reads the page's actual links (rendering JS-heavy pages in a headless browser when needed) and ignores openings seen on a previous scan. A source whose links haven't changed since the last scan is skipped entirely — no AI cost. For the genuinely new openings, a quick title triage drops the clearly off-target ones, then the AI **reads each remaining posting in full** to decide whether it fits your profile *and* pull out a digest — employer, location, remote, salary, deadline, a short summary and key requirements — shown on the suggestion. Because the whole posting is read (not just its title), preferences like *what to avoid*, remote/on-site and the free-text notes actually take effect. The last-scan time shows next to the button; if a source can't be read, it's reported by name after the scan instead of failing silently.
-3. **Accept / Reject** — each suggestion can be rejected (with a 5-second **Undo**) or accepted. **Accepting generates a tailored CV from the job URL — in the posting's language, reusing the posting already read during the scan (no re-fetch) — and takes you straight to the CV Generator**, which shows the URL it's building from. Past the fifth suggestion a search box and source filter appear.
+3. **Accept / Reject** — each suggestion can be rejected (with a 5-second **Undo**) or accepted. **Accepting generates both a tailored CV and a cover-letter writing guide from the job URL — in the posting's language, reusing the posting already read during the scan (no re-fetch) — and takes you straight to the Applications page**, which shows both building. Past the fifth suggestion a search box and source filter appear.
 
 Nothing is thrown away silently. Openings the filter *rejected* land in a collapsed **Filtered out** list, each with the reason it was dropped and a **Suggest anyway** button in case it got one wrong. When you improve your Preferences, hit **Re-check filtered jobs** to re-judge those past openings against your new answers — it reuses the postings already read, so it's fast and free of extra scraping (and a hint appears when your profile changed since the last scan). Found a posting somewhere else? Paste its URL under **Check a specific job** to run it through the same review.
 
-Accepted and rejected openings stay in the **History** list, newest first (with **Show more** for long histories). Accepted entries have **Open CV** to jump to the generated CV and **Regenerate CV** to run the generation again (e.g. after a failure); rejected entries can be **Restored** to the suggestions.
+Accepted and rejected openings stay in the **History** list, newest first (with **Show more** for long histories). Accepted entries have **Open application** to jump to the generated CV and letter guide; rejected entries can be **Restored** to the suggestions.
 
 You can edit the two scanner prompts under **Settings → Advanced — AI prompts**, and verify a source from the CLI:
 
 ```bash
 uv run python scripts/scan_debug.py --url https://example.com/jobs
 ```
+
+---
+
+## Applications
+
+The **Applications** page is where a job's tailored CV and cover-letter guide live
+together — one row per job, joined automatically. Click **New application**, paste a
+job listing URL, pick a language, tick **Tailored CV** and/or **Letter guide**, and
+**Generate**. Each row expands to a **CV | Letter** tab strip so you work on one at a
+time without either editor getting cluttered; if a row has only one of the two, the
+other tab offers to create it (URL and language prefilled). Accepting a job on the
+**Job Suggestions** page drops a fully-built application here.
+
+The **CV** tab is the full CV editor — live preview, editable summary and bullets,
+section toggles, re-tailoring, language switch, and **Download PDF** (see *Edit a
+generated CV* above).
+
+The **Letter** tab is a **tailored writing guide** — **not** a written letter. The AI
+returns an angle, a paragraph-by-paragraph outline (each with a goal and concrete
+pointers), an evidence map (posting requirement → the real profile fact to cite for
+it), honest gaps to address, and a tone/length note. This is deliberate: a cover
+letter only works in your own words, and recruiters increasingly discard AI-written
+ones. The guide tells you *what* to write and *which* parts of your profile to lean
+on; the writing stays yours. **Copy as Markdown** hands the outline to your own
+editor. The guide prompt is editable under **Settings → Advanced — AI prompts**.
 
 ---
 

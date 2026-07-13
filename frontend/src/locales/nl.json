@@ -4,9 +4,9 @@
     "brandEm": "Coach",
     "profile": "Profiel",
     "preferences": "Voorkeuren",
-    "cv": "CV-generator",
     "jobs": "Vacaturesuggesties",
-    "settings": "Instellingen"
+    "settings": "Instellingen",
+    "applications": "Aanvragen"
   },
   "common": {
     "loading": "Laden…",
@@ -125,7 +125,9 @@
       "extractTitle": "Vacaturesuggesties — linkextractieprompt",
       "extractHelp": "Bepaalt welke links op een pagina echte vacatures zijn. De lijst met gevonden links op de pagina wordt er automatisch onder toegevoegd.",
       "filterTitle": "Vacaturesuggesties — relevantiefilterprompt",
-      "filterHelp": "Beoordeelt elke nieuwe functie door de volledige aanbieding te lezen: bepaalt of het past bij u en haalt een korte samenvatting (bedrijf, locatie, salaris, deadline, eisen) op. De relevante delen van uw profiel worden automatisch hieronder toegevoegd."
+      "filterHelp": "Beoordeelt elke nieuwe functie door de volledige aanbieding te lezen: bepaalt of het past bij u en haalt een korte samenvatting (bedrijf, locatie, salaris, deadline, eisen) op. De relevante delen van uw profiel worden automatisch hieronder toegevoegd.",
+      "letterTitle": "Brief — gidsprompt",
+      "letterHelp": "Gesonden bij het maken van een briefgids. Je profiel en de functie-lijst worden automatisch toegevoegd hieronder. Dit produceert een schrijfplan (overzicht, tips, bewijs) — nooit een volledige brieftekst. <code>{lang_name}</code> wordt vervangen door de uitvoer taal — het moet in de prompt blijven."
     }
   },
   "profile": {
@@ -460,7 +462,7 @@
     "accepted": "Geaccepteerd",
     "rejected": "Afgewezen",
     "restore": "Herstellen",
-    "openCv": "CV openen",
+    "openCv": "Aanvraag openen",
     "regenerateTitle": "Voer de cv-generatie voor deze vacature opnieuw uit",
     "regenerateCv": "CV opnieuw genereren",
     "readingPosting": "Leest functieaanbieding {{current}} van {{total}}…",
@@ -576,5 +578,55 @@
   },
   "footer": {
     "credit": "Gemaakt voor jou door <a>Fabrice Luyckx</a> onder GPLv3"
+  },
+  "applications": {
+    "title": "Aanvragen",
+    "new": "Nieuwe aanvraag",
+    "newTitle": "Nieuwe aanvraag",
+    "generate": "Genereren",
+    "tailoredCv": "Aanpassing CV",
+    "letterGuide": "Briefgids",
+    "cvTab": "CV",
+    "letterTab": "Brief",
+    "artifactDone": "Gedaan",
+    "noCvYet": "Geen aangepast CV voor deze functie nog.",
+    "noLetterYet": "Geen briefgids voor deze functie nog.",
+    "createCv": "CV genereren",
+    "createLetter": "Briefgids aanmaken",
+    "noUrl": "Deze entry heeft geen opgeslagen functie-URL, dus niets meer kan worden gegenereerd.",
+    "deleteApp": "Aanvraag verwijderen voor {{title}}",
+    "deleteLetter": "Deze briefgids verwijderen",
+    "deletedToast": "Aanvraag verwijderd voor ‘{{title}}’",
+    "noneForJob": "Niets gevonden voor deze functie — de generatie is mogelijk mislukt. Probeer opnieuw via de pagina 'Functievoorstellen'.",
+    "emptyTitle": "Geen aanvragen nog",
+    "emptyBody": "Plak een functie-URL en de AI maakt een aangepast CV en een briefgids voor het schrijven van je brief — klaar om te bekijken, te bewerken en te downloaden.",
+    "searchPlaceholder": "Zoek je aanvragen…",
+    "noMatches": "Geen aanvragen matchen met jouw zoekopdracht.",
+    "loadError": "Kon je aanvragen niet laden: {{error}}"
+  },
+  "letters": {
+    "title": "Brief",
+    "jobUrl": "Functie-URL",
+    "generate": "Gids bouwen",
+    "generating": "Bouwen…",
+    "starting": "Starten…",
+    "emptyTitle": "Geen briefgidsen nog",
+    "emptyBody": "Plak een functie-URL hierboven om een aangepast plan voor het schrijven van je brief te krijgen.",
+    "deletedToast": "Gids verwijderd voor ‘{{title}}’",
+    "explainer": {
+      "headline": "Dit hulpprogramma schrijft niet jouw brief — dat is het doel.",
+      "body": "Een brief werkt alleen als het in jouw eigen woorden staat; recruiters verwijderen steeds meer AI-gebaseerde berichten. In plaats daarvan krijg je een aangepast plan: wat te zeggen, in welke volgorde, en welke delen van jouw profiel als bewijs te gebruiken. Het schrijven blijft jouw eigen."
+    },
+    "guide": {
+      "headingFor": "Briefgids voor",
+      "angle": "Aanpak",
+      "structure": "Structuur",
+      "evidence": "Bevestiging om te citeren",
+      "gaps": "Gaten die eerlijk moeten worden aangegeven",
+      "tone": "Tone & lengte",
+      "copyMarkdown": "Kopieer als Markdown",
+      "copied": "Gids gekopieerd als Markdown",
+      "copyFailed": "Kan niet kopiëren naar klembord"
+    }
   }
 }

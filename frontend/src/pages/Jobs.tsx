@@ -194,10 +194,10 @@ export default function JobsPage() {
   async function accept(o: JobOpening, retry = false) {
     setBusy(o.id)
     try {
-      const { cv_job_id, job_url } = await api.acceptOpening(o.id)
-      // Hand off to the CV Generator, which polls this pending job on mount.
-      handoff.setPendingJob(cv_job_id, job_url)
-      navigate('/cv')
+      const { cv_job_id, letter_job_id, job_url } = await api.acceptOpening(o.id)
+      // Hand off to the Applications page, which polls both pending jobs on mount.
+      handoff.setPending({ jobUrl: job_url, cvJobId: cv_job_id, letterJobId: letter_job_id })
+      navigate('/applications')
     } catch (e) {
       setBusy(null)
       toast.error(errMsg(e))
@@ -242,7 +242,7 @@ export default function JobsPage() {
 
   function openCV(o: JobOpening) {
     handoff.setOpenUrl(o.url)
-    navigate('/cv')
+    navigate('/applications')
   }
 
   const busyScan = scanning || rechecking

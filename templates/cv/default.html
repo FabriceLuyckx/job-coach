@@ -357,7 +357,6 @@
       left: 0; bottom: auto;
       z-index: 1;
       width: var(--sidebar-w);
-      padding: 12px 12px;
       background: transparent;
       border-right: 0;
     }
@@ -377,8 +376,9 @@
 
     /* Compact sidebar so all of it (incl. Grants) fits one page height.
        The content is absolute (page 1 only); if it overflows it spills onto
-       page 2, so keep it tight. */
-    .sidebar { padding: 10px 12px; }
+       page 2, so keep it tight. Top padding matches .main's 11mm so both
+       columns start on the same line below the header. */
+    .sidebar { padding: 11mm 12px 10px; }
     .sidebar .section { margin-bottom: 9px; }
     .sidebar .section-title { padding-bottom: 3px; margin-bottom: 6px; }
     .skills-group { margin-bottom: 5px; }

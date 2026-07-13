@@ -4,12 +4,37 @@
     "brandEm": "Coach",
     "profile": "Profile",
     "preferences": "Preferences",
-    "cv": "CV Generator",
+    "applications": "Applications",
     "jobs": "Job Suggestions",
     "settings": "Settings"
   },
   "footer": {
     "credit": "Created for you by <a>Fabrice Luyckx</a> under GPLv3"
+  },
+  "applications": {
+    "title": "Applications",
+    "new": "New application",
+    "newTitle": "New application",
+    "generate": "Generate",
+    "tailoredCv": "Tailored CV",
+    "letterGuide": "Letter guide",
+    "cvTab": "CV",
+    "letterTab": "Letter",
+    "artifactDone": "Done",
+    "noCvYet": "No tailored CV for this job yet.",
+    "noLetterYet": "No cover-letter guide for this job yet.",
+    "createCv": "Generate CV",
+    "createLetter": "Create letter guide",
+    "noUrl": "This entry has no saved job URL, so nothing more can be generated for it.",
+    "deleteApp": "Delete application for {{title}}",
+    "deleteLetter": "Delete this letter guide",
+    "deletedToast": "Deleted the application for “{{title}}”",
+    "noneForJob": "Nothing found for that job yet — its generation may have failed. Try again from the Job Suggestions page.",
+    "emptyTitle": "No applications yet",
+    "emptyBody": "Paste a job listing URL and the AI builds a tailored CV and a cover-letter writing guide for it — ready to preview, edit, and download.",
+    "searchPlaceholder": "Search your applications…",
+    "noMatches": "No applications match your search.",
+    "loadError": "Couldn't load your applications: {{error}}"
   },
   "common": {
     "loading": "Loading…",
@@ -128,7 +153,9 @@
       "extractTitle": "Job Suggestions — link extraction prompt",
       "extractHelp": "Picks which of a page's links are real job openings. The list of links found on the page is added automatically below it.",
       "filterTitle": "Job Suggestions — relevance filter prompt",
-      "filterHelp": "Judges each new opening by reading its full posting: decides whether it matches you and pulls out a short digest (employer, location, salary, deadline, requirements). The relevant parts of your profile are added automatically below it."
+      "filterHelp": "Judges each new opening by reading its full posting: decides whether it matches you and pulls out a short digest (employer, location, salary, deadline, requirements). The relevant parts of your profile are added automatically below it.",
+      "letterTitle": "Cover Letter — guide prompt",
+      "letterHelp": "Sent when building a cover-letter guide. Your profile and the job listing are added automatically below it. This produces a writing plan (outline, pointers, evidence) — never finished letter text. <code>{lang_name}</code> is replaced with the output language — it must stay in the prompt."
     }
   },
   "profile": {
@@ -237,12 +264,21 @@
       "customSections": "Add any section your field needs — each becomes its own titled block on your CV."
     },
     "add": {
-      "project": "+ Add project", "volunteering": "+ Add volunteering", "certification": "+ Add certification",
-      "course": "+ Add course", "award": "+ Add award", "membership": "+ Add membership",
-      "publication": "+ Add publication", "grant": "+ Add grant", "customSection": "+ Add custom section",
+      "project": "+ Add project",
+      "volunteering": "+ Add volunteering",
+      "certification": "+ Add certification",
+      "course": "+ Add course",
+      "award": "+ Add award",
+      "membership": "+ Add membership",
+      "publication": "+ Add publication",
+      "grant": "+ Add grant",
+      "customSection": "+ Add custom section",
       "job": "+ Add job",
-      "skillGroup": "+ Add skill group", "language": "+ Add language", "education": "+ Add education",
-      "link": "+ Add link", "generic": "+ Add"
+      "skillGroup": "+ Add skill group",
+      "language": "+ Add language",
+      "education": "+ Add education",
+      "link": "+ Add link",
+      "generic": "+ Add"
     },
     "skills": {
       "groupNamePlaceholder": "Group name (e.g. Technical skills)",
@@ -252,9 +288,11 @@
       "scaleLegend": "★ A1 Beginner · ★★ A2 Elementary · ★★★ B1 Intermediate · ★★★★ B2/C1 Advanced · ★★★★★ C2 Native/Fluent"
     },
     "teaching": {
-      "type": "Type", "typePlaceholder": "Select a type…",
+      "type": "Type",
+      "typePlaceholder": "Select a type…",
       "typeOther": "Type (please specify)",
-      "subject": "Subject / course title", "years": "Years",
+      "subject": "Subject / course title",
+      "years": "Years",
       "descriptionPlaceholder": "Who did you teach (level, group size), and what did you do?",
       "types": {
         "course_instructor": "Course instructor",
@@ -267,7 +305,10 @@
     },
     "work": {
       "remoteHybrid": "Remote / hybrid / on-site",
-      "remote": "Remote", "hybrid": "Hybrid", "onSite": "On-site", "noPreference": "No preference"
+      "remote": "Remote",
+      "hybrid": "Hybrid",
+      "onSite": "On-site",
+      "noPreference": "No preference"
     },
     "import": {
       "title": "Import from an existing CV",
@@ -318,22 +359,70 @@
     "ai": "Helps the AI"
   },
   "sections": {
-    "personal": { "label": "Personal Info", "description": "Name, contact details and links." },
-    "summary": { "label": "Professional Summary", "description": "A short intro shown at the top of your CV." },
-    "experience": { "label": "Experience", "description": "Your roles and what you did in them." },
-    "skills": { "label": "Skills", "description": "Skills grouped under your own headings." },
-    "languages": { "label": "Languages", "description": "Languages you speak, with proficiency." },
-    "education": { "label": "Education", "description": "Degrees and studies." },
-    "projects": { "label": "Projects", "description": "Notable projects or side work, shown on your CV." },
-    "volunteering": { "label": "Volunteering", "description": "Volunteer roles and community work." },
-    "certifications": { "label": "Certifications", "description": "Professional certifications." },
-    "courses": { "label": "Courses & training", "description": "Courses and training without a formal certificate." },
-    "awards": { "label": "Awards", "description": "Honours and awards." },
-    "memberships": { "label": "Professional memberships", "description": "Associations and bodies you belong to." },
-    "publications": { "label": "Publications", "description": "For academic/research roles — full APA citations." },
-    "grants": { "label": "Grants & Fellowships", "description": "For academic/research roles — shown in the CV sidebar." },
-    "teaching": { "label": "Teaching", "description": "Teaching, supervision and lecturing — shown when relevant." },
-    "custom_sections": { "label": "Custom sections", "description": "Add any section your field needs — licences, exhibitions, service…" }
+    "personal": {
+      "label": "Personal Info",
+      "description": "Name, contact details and links."
+    },
+    "summary": {
+      "label": "Professional Summary",
+      "description": "A short intro shown at the top of your CV."
+    },
+    "experience": {
+      "label": "Experience",
+      "description": "Your roles and what you did in them."
+    },
+    "skills": {
+      "label": "Skills",
+      "description": "Skills grouped under your own headings."
+    },
+    "languages": {
+      "label": "Languages",
+      "description": "Languages you speak, with proficiency."
+    },
+    "education": {
+      "label": "Education",
+      "description": "Degrees and studies."
+    },
+    "projects": {
+      "label": "Projects",
+      "description": "Notable projects or side work, shown on your CV."
+    },
+    "volunteering": {
+      "label": "Volunteering",
+      "description": "Volunteer roles and community work."
+    },
+    "certifications": {
+      "label": "Certifications",
+      "description": "Professional certifications."
+    },
+    "courses": {
+      "label": "Courses & training",
+      "description": "Courses and training without a formal certificate."
+    },
+    "awards": {
+      "label": "Awards",
+      "description": "Honours and awards."
+    },
+    "memberships": {
+      "label": "Professional memberships",
+      "description": "Associations and bodies you belong to."
+    },
+    "publications": {
+      "label": "Publications",
+      "description": "For academic/research roles — full APA citations."
+    },
+    "grants": {
+      "label": "Grants & Fellowships",
+      "description": "For academic/research roles — shown in the CV sidebar."
+    },
+    "teaching": {
+      "label": "Teaching",
+      "description": "Teaching, supervision and lecturing — shown when relevant."
+    },
+    "custom_sections": {
+      "label": "Custom sections",
+      "description": "Add any section your field needs — licences, exhibitions, service…"
+    }
   },
   "cv": {
     "title": "CV Generator",
@@ -425,18 +514,29 @@
     "accepted": "Accepted",
     "rejected": "Rejected",
     "restore": "Restore",
-    "openCv": "Open CV",
+    "openCv": "Open application",
     "regenerateTitle": "Run the CV generation for this opening again",
     "regenerateCv": "Regenerate CV"
   },
   "cveditor": {
     "sections": {
-      "summary": "Summary", "experience": "Experience", "publications": "Publications",
-      "links": "Links", "skills": "Skills", "languages": "Languages",
-      "education": "Education", "grants": "Grants", "photo": "Photo",
-      "projects": "Projects", "teaching": "Teaching", "certifications": "Certifications",
-      "courses": "Courses", "awards": "Awards", "memberships": "Memberships",
-      "volunteering": "Volunteering", "custom_sections": "Custom sections"
+      "summary": "Summary",
+      "experience": "Experience",
+      "publications": "Publications",
+      "links": "Links",
+      "skills": "Skills",
+      "languages": "Languages",
+      "education": "Education",
+      "grants": "Grants",
+      "photo": "Photo",
+      "projects": "Projects",
+      "teaching": "Teaching",
+      "certifications": "Certifications",
+      "courses": "Courses",
+      "awards": "Awards",
+      "memberships": "Memberships",
+      "volunteering": "Volunteering",
+      "custom_sections": "Custom sections"
     },
     "retailorTitle": "Re-tailor with AI",
     "retailorPrompt": "Re-run the AI for the <b>{{lang}}</b> version. Keep your edited summary and bullet points, or start fresh?",
@@ -502,6 +602,31 @@
     "openrouter": {
       "title": "OpenRouter",
       "desc": "Best quality — needs an API key, pay a few cents per use."
+    }
+  },
+  "letters": {
+    "title": "Cover Letter",
+    "jobUrl": "Job posting URL",
+    "generate": "Build guide",
+    "generating": "Building…",
+    "starting": "Starting…",
+    "emptyTitle": "No cover-letter guides yet",
+    "emptyBody": "Paste a job posting URL above to get a tailored plan for writing your letter.",
+    "deletedToast": "Deleted the guide for “{{title}}”",
+    "explainer": {
+      "headline": "This tool won't write your letter — that's the point.",
+      "body": "A cover letter only works if it’s in your own words; recruiters increasingly discard AI-written ones. Instead, you get a tailored plan: what to say, in what order, and which parts of your profile to use as evidence. The writing stays yours."
+    },
+    "guide": {
+      "headingFor": "Cover letter guide for",
+      "angle": "Angle",
+      "structure": "Structure",
+      "evidence": "Evidence to cite",
+      "gaps": "Gaps to address honestly",
+      "tone": "Tone & length",
+      "copyMarkdown": "Copy as Markdown",
+      "copied": "Guide copied as Markdown",
+      "copyFailed": "Could not copy to clipboard"
     }
   }
 }

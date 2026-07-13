@@ -4,9 +4,9 @@
     "brandEm": "Coach",
     "profile": "Profil",
     "preferences": "Preferencje",
-    "cv": "Generator CV",
     "jobs": "Propozycje pracy",
-    "settings": "Ustawienia"
+    "settings": "Ustawienia",
+    "applications": "Zastosowania"
   },
   "common": {
     "loading": "Ładowanie…",
@@ -125,7 +125,9 @@
       "extractTitle": "Sugestie ofert — prompt ekstrakcji linków",
       "extractHelp": "Wskazuje, które linki na stronie są rzeczywistymi ofertami pracy. Lista linków znalezionych na stronie jest dodawana automatycznie poniżej.",
       "filterTitle": "Sugestie ofert — prompt filtrowania trafności",
-      "filterHelp": "Ocenia nowe oferty, czytając pełny opis: decyduje, czy pasuje Ci i wyciąga krótką podsumowanie (firmę, lokalizację, wynagrodzenie, termin, wymagania). Współczesne części Twojego profilu są automatycznie dodawane poniżej."
+      "filterHelp": "Ocenia nowe oferty, czytając pełny opis: decyduje, czy pasuje Ci i wyciąga krótką podsumowanie (firmę, lokalizację, wynagrodzenie, termin, wymagania). Współczesne części Twojego profilu są automatycznie dodawane poniżej.",
+      "letterTitle": "List — przewodnik promptowy",
+      "letterHelp": "Wyświetzany podczas tworzenia przewodnika listy. Profil i ogłoszenie stanowiska są automatycznie dodawane poniżej. Tworzy plan pisania (struktura, wskazówki, dowody) — nigdy nie generuje pełnego tekstu listy. <code>{lang_name}</code> jest zastępowane językiem wyjściowym — musi zostać zachowane w promptie."
     }
   },
   "profile": {
@@ -460,7 +462,7 @@
     "accepted": "Zaakceptowane",
     "rejected": "Odrzucono",
     "restore": "Przywróć",
-    "openCv": "Otwórz CV",
+    "openCv": "Otwórz zastosowanie",
     "regenerateTitle": "Uruchom ponownie generowanie CV dla tej oferty",
     "regenerateCv": "Wygeneruj CV ponownie",
     "readingPosting": "Odczytuję ofertę {{current}} z {{total}}…",
@@ -576,5 +578,55 @@
   },
   "footer": {
     "credit": "Stworzone dla Ciebie przez <a>Fabrice Luyckx</a> pod licencją GPLv3"
+  },
+  "applications": {
+    "title": "Zastosowania",
+    "new": "Nowe zastosowanie",
+    "newTitle": "Nowe zastosowanie",
+    "generate": "Wygeneruj",
+    "tailoredCv": "Dostosowany CV",
+    "letterGuide": "Przewodnik listy",
+    "cvTab": "CV",
+    "letterTab": "List",
+    "artifactDone": "Zrobione",
+    "noCvYet": "Brak dostosowanego CV dla tego stanowiska.",
+    "noLetterYet": "Brak przewodnika listy dla tego stanowiska.",
+    "createCv": "Wygeneruj CV",
+    "createLetter": "Utwórz przewodnik listy",
+    "noUrl": "Ten wpis nie ma zapisanego URL stanowiska, więc nic więcej nie może być wygenerowane.",
+    "deleteApp": "Usuń zastosowanie dla {{title}}",
+    "deleteLetter": "Usuń ten przewodnik listy",
+    "deletedToast": "Usunięto zastosowanie dla „{{title}}”",
+    "noneForJob": "Nie znaleziono nic dla tego stanowiska — generowanie może się nie powieść. Spróbuj ponownie z strony Zalecanych Stanowisk.",
+    "emptyTitle": "Brak zastosowań",
+    "emptyBody": "Wklej URL ogłoszenia stanowiska i AI stworzy dostosowane CV oraz przewodnik do napisania listy — gotowe do przeglądu, edycji i pobrania.",
+    "searchPlaceholder": "Szukaj swoich zastosowań…",
+    "noMatches": "Brak zastosowań, które pasują do Twojego wyszukiwania.",
+    "loadError": "Nie udało się załadować Twoich zastosowań: {{error}}"
+  },
+  "letters": {
+    "title": "List",
+    "jobUrl": "URL ogłoszenia stanowiska",
+    "generate": "Stwórz przewodnik",
+    "generating": "Tworzenie…",
+    "starting": "Rozpoczynanie…",
+    "emptyTitle": "Brak jeszcze przewodników list",
+    "emptyBody": "Wklej URL ogłoszenia stanowiska powyżej, aby otrzymać dostosowany plan do napisania listy.",
+    "deletedToast": "Usunięto przewodnik dla „{{title}}”",
+    "explainer": {
+      "headline": "Ten narzędzie nie napisze Twojej listy — to jest cel.",
+      "body": "Listy działają tylko w Twoich własnych słowach; rekruterzy coraz częściej odrzucają te napisane przez AI. Zamiast tego otrzymujesz dostosowany plan: co powinno się powiedzieć, w jakiej kolejności i które części profilu należy użyć jako dowodów. Pisanie pozostaje Twoje."
+    },
+    "guide": {
+      "headingFor": "Przewodnik listy dla",
+      "angle": "Kąt",
+      "structure": "Struktura",
+      "evidence": "Dowody do cytowania",
+      "gaps": "Środki do pokazania prawdziwości",
+      "tone": "Odczucie i długość",
+      "copyMarkdown": "Kopia jako Markdown",
+      "copied": "Przewodnik skopiowany jako Markdown",
+      "copyFailed": "Nie udało się skopiować do schowka"
+    }
   }
 }

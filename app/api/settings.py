@@ -8,6 +8,7 @@ from app import config
 from app.services.cv_generator import DEFAULT_CV_PROMPT
 from app.services.cv_renderer import PHOTO_EXTS, load_photo
 from app.services.job_scanner import DEFAULT_EXTRACT_PROMPT, DEFAULT_SCAN_PROMPT
+from app.services.letter_guide import DEFAULT_LETTER_PROMPT
 from app.paths import PHOTO_DIR
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
@@ -36,6 +37,7 @@ class SettingsIn(BaseModel):
     openrouter_api_key: str | None = None
     openrouter_model: str | None = None
     cv_prompt: str | None = None
+    letter_prompt: str | None = None
     scan_extract_prompt: str | None = None
     scan_filter_prompt: str | None = None
     # AI engine + UI language + onboarding marker.
@@ -55,6 +57,8 @@ def get_settings():
         "openrouter_model": cfg.get("openrouter_model", ""),
         "cv_prompt": cfg.get("cv_prompt") or DEFAULT_CV_PROMPT,
         "cv_prompt_default": DEFAULT_CV_PROMPT,
+        "letter_prompt": cfg.get("letter_prompt") or DEFAULT_LETTER_PROMPT,
+        "letter_prompt_default": DEFAULT_LETTER_PROMPT,
         "scan_extract_prompt": cfg.get("scan_extract_prompt") or DEFAULT_EXTRACT_PROMPT,
         "scan_extract_prompt_default": DEFAULT_EXTRACT_PROMPT,
         "scan_filter_prompt": cfg.get("scan_filter_prompt") or DEFAULT_SCAN_PROMPT,
@@ -126,6 +130,8 @@ def put_settings(body: SettingsIn):
     # silently come out in English regardless of the requested language.
     if updates.get("cv_prompt") and "{lang_name}" not in updates["cv_prompt"]:
         raise HTTPException(400, "The CV prompt must contain the {lang_name} placeholder.")
+    if updates.get("letter_prompt") and "{lang_name}" not in updates["letter_prompt"]:
+        raise HTTPException(400, "The cover-letter prompt must contain the {lang_name} placeholder.")
     config.save(updates)
     return {"ok": True}
 

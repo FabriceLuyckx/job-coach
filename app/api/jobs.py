@@ -12,6 +12,7 @@ from pydantic import BaseModel
 
 from app import config, db
 from app.api.cv import start_generation
+from app.api.letters import start_letter_generation
 from app.services.cv_generator import fetch_job_description
 from app.services.cv_renderer import load_profile
 from app.services.headless import fetch_texts
@@ -333,22 +334,26 @@ def restore_opening(oid: str):
 
 @router.post("/openings/{oid}/accept")
 def accept_opening(oid: str):
-    """Mark accepted and kick off CV generation from the job URL.
-    Returns the CV poll job_id so the UI can hand off to the CV Generator."""
+    """Mark accepted and kick off CV + cover-letter-guide generation from the job
+    URL. Returns both poll job_ids so the UI can hand off to the Applications page."""
     with db.get_db() as conn:
         row = conn.execute("SELECT * FROM job_openings WHERE id = ?", (oid,)).fetchone()
         if not row:
             raise HTTPException(404, "Opening not found")
         row = dict(row)
-    # Reuse the posting text the scan already fetched — no re-scrape.
-    job_id = start_generation(row["url"], row.get("lang") or "en",
-                              job_text=row.get("posting_text") or None)
+    lang = row.get("lang") or "en"
+    # Reuse the posting text the scan already fetched — no re-scrape. Both the CV
+    # and the letter guide are generated for the accepted job (letter_guide looks
+    # up the same cached posting_text itself).
+    cv_job_id = start_generation(row["url"], lang, job_text=row.get("posting_text") or None)
+    letter_job_id = start_letter_generation(row["url"], lang)
     with db.get_db() as conn:
         conn.execute(
             "UPDATE job_openings SET status = 'accepted', decided_at = ? WHERE id = ?",
             (_now(), oid),
         )
-    return {"cv_job_id": job_id, "job_url": row["url"], "lang": row.get("lang") or "en"}
+    return {"cv_job_id": cv_job_id, "letter_job_id": letter_job_id,
+            "job_url": row["url"], "lang": lang}
 
 
 @router.post("/check")

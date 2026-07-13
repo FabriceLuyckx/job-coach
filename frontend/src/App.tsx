@@ -4,7 +4,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import { UserRound, SlidersHorizontal, FileText, Briefcase, Settings } from 'lucide-react'
 import ProfilePage from './pages/Profile'
 import PreferencesPage from './pages/Preferences'
-import CVGeneratorPage from './pages/CVGenerator'
+import ApplicationsPage from './pages/Applications'
 import JobsPage from './pages/Jobs'
 import SettingsPage from './pages/Settings'
 import SetupBanner from './components/SetupBanner'
@@ -44,7 +44,7 @@ export default function App() {
                 <NavLink to="/profile"><UserRound size={17} aria-hidden />{t('nav.profile')}</NavLink>
                 <NavLink to="/preferences"><SlidersHorizontal size={17} aria-hidden />{t('nav.preferences')}</NavLink>
                 <NavLink to="/jobs"><Briefcase size={17} aria-hidden />{t('nav.jobs')}</NavLink>
-                <NavLink to="/cv"><FileText size={17} aria-hidden />{t('nav.cv')}</NavLink>
+                <NavLink to="/applications"><FileText size={17} aria-hidden />{t('nav.applications')}</NavLink>
                 <div className="nav-spacer" />
                 <NavLink to="/settings"><Settings size={17} aria-hidden />{t('nav.settings')}</NavLink>
               </nav>
@@ -56,7 +56,10 @@ export default function App() {
                     <Route path="/" element={<Navigate to="/profile" replace />} />
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/preferences" element={<PreferencesPage />} />
-                    <Route path="/cv" element={<CVGeneratorPage />} />
+                    <Route path="/applications" element={<ApplicationsPage />} />
+                    {/* Old split pages redirect to the merged Applications page. */}
+                    <Route path="/cv" element={<Navigate to="/applications" replace />} />
+                    <Route path="/letters" element={<Navigate to="/applications" replace />} />
                     <Route path="/jobs" element={<JobsPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
                   </Routes>

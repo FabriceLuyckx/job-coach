@@ -78,6 +78,8 @@ export default function SettingsPage() {
     openrouter_model: string
     cv_prompt: string
     cv_prompt_default: string
+    letter_prompt: string
+    letter_prompt_default: string
     scan_extract_prompt: string
     scan_extract_prompt_default: string
     scan_filter_prompt: string
@@ -98,6 +100,7 @@ export default function SettingsPage() {
   const [model, setModel] = useState('')
   const [customModel, setCustomModel] = useState('')
   const [cvPrompt, setCvPrompt] = useState('')
+  const [letterPrompt, setLetterPrompt] = useState('')
   const [scanExtract, setScanExtract] = useState('')
   const [scanFilter, setScanFilter] = useState('')
   const [savedPrefs, setSavedPrefs] = useState('')  // JSON snapshot of cv_design_preferences
@@ -121,6 +124,7 @@ export default function SettingsPage() {
       setProvider(s.llm_provider)
       setModel(s.openrouter_model)
       setCvPrompt(s.cv_prompt)
+      setLetterPrompt(s.letter_prompt)
       setScanExtract(s.scan_extract_prompt)
       setScanFilter(s.scan_filter_prompt)
       setSavedPrefs(JSON.stringify(p.cv_design_preferences))
@@ -149,11 +153,13 @@ export default function SettingsPage() {
     loadUsage()
   }
 
-  async function savePrompt(data: { cv_prompt?: string; scan_extract_prompt?: string; scan_filter_prompt?: string }) {
-    // The language placeholder is what makes non-English CVs work; catch its
+  async function savePrompt(data: { cv_prompt?: string; letter_prompt?: string; scan_extract_prompt?: string; scan_filter_prompt?: string }) {
+    // The language placeholder is what makes non-English output work; catch its
     // removal here with a clear message instead of a server round-trip.
-    if (data.cv_prompt !== undefined && !data.cv_prompt.includes('{lang_name}')) {
-      throw new Error(t('settings.prompts.langPlaceholderError'))
+    for (const p of [data.cv_prompt, data.letter_prompt]) {
+      if (p !== undefined && !p.includes('{lang_name}')) {
+        throw new Error(t('settings.prompts.langPlaceholderError'))
+      }
     }
     await api.putSettings(data)
     setSettings(await api.getSettings())
@@ -410,6 +416,17 @@ export default function SettingsPage() {
           rows={14}
           onChange={setCvPrompt}
           onSave={() => savePrompt({ cv_prompt: cvPrompt })}
+        />
+
+        <PromptEditor
+          title={t('settings.prompts.letterTitle')}
+          help={<Trans i18nKey="settings.prompts.letterHelp" components={{ code: <code /> }} />}
+          value={letterPrompt}
+          saved={settings.letter_prompt}
+          defaultValue={settings.letter_prompt_default}
+          rows={14}
+          onChange={setLetterPrompt}
+          onSave={() => savePrompt({ letter_prompt: letterPrompt })}
         />
 
         <PromptEditor

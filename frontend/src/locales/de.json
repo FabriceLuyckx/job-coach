@@ -4,9 +4,9 @@
     "brandEm": "Coach",
     "profile": "Profil",
     "preferences": "Einstellungen",
-    "cv": "Lebenslauf-Generator",
     "jobs": "Jobvorschläge",
-    "settings": "Einstellungen"
+    "settings": "Einstellungen",
+    "applications": "Anträge"
   },
   "common": {
     "loading": "Wird geladen…",
@@ -125,7 +125,9 @@
       "extractTitle": "Jobvorschläge – Link-Extraktions-Prompt",
       "extractHelp": "Wählt aus, welche Links einer Seite echte Stellenangebote sind. Die auf der Seite gefundenen Links werden automatisch darunter eingefügt.",
       "filterTitle": "Jobvorschläge – Relevanzfilter-Prompt",
-      "filterHelp": "Beurteilt jedes neue Stellenausschreibung, indem es den vollständigen Text liest: entscheidet, ob es zu Ihnen passt und extrahiert eine kurze Zusammenfassung (Unternehmen, Ort, Lohn, Frist, Anforderungen). Die relevanten Teile Ihres Profils werden automatisch unterhalb angezeigt."
+      "filterHelp": "Beurteilt jedes neue Stellenausschreibung, indem es den vollständigen Text liest: entscheidet, ob es zu Ihnen passt und extrahiert eine kurze Zusammenfassung (Unternehmen, Ort, Lohn, Frist, Anforderungen). Die relevanten Teile Ihres Profils werden automatisch unterhalb angezeigt.",
+      "letterTitle": "Brief — Anleitungsprompt",
+      "letterHelp": "Wird beim Erstellen einer Briefanleitung verwendet. Ihr Profil und die Stellenanzeige werden automatisch unten hinzugefügt. Dies erzeugt einen Schreibplan (Übersicht, Hinweise, Belege) — nie den vollständigen Brieftext. <code>{lang_name}</code> wird durch die Ausgabesprache ersetzt — es muss im Prompt bleiben."
     }
   },
   "profile": {
@@ -460,7 +462,7 @@
     "accepted": "Angenommen",
     "rejected": "Abgelehnt",
     "restore": "Wiederherstellen",
-    "openCv": "Lebenslauf öffnen",
+    "openCv": "Antrag öffnen",
     "regenerateTitle": "CV-Generierung für diese Stelle erneut ausführen",
     "regenerateCv": "Lebenslauf neu generieren",
     "readingPosting": "Lesen der Stellenausschreibung {{current}} von {{total}}…",
@@ -576,5 +578,55 @@
   },
   "footer": {
     "credit": "Für Sie erstellt von <a>Fabrice Luyckx</a> unter GPLv3"
+  },
+  "applications": {
+    "title": "Anträge",
+    "new": "Neuer Antrag",
+    "newTitle": "Neuer Antrag",
+    "generate": "Erstellen",
+    "tailoredCv": "Anpassung des Lebenslaufs",
+    "letterGuide": "Briefanleitung",
+    "cvTab": "Lebenslauf",
+    "letterTab": "Brief",
+    "artifactDone": "Fertig",
+    "noCvYet": "Noch kein anpasster Lebenslauf für diese Stelle.",
+    "noLetterYet": "Noch keine Briefanleitung für diese Stelle.",
+    "createCv": "Lebenslauf erstellen",
+    "createLetter": "Briefanleitung erstellen",
+    "noUrl": "Diese Eintragung hat keine gespeicherte Stellenanzeige-URL, daher kann nichts mehr für sie generiert werden.",
+    "deleteApp": "Antrag für {{title}} löschen",
+    "deleteLetter": "Diese Briefanleitung löschen",
+    "deletedToast": "Antrag für „{{title}}“ gelöscht",
+    "noneForJob": "Für diese Stelle wurde bisher nichts gefunden — die Erstellung konnte fehlschlagen. Bitte erneut von der Seite „Jobvorschläge“ aus versuchen.",
+    "emptyTitle": "Keine Anträge bisher",
+    "emptyBody": "Fügen Sie eine Stellenanzeige-URL ein und der AI erstellt einen anpassenden Lebenslauf und eine Anleitung für die Schreibarbeit des Briefs — bereit zum Vorabsehen, Bearbeiten und Herunterladen.",
+    "searchPlaceholder": "Suchen Sie Ihre Anträge…",
+    "noMatches": "Keine Anträge passen zu Ihrer Suche.",
+    "loadError": "Die Anträge konnten nicht geladen werden: {{error}}"
+  },
+  "letters": {
+    "title": "Brief",
+    "jobUrl": "Stellenanzeige-URL",
+    "generate": "Anleitung erstellen",
+    "generating": "Erstellung… ",
+    "starting": "Startet…",
+    "emptyTitle": "Keine Briefanleitungen bisher",
+    "emptyBody": "Fügen Sie eine Stellenanzeige-URL oben ein, um eine angepasste Planung für die Schreibarbeit Ihres Briefs zu erhalten.",
+    "deletedToast": "Anleitung für „{{title}}“ gelöscht",
+    "explainer": {
+      "headline": "Dieses Tool schreibt Ihren Brief nicht — das ist der Punkt.",
+      "body": "Ein Brief funktioniert nur, wenn er in Ihren eigenen Worten geschrieben ist; Recruiter diskreditieren zunehmend AI-geschriebene Briefe. Stattdessen erhalten Sie einen angepassten Plan: Was sagen, in welcher Reihenfolge und welche Teile Ihres Profils als Belege verwenden. Die Schreibarbeit bleibt bei Ihnen."
+    },
+    "guide": {
+      "headingFor": "Briefanleitung für",
+      "angle": "Ansatz",
+      "structure": "Struktur",
+      "evidence": "Nachweise zu nennen",
+      "gaps": "Lücken ehrlich adressieren",
+      "tone": "Ton & Länge",
+      "copyMarkdown": "Text als Markdown kopieren",
+      "copied": "Leitfaden als Markdown kopiert",
+      "copyFailed": "Kopieren in die Zwischenablage fehlgeschlagen"
+    }
   }
 }

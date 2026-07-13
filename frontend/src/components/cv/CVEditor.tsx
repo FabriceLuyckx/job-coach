@@ -22,11 +22,9 @@ const SECTIONS = [
 
 const langLabel = (code: string) => LANGUAGE_NAMES[code] ?? code
 
-const A4_W = 794  // 210mm at 96dpi — the CV page's intrinsic pixel width
-
 type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
 
-/** Full editor panel for one generated CV: scale-to-fit preview, auto-saved
+/** Full editor panel for one generated CV: full-width preview, auto-saved
  * content editor, section toggles, AI-decision chips, language switch, and the
  * two AI actions (re-tailor / rebuild). */
 export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate, onLangUpdate }: {
@@ -50,20 +48,6 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
   const [error, setError] = useState('')
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const summaryRef = useRef<HTMLTextAreaElement>(null)
-
-  // ── Scale-to-fit preview (WS4) ──
-  const scrollWrapRef = useRef<HTMLDivElement>(null)
-  const [width, setWidth] = useState(A4_W)
-  const [contentH, setContentH] = useState(1123)
-  const scale = Math.min(1, width / A4_W)
-
-  useEffect(() => {
-    const el = scrollWrapRef.current
-    if (!el || typeof ResizeObserver === 'undefined') return
-    const ro = new ResizeObserver(() => setWidth(el.clientWidth))
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [])
 
   // ── Auto-save (WS3), reusing the debounced single-flight pattern ──
   const latestPlan = useRef<CVPlan | null>(null)
@@ -133,12 +117,7 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
   }
   useEffect(() => { loadPlan() }, [result.history_id]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Preview measurement + section visibility ──
-  const measure = useCallback(() => {
-    const doc = iframeRef.current?.contentDocument
-    if (doc) setContentH(doc.documentElement.scrollHeight)
-  }, [])
-
+  // ── Section visibility in the live preview ──
   const applyVisibility = useCallback(() => {
     const d = iframeRef.current?.contentDocument
     if (!d) return
@@ -150,10 +129,6 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
     })
   }, [plan])
 
-  function onIframeLoad() {
-    applyVisibility()
-    measure()
-  }
   // Re-apply when toggles change without a reload.
   useEffect(() => { applyVisibility() }, [applyVisibility])
 
@@ -182,7 +157,6 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
       hidden_sections: show ? p.hidden_sections.filter(k => k !== key)
         : [...new Set([...p.hidden_sections, key])],
     }))
-    requestAnimationFrame(measure)
   }
 
   function restoreSection(key: string) {
@@ -321,219 +295,204 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
         </label>
       </div>
 
-      <div className="cv-editor-split">
-        {/* ── Preview column ── */}
-        <div>
-          <div
-            ref={scrollWrapRef}
-            style={{
-              position: 'relative', maxHeight: '80vh', overflowY: 'auto', overflowX: 'hidden',
-              border: '1px solid var(--border)', background: '#d0d5e0',
-            }}
-          >
-            <a
-              href={result.preview_url} target="_blank" rel="noreferrer"
-              style={{
-                position: 'absolute', top: 10, right: 10, zIndex: 10,
-                background: 'var(--surface)', border: '1px solid var(--border)',
-                padding: '5px 12px', fontSize: 'var(--fs-sm)', fontWeight: 500, textDecoration: 'none',
-              }}
-            >
-              {t('cveditor.openNewTab')} <ExternalLink size={11} aria-hidden />
-            </a>
-            <div style={{ width: A4_W * scale, height: contentH * scale, margin: '0 auto' }}>
-              <iframe
-                key={previewKey}
-                ref={iframeRef}
-                src={result.preview_url}
-                onLoad={onIframeLoad}
-                style={{
-                  width: A4_W, height: contentH, border: 'none', display: 'block',
-                  transform: `scale(${scale})`, transformOrigin: 'top left',
-                }}
-                title={t('cveditor.cvPreview')}
-              />
-            </div>
-            {busyAI && (
-              <div style={{
-                position: 'absolute', inset: 0, zIndex: 9,
-                background: 'color-mix(in srgb, var(--surface) 80%, transparent)',
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-3)',
-                fontSize: 'var(--fs-md)', fontWeight: 500, textAlign: 'center', padding: 'var(--space-4)',
-              }}>
-                <span className="spinner" />
-                {relanging
-                  ? t('cveditor.translatingCvTo', { lang: langLabel(pendingLang ?? '') })
-                  : t('cveditor.regeneratingCv')}
-                <span className="muted-sm" style={{ fontWeight: 400 }}>
-                  {stageText || t('cveditor.reRunningNote')}
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Primary actions */}
-          <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', marginTop: 'var(--space-3)' }}>
-            {result.has_plan ? (
-              <Button variant="primary" onClick={() => setShowRegen(true)} busy={busyAI} disabled={!result.job_url}
-                title={result.job_url ? undefined : t('cveditor.relangTooltipNoUrl')}>
-                {!busyAI && <Sparkles size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
-                {t('cveditor.updateWithAi')}
-              </Button>
-            ) : (
-              <Button variant="primary" onClick={() => regenerate(false)} busy={regenerating} disabled={!result.job_url}
-                title={result.job_url ? undefined : t('cveditor.relangTooltipNoUrl')}>
-                {!regenerating && <Sparkles size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
-                {t('cveditor.rebuildFromUrl')}
-              </Button>
-            )}
-            <Button variant="secondary" onClick={downloadPDF} busy={downloading}>
-              {!downloading && <Download size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
-              {downloading ? t('cveditor.preparingPdf') : t('cveditor.downloadPdf')}
-            </Button>
-            <Button variant="ghost" icon onClick={() => { setPreviewKey(k => k + 1) }}
-              title={t('cveditor.refreshPreviewTip')} aria-label={t('cveditor.refreshPreviewTip')}>
-              <RefreshCw size={15} aria-hidden />
-            </Button>
-          </div>
-
-          {/* Sections cluster: user toggles + AI decisions (WS1 + WS5) */}
-          {plan && (
-            <div style={{ marginTop: 'var(--space-4)' }}>
-              <div className="editor-cluster-label">{t('cveditor.sectionsTitle')}</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {SECTIONS.map(key => {
-                  const disabled = key === 'photo' && !hasPhoto
-                  return (
-                    <label
-                      key={key}
-                      style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 6,
-                        border: '1px solid var(--border)', padding: '4px 10px',
-                        cursor: disabled ? 'default' : 'pointer', fontSize: 'var(--fs-sm)',
-                        color: disabled ? 'var(--muted)' : 'var(--ink)',
-                        opacity: disabled ? 0.45 : 1, fontWeight: 400, marginBottom: 0,
-                      }}
-                    >
-                      <input
-                        type="checkbox" checked={!hidden.has(key)} disabled={disabled}
-                        onChange={e => toggleSection(key, e.target.checked)}
-                        style={{ width: 'auto' }}
-                      />
-                      {t(`cveditor.sections.${key}`)}
-                    </label>
-                  )
-                })}
-              </div>
-
-              {plan.excluded_sections.length > 0 && (
-                <div style={{ marginTop: 'var(--space-3)' }}>
-                  <span className="muted-sm">{t('cveditor.aiLeftOut')}: </span>
-                  {plan.excluded_sections.map(key => (
-                    <button key={key} type="button" className="chip-restore" onClick={() => restoreSection(key)}
-                      title={t('cveditor.restoreTip')}>
-                      {t(`cveditor.sections.${key}`, key)} <RotateCcw size={11} aria-hidden />
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {plan.highlighted_skills.length > 0 && (
-                <div style={{ marginTop: 'var(--space-2)' }}>
-                  <span className="muted-sm">{t('cveditor.emphasisedSkills')}: </span>
-                  {plan.highlighted_skills.map(s => (
-                    <span key={s} className="chip-readonly">{s}</span>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+      {/* Tailoring notes — full width above preview */}
+      {result.tailoring_notes && (
+        <div style={{ marginBottom: 'var(--space-4)', padding: '10px 14px', background: 'var(--surface-dim)', border: '1px solid var(--border)' }}>
+          <div className="editor-cluster-label" style={{ marginBottom: 6 }}>{t('cveditor.tailoringNotes')}</div>
+          <p style={{ fontSize: 'var(--fs-base)', lineHeight: 1.65, margin: 0 }}>{result.tailoring_notes}</p>
         </div>
+      )}
 
-        {/* ── Editor column ── */}
-        <div>
-          {result.tailoring_notes && (
-            <div style={{ marginBottom: 'var(--space-4)', padding: '10px 14px', background: 'var(--surface-dim)', border: '1px solid var(--border)' }}>
-              <div className="editor-cluster-label" style={{ marginBottom: 6 }}>{t('cveditor.tailoringNotes')}</div>
-              <p style={{ fontSize: 'var(--fs-base)', lineHeight: 1.65, margin: 0 }}>{result.tailoring_notes}</p>
-            </div>
-          )}
+      {/* Preview iframe — full width, natural scroll */}
+      <div style={{ position: 'relative', border: '1px solid var(--border)', overflow: 'hidden', marginBottom: 'var(--space-4)' }}>
+        <a
+          href={result.preview_url} target="_blank" rel="noreferrer"
+          style={{
+            position: 'absolute', top: 10, right: 10, zIndex: 10,
+            background: 'var(--surface)', border: '1px solid var(--border)',
+            padding: '5px 12px', fontSize: 'var(--fs-sm)', fontWeight: 500, textDecoration: 'none',
+          }}
+        >
+          {t('cveditor.openNewTab')} <ExternalLink size={11} aria-hidden />
+        </a>
+        <iframe
+          key={previewKey}
+          ref={iframeRef}
+          src={result.preview_url}
+          onLoad={applyVisibility}
+          style={{ width: '100%', height: '80vh', border: 'none', display: 'block' }}
+          title={t('cveditor.cvPreview')}
+        />
+        {busyAI && (
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 9,
+            background: 'color-mix(in srgb, var(--surface) 80%, transparent)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-3)',
+            fontSize: 'var(--fs-md)', fontWeight: 500, textAlign: 'center', padding: 'var(--space-4)',
+          }}>
+            <span className="spinner" />
+            {relanging
+              ? t('cveditor.translatingCvTo', { lang: langLabel(pendingLang ?? '') })
+              : t('cveditor.regeneratingCv')}
+            <span className="muted-sm" style={{ fontWeight: 400 }}>
+              {stageText || t('cveditor.reRunningNote')}
+            </span>
+          </div>
+        )}
+      </div>
 
-          {!hasPhoto && (
-            <div className="callout callout-highlight" style={{ marginBottom: 'var(--space-4)' }}>
-              <ImageOff size={16} className="callout-icon" aria-hidden />
-              <span>
-                <Trans i18nKey="cveditor.photoDisabled" components={{ b: <strong /> }} />
-                <Link to="/settings">{t('cveditor.addPhotoLink')}</Link> {t('cveditor.addPhotoSuffix')}
-              </span>
-            </div>
-          )}
+      {/* Primary actions */}
+      <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', marginBottom: 'var(--space-4)' }}>
+        {result.has_plan ? (
+          <Button variant="primary" onClick={() => setShowRegen(true)} busy={busyAI} disabled={!result.job_url}
+            title={result.job_url ? undefined : t('cveditor.relangTooltipNoUrl')}>
+            {!busyAI && <Sparkles size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
+            {t('cveditor.updateWithAi')}
+          </Button>
+        ) : (
+          <Button variant="primary" onClick={() => regenerate(false)} busy={regenerating} disabled={!result.job_url}
+            title={result.job_url ? undefined : t('cveditor.relangTooltipNoUrl')}>
+            {!regenerating && <Sparkles size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
+            {t('cveditor.rebuildFromUrl')}
+          </Button>
+        )}
+        <Button variant="secondary" onClick={downloadPDF} busy={downloading}>
+          {!downloading && <Download size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
+          {downloading ? t('cveditor.preparingPdf') : t('cveditor.downloadPdf')}
+        </Button>
+        <Button variant="ghost" icon onClick={() => { setPreviewKey(k => k + 1) }}
+          title={t('cveditor.refreshPreviewTip')} aria-label={t('cveditor.refreshPreviewTip')}>
+          <RefreshCw size={15} aria-hidden />
+        </Button>
+      </div>
 
-          {plan ? (
-            <div style={{ border: '1px solid var(--border)', padding: 'var(--space-4)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                <div style={{ fontSize: 'var(--fs-sm)', fontWeight: 700 }}>{t('cveditor.editContent')}</div>
-                {saveLabel && (
-                  <span style={{ fontSize: 'var(--fs-xs)', color: saveState === 'error' ? 'var(--danger)' : 'var(--muted)' }}>
-                    {saveLabel}
-                  </span>
-                )}
-              </div>
-              <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--muted)', marginBottom: 'var(--space-4)' }}>
-                <Trans i18nKey="cveditor.editHelp" components={{ b: <strong /> }} />
-              </div>
-
-              {/* Professional summary */}
-              <div style={{ marginBottom: 'var(--space-4)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <div className="editor-cluster-label">{t('cveditor.professionalSummary')}</div>
-                  <Button variant="secondary" onClick={generateSummary} busy={generating}
-                    style={{ padding: '3px 8px', fontSize: 'var(--fs-xs)' }} title={t('cveditor.aiSummaryTooltip')}>
-                    {!generating && <Sparkles size={11} style={{ marginRight: 4, verticalAlign: -1 }} aria-hidden />}
-                    {generating ? t('cveditor.generatingSummary') : t('cveditor.aiSummary')}
-                  </Button>
-                </div>
-                <textarea
-                  ref={summaryRef}
-                  value={plan.summary}
-                  onChange={e => setSummary(e.target.value)}
-                  onKeyDown={e => {
-                    if (!(e.metaKey || e.ctrlKey)) return
-                    if (e.key === 'b' || e.key === 'B') { e.preventDefault(); wrapSummary('**') }
-                    else if (e.key === 'i' || e.key === 'I') { e.preventDefault(); wrapSummary('*') }
+      {/* Sections cluster: user toggles + AI decisions (WS1 + WS5) */}
+      {plan && (
+        <div style={{ marginBottom: 'var(--space-4)' }}>
+          <div className="editor-cluster-label">{t('cveditor.sectionsTitle')}</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {SECTIONS.map(key => {
+              const disabled = key === 'photo' && !hasPhoto
+              return (
+                <label
+                  key={key}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    border: '1px solid var(--border)', padding: '4px 10px',
+                    cursor: disabled ? 'default' : 'pointer', fontSize: 'var(--fs-sm)',
+                    color: disabled ? 'var(--muted)' : 'var(--ink)',
+                    opacity: disabled ? 0.45 : 1, fontWeight: 400, marginBottom: 0,
                   }}
-                  rows={5}
-                  style={{ width: '100%' }}
-                />
-              </div>
-
-              {/* Per-role bullets (max 4 each), in CV order */}
-              {plan.roles.map(role => (
-                <div key={role.id} style={{ marginBottom: 'var(--space-4)', paddingTop: 'var(--space-3)', borderTop: '1px solid var(--border)' }}>
-                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 'var(--space-2)' }}>
-                    <div style={{ fontSize: 'var(--fs-sm)', fontWeight: 600 }}>
-                      {role.title}{role.employer && <span style={{ color: 'var(--muted)', fontWeight: 400 }}> · {role.employer}</span>}
-                    </div>
-                    <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--muted)' }}>
-                      {t('cveditor.bulletsCount', { count: role.bullets.length })}
-                    </span>
-                  </div>
-                  <BulletListEditor
-                    value={role.bullets}
-                    onChange={v => setRoleBullets(role.id, v)}
-                    placeholder={t('cveditor.bulletPlaceholder')}
-                    reorder format max={4}
+                >
+                  <input
+                    type="checkbox" checked={!hidden.has(key)} disabled={disabled}
+                    onChange={e => toggleSection(key, e.target.checked)}
+                    style={{ width: 'auto' }}
                   />
-                </div>
+                  {t(`cveditor.sections.${key}`)}
+                </label>
+              )
+            })}
+          </div>
+
+          {plan.excluded_sections.length > 0 && (
+            <div style={{ marginTop: 'var(--space-3)' }}>
+              <span className="muted-sm">{t('cveditor.aiLeftOut')}: </span>
+              {plan.excluded_sections.map(key => (
+                <button key={key} type="button" className="chip-restore" onClick={() => restoreSection(key)}
+                  title={t('cveditor.restoreTip')}>
+                  {t(`cveditor.sections.${key}`, key)} <RotateCcw size={11} aria-hidden />
+                </button>
               ))}
             </div>
-          ) : (
-            <div className="callout">
-              <span><Trans i18nKey="cveditor.editingUnavailable" components={{ b: <strong /> }} /></span>
+          )}
+
+          {plan.highlighted_skills.length > 0 && (
+            <div style={{ marginTop: 'var(--space-2)' }}>
+              <span className="muted-sm">{t('cveditor.emphasisedSkills')}: </span>
+              {plan.highlighted_skills.map(s => (
+                <span key={s} className="chip-readonly">{s}</span>
+              ))}
             </div>
           )}
         </div>
-      </div>
+      )}
+
+      {/* Photo CTA */}
+      {!hasPhoto && (
+        <div className="callout callout-highlight" style={{ marginBottom: 'var(--space-4)' }}>
+          <ImageOff size={16} className="callout-icon" aria-hidden />
+          <span>
+            <Trans i18nKey="cveditor.photoDisabled" components={{ b: <strong /> }} />
+            <Link to="/settings">{t('cveditor.addPhotoLink')}</Link> {t('cveditor.addPhotoSuffix')}
+          </span>
+        </div>
+      )}
+
+      {/* AI-generated content editor */}
+      {plan ? (
+        <div style={{ border: '1px solid var(--border)', padding: 'var(--space-4)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <div style={{ fontSize: 'var(--fs-sm)', fontWeight: 700 }}>{t('cveditor.editContent')}</div>
+            {saveLabel && (
+              <span style={{ fontSize: 'var(--fs-xs)', color: saveState === 'error' ? 'var(--danger)' : 'var(--muted)' }}>
+                {saveLabel}
+              </span>
+            )}
+          </div>
+          <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--muted)', marginBottom: 'var(--space-4)' }}>
+            <Trans i18nKey="cveditor.editHelp" components={{ b: <strong /> }} />
+          </div>
+
+          {/* Professional summary */}
+          <div style={{ marginBottom: 'var(--space-4)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <div className="editor-cluster-label">{t('cveditor.professionalSummary')}</div>
+              <Button variant="secondary" onClick={generateSummary} busy={generating}
+                style={{ padding: '3px 8px', fontSize: 'var(--fs-xs)' }} title={t('cveditor.aiSummaryTooltip')}>
+                {!generating && <Sparkles size={11} style={{ marginRight: 4, verticalAlign: -1 }} aria-hidden />}
+                {generating ? t('cveditor.generatingSummary') : t('cveditor.aiSummary')}
+              </Button>
+            </div>
+            <textarea
+              ref={summaryRef}
+              value={plan.summary}
+              onChange={e => setSummary(e.target.value)}
+              onKeyDown={e => {
+                if (!(e.metaKey || e.ctrlKey)) return
+                if (e.key === 'b' || e.key === 'B') { e.preventDefault(); wrapSummary('**') }
+                else if (e.key === 'i' || e.key === 'I') { e.preventDefault(); wrapSummary('*') }
+              }}
+              rows={5}
+              style={{ width: '100%' }}
+            />
+          </div>
+
+          {/* Per-role bullets (max 4 each), in CV order */}
+          {plan.roles.map(role => (
+            <div key={role.id} style={{ marginBottom: 'var(--space-4)', paddingTop: 'var(--space-3)', borderTop: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 'var(--space-2)' }}>
+                <div style={{ fontSize: 'var(--fs-sm)', fontWeight: 600 }}>
+                  {role.title}{role.employer && <span style={{ color: 'var(--muted)', fontWeight: 400 }}> · {role.employer}</span>}
+                </div>
+                <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--muted)' }}>
+                  {t('cveditor.bulletsCount', { count: role.bullets.length })}
+                </span>
+              </div>
+              <BulletListEditor
+                value={role.bullets}
+                onChange={v => setRoleBullets(role.id, v)}
+                placeholder={t('cveditor.bulletPlaceholder')}
+                reorder format max={4}
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="callout">
+          <span><Trans i18nKey="cveditor.editingUnavailable" components={{ b: <strong /> }} /></span>
+        </div>
+      )}
     </div>
   )
 }
