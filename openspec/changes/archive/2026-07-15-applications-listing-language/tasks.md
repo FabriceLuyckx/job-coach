@@ -92,5 +92,5 @@
   non-English URL generates both artifacts in the detected language; one row-level
   control drives relang + letter regen; missing-sibling create uses the listing
   language.
-- [ ] 8.3 Cancel a running local generation and confirm it stops promptly and the
+- [x] 8.3 Cancel a running local generation and confirm it stops promptly and the
   engine is free for the next AI action (not blocked until it would have finished).
