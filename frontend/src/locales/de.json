@@ -127,7 +127,7 @@
       "filterTitle": "Jobvorschläge – Relevanzfilter-Prompt",
       "filterHelp": "Beurteilt jedes neue Stellenausschreibung, indem es den vollständigen Text liest: entscheidet, ob es zu Ihnen passt und extrahiert eine kurze Zusammenfassung (Unternehmen, Ort, Lohn, Frist, Anforderungen). Die relevanten Teile Ihres Profils werden automatisch unterhalb angezeigt.",
       "letterTitle": "Brief — Anleitungsprompt",
-      "letterHelp": "Wird beim Erstellen einer Briefanleitung verwendet. Ihr Profil und die Stellenanzeige werden automatisch unten hinzugefügt. Dies erzeugt einen Schreibplan (Übersicht, Hinweise, Belege) — nie den vollständigen Brieftext. <code>{lang_name}</code> wird durch die Ausgabesprache ersetzt — es muss im Prompt bleiben."
+      "letterHelp": "Gesendet, wenn ein Leitfaden für eine Einstellungsanschreiben erstellt wird. Ihr Profil und die Stellenausschreibung werden automatisch unten hinzugefügt. Dadurch entsteht ein Schablonenrahmen (3–5 Abschnitte mit den Profile-Fakten, die zitiert werden sollen, sowie Schreibtipps) — kein vollständiges Brieftext. <code>{lang_name}</code> wird durch die Ausgabesprache ersetzt — es muss im Prompt erhalten bleiben."
     }
   },
   "profile": {
@@ -619,14 +619,11 @@
     },
     "guide": {
       "headingFor": "Briefanleitung für",
-      "angle": "Ansatz",
       "structure": "Struktur",
-      "evidence": "Nachweise zu nennen",
-      "gaps": "Lücken ehrlich adressieren",
-      "tone": "Ton & Länge",
-      "copyMarkdown": "Text als Markdown kopieren",
-      "copied": "Leitfaden als Markdown kopiert",
-      "copyFailed": "Kopieren in die Zwischenablage fehlgeschlagen"
+      "copied": "Leitfaden kopiert — fügen Sie ihn in Ihr Dokument ein",
+      "copyFailed": "Kopieren in die Zwischenablage fehlgeschlagen",
+      "tips": "Schreibtipps",
+      "copy": "Textleitfaden kopieren"
     }
   }
 }

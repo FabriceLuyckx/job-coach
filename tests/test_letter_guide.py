@@ -12,23 +12,28 @@ def _sample():
     return {
         "job_title": "Data Scientist",
         "employer": "ACME",
-        "angle": "You turn messy data into decisions.",
-        "structure": [{"title": "Opener", "goal": "Hook", "pointers": ["Name the product"]}],
-        "evidence": [{"job_need": "Python", "your_match": "3y at Realo"}],
-        "tone": "Formal, one page.",
+        "structure": [
+            {"title": "Opener", "goal": "Name what drew you to them", "evidence": ["3y at Realo"]},
+        ],
+        "tips": ["Address the hiring manager by name.", "Keep it to ~300 words."],
     }
 
 
 def test_required_keys_survive():
     g = asdict(_reshape(_sample()))
-    for k in ("job_title", "employer", "angle", "structure", "evidence", "tone", "gaps"):
-        assert k in g
+    assert set(g) == {"job_title", "employer", "structure", "tips"}
 
 
-def test_gaps_defaults_empty():
-    assert _reshape(_sample()).gaps == []
+def test_section_evidence_survives():
+    g = _reshape(_sample())
+    assert g.structure[0]["evidence"] == ["3y at Realo"]
 
 
-def test_gaps_passthrough():
-    d = _sample() | {"gaps": ["No PhD — frame the applied experience instead."]}
-    assert _reshape(d).gaps == ["No PhD — frame the applied experience instead."]
+def test_tips_defaults_empty():
+    d = _sample()
+    del d["tips"]
+    assert _reshape(d).tips == []
+
+
+def test_tips_passthrough():
+    assert _reshape(_sample()).tips[0] == "Address the hiring manager by name."

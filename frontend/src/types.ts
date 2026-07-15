@@ -203,15 +203,12 @@ export interface Profile {
   custom_sections: CustomSection[]
 }
 
-// Cover-letter writing guide (not a written letter).
+// Cover-letter writing skeleton (not a written letter).
 export interface LetterGuide {
   job_title: string
   employer: string
-  angle: string
-  structure: { title: string; goal: string; pointers: string[] }[]
-  evidence: { job_need: string; your_match: string }[]
-  gaps: string[]
-  tone: string
+  structure: { title: string; goal: string; evidence: string[] }[]
+  tips: string[]
 }
 
 export interface LetterHistoryEntry {

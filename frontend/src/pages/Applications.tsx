@@ -263,6 +263,11 @@ function NewApplicationSlot({ pending, onCvGenerated, onLetterGenerated, onClose
   )
 }
 
+// Remembered across left-nav navigation (module stays loaded); resets on full
+// page reload. ponytail: in-memory only — add sessionStorage if reload-persistence is wanted.
+const expandedRows = new Set<string>()
+const rowTabs = new Map<string, 'cv' | 'letter'>()
+
 // ─── One application row (collapsible, CV | Letter tabs) ──────────────────────
 
 function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenerated, onLetterGenerated, initialExpanded }: {
@@ -275,10 +280,16 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
   initialExpanded: boolean
 }) {
   const { t } = useTranslation()
-  const [expanded, setExpanded] = useState(initialExpanded)
+  const [expanded, setExpanded] = useState(initialExpanded || expandedRows.has(app.key))
   const [cv, setCv] = useState(app.cv)
   const [letter, setLetter] = useState(app.letter)
-  const [tab, setTab] = useState<'cv' | 'letter'>(app.cv ? 'cv' : 'letter')
+  const [tab, setTab] = useState<'cv' | 'letter'>(rowTabs.get(app.key) ?? (app.cv ? 'cv' : 'letter'))
+
+  function toggleExpanded(open: boolean) {
+    setExpanded(open)
+    if (open) expandedRows.add(app.key); else expandedRows.delete(app.key)
+  }
+  function pickTab(key: 'cv' | 'letter') { setTab(key); rowTabs.set(app.key, key) }
   const [creating, setCreating] = useState<'cv' | 'letter' | null>(null)
   const [createStage, setCreateStage] = useState('')
   const [createErr, setCreateErr] = useState('')
@@ -366,7 +377,7 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
   }
 
   const tabBtn = (key: 'cv' | 'letter', has: boolean) => (
-    <button type="button" aria-pressed={tab === key} onClick={() => setTab(key)}>
+    <button type="button" aria-pressed={tab === key} onClick={() => pickTab(key)}>
       {t(key === 'cv' ? 'applications.cvTab' : 'applications.letterTab')}
       <span style={{ marginLeft: 6, opacity: has ? 1 : 0.6 }} aria-hidden>{has ? '✓' : '—'}</span>
     </button>
@@ -401,7 +412,7 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
     <div className="card" style={{ padding: 0 }}>
       <div style={{ padding: '11px 16px' }}>
         <Collapsible
-          flat open={expanded} onToggle={setExpanded}
+          flat open={expanded} onToggle={toggleExpanded}
           title={
             <span className="collapsible-title-sm" style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {app.jobTitle}
@@ -459,12 +470,8 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
                   <div><strong>{t('letters.explainer.headline')}</strong></div>
                 </div>
                 {letter ? (
-                  <>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 'var(--space-2)' }}>
-                      <RemoveButton onClick={() => onDeleteLetter(letter)} title={t('applications.deleteLetter')} />
-                    </div>
-                    <GuideView guide={letter.guide} />
-                  </>
+                  <GuideView guide={letter.guide}
+                    actions={<RemoveButton onClick={() => onDeleteLetter(letter)} title={t('applications.deleteLetter')} />} />
                 ) : missingArtifact('letter')}
               </div>
             )}

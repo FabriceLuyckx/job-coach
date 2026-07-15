@@ -3,8 +3,8 @@
 
 """
 Cover-letter guide service — reads a job posting and produces a tailored
-*writing guide* (outline, pointers, evidence map), NOT a written letter. The
-candidate writes the letter themselves; the AI only says what to cover.
+*writing skeleton* (sections + the real facts to cite), NOT a written letter.
+The candidate writes the letter themselves; the AI only says what to cover.
 
 Mirrors cv_generator.py's shape: dataclass, _TOOL schema, default prompt,
 one public build_guide().
@@ -22,65 +22,46 @@ from app.services.llm import complete, tool_args
 class LetterGuide:
     job_title: str
     employer: str
-    angle: str                     # one-sentence positioning: the story this letter should tell
-    structure: list[dict]          # 3–5 items: {title, goal, pointers: [str]}
-    evidence: list[dict]           # {job_need, your_match}
-    tone: str                      # formality, length target, language notes
-    gaps: list[str] = field(default_factory=list)  # requirements the profile doesn't cover + how to frame honestly
+    structure: list[dict]          # 3–5 items: {title, goal, evidence: [str]}
+    tips: list[str] = field(default_factory=list)  # short practical reminders (recipient, quantify, length, tone)
 
 
 _TOOL = {
     "type": "function",
     "function": {
         "name": "letter_guide",
-        "description": "A tailored cover-letter WRITING GUIDE (pointers and evidence, never finished prose).",
+        "description": "A tailored cover-letter WRITING SKELETON (sections + real facts to cite, never finished prose).",
         "parameters": {
             "type": "object",
-            "required": ["job_title", "employer", "angle", "structure", "evidence", "tone"],
+            "required": ["job_title", "employer", "structure", "tips"],
             "properties": {
                 "job_title": {"type": "string", "description": "Job title as listed in the posting"},
                 "employer": {"type": "string", "description": "Employer or institution name"},
-                "angle": {
-                    "type": "string",
-                    "description": "One sentence: the positioning/story this letter should tell.",
-                },
                 "structure": {
                     "type": "array",
-                    "description": "3–5 paragraphs. Each an object with a title, a goal, and 2–4 concrete pointers.",
+                    "minItems": 3,
+                    "maxItems": 5,
+                    "description": "3–5 sections you name for this posting. Each an object with a title, a goal, and the real profile facts to cite.",
                     "items": {
                         "type": "object",
-                        "required": ["title", "goal", "pointers"],
+                        "required": ["title", "goal", "evidence"],
                         "properties": {
-                            "title": {"type": "string", "description": "Short paragraph label"},
-                            "goal": {"type": "string", "description": "What this paragraph must achieve"},
-                            "pointers": {
+                            "title": {"type": "string", "description": "Short section label"},
+                            "goal": {"type": "string", "description": "What this section must achieve (an instruction to the writer, not a sentence to paste)"},
+                            "evidence": {
                                 "type": "array",
                                 "items": {"type": "string"},
-                                "description": "2–4 instructions/questions to the writer (not sentences to paste)",
+                                "description": "Real profile facts to cite in this section (a role, project, or skill). Never invent experience.",
                             },
                         },
                     },
                 },
-                "evidence": {
+                "tips": {
                     "type": "array",
-                    "description": "Posting requirement → a specific, real profile fact to cite for it.",
-                    "items": {
-                        "type": "object",
-                        "required": ["job_need", "your_match"],
-                        "properties": {
-                            "job_need": {"type": "string", "description": "A top requirement from the posting"},
-                            "your_match": {"type": "string", "description": "The concrete profile item that answers it"},
-                        },
-                    },
-                },
-                "gaps": {
-                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 5,
                     "items": {"type": "string"},
-                    "description": "Honest gaps the profile doesn't cover, each with how to frame it (not hide it). Omit if none.",
-                },
-                "tone": {
-                    "type": "string",
-                    "description": "Formality, length target, and language notes for the letter.",
+                    "description": "3–5 short practical reminders: who to address, quantifying impact, length target, tone/language.",
                 },
             },
         },
@@ -89,17 +70,14 @@ _TOOL = {
 
 # Editable via Settings → "Cover Letter — guide prompt". {lang_name} is
 # substituted at call time. The candidate profile JSON is appended automatically.
-DEFAULT_LETTER_PROMPT = """You are a cover-letter writing coach. You NEVER write the letter — you produce a plan the candidate uses to write it themselves in their own words.
+DEFAULT_LETTER_PROMPT = """You are a cover-letter writing coach. You NEVER write the letter — you produce a skeleton the candidate uses to write it themselves in their own words.
 
 Rules:
 - Write ALL output in {lang_name}.
-- NEVER write letter sentences or paragraphs to paste. Every pointer is an instruction or question to the writer, e.g. "Explain what drew you to them — name the specific product or mission" — not "I have long admired your mission."
-- structure: 3–5 paragraphs. Give each a clear goal and 2–4 concrete pointers grounded in THIS posting and THIS profile. No generic advice like "show enthusiasm".
-- evidence: pick the posting's top requirements and map each to a specific, real profile item (a role, project, or skill). Never invent experience the candidate doesn't have.
-- Use the profile's preferences (looking_for, notes) to ground the motivation paragraph in what the candidate actually wants from a role.
-- gaps: name honest gaps between the posting and the profile and suggest how to frame them, not hide them. Omit if there are none worth flagging.
-- angle: one sentence naming the single strongest positioning for this application.
-- tone: note the formality, a length target, and the language to write in."""
+- NEVER write letter sentences or paragraphs to paste. Every goal is an instruction to the writer, e.g. "Open by naming what draws you to them — cite a specific product or mission" — not "I have long admired your mission."
+- structure: 3–5 sections you name and order for THIS posting (e.g. a hook, why-you, why-them, close). Give each a clear goal and the specific real profile facts (a role, project, or skill) to cite there. No generic advice like "show enthusiasm", and never invent experience the candidate doesn't have.
+- Use the profile's preferences (looking_for, notes) to ground the motivation section in what the candidate actually wants from a role.
+- tips: 3–5 short practical reminders for writing it — address a real person (find the hiring manager; else "Dear Hiring Team"), quantify impact ("so what?" — the concrete result), keep it to ~250–350 words on one page, and match the employer's tone while writing in {lang_name}."""
 
 
 def _reshape(d: dict) -> LetterGuide:
@@ -108,11 +86,8 @@ def _reshape(d: dict) -> LetterGuide:
     return LetterGuide(
         job_title=d["job_title"],
         employer=d["employer"],
-        angle=d["angle"],
         structure=list(d["structure"]),
-        evidence=list(d["evidence"]),
-        tone=d["tone"],
-        gaps=list(d.get("gaps", []) or []),
+        tips=list(d.get("tips", []) or []),
     )
 
 
@@ -155,20 +130,18 @@ def build_guide(
         max_tokens=4096,
     )
 
-    d = tool_args(response, required=("job_title", "employer", "angle", "structure", "evidence", "tone"))
+    d = tool_args(response, required=("job_title", "employer", "structure", "tips"))
     return _reshape(d)
 
 
 if __name__ == "__main__":
-    # ponytail: self-check — reshaping survives the asdict round-trip, gaps defaults to []
+    # ponytail: self-check — reshaping survives the asdict round-trip, tips defaults to []
     sample = {
-        "job_title": "Data Scientist", "employer": "ACME", "angle": "You solve X.",
-        "structure": [{"title": "Opener", "goal": "Hook", "pointers": ["Name the product"]}],
-        "evidence": [{"job_need": "Python", "your_match": "3y at Realo"}],
-        "tone": "Formal, one page, in English.",
+        "job_title": "Data Scientist", "employer": "ACME",
+        "structure": [{"title": "Opener", "goal": "Name the product that drew you", "evidence": ["3y at Realo"]}],
     }
     g = asdict(_reshape(sample))
-    assert g["gaps"] == [], g["gaps"]
-    assert g["structure"][0]["pointers"] == ["Name the product"]
-    assert set(g) >= {"job_title", "employer", "angle", "structure", "evidence", "tone", "gaps"}
+    assert g["tips"] == [], g["tips"]
+    assert g["structure"][0]["evidence"] == ["3y at Realo"]
+    assert set(g) == {"job_title", "employer", "structure", "tips"}
     print("ok", g["job_title"])

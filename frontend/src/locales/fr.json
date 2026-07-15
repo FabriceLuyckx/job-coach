@@ -127,7 +127,7 @@
       "filterTitle": "Suggestions d'offres — prompt de filtre de pertinence",
       "filterHelp": "Évalue chaque nouveau poste en le lisant en entier : décide s'il correspond à vous et extrait une synthèse courte (employeur, localisation, salaire, délai, exigences). Les parties pertinentes de votre profil sont ajoutées automatiquement ci-dessous.",
       "letterTitle": "Lettre de motivation — prompt de guide",
-      "letterHelp": "Envoyé lors de la création d'un guide de lettre. Votre profil et le poste sont ajoutés automatiquement ci-dessous. Cela produit un plan de rédaction (structure, indices, preuves) — jamais du texte complet de lettre. <code>{lang_name}</code> est remplacé par la langue de sortie — il doit rester dans le prompt."
+      "letterHelp": "Envoyé lors de la création d'un guide de lettre de motivation. Profil et offre d'emploi sont ajoutés automatiquement ci-dessous. Cela produit un squelette de rédaction (3 à 5 sections avec les faits du profil à citer, ainsi que des conseils de rédaction) — la lettre n'est jamais complètement écrite. <code>{lang_name}</code> est remplacé par la langue de sortie — il doit rester dans le prompt."
     }
   },
   "profile": {
@@ -619,14 +619,11 @@
     },
     "guide": {
       "headingFor": "Guide de lettre pour",
-      "angle": "Angle",
       "structure": "Structure",
-      "evidence": "Des éléments à citer",
-      "gaps": "Des lacunes à traiter honnêtement",
-      "tone": "Ton et longueur",
-      "copyMarkdown": "Copier sous Markdown",
-      "copied": "Le guide a été copié sous Markdown",
-      "copyFailed": "Impossible de copier dans le presse-papiers"
+      "copied": "Guide copié — collez-le dans votre document",
+      "copyFailed": "Impossible de copier dans le presse-papiers",
+      "tips": "Conseils de rédaction",
+      "copy": "Guide de copie"
     }
   }
 }

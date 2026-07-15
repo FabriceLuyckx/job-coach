@@ -127,7 +127,7 @@
       "filterTitle": "Sugestie ofert — prompt filtrowania trafności",
       "filterHelp": "Ocenia nowe oferty, czytając pełny opis: decyduje, czy pasuje Ci i wyciąga krótką podsumowanie (firmę, lokalizację, wynagrodzenie, termin, wymagania). Współczesne części Twojego profilu są automatycznie dodawane poniżej.",
       "letterTitle": "List — przewodnik promptowy",
-      "letterHelp": "Wyświetzany podczas tworzenia przewodnika listy. Profil i ogłoszenie stanowiska są automatycznie dodawane poniżej. Tworzy plan pisania (struktura, wskazówki, dowody) — nigdy nie generuje pełnego tekstu listy. <code>{lang_name}</code> jest zastępowane językiem wyjściowym — musi zostać zachowane w promptie."
+      "letterHelp": "Wyświetzane podczas tworzeniu kierunku do napisania listy ofertowej. Profil i ogłoszenie pracy są automatycznie dodawane poniżej. Tworzy szkielet tekstu (3–5 sekcji z danymi profilu do cytowania, plus wskazówki do napisania) — tekst listy nie jest ukończony. <code>{lang_name}</code> jest zastępowany przez język wyjściowy — musi zostać zachowany w promptie."
     }
   },
   "profile": {
@@ -619,14 +619,11 @@
     },
     "guide": {
       "headingFor": "Przewodnik listy dla",
-      "angle": "Kąt",
       "structure": "Struktura",
-      "evidence": "Dowody do cytowania",
-      "gaps": "Środki do pokazania prawdziwości",
-      "tone": "Odczucie i długość",
-      "copyMarkdown": "Kopia jako Markdown",
-      "copied": "Przewodnik skopiowany jako Markdown",
-      "copyFailed": "Nie udało się skopiować do schowka"
+      "copied": "Kierunek skopiowany — wklej go do swojego dokumentu",
+      "copyFailed": "Nie udało się skopiować do schowka",
+      "tips": "Wskazówki do napisania",
+      "copy": "Kierunek do kopiowania"
     }
   }
 }

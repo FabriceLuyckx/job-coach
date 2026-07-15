@@ -21,7 +21,7 @@ The app runs locally first, designed for easy cloud deployment. AI is powered vi
 | `app/services/cv_generator.py` | Done | `tailor()` + `apply_tailoring()` — called by CLI and API |
 | `app/services/cv_renderer.py` | Done | Shared Jinja2 utilities (LABELS, filters, photo) |
 | `app/services/job_scanner.py` | Done | Phase 5/6 — extract openings, link-hash skip, title prescreen, per-posting read → verdict + digest |
-| `app/services/letter_guide.py` | Done | Cover-letter **writing guide** (angle, outline, evidence map) from a posting URL — never writes the letter |
+| `app/services/letter_guide.py` | Done | Cover-letter **writing skeleton** (3–5 sections with per-section evidence + writing tips) from a posting URL — never writes the letter |
 | `app/api/letters.py` | Done | `/api/letters/*` — generate (async, reuses cv job store) + history CRUD |
 | `scripts/tailor_cv.py` | Done | CLI: fetch URL → Claude → tailored HTML |
 | `app/db.py` | Done | SQLite: `cv_history` (P4), `job_sources` + `job_openings` (P5) |
@@ -266,10 +266,14 @@ POST /api/backup/import        Restore a backup .zip (full replace, API key pres
 ```
 
 **Cover Letter** (`app/api/letters.py`, `app/services/letter_guide.py`): given a
-posting URL, one forced-tool LLM call (`letter_guide`) returns a *writing guide* —
-angle, a 3–5 paragraph outline (each with a goal + pointers), an evidence map
-(posting requirement → real profile fact), honest gaps, and a tone note — **never a
-written letter** (a deliberate product stance, surfaced in the page's explainer).
+posting URL, one forced-tool LLM call (`letter_guide`) returns a lean *writing
+skeleton* — a 3–5 section `structure` (each `{title, goal, evidence}`, where
+`evidence` is the real profile facts to cite in that section) plus a short `tips`
+list (address a real person, quantify impact, ~250–350 words, tone/language) —
+**never a written letter** (a deliberate product stance, surfaced in the page's
+explainer). `GuideView` tolerates pre-simplification stored rows (old
+angle/evidence-map/gaps/tone + per-section `pointers`) by ignoring unknown fields
+and falling back to `pointers`.
 Reuses the CV router's async job store (`run_async` + `/api/cv/status`), reuses a
 scan's cached `posting_text` when the URL was seen before (no re-scrape), and passes
 the profile minus `meta`/`cv_design_preferences` (keeping `preferences`, the

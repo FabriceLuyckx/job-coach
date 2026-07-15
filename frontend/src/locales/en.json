@@ -157,7 +157,7 @@
       "filterTitle": "Job Suggestions — relevance filter prompt",
       "filterHelp": "Judges each new opening by reading its full posting: decides whether it matches you and pulls out a short digest (employer, location, salary, deadline, requirements). The relevant parts of your profile are added automatically below it.",
       "letterTitle": "Cover Letter — guide prompt",
-      "letterHelp": "Sent when building a cover-letter guide. Your profile and the job listing are added automatically below it. This produces a writing plan (outline, pointers, evidence) — never finished letter text. <code>{lang_name}</code> is replaced with the output language — it must stay in the prompt."
+      "letterHelp": "Sent when building a cover-letter guide. Your profile and the job listing are added automatically below it. This produces a writing skeleton (3–5 sections with the profile facts to cite, plus writing tips) — never finished letter text. <code>{lang_name}</code> is replaced with the output language — it must stay in the prompt."
     }
   },
   "profile": {
@@ -619,13 +619,10 @@
     },
     "guide": {
       "headingFor": "Cover letter guide for",
-      "angle": "Angle",
       "structure": "Structure",
-      "evidence": "Evidence to cite",
-      "gaps": "Gaps to address honestly",
-      "tone": "Tone & length",
-      "copyMarkdown": "Copy as Markdown",
-      "copied": "Guide copied as Markdown",
+      "tips": "Writing tips",
+      "copy": "Copy guide",
+      "copied": "Guide copied — paste it into your document",
       "copyFailed": "Could not copy to clipboard"
     }
   }

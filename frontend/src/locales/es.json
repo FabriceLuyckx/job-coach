@@ -127,7 +127,7 @@
       "filterTitle": "Sugerencias de empleo — instrucción de filtro de relevancia",
       "filterHelp": "Evalúa cada nuevo anuncio leyendo su descripción completa: decide si coincide contigo y extrae un resumen breve (empresa, ubicación, salario, plazo, requisitos). Las partes relevantes de tu perfil se agregan automáticamente debajo.",
       "letterTitle": "Carta de presentación — prompt de guía",
-      "letterHelp": "Envíada al crear una guía de carta de presentación. Tu perfil y el anuncio de empleo se agregan automáticamente debajo. Esto genera un plan de escritura (esquema, pistas, evidencia) — nunca texto completo de carta. <code>{lang_name}</code> se reemplaza con el idioma de salida — debe permanecer en el prompt."
+      "letterHelp": "Envía cuando se crea una guía para una carta de presentación. Tu perfil y el anuncio de empleo se agregan automáticamente a continuación. Esto genera un esqueleto de escritura (3–5 secciones con los hechos del perfil para citar, más consejos de redacción) — nunca un texto completo de carta. <code>{lang_name}</code> se reemplaza por el idioma de salida — debe quedar en el prompt."
     }
   },
   "profile": {
@@ -619,14 +619,11 @@
     },
     "guide": {
       "headingFor": "Guía de carta de presentación para",
-      "angle": "Ángulo",
       "structure": "Estructura",
-      "evidence": "Evidencia a citar",
-      "gaps": "Fallas a abordar con honestidad",
-      "tone": "Tono y longitud",
-      "copyMarkdown": "Copiar como Markdown",
-      "copied": "Guía copiada como Markdown",
-      "copyFailed": "No se pudo copiar al portapapeles"
+      "copied": "Guía copiada — pégala en tu documento",
+      "copyFailed": "No se pudo copiar al portapapeles",
+      "tips": "Consejos para escribir",
+      "copy": "Guía de redacción"
     }
   }
 }

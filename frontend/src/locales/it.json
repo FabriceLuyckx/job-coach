@@ -127,7 +127,7 @@
       "filterTitle": "Suggerimenti lavoro — prompt di filtro pertinenza",
       "filterHelp": "Valuta ogni nuovo annuncio leggendo l'intero testo: decide se corrisponde a te e estrae un breve riassunto (della ditta, località, stipendio, scadenza, requisiti). Le parti rilevanti del tuo profilo vengono aggiunte automaticamente sotto.",
       "letterTitle": "Lettera — prompt della guida",
-      "letterHelp": "Invia quando si costruisce una guida alla lettera. Il tuo profilo e l'annuncio del lavoro vengono aggiunti automaticamente sotto. Questo produce un piano di scrittura (outline, suggerimenti, prove) — mai testo finale della lettera. <code>{lang_name}</code> viene sostituito con il linguaggio di output — deve rimanere nel prompt."
+      "letterHelp": "Invia quando si crea un'indicazione per la redazione di una lettera di presentazione. Il tuo profilo e l'annuncio del lavoro vengono aggiunti automaticamente sotto di esso. Questo genera uno scheletro di scrittura (3–5 sezioni con i dati del profilo da citare, più suggerimenti di scrittura) — mai un testo completo della lettera. <code>{lang_name}</code> viene sostituito con il linguaggio di output — deve rimanere nel prompt."
     }
   },
   "profile": {
@@ -619,14 +619,11 @@
     },
     "guide": {
       "headingFor": "Guida alla lettera per",
-      "angle": "Angolo",
       "structure": "Struttura",
-      "evidence": "Elementi da citare",
-      "gaps": "Difetti da affrontare in modo onesto",
-      "tone": "Tono e lunghezza",
-      "copyMarkdown": "Copia come Markdown",
-      "copied": "Guida copiata come Markdown",
-      "copyFailed": "Impossibile copiare nel clipboard"
+      "copied": "Guida copiata — incollala nel tuo documento",
+      "copyFailed": "Impossibile copiare nel clipboard",
+      "tips": "Suggerimenti per la scrittura",
+      "copy": "Guida al testo"
     }
   }
 }
