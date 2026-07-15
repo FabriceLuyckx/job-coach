@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """Local GGUF inference provider (llama-cpp-python).
 
 Runs the downloaded model in-process. Two design points make a 4B model reliable

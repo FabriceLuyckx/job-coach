@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """AI-tailor a CV for a specific job posting URL.
 
 Uses Claude to read the job description and adapt the CV content:

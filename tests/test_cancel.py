@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """Async-job cancellation: a running job that observes its cancel token and
 raises GenerationCancelled surfaces as a 'cancelled' job, and status stays
 JSON-serialisable (no Event leaks). Run with: uv run pytest"""

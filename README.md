@@ -442,3 +442,12 @@ See `CLAUDE.md` for the full plan. Upcoming phases:
 |-------|-------------|
 | 6 | Job matching — Claude scores and ranks jobs against your profile |
 | 7 | Desktop packaging — downloadable Mac/Windows apps (in progress) + optional cloud deployment |
+
+---
+
+## License
+
+Licensed under the GNU Affero General Public License v3.0 or later
+(AGPL-3.0-or-later). See [LICENSE](LICENSE). If you run a modified version of
+this app as a network service, the AGPL requires you to offer its source to
+users.

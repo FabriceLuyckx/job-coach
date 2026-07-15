@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """Centralised path resolution — the single source of truth for where things live.
 
 Splits two kinds of paths:

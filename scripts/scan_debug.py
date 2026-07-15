@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """
 Verify the scanner actually reads a listing page's openings.
 

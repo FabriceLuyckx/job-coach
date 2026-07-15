@@ -1,18 +1,29 @@
 #!/bin/sh
+# Installed via `git config core.hooksPath scripts/hooks` (setup.sh does this).
+# Skip either step for one commit with `git commit --no-verify`.
+
+# Add missing AGPL/SPDX headers to staged source files, then restage only the
+# files the script actually touched (not the whole staged list — an unstaged
+# hunk in an already-headered file must not get swept into the commit).
+# -z/-0 keeps filenames with spaces intact through the pipe.
+if ! git diff --cached --quiet --diff-filter=ACMR -- '*.py' '*.ts' '*.tsx' '*.sh'; then
+  headered=$(git diff --cached -z --name-only --diff-filter=ACMR -- '*.py' '*.ts' '*.tsx' '*.sh' \
+    | xargs -0 uv run python scripts/add_license_headers.py)
+  if [ -n "$headered" ]; then
+    echo "$headered" | while IFS= read -r f; do git add -- "$f"; done
+  fi
+fi
+
 # Auto-translate new/updated UI strings into the shipped locales whenever the
 # English catalog (en.json) is part of the commit. Uses the configured AI engine;
 # with the default local provider it's free and offline.
-#
-# Installed via `git config core.hooksPath scripts/hooks` (setup.sh does this).
 # ponytail: compares the working-tree en.json against HEAD — assumes en.json is
-# staged as a whole (the normal case). Skip with `git commit --no-verify`.
-
-git diff --cached --quiet -- frontend/src/locales/en.json && exit 0
-
-echo "en.json changed — translating new/updated strings…"
-if ! uv run python scripts/translate_locales.py --changed; then
-  echo "Translation failed. Configure an AI engine, or commit with --no-verify to skip." >&2
-  exit 1
+# staged as a whole (the normal case).
+if ! git diff --cached --quiet -- frontend/src/locales/en.json; then
+  echo "en.json changed — translating new/updated strings…"
+  if ! uv run python scripts/translate_locales.py --changed; then
+    echo "Translation failed. Configure an AI engine, or commit with --no-verify to skip." >&2
+    exit 1
+  fi
+  git add frontend/src/locales/*.json
 fi
-
-git add frontend/src/locales/*.json

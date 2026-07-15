@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """Health and first-run setup endpoints.
 
 PDF export and JS-heavy job scans need Chromium, which the packaged app downloads

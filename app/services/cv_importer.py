@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """
 CV import — extract a structured career profile from an existing CV (pasted text
 or an uploaded PDF) via one forced-tool LLM call.

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """Local (llama.cpp) engine tests — no real model needed; the Llama class is faked."""
 
 import sys

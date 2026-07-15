@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """Provider-neutral LLM interface.
 
 Every AI feature in the app calls :func:`complete`, which resolves the configured

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """Cover-letter guide reshaping — no LLM call, just the dict → dataclass step."""
 
 from dataclasses import asdict

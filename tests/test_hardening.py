@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """Backend hardening tests: upload validation, zip-bomb guard, slug cleaning,
 LLM config/response guards. Run with: uv run pytest"""
 
@@ -95,7 +98,9 @@ def test_require_engine_returns_openrouter_defaults():
     assert eng.model == config.DEFAULT_MODEL
 
 
-def test_require_engine_local_not_downloaded_raises():
+def test_require_engine_local_not_downloaded_raises(monkeypatch):
+    from app.services.engines import registry
+    monkeypatch.setattr(registry, "local_model_path", lambda mid: None)
     with pytest.raises(ValueError, match="not downloaded"):
         config.require_engine({"llm_provider": "local", "local_model_id": "qwen3-4b-instruct"})
 

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """Engine status + download-manager API tests (no real model/download)."""
 
 from collections import namedtuple
@@ -15,7 +18,8 @@ def test_engine_status_openrouter_no_key():
     assert s["ready"] is False
 
 
-def test_engine_status_local_not_downloaded():
+def test_engine_status_local_not_downloaded(monkeypatch):
+    monkeypatch.setattr(engine, "local_model_path", lambda mid: None)
     s = engine._engine_status({"llm_provider": "local", "local_model_id": "qwen3-4b-instruct"})
     assert s["provider"] == "local" and s["ready"] is False
     assert s["model"]["id"] == "qwen3-4b-instruct"

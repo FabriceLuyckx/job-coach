@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """AI engine status + local-model download management.
 
 `GET /api/engine` is the app-wide "is AI configured and ready" check that the

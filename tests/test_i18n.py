@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """i18n guards: translation validation, CV-label completeness, and shipped-catalog
 parity (keys, {{placeholders}}, <tags>) against the English source."""
 

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """
 Job scanner — scans each saved source page for openings and judges new ones
 against the candidate profile via the configured LLM engine.

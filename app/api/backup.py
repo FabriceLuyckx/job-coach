@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """Backup & restore — export all user data to one .zip and re-import it elsewhere.
 
 Lets a user move to a new computer (or recover after a reinstall) and pick up

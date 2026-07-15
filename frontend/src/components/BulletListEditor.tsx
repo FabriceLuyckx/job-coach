@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Fabrice Luyckx
+
 import { useRef, useState } from 'react'
 import { GripVertical } from 'lucide-react'
 import Button from './Button'

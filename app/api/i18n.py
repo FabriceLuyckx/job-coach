@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """On-device UI translation (Tier-2 languages).
 
 Shipped Tier-1 locales are bundled with the frontend. Any other language the user

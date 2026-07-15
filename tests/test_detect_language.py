@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """detect_language: code validation + fallback. Run with: uv run pytest"""
 
 from app.services import cv_generator

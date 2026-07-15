@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Fabrice Luyckx
+
 // Single source of truth for Profile page sections: page order, the add-a-section
 // menu, badges, and descriptions. `core` sections are always shown; optional ones
 // are toggled via meta.enabled_sections (persisted on the profile).

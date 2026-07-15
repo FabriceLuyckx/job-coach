@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """Dev tool: translate the English UI catalog into the shipped Tier-1 locales.
 
 Diffs frontend/src/locales/en.json against each target locale and translates only

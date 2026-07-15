@@ -637,6 +637,13 @@ scanner reads the page directly.
 
 - **Always update `README.md`** when making changes that affect how the project is run or used — new CLI flags, new setup steps, new usable phases. Do this as part of the same change, not as a follow-up.
 - **Plan non-trivial changes with OpenSpec** (`openspec/` + the `/opsx:*` slash commands / `openspec-*` skills): `/opsx:propose` to draft proposal/design/tasks, `/opsx:apply` to implement, `/opsx:archive` when done. Project context for artifact generation lives in `openspec/config.yaml`. Small fixes don't need a change — go straight to code.
+- **License**: the project is AGPL-3.0-or-later (see `LICENSE`). Every tracked
+  `.py`/`.ts`/`.tsx`/`.sh` file carries a 2-line SPDX header
+  (`SPDX-License-Identifier: AGPL-3.0-or-later` + copyright); this is
+  maintained automatically by `scripts/hooks/pre-commit`, which runs
+  `scripts/add_license_headers.py` on staged source files — don't add headers
+  by hand or write a second hook for this. The app footer's link to the GitHub
+  repo satisfies AGPL §13 (network use → offer source); don't remove it.
 
 ---
 

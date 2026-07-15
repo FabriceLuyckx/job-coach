@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """Engine-abstraction tests: complete() dispatch + response parsing. Run with pytest."""
 
 import pytest

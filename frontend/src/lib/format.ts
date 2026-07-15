@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Fabrice Luyckx
+
 /** Shared date/time formatting so every page renders dates the same way. */
 
 export function formatDate(iso: string): string {

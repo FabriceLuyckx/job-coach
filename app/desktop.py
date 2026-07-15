@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """Desktop launcher — the packaged app's entry point.
 
 Starts the FastAPI app on a local port and opens the user's default browser to

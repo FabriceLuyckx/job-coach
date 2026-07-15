@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """
 Cover-letter guide service — reads a job posting and produces a tailored
 *writing guide* (outline, pointers, evidence map), NOT a written letter. The

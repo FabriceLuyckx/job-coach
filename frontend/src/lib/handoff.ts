@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Fabrice Luyckx
+
 /**
  * Cross-page handoff between Job Suggestions and the Applications page, via
  * localStorage. The single source of truth for these keys — do not inline the

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """
 CV tailoring service — fetches a job description and uses an LLM via OpenRouter
 to produce a tailoring plan.

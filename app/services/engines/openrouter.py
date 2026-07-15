@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """OpenRouter provider — chat completions via the OpenAI SDK.
 
 Centralises client construction (timeouts are always set — a hung model call must

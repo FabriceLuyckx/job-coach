@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """Registry of downloadable local LLM models (GGUF, run via llama-cpp-python).
 
 v1 ships a single recommended model. The registry shape lets more be offered

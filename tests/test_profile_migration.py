@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Fabrice Luyckx
+
 """Profile schema v1 → v5 migration tests. Run with: uv run pytest"""
 
 import copy
