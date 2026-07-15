@@ -424,7 +424,9 @@
       "rendering": "Tworzenie CV…"
     },
     "searchPlaceholder": "Szukaj CV…",
-    "noMatches": "Brak CV, które pasują do Twojego wyszukiwania."
+    "noMatches": "Brak CV, które pasują do Twojego wyszukiwania.",
+    "autoDetect": "Automatyczne wykrywanie",
+    "detectingLang": "Wykrywanie języka…"
   },
   "jobs": {
     "title": "Sugestie ofert pracy",
@@ -515,14 +517,9 @@
     "keepEdits": "Zachowaj moje zmiany, wygeneruj resztę ponownie",
     "regenAll": "Wygeneruj wszystko ponownie (odrzuć moje zmiany)",
     "viewListing": "Zobacz ogłoszenie",
-    "translatingTo": "Tłumaczenie na {{lang}}…",
-    "language": "Język",
-    "relangTooltipHasUrl": "Wygeneruj ponownie to CV w innym języku (ponownie uruchamia AI, ~30s)",
-    "relangTooltipNoUrl": "Brak zapisanego adresu URL oferty, dlatego nie można zmienić języka",
     "tailoringNotes": "Notatki dotyczące dopasowania",
     "openNewTab": "Otwórz w nowej karcie",
     "cvPreview": "Podgląd CV",
-    "translatingCvTo": "Tłumaczenie CV na {{lang}}…",
     "regeneratingCv": "Regenerowanie CV…",
     "reRunningNote": "Ponowne uruchamianie AI — to zajmuje około 30 sekund.",
     "downloadPdf": "Pobierz PDF",
@@ -550,7 +547,8 @@
     "emphasisedSkills": "Wyróżnione umiejętności",
     "saving": "Zapisywanie…",
     "saved": "Zapisane",
-    "saveError": "Nie można zapisać"
+    "saveError": "Nie można zapisać",
+    "aiNeedsUrl": "Brak URL stanowiska, dlatego AI nie może ponownie przeczytać ogłoszenia dla tego CV"
   },
   "engine": {
     "title": "Silnik AI",
@@ -602,7 +600,9 @@
     "emptyBody": "Wklej URL ogłoszenia stanowiska i AI stworzy dostosowane CV oraz przewodnik do napisania listy — gotowe do przeglądu, edycji i pobrania.",
     "searchPlaceholder": "Szukaj swoich zastosowań…",
     "noMatches": "Brak zastosowań, które pasują do Twojego wyszukiwania.",
-    "loadError": "Nie udało się załadować Twoich zastosowań: {{error}}"
+    "loadError": "Nie udało się załadować Twoich zastosowań: {{error}}",
+    "changingLang": "Zmiana języka…",
+    "slowLocalHint": "W modelu lokalnym darmowym to może zająć kilka minut. Anulowanie przerwie generowanie i zwolni AI do innych zadań."
   },
   "letters": {
     "title": "List",

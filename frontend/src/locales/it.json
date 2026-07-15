@@ -424,7 +424,9 @@
       "rendering": "Sto creando il tuo CV…"
     },
     "searchPlaceholder": "Cerca i tuoi CV…",
-    "noMatches": "Nessun CV corrisponde alla tua ricerca."
+    "noMatches": "Nessun CV corrisponde alla tua ricerca.",
+    "autoDetect": "Rilevazione automatica",
+    "detectingLang": "Rilevamento della lingua…"
   },
   "jobs": {
     "title": "Suggerimenti di lavoro",
@@ -515,14 +517,9 @@
     "keepEdits": "Mantieni le mie modifiche, rigenera il resto",
     "regenAll": "Rigenera tutto (scarta le mie modifiche)",
     "viewListing": "Visualizza annuncio",
-    "translatingTo": "Traduzione in {{lang}}…",
-    "language": "Lingua",
-    "relangTooltipHasUrl": "Rigenera questo CV in un'altra lingua (riesegue l'AI, ~30s)",
-    "relangTooltipNoUrl": "Nessun URL dell'offerta memorizzato, quindi la lingua non può essere modificata",
     "tailoringNotes": "Note di personalizzazione",
     "openNewTab": "Apri in una nuova scheda",
     "cvPreview": "Anteprima CV",
-    "translatingCvTo": "Traduzione del CV in {{lang}}…",
     "regeneratingCv": "Rigenerazione del CV…",
     "reRunningNote": "Esecuzione dell'IA in corso — richiede circa 30 secondi.",
     "downloadPdf": "Scarica PDF",
@@ -550,7 +547,8 @@
     "emphasisedSkills": "Competenze evidenziate",
     "saving": "Salvataggio in corso…",
     "saved": "Salvato",
-    "saveError": "Impossibile salvare"
+    "saveError": "Impossibile salvare",
+    "aiNeedsUrl": "Nessura URL del lavoro salvato, quindi l'AI non può ri-leggere l'annuncio per questo CV"
   },
   "engine": {
     "title": "Motore IA",
@@ -602,7 +600,9 @@
     "emptyBody": "Incolla l'URL del lavoro e l'AI genera un CV personalizzato e una guida alla scrittura della lettera — pronto per la visione, la modifica e il download.",
     "searchPlaceholder": "Cerca le tue applicazioni…",
     "noMatches": "Nessuna applicazione corrisponde alla tua ricerca.",
-    "loadError": "Impossibile caricare le tue applicazioni: {{error}}"
+    "loadError": "Impossibile caricare le tue applicazioni: {{error}}",
+    "changingLang": "Cambio di lingua…",
+    "slowLocalHint": "Su il modello locale gratuito questo può richiedere alcuni minuti. Annullare interrompe la generazione e libera l'AI per altri compiti."
   },
   "letters": {
     "title": "Lettera",

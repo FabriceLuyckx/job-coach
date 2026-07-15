@@ -7,7 +7,7 @@ uniform ``LLMResponse``.
 
 from openai import OpenAI
 
-from app.services.llm import LLMResponse, ToolCall
+from app.services.llm import GenerationCancelled, LLMResponse, ToolCall
 
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
@@ -21,7 +21,12 @@ def _make_client(api_key: str) -> OpenAI:
     )
 
 
-def complete(engine, messages, *, tools=None, tool_choice=None, max_tokens=None) -> LLMResponse:
+def complete(engine, messages, *, tools=None, tool_choice=None, max_tokens=None, cancel=None) -> LLMResponse:
+    # ponytail: OpenRouter runs remotely (no local CPU load) and the client already
+    # caps each call at 120s, so we only honour an already-set cancel here rather
+    # than streaming to interrupt mid-flight. The frontend's Cancel stops the wait.
+    if cancel is not None and cancel.is_set():
+        raise GenerationCancelled()
     client = _make_client(engine.api_key)
     kwargs: dict = {"model": engine.model, "messages": messages}
     if max_tokens is not None:

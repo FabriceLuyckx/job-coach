@@ -147,8 +147,8 @@ formatting by selecting text and pressing **⌘/Ctrl+B** (bold) or **⌘/Ctrl+I*
 (italic). **Edits save automatically** (a *Saving… / Saved* status shows in the
 panel header) and the preview refreshes itself — there is no Save button.
 
-Edits are stored **per language**, so switching the **Language** dropdown back and
-forth keeps each language's edits intact.
+Edits are stored **per language**, so switching the application's **Language** back and
+forth (the selector above the tabs) keeps each language's edits intact.
 
 **Sections.** Under the preview, tick sections on/off to show or hide them. Unlike
 before, the choice is **real**: it applies to the preview, the PDF, "open in new
@@ -342,15 +342,27 @@ uv run python scripts/scan_debug.py --url https://example.com/jobs
 
 The **Applications** page is where a job's tailored CV and cover-letter guide live
 together — one row per job, joined automatically. Click **New application**, paste a
-job listing URL, pick a language, tick **Tailored CV** and/or **Letter guide**, and
-**Generate**. Each row expands to a **CV | Letter** tab strip so you work on one at a
+job listing URL, leave the language on **Auto-detect** (or pick one), tick **Tailored
+CV** and/or **Letter guide**, and **Generate**. Auto-detect reads the posting once to
+work out its language, so the CV and letter come out in the posting's language without
+you guessing. Each row expands to a **CV | Letter** tab strip so you work on one at a
 time without either editor getting cluttered; if a row has only one of the two, the
-other tab offers to create it (URL and language prefilled). Accepting a job on the
-**Job Suggestions** page drops a fully-built application here.
+other tab offers to create it. Accepting a job on the **Job Suggestions** page drops a
+fully-built application here in the posting's detected language.
+
+**Language is one setting for the whole application.** A single **Language** selector
+sits above the tabs — change it and both the CV and the letter are re-generated in the
+new language (your CV edits are preserved). There is no separate language control inside
+the CV editor.
+
+**Cancelling a generation.** Every generation (creating a CV or letter, a new
+application, or a language change) shows a **Cancel** button while it runs. On the free
+local model this can take a few minutes; cancelling stops the wait **and** interrupts
+the model so it frees up for other work — important on a modest laptop, where the local
+engine runs one job at a time and an unstoppable generation would block everything else.
 
 The **CV** tab is the full CV editor — live preview, editable summary and bullets,
-section toggles, re-tailoring, language switch, and **Download PDF** (see *Edit a
-generated CV* above).
+section toggles, re-tailoring, and **Download PDF** (see *Edit a generated CV* above).
 
 The **Letter** tab is a **tailored writing guide** — **not** a written letter. The AI
 returns an angle, a paragraph-by-paragraph outline (each with a goal and concrete

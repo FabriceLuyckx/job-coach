@@ -8,7 +8,6 @@ import {
 } from '../../api'
 import BulletListEditor from '../BulletListEditor'
 import Button from '../Button'
-import LangSelect from '../LangSelect'
 import Modal from '../Modal'
 import { useToast } from '../Toast'
 import { errMsg } from '../../lib/errors'
@@ -25,21 +24,18 @@ const langLabel = (code: string) => LANGUAGE_NAMES[code] ?? code
 type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
 
 /** Full editor panel for one generated CV: full-width preview, auto-saved
- * content editor, section toggles, AI-decision chips, language switch, and the
- * two AI actions (re-tailor / rebuild). */
-export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate, onLangUpdate }: {
+ * content editor, section toggles, AI-decision chips, and the two AI actions
+ * (re-tailor / rebuild). Language is owned by the parent Applications row. */
+export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpdate }: {
   result: CVResult
   hasPhoto: boolean
   onSummaryUpdate?: (summary: string) => void
-  onLangUpdate?: (lang: string) => void
 }) {
   const { t } = useTranslation()
   const toast = useToast()
   const [result, setResult] = useState(initialResult)
   const [plan, setPlan] = useState<CVPlan | null>(null)
   const [previewKey, setPreviewKey] = useState(0)
-  const [relanging, setRelanging] = useState(false)
-  const [pendingLang, setPendingLang] = useState<string | null>(null)
   const [regenerating, setRegenerating] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [downloading, setDownloading] = useState(false)
@@ -164,25 +160,6 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
   }
 
   // ── AI actions (async, polled) ──
-  async function changeLang(newLang: string) {
-    if (newLang === result.lang || relanging) return
-    setError(''); setRelanging(true); setPendingLang(newLang); setStage(undefined)
-    try {
-      const { job_id } = await api.relangCV(result.history_id, newLang)
-      const r = await pollCVJob<CVMutation>(job_id, setStage)
-      setResult(prev => ({
-        ...prev, lang: r.lang, slug: r.slug, preview_url: r.preview_url,
-        summary: r.summary, tailoring_notes: r.tailoring_notes, has_plan: true,
-      }))
-      onLangUpdate?.(r.lang); onSummaryUpdate?.(r.summary)
-      loadPlan(); setPreviewKey(k => k + 1)
-    } catch (e) {
-      setError(errMsg(e))
-    } finally {
-      setRelanging(false); setPendingLang(null); setStage(undefined)
-    }
-  }
-
   async function regenerate(keepEdits: boolean) {
     setShowRegen(false); setError(''); setRegenerating(true); setStage(undefined)
     try {
@@ -242,7 +219,7 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
     }
   }
 
-  const busyAI = relanging || regenerating
+  const busyAI = regenerating
   const stageText = stage ? t(`cv.stage.${stage}`) : ''
   const hidden = new Set(plan?.hidden_sections ?? [])
 
@@ -278,21 +255,9 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
             {t('cveditor.viewListing')} <ExternalLink size={11} aria-hidden />
           </a>
         )}
-        <label style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 'var(--fs-sm)', color: 'var(--muted)' }}>
-          {relanging && <span className="spinner" />}
-          {relanging
-            ? t('cveditor.translatingTo', { lang: langLabel(pendingLang ?? '') })
-            : t('cveditor.language')}
-          <span title={result.job_url ? t('cveditor.relangTooltipHasUrl') : t('cveditor.relangTooltipNoUrl')}>
-            <LangSelect
-              value={pendingLang ?? result.lang}
-              extra={result.lang}
-              disabled={relanging || !result.job_url}
-              onChange={changeLang}
-              style={{ padding: '3px 6px', fontSize: 'var(--fs-sm)', width: 'auto' }}
-            />
-          </span>
-        </label>
+        <span style={{ marginLeft: 'auto', fontSize: 'var(--fs-sm)', color: 'var(--muted)' }}>
+          {langLabel(result.lang)}
+        </span>
       </div>
 
       {/* Tailoring notes — full width above preview */}
@@ -331,9 +296,7 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
             fontSize: 'var(--fs-md)', fontWeight: 500, textAlign: 'center', padding: 'var(--space-4)',
           }}>
             <span className="spinner" />
-            {relanging
-              ? t('cveditor.translatingCvTo', { lang: langLabel(pendingLang ?? '') })
-              : t('cveditor.regeneratingCv')}
+            {t('cveditor.regeneratingCv')}
             <span className="muted-sm" style={{ fontWeight: 400 }}>
               {stageText || t('cveditor.reRunningNote')}
             </span>
@@ -345,13 +308,13 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
       <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', marginBottom: 'var(--space-4)' }}>
         {result.has_plan ? (
           <Button variant="primary" onClick={() => setShowRegen(true)} busy={busyAI} disabled={!result.job_url}
-            title={result.job_url ? undefined : t('cveditor.relangTooltipNoUrl')}>
+            title={result.job_url ? undefined : t('cveditor.aiNeedsUrl')}>
             {!busyAI && <Sparkles size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
             {t('cveditor.updateWithAi')}
           </Button>
         ) : (
           <Button variant="primary" onClick={() => regenerate(false)} busy={regenerating} disabled={!result.job_url}
-            title={result.job_url ? undefined : t('cveditor.relangTooltipNoUrl')}>
+            title={result.job_url ? undefined : t('cveditor.aiNeedsUrl')}>
             {!regenerating && <Sparkles size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
             {t('cveditor.rebuildFromUrl')}
           </Button>

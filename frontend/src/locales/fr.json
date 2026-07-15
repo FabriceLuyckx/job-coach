@@ -424,7 +424,9 @@
       "rendering": "Construction de votre CV…"
     },
     "searchPlaceholder": "Rechercher dans vos CVs…",
-    "noMatches": "Aucun CV ne correspond à votre recherche."
+    "noMatches": "Aucun CV ne correspond à votre recherche.",
+    "autoDetect": "Détecter automatiquement",
+    "detectingLang": "Détection du langage..."
   },
   "jobs": {
     "title": "Suggestions d'emplois",
@@ -515,14 +517,9 @@
     "keepEdits": "Conserver mes modifications, régénérer le reste",
     "regenAll": "Tout régénérer (supprimer mes modifications)",
     "viewListing": "Voir l'offre",
-    "translatingTo": "Traduction en {{lang}}…",
-    "language": "Langue",
-    "relangTooltipHasUrl": "Régénérer ce CV dans une autre langue (relance l'IA, ~30s)",
-    "relangTooltipNoUrl": "Aucune URL d'offre enregistrée, impossible de changer la langue",
     "tailoringNotes": "Notes de personnalisation",
     "openNewTab": "Ouvrir dans un nouvel onglet",
     "cvPreview": "Aperçu du CV",
-    "translatingCvTo": "Traduction du CV en {{lang}}…",
     "regeneratingCv": "Régénération du CV…",
     "reRunningNote": "Relance de l'IA — environ 30 secondes.",
     "downloadPdf": "Télécharger le PDF",
@@ -550,7 +547,8 @@
     "emphasisedSkills": "Compétences soulignées",
     "saving": "Enregistrement en cours…",
     "saved": "Enregistré",
-    "saveError": "Impossible d'enregistrer"
+    "saveError": "Impossible d'enregistrer",
+    "aiNeedsUrl": "Aucune URL de poste enregistrée, donc l'IA ne peut pas relire l'offre pour ce CV"
   },
   "engine": {
     "title": "Moteur IA",
@@ -602,7 +600,9 @@
     "emptyBody": "Collez l'URL d'un poste et l'IA construit un CV adapté et un guide de rédaction de lettre — prêt à être consulté, édité et téléchargé.",
     "searchPlaceholder": "Rechercher vos applications…",
     "noMatches": "Aucune application ne correspond à votre recherche.",
-    "loadError": "Impossible de charger vos applications : {{error}}"
+    "loadError": "Impossible de charger vos applications : {{error}}",
+    "changingLang": "Changement de langue...",
+    "slowLocalHint": "Sur le modèle local gratuit, cela peut prendre quelques minutes. Annuler arrête la génération et libère l'IA pour d'autres tâches."
   },
   "letters": {
     "title": "Lettre de motivation",

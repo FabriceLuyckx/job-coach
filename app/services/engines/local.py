@@ -19,7 +19,7 @@ the reply budget, so an oversized profile/posting degrades instead of crashing.
 import threading
 
 from app.services.engines.registry import get_model, local_model_path
-from app.services.llm import LLMResponse, ToolCall
+from app.services.llm import GenerationCancelled, LLMResponse, ToolCall
 
 # Loaded model + the id it was loaded for, so a model switch reloads.
 _llm = None
@@ -111,8 +111,35 @@ def _fit_context(llm, messages, reply_budget):
     return msgs
 
 
-def complete(engine, messages, *, tools=None, tool_choice=None, max_tokens=None) -> LLMResponse:
+def _stream_content(llm, kwargs: dict, cancel: threading.Event) -> str:
+    """Generate with streaming so the model can be interrupted mid-flight: each
+    chunk is one step of compute, so checking `cancel` between chunks and stopping
+    is a real interrupt (frees the engine within ~one token). Used only when a
+    cancel token is present — otherwise the plain non-streaming call is simpler."""
+    parts: list[str] = []
+    stream = llm.create_chat_completion(**kwargs, stream=True)
+    try:
+        for chunk in stream:
+            if cancel.is_set():
+                raise GenerationCancelled()
+            delta = (chunk.get("choices") or [{}])[0].get("delta") or {}
+            piece = delta.get("content")
+            if piece:
+                parts.append(piece)
+    finally:
+        close = getattr(stream, "close", None)
+        if close:
+            close()  # stop llama.cpp advancing the (abandoned) generator
+    return "".join(parts)
+
+
+def complete(engine, messages, *, tools=None, tool_choice=None, max_tokens=None, cancel=None) -> LLMResponse:
+    if cancel is not None and cancel.is_set():
+        raise GenerationCancelled()
     with _lock:
+        if cancel is not None and cancel.is_set():
+            # Cancelled while queued behind another job — skip generation entirely.
+            raise GenerationCancelled()
         llm = _load(engine.local_model_id)
 
         reply_budget = max_tokens or _DEFAULT_REPLY_BUDGET
@@ -130,10 +157,11 @@ def complete(engine, messages, *, tools=None, tool_choice=None, max_tokens=None)
                 msgs[0] = {**msgs[0], "content": f"{msgs[0]['content']}\n\nRespond with JSON: {desc}"}
             kwargs["response_format"] = {"type": "json_object", "schema": schema}
 
-        resp = llm.create_chat_completion(**kwargs)
-
-    choice = (resp.get("choices") or [{}])[0]
-    content = (choice.get("message") or {}).get("content")
+        if cancel is not None:
+            content = _stream_content(llm, kwargs, cancel)
+        else:
+            resp = llm.create_chat_completion(**kwargs)
+            content = ((resp.get("choices") or [{}])[0].get("message") or {}).get("content")
 
     if tool is not None:
         # The whole content is the schema-constrained JSON object.

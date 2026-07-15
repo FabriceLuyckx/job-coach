@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ExternalLink, FileText, Plus, X } from 'lucide-react'
-import { api, pollCVJob, type CvHistoryEntry, type CVResult } from '../api'
+import { api, pollCVJob, PollAbortedError, type CvHistoryEntry, type CVResult, type CVMutation } from '../api'
 import type { LetterHistoryEntry } from '../types'
 import Button from '../components/Button'
 import Collapsible from '../components/Collapsible'
@@ -69,21 +69,35 @@ function mergeApplications(cvs: CvHistoryEntry[], letters: LetterHistoryEntry[])
 
 // ─── Generation helpers (start a job, poll to a history entry) ────────────────
 
-async function pollCvToEntry(jobId: string, onStage: (s: string) => void): Promise<CvHistoryEntry> {
-  const res = await pollCVJob<CVResult>(jobId, s => onStage(s))
+async function pollCvToEntry(jobId: string, onStage: (s: string) => void, signal?: AbortSignal): Promise<CvHistoryEntry> {
+  const res = await pollCVJob<CVResult>(jobId, s => onStage(s), signal)
   return {
     id: res.history_id, slug: res.slug, job_title: res.job_title, employer: res.employer,
     job_url: res.job_url, lang: res.lang, tailoring_notes: res.tailoring_notes,
     summary: res.summary, has_plan: res.has_plan, created_at: new Date().toISOString(),
   }
 }
-async function runCV(url: string, lang: string, onStage: (s: string) => void): Promise<CvHistoryEntry> {
+async function runCV(url: string, lang: string, onStage: (s: string) => void, signal?: AbortSignal, onJobId?: (id: string) => void): Promise<CvHistoryEntry> {
   const { job_id } = await api.startGenerateCV(url, lang)
-  return pollCvToEntry(job_id, onStage)
+  onJobId?.(job_id)
+  return pollCvToEntry(job_id, onStage, signal)
 }
-async function runLetter(url: string, lang: string, onStage: (s: string) => void): Promise<LetterHistoryEntry> {
+async function runLetter(url: string, lang: string, onStage: (s: string) => void, signal?: AbortSignal, onJobId?: (id: string) => void): Promise<LetterHistoryEntry> {
   const { job_id } = await api.generateLetter(url, lang)
-  return pollCVJob<LetterHistoryEntry>(job_id, s => onStage(s))
+  onJobId?.(job_id)
+  return pollCVJob<LetterHistoryEntry>(job_id, s => onStage(s), signal)
+}
+
+/** A running flow the user can cancel: stop the client polls AND tell the server
+ * to stop each started job so the (single) local engine is freed. */
+function makeCanceller(): { signal: AbortSignal; track: (id: string) => void; cancel: () => void } {
+  const ac = new AbortController()
+  const jobIds: string[] = []
+  return {
+    signal: ac.signal,
+    track: (id: string) => jobIds.push(id),
+    cancel: () => { ac.abort(); jobIds.forEach(id => api.cancelCVJob(id).catch(() => {})) },
+  }
 }
 
 // ─── New / in-flight application slot ─────────────────────────────────────────
@@ -99,7 +113,8 @@ function NewApplicationSlot({ pending, onCvGenerated, onLetterGenerated, onClose
   const { t } = useTranslation()
   const { keySet } = useKeyStatus()
   const [url, setUrl] = useState(pending?.jobUrl ?? '')
-  const [lang, setLang] = useState('en')
+  const [lang, setLang] = useState('auto')
+  const [detecting, setDetecting] = useState(false)
   const [wantCv, setWantCv] = useState(true)
   const [wantLetter, setWantLetter] = useState(true)
   const [running, setRunning] = useState(false)
@@ -111,32 +126,41 @@ function NewApplicationSlot({ pending, onCvGenerated, onLetterGenerated, onClose
 
   const cbRef = useRef({ onCvGenerated, onLetterGenerated, onClose })
   useEffect(() => { cbRef.current = { onCvGenerated, onLetterGenerated, onClose } })
+  const cancelRunRef = useRef<(() => void) | null>(null)
 
   async function launch(opts: { cvJobId?: string; letterJobId?: string; url: string; lang: string; doCv: boolean; doLetter: boolean }) {
     setRunning(true); setError('')
     const stage = (s: string) => t(`cv.stage.${s}`, s)
+    const c = makeCanceller()
+    cancelRunRef.current = c.cancel
+    if (opts.cvJobId) c.track(opts.cvJobId)
+    if (opts.letterJobId) c.track(opts.letterJobId)
     let ok = true
+    let aborted = false
+    const onErr = (e: unknown) => { if (e instanceof PollAbortedError) aborted = true; else { ok = false; setError(errMsg(e)) } }
     const tasks: Promise<void>[] = []
     if (opts.doCv) {
       setCvStage('')
-      const p = (opts.cvJobId ? pollCvToEntry(opts.cvJobId, s => setCvStage(stage(s)))
-        : runCV(opts.url, opts.lang, s => setCvStage(stage(s))))
+      const p = (opts.cvJobId ? pollCvToEntry(opts.cvJobId, s => setCvStage(stage(s)), c.signal)
+        : runCV(opts.url, opts.lang, s => setCvStage(stage(s)), c.signal, c.track))
         .then(e => { cbRef.current.onCvGenerated(e); setCvDone(true) })
-        .catch(e => { ok = false; setError(errMsg(e)) })
+        .catch(onErr)
       tasks.push(p)
     }
     if (opts.doLetter) {
       setLetterStage('')
-      const p = (opts.letterJobId ? pollCVJob<LetterHistoryEntry>(opts.letterJobId, s => setLetterStage(stage(s)))
-        : runLetter(opts.url, opts.lang, s => setLetterStage(stage(s))))
+      const p = (opts.letterJobId ? pollCVJob<LetterHistoryEntry>(opts.letterJobId, s => setLetterStage(stage(s)), c.signal)
+        : runLetter(opts.url, opts.lang, s => setLetterStage(stage(s)), c.signal, c.track))
         .then(e => { cbRef.current.onLetterGenerated(e); setLetterDone(true) })
-        .catch(e => { ok = false; setError(errMsg(e)) })
+        .catch(onErr)
       tasks.push(p)
     }
     await Promise.allSettled(tasks)
+    cancelRunRef.current = null
     setRunning(false)
     handoff.clearPending()
-    if (ok) cbRef.current.onClose()  // all requested artifacts landed → row shows them
+    // Close the slot when everything landed or the user cancelled; stay open on error.
+    if (aborted || ok) cbRef.current.onClose()
   }
 
   // Resume an accepted job handed off from the Job Suggestions page.
@@ -151,9 +175,20 @@ function NewApplicationSlot({ pending, onCvGenerated, onLetterGenerated, onClose
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  function generate() {
+  async function generate() {
     if (!url.trim() || (!wantCv && !wantLetter)) return
-    launch({ url: url.trim(), lang, doCv: wantCv, doLetter: wantLetter })
+    let resolved = lang
+    if (lang === 'auto') {
+      setDetecting(true); setError('')
+      try {
+        resolved = (await api.detectLang(url.trim())).lang
+        setLang(resolved)
+      } catch (e) {
+        setError(errMsg(e)); setDetecting(false); return
+      }
+      setDetecting(false)
+    }
+    launch({ url: url.trim(), lang: resolved, doCv: wantCv, doLetter: wantLetter })
   }
 
   function progressLine(label: string, stage: string | null, done: boolean) {
@@ -187,7 +222,7 @@ function NewApplicationSlot({ pending, onCvGenerated, onLetterGenerated, onClose
           <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'flex-end', marginTop: 'var(--space-3)', flexWrap: 'wrap' }}>
             <div style={{ width: 140 }}>
               <label>{t('cv.language')}</label>
-              <LangSelect value={lang} onChange={setLang} />
+              <LangSelect value={lang} onChange={setLang} auto />
             </div>
             <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 400, marginBottom: 0 }}>
               <input type="checkbox" checked={wantCv} onChange={e => setWantCv(e.target.checked)} style={{ width: 'auto' }} />
@@ -198,11 +233,11 @@ function NewApplicationSlot({ pending, onCvGenerated, onLetterGenerated, onClose
               {t('applications.letterGuide')}
             </label>
             <Button
-              variant="primary" onClick={generate}
+              variant="primary" onClick={generate} busy={detecting}
               disabled={!url.trim() || (!wantCv && !wantLetter) || keySet === false}
               title={keySet === false ? t('cv.needEngine') : undefined}
             >
-              {t('applications.generate')}
+              {detecting ? t('cv.detectingLang') : t('applications.generate')}
             </Button>
           </div>
           {keySet === false && <p className="muted-sm" style={{ marginTop: 'var(--space-2)' }}>{t('cv.needEngine')}</p>}
@@ -212,7 +247,12 @@ function NewApplicationSlot({ pending, onCvGenerated, onLetterGenerated, onClose
           {url && <div className="muted-sm" style={{ wordBreak: 'break-all' }}>{url}</div>}
           {progressLine(t('applications.cvTab'), cvStage, cvDone)}
           {progressLine(t('applications.letterTab'), letterStage, letterDone)}
-          <p className="muted-sm">{t('cv.generatingHint')}</p>
+          <p className="muted-sm">{t('applications.slowLocalHint')}</p>
+          {running && (
+            <div>
+              <Button variant="ghost" onClick={() => cancelRunRef.current?.()}>{t('common.cancel')}</Button>
+            </div>
+          )}
         </div>
       )}
       {error && <p className="error-msg" style={{ marginTop: 10 }}>{error}</p>}
@@ -239,7 +279,10 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
   const [creating, setCreating] = useState<'cv' | 'letter' | null>(null)
   const [createStage, setCreateStage] = useState('')
   const [createErr, setCreateErr] = useState('')
-  const [createLang, setCreateLang] = useState(app.cv?.lang ?? app.letter?.lang ?? 'en')
+  // One language for the whole listing (governs both CV and letter).
+  const [lang, setLang] = useState(app.cv?.lang ?? app.letter?.lang ?? 'en')
+  const [relanging, setRelanging] = useState(false)
+  const [relangErr, setRelangErr] = useState('')
 
   const cvResult: CVResult | null = cv && {
     history_id: cv.id, slug: cv.slug, job_title: cv.job_title, employer: cv.employer,
@@ -248,23 +291,75 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
     lang: cv.lang, has_plan: cv.has_plan,
   }
 
+  const cancelCreateRef = useRef<(() => void) | null>(null)
+
   async function create(kind: 'cv' | 'letter') {
     if (!app.jobUrl) return
+    const c = makeCanceller()
+    cancelCreateRef.current = c.cancel
     setCreating(kind); setCreateErr(''); setCreateStage('')
     const onStage = (s: string) => setCreateStage(t(`cv.stage.${s}`, s))
     try {
       if (kind === 'cv') {
-        const e = await runCV(app.jobUrl, createLang, onStage)
+        const e = await runCV(app.jobUrl, lang, onStage, c.signal, c.track)
         setCv(e); onCvGenerated(e)
       } else {
-        const e = await runLetter(app.jobUrl, createLang, onStage)
+        const e = await runLetter(app.jobUrl, lang, onStage, c.signal, c.track)
         setLetter(e); onLetterGenerated(e)
       }
     } catch (e) {
-      setCreateErr(errMsg(e))
+      // Cancel = stop waiting; the server also stops the job, so don't show an error.
+      if (!(e instanceof PollAbortedError)) setCreateErr(errMsg(e))
     } finally {
-      setCreating(null); setCreateStage('')
+      setCreating(null); setCreateStage(''); cancelCreateRef.current = null
     }
+  }
+
+  // Change the whole application's language: re-tailor the existing CV (edits
+  // preserved) and regenerate the existing letter, in parallel. Missing
+  // artifacts adopt the new language when later created.
+  const cancelRelangRef = useRef<(() => void) | null>(null)
+
+  async function changeListingLang(newLang: string) {
+    if (newLang === lang || relanging || !app.jobUrl) return
+    const prevLang = lang
+    setLang(newLang); setRelanging(true); setRelangErr('')
+    const url = app.jobUrl
+    const c = makeCanceller()
+    cancelRelangRef.current = c.cancel
+    const tasks: Promise<void>[] = []
+    // Skip artifacts already in the target language (retry after a partial failure).
+    if (cv && cv.lang !== newLang) {
+      const curCv = cv
+      tasks.push((async () => {
+        const { job_id } = await api.relangCV(curCv.id, newLang)
+        c.track(job_id)
+        const r = await pollCVJob<CVMutation>(job_id, undefined, c.signal)
+        const updated: CvHistoryEntry = {
+          ...curCv, lang: r.lang, slug: r.slug, summary: r.summary,
+          tailoring_notes: r.tailoring_notes, has_plan: true,
+        }
+        setCv(updated); onCvGenerated(updated)
+      })())
+    }
+    if (letter && letter.lang !== newLang) {
+      const oldLetter = letter
+      tasks.push((async () => {
+        const e = await runLetter(url, newLang, () => {}, c.signal, c.track)
+        setLetter(e); onLetterGenerated(e)
+        api.deleteLetter(oldLetter.id).catch(() => {})
+      })())
+    }
+    const results = await Promise.allSettled(tasks)
+    // A cancel rejects the polls with PollAbortedError — not an error to show.
+    const failed = results.find(r => r.status === 'rejected'
+      && !(r.reason instanceof PollAbortedError)) as PromiseRejectedResult | undefined
+    if (failed) setRelangErr(errMsg(failed.reason))
+    // Revert the control if anything didn't land, so re-picking the language
+    // fires onChange again and retries only the artifacts still behind.
+    if (results.some(r => r.status === 'rejected')) setLang(prevLang)
+    cancelRelangRef.current = null
+    setRelanging(false)
   }
 
   const tabBtn = (key: 'cv' | 'letter', has: boolean) => (
@@ -282,16 +377,18 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
         <p className="muted-sm" style={{ margin: 0 }}>
           {t(kind === 'cv' ? 'applications.noCvYet' : 'applications.noLetterYet')}
         </p>
-        <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-          <div style={{ width: 140 }}>
-            <label>{t('cv.language')}</label>
-            <LangSelect value={createLang} onChange={setCreateLang} disabled={busy} />
-          </div>
+        <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center' }}>
           <Button variant="primary" onClick={() => create(kind)} busy={busy}>
             {busy ? (createStage || t('cv.starting'))
               : t(kind === 'cv' ? 'applications.createCv' : 'applications.createLetter')}
           </Button>
+          {busy && (
+            <Button variant="ghost" onClick={() => cancelCreateRef.current?.()}>
+              {t('common.cancel')}
+            </Button>
+          )}
         </div>
+        {busy && <p className="muted-sm" style={{ margin: 0 }}>{t('applications.slowLocalHint')}</p>}
         {createErr && <p className="error-msg" style={{ margin: 0 }}>{createErr}</p>}
       </div>
     )
@@ -322,6 +419,25 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
           }
         >
           <div style={{ borderTop: '1px solid var(--border)', margin: '0 -16px -11px', padding: '16px 16px 0' }}>
+            {app.jobUrl && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)', flexWrap: 'wrap' }}>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 0, fontSize: 'var(--fs-sm)', color: 'var(--muted)' }}>
+                  {t('cv.language')}
+                  <LangSelect value={lang} extra={cv?.lang ?? letter?.lang} disabled={relanging}
+                    onChange={changeListingLang} style={{ padding: '3px 6px', fontSize: 'var(--fs-sm)', width: 'auto' }} />
+                </label>
+                {relanging && (
+                  <>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 'var(--fs-sm)', color: 'var(--muted)' }}>
+                      <span className="spinner" />{t('applications.changingLang')}
+                    </span>
+                    <Button variant="ghost" onClick={() => cancelRelangRef.current?.()}>{t('common.cancel')}</Button>
+                  </>
+                )}
+                {relangErr && <span className="error-msg" style={{ margin: 0 }}>{relangErr}</span>}
+              </div>
+            )}
+
             <div className="seg" style={{ marginBottom: 'var(--space-4)' }}>
               {tabBtn('cv', !!cv)}
               {tabBtn('letter', !!letter)}
@@ -329,9 +445,8 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
 
             {tab === 'cv' && (
               cvResult
-                ? <div style={{ margin: '0 -16px' }}><CVEditor key={cv!.id} result={cvResult} hasPhoto={hasPhoto}
-                    onSummaryUpdate={s => setCv(p => p && { ...p, summary: s })}
-                    onLangUpdate={l => setCv(p => p && { ...p, lang: l })} /></div>
+                ? <div style={{ margin: '0 -16px' }}><CVEditor key={`${cv!.id}:${cv!.lang}`} result={cvResult} hasPhoto={hasPhoto}
+                    onSummaryUpdate={s => setCv(p => p && { ...p, summary: s })} /></div>
                 : <div style={{ paddingBottom: 16 }}>{missingArtifact('cv')}</div>
             )}
 
@@ -429,7 +544,9 @@ export default function ApplicationsPage() {
     if (e.job_url) setOpenKey(urlKey(e.job_url))
   }
   function addLetter(e: LetterHistoryEntry) {
-    setLetterHistory(h => [e, ...h.filter(x => x.id !== e.id)])
+    // Dedupe by job_url too, so a language change (which regenerates the letter
+    // as a new row) drops the stale old-language entry from state.
+    setLetterHistory(h => [e, ...h.filter(x => x.id !== e.id && !(e.job_url && x.job_url === e.job_url))])
     if (e.job_url) setOpenKey(urlKey(e.job_url))
   }
 

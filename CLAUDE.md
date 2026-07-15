@@ -254,6 +254,7 @@ POST /api/settings/photo       Upload profile photo
 GET  /api/settings/photo       Return photo as base64 data URI
 DELETE /api/settings/photo     Remove photo
 POST /api/cv/generate          Generate tailored CV → saves HTML + history row
+POST /api/cv/detect-lang       Detect a posting's language (ISO 639-1) from its URL — Applications 'New' slot Auto-detect
 GET  /api/cv/history           Return all generated CVs, newest first
 GET  /api/cv/preview/{slug}    Return CV HTML for browser preview
 GET  /api/cv/pdf/{slug}/{lang} Render CV to a real PDF (headless Chromium) for download
@@ -283,12 +284,26 @@ prompt: `letter_prompt` (Settings → Advanced), `{lang_name}`-guarded.
 Generator and Cover Letter pages into one: it client-side-joins `GET /api/cv/history`
 and `GET /api/letters/history` on `job_url` into one row per job, each row a
 `Collapsible` with a `.seg` **CV | Letter** tab strip (only one artifact rendered at a
-time, so neither editor gets denser). Reuses `CVEditor` and `GuideView` unchanged. A
-missing artifact's tab is the creation CTA (URL + language prefilled from the sibling).
-The **New** slot generates CV and/or letter (checkboxes, both default on), polled
-independently. Handoff from Jobs lands here via the `application_pending` localStorage
-key. No new backend endpoint — the join is purely client-side. Old `/cv` and `/letters`
-routes redirect here.
+time, so neither editor gets denser). Reuses `CVEditor` and `GuideView`. **Language is
+one setting per listing**: a single `LangSelect` above the tab strip owns the whole
+application's language — changing it re-tailors the existing CV (via `relangCV`, edits
+preserved) *and* regenerates the existing letter (`runLetter`, deleting the old-language
+row), in parallel; a missing artifact adopts it when created. `CVEditor` no longer has
+its own language dropdown (it's keyed by `` `${cv.id}:${cv.lang}` `` so a relang result
+remounts it). The **New** slot's language defaults to **Auto-detect**: a manually-pasted
+URL is language-detected (`POST /api/cv/detect-lang` → `detect_language()` in
+`cv_generator.py`, one fetch + one small forced-tool call) before generating; accepted
+jobs already carry their server-detected language. The **New** slot generates CV and/or
+letter (checkboxes, both default on), polled independently. Handoff from Jobs lands here
+via the `application_pending` localStorage key. Old `/cv` and `/letters` routes redirect
+here. Every long generation (create, New slot, language change) shows a **Cancel** that
+both aborts the client poll and calls `POST /api/cv/cancel/{job_id}` to **interrupt the
+engine** — the local provider serializes all AI behind one lock, so a runaway generation
+would otherwise block every feature. Cancellation plumbing: a per-job `threading.Event`
+surfaced to `complete()` via the `current_cancel` ContextVar (`app/services/llm.py`); the
+local engine streams (`create_chat_completion(stream=True)`) and checks the event between
+chunks, raising `GenerationCancelled` → job status `cancelled` (client treats it as an
+abort, not an error).
 
 **Backup & restore** (`app/api/backup.py`): export bundles the writable data dir —
 `config.json` (with `openrouter_api_key` stripped), `profile/profile.json` + photo,

@@ -424,7 +424,9 @@
       "rendering": "Uw CV bouwen…"
     },
     "searchPlaceholder": "Zoek in uw CVs…",
-    "noMatches": "Geen CV's passen bij uw zoekopdracht."
+    "noMatches": "Geen CV's passen bij uw zoekopdracht.",
+    "autoDetect": "Taal automatisch detecteren",
+    "detectingLang": "Taal detecteren..."
   },
   "jobs": {
     "title": "Functiesuggesties",
@@ -515,14 +517,9 @@
     "keepEdits": "Mijn bewerkingen behouden, de rest opnieuw genereren",
     "regenAll": "Alles opnieuw genereren (mijn bewerkingen verwijderen)",
     "viewListing": "Vacature bekijken",
-    "translatingTo": "Vertalen naar {{lang}}…",
-    "language": "Taal",
-    "relangTooltipHasUrl": "Genereer dit cv opnieuw in een andere taal (voert de AI opnieuw uit, ~30s)",
-    "relangTooltipNoUrl": "Geen vacature-URL opgeslagen, dus de taal kan niet worden gewijzigd",
     "tailoringNotes": "Aanpassingsnotities",
     "openNewTab": "Openen in nieuw tabblad",
     "cvPreview": "CV-voorbeeld",
-    "translatingCvTo": "CV vertalen naar {{lang}}…",
     "regeneratingCv": "CV opnieuw genereren…",
     "reRunningNote": "De AI opnieuw uitvoeren — dit duurt ongeveer 30 seconden.",
     "downloadPdf": "PDF downloaden",
@@ -550,7 +547,8 @@
     "emphasisedSkills": "Gewaardeerde vaardigheden",
     "saving": "Bewaren…",
     "saved": "Geslagen",
-    "saveError": "Kan niet opslaan"
+    "saveError": "Kan niet opslaan",
+    "aiNeedsUrl": "Geen functie-URL opgeslagen, dus kan de AI de functie niet opnieuw lezen voor dit CV"
   },
   "engine": {
     "title": "AI-engine",
@@ -602,7 +600,9 @@
     "emptyBody": "Plak een functie-URL en de AI maakt een aangepast CV en een briefgids voor het schrijven van je brief — klaar om te bekijken, te bewerken en te downloaden.",
     "searchPlaceholder": "Zoek je aanvragen…",
     "noMatches": "Geen aanvragen matchen met jouw zoekopdracht.",
-    "loadError": "Kon je aanvragen niet laden: {{error}}"
+    "loadError": "Kon je aanvragen niet laden: {{error}}",
+    "changingLang": "Taal veranderen...",
+    "slowLocalHint": "Op de gratis lokale model kan dit enkele minuten duren. Annuleren stopt de generatie en vrijmaakt de AI voor andere taken."
   },
   "letters": {
     "title": "Brief",

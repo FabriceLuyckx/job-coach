@@ -20,7 +20,7 @@ export interface SetupStatus {
 // First-run status of the one-time PDF-engine (Chromium) download.
 export const getSetupStatus = () => request<SetupStatus>('/setup/status')
 
-export type JobStatus = 'pending' | 'running' | 'done' | 'error'
+export type JobStatus = 'pending' | 'running' | 'done' | 'error' | 'cancelled'
 
 export interface CVResult {
   history_id: string
@@ -167,6 +167,18 @@ export const api = {
 
   getCVJobStatus: <T = CVResult>(jobId: string) =>
     request<{ status: JobStatus; stage?: CVJobStage; result?: T; error?: string }>(`/cv/status/${jobId}`),
+
+  // Ask the server to stop a running generation (Cancel) so it frees the engine.
+  cancelCVJob: (jobId: string) =>
+    request<{ ok: boolean }>(`/cv/cancel/${jobId}`, { method: 'POST' }),
+
+  // Detect a posting's language (for the Applications 'New' slot Auto-detect).
+  detectLang: (url: string) =>
+    request<{ lang: string }>('/cv/detect-lang', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    }),
 
   getCVHistory: () => request<CvHistoryEntry[]>('/cv/history'),
 
@@ -331,12 +343,23 @@ export const api = {
   },
 }
 
+/** Thrown by pollCVJob when its AbortSignal fires or the job reports status
+ * 'cancelled'. Callers treat this as a user cancellation, not a failure. Pair
+ * the abort with api.cancelCVJob so the server also interrupts the generation
+ * and frees the engine (see makeCanceller in Applications.tsx). */
+export class PollAbortedError extends Error {
+  constructor() { super('aborted'); this.name = 'PollAbortedError' }
+}
+
 /** Poll an async CV job to completion. Reports each stage; tolerates up to 3
- * consecutive transient poll failures before giving up (WS6/L3). */
-export async function pollCVJob<T>(jobId: string, onStage?: (s: CVJobStage) => void): Promise<T> {
+ * consecutive transient poll failures before giving up (WS6/L3). Pass a signal
+ * to stop waiting — it throws PollAbortedError. */
+export async function pollCVJob<T>(jobId: string, onStage?: (s: CVJobStage) => void, signal?: AbortSignal): Promise<T> {
   let misses = 0
   for (;;) {
+    if (signal?.aborted) throw new PollAbortedError()
     await new Promise(r => setTimeout(r, 1500))
+    if (signal?.aborted) throw new PollAbortedError()
     let st: { status: JobStatus; stage?: CVJobStage; result?: T; error?: string }
     try {
       st = await api.getCVJobStatus<T>(jobId)
@@ -347,6 +370,7 @@ export async function pollCVJob<T>(jobId: string, onStage?: (s: CVJobStage) => v
     }
     if (st.stage) onStage?.(st.stage)
     if (st.status === 'done') return st.result as T
+    if (st.status === 'cancelled') throw new PollAbortedError()
     if (st.status === 'error') throw new Error(st.error ?? 'Job failed')
   }
 }

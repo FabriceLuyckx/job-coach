@@ -14,15 +14,15 @@ from pydantic import BaseModel
 
 from app import config, db
 from app.services.cv_generator import (
-    DEFAULT_CV_PROMPT, TailoringPlan, apply_tailoring, fetch_job_description,
-    tailor, _is_active, _start_key,
+    DEFAULT_CV_PROMPT, TailoringPlan, apply_tailoring, detect_language,
+    fetch_job_description, tailor, _is_active, _start_key,
 )
 from app.api.i18n import ensure_cv_labels
 from app.i18n.languages import is_valid_code, lang_name
 from app.services.cv_renderer import (
     OUTPUT_DIR, PROFILE_PATH, build_env, cv_labels, load_photo, load_profile, profile_for_tailoring,
 )
-from app.services.llm import AIResponseError, complete, message_text
+from app.services.llm import AIResponseError, GenerationCancelled, complete, current_cancel, message_text
 
 
 def _clean_lang(lang: str) -> str:
@@ -55,27 +55,51 @@ def _set_stage(job_id: str, stage: str) -> None:
 def run_async(fn) -> str:
     """Run fn(set_stage) on a daemon thread; return a job_id the client polls via
     GET /status/{job_id}. fn's return value becomes the job's `result`; exceptions
-    become an `error`. The one pattern behind every long AI call (C3/H1)."""
+    become an `error`. The one pattern behind every long AI call (C3/H1).
+
+    Each job carries a cancel Event (set via POST /cancel/{job_id}); the worker
+    publishes it as the thread's current_cancel so complete() can interrupt a slow
+    local generation and free the engine."""
     job_id = str(uuid.uuid4())
+    cancel = threading.Event()
     with _jobs_lock:
         _evict_jobs()
-        _jobs[job_id] = {"status": "pending", "created": time.time()}
+        _jobs[job_id] = {"status": "pending", "created": time.time(), "cancel": cancel}
 
     def worker():
+        token = current_cancel.set(cancel)
         try:
             with _jobs_lock:
                 _jobs[job_id]["status"] = "running"
             result = fn(lambda s: _set_stage(job_id, s))
             with _jobs_lock:
                 _jobs[job_id].update({"status": "done", "result": result})
+        except GenerationCancelled:
+            with _jobs_lock:
+                _jobs[job_id]["status"] = "cancelled"
         except Exception as e:
             with _jobs_lock:
                 # HTTPExceptions carry their message in .detail; everything else in str(e).
                 _jobs[job_id].update({"status": "error",
                                       "error": getattr(e, "detail", None) or str(e)})
+        finally:
+            current_cancel.reset(token)
 
     threading.Thread(target=worker, daemon=True).start()
     return job_id
+
+
+def cancel_job(job_id: str) -> bool:
+    """Signal a running job to stop. Returns False if the job id is unknown.
+    Setting the Event trips the local engine's per-chunk check (or is checked
+    before the next AI call), so the generation stops and releases the engine."""
+    with _jobs_lock:
+        job = _jobs.get(job_id)
+        cancel = job.get("cancel") if job else None
+    if cancel is None:
+        return False
+    cancel.set()
+    return True
 
 
 def _now() -> str:
@@ -203,6 +227,9 @@ def _current_html(slug: str, lang: str) -> str | None:
 
 
 def _run_generation(job_id: str, url: str, lang: str, job_text: str | None = None) -> None:
+    with _jobs_lock:
+        cancel = _jobs[job_id].get("cancel")
+    token = current_cancel.set(cancel) if cancel is not None else None
     try:
         with _jobs_lock:
             _jobs[job_id]["status"] = "running"
@@ -251,11 +278,17 @@ def _run_generation(job_id: str, url: str, lang: str, job_text: str | None = Non
                     "has_plan": True,
                 },
             })
+    except GenerationCancelled:
+        with _jobs_lock:
+            _jobs[job_id]["status"] = "cancelled"
     except Exception as e:
         with _jobs_lock:
             # HTTPExceptions carry their message in .detail; everything else in str(e).
             _jobs[job_id].update({"status": "error",
                                   "error": getattr(e, "detail", None) or str(e)})
+    finally:
+        if token is not None:
+            current_cancel.reset(token)
 
 
 def start_generation(url: str, lang: str = "en", job_text: str | None = None) -> str:
@@ -268,7 +301,7 @@ def start_generation(url: str, lang: str = "en", job_text: str | None = None) ->
     job_id = str(uuid.uuid4())
     with _jobs_lock:
         _evict_jobs()
-        _jobs[job_id] = {"status": "pending", "created": time.time()}
+        _jobs[job_id] = {"status": "pending", "created": time.time(), "cancel": threading.Event()}
     threading.Thread(target=_run_generation, args=(job_id, url, lang, job_text), daemon=True).start()
     return job_id
 
@@ -278,13 +311,35 @@ def generate_cv(body: GenerateRequest):
     return {"job_id": start_generation(body.url, body.lang)}
 
 
+class DetectLangRequest(BaseModel):
+    url: str
+
+
+@router.post("/detect-lang")
+def detect_lang(body: DetectLangRequest):
+    """Detect the language of a job posting so the Applications 'New' slot can
+    auto-fill it before generating. One page fetch + one small LLM call."""
+    cfg = config.load()
+    config.require_engine(cfg)
+    return {"lang": detect_language(body.url, cfg)}
+
+
 @router.get("/status/{job_id}")
 def get_job_status(job_id: str):
     with _jobs_lock:
         job = _jobs.get(job_id)
     if not job:
         raise HTTPException(404, "Job not found")
-    return job
+    # Strip the internal cancel Event (not JSON-serialisable).
+    return {k: v for k, v in job.items() if k != "cancel"}
+
+
+@router.post("/cancel/{job_id}")
+def cancel_generation(job_id: str):
+    """Ask a running generation to stop and free the engine (Cancel button)."""
+    if not cancel_job(job_id):
+        raise HTTPException(404, "Job not found")
+    return {"ok": True}
 
 
 @router.get("/history")

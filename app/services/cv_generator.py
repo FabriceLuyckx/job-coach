@@ -143,6 +143,44 @@ def fetch_job_description(url: str) -> str:
     return fetch_text(url)
 
 
+_DETECT_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "detected_language",
+        "description": "The language a job posting is written in",
+        "parameters": {
+            "type": "object",
+            "required": ["lang"],
+            "properties": {
+                "lang": {"type": "string", "description": "ISO 639-1 code (e.g. 'en', 'nl', 'fr') of the language the posting is written in"},
+            },
+        },
+    },
+}
+
+
+def detect_language(url: str, cfg: dict, job_text: str | None = None) -> str:
+    """Detect the language of a job posting from its URL. Returns a 2-letter
+    ISO 639-1 code, defaulting to 'en' if it can't be determined. Used to
+    auto-fill the language for a manually-pasted Applications URL."""
+    if job_text is None:
+        job_text = fetch_job_description(url)
+    response = complete(
+        [
+            {"role": "system", "content":
+                "Identify the language a job posting is written in and return it "
+                "as an ISO 639-1 code."},
+            {"role": "user", "content": f"JOB POSTING\nURL: {url}\n\n{(job_text or '')[:4000]}"},
+        ],
+        tools=[_DETECT_TOOL],
+        tool_choice={"type": "function", "function": {"name": "detected_language"}},
+        cfg=cfg,
+        max_tokens=64,
+    )
+    code = str(tool_args(response, required=("lang",)).get("lang") or "").lower()[:2]
+    return code if len(code) == 2 and code.isalpha() else "en"
+
+
 def tailor(
     profile: dict, job_url: str, cfg: dict,
     lang: str = "en", prompt: str | None = None, job_text: str | None = None,

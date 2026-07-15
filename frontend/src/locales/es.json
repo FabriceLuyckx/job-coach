@@ -424,7 +424,9 @@
       "rendering": "Creación de tu CV…"
     },
     "searchPlaceholder": "Buscar tus CVs…",
-    "noMatches": "No hay CVs que coincidan con tu búsqueda."
+    "noMatches": "No hay CVs que coincidan con tu búsqueda.",
+    "autoDetect": "Detección automática",
+    "detectingLang": "Detectando idioma…"
   },
   "jobs": {
     "title": "Sugerencias de empleo",
@@ -515,14 +517,9 @@
     "keepEdits": "Conservar mis ediciones, regenerar el resto",
     "regenAll": "Regenerar todo (descartar mis ediciones)",
     "viewListing": "Ver oferta",
-    "translatingTo": "Traduciendo a {{lang}}…",
-    "language": "Idioma",
-    "relangTooltipHasUrl": "Regenerar este CV en otro idioma (vuelve a ejecutar la IA, ~30s)",
-    "relangTooltipNoUrl": "No hay URL de trabajo almacenada, por lo que no se puede cambiar el idioma",
     "tailoringNotes": "Notas de personalización",
     "openNewTab": "Abrir en nueva pestaña",
     "cvPreview": "Vista previa del CV",
-    "translatingCvTo": "Traduciendo CV a {{lang}}…",
     "regeneratingCv": "Regenerando CV…",
     "reRunningNote": "Ejecutando la IA de nuevo — tarda unos 30 segundos.",
     "downloadPdf": "Descargar PDF",
@@ -550,7 +547,8 @@
     "emphasisedSkills": "Habilidades destacadas",
     "saving": "Guardando…",
     "saved": "Guardado",
-    "saveError": "No se pudo guardar"
+    "saveError": "No se pudo guardar",
+    "aiNeedsUrl": "No se ha guardado ninguna URL de empleo, por lo que el AI no puede releer el anuncio para este CV"
   },
   "engine": {
     "title": "Motor de IA",
@@ -602,7 +600,9 @@
     "emptyBody": "Pega la URL de un anuncio de empleo y el sistema generará un CV adaptado y una guía para escribir tu carta de presentación — listo para previsualizar, editar y descargar.",
     "searchPlaceholder": "Busca tus aplicaciones…",
     "noMatches": "No hay aplicaciones que coincidan con tu búsqueda.",
-    "loadError": "No se pudieron cargar tus aplicaciones: {{error}}"
+    "loadError": "No se pudieron cargar tus aplicaciones: {{error}}",
+    "changingLang": "Cambiando el idioma…",
+    "slowLocalHint": "En el modelo local gratuito esto puede tardar unos minutos. Cancelar detiene la generación y libera al AI para otras tareas."
   },
   "letters": {
     "title": "Carta de presentación",

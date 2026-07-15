@@ -424,7 +424,9 @@
       "rendering": "Erstelle dein CV…"
     },
     "searchPlaceholder": "Suche in deinen CVs…",
-    "noMatches": "Keine CVs passen zu deiner Suche."
+    "noMatches": "Keine CVs passen zu deiner Suche.",
+    "autoDetect": "Sprache automatisch erkennen",
+    "detectingLang": "Sprache erkennen…"
   },
   "jobs": {
     "title": "Jobvorschläge",
@@ -515,14 +517,9 @@
     "keepEdits": "Meine Änderungen behalten, den Rest neu generieren",
     "regenAll": "Alles neu generieren (meine Änderungen verwerfen)",
     "viewListing": "Stellenanzeige ansehen",
-    "translatingTo": "Wird übersetzt nach {{lang}}…",
-    "language": "Sprache",
-    "relangTooltipHasUrl": "Diesen Lebenslauf in einer anderen Sprache neu generieren (KI wird erneut ausgeführt, ~30 Sek.)",
-    "relangTooltipNoUrl": "Keine Job-URL gespeichert, daher kann die Sprache nicht geändert werden",
     "tailoringNotes": "Anpassungsnotizen",
     "openNewTab": "In neuem Tab öffnen",
     "cvPreview": "Lebenslauf-Vorschau",
-    "translatingCvTo": "Lebenslauf wird nach {{lang}} übersetzt…",
     "regeneratingCv": "Lebenslauf wird neu generiert…",
     "reRunningNote": "KI wird erneut ausgeführt – das dauert etwa 30 Sekunden.",
     "downloadPdf": "PDF herunterladen",
@@ -550,7 +547,8 @@
     "emphasisedSkills": "Hervorgehobene Fähigkeiten",
     "saving": "Speichere…",
     "saved": "Gespeichert",
-    "saveError": "Speichern fehlgeschlagen"
+    "saveError": "Speichern fehlgeschlagen",
+    "aiNeedsUrl": "Keine Job-URL gespeichert, daher kann die KI den Job-Auszug nicht erneut lesen"
   },
   "engine": {
     "title": "KI-Engine",
@@ -602,7 +600,9 @@
     "emptyBody": "Fügen Sie eine Stellenanzeige-URL ein und der AI erstellt einen anpassenden Lebenslauf und eine Anleitung für die Schreibarbeit des Briefs — bereit zum Vorabsehen, Bearbeiten und Herunterladen.",
     "searchPlaceholder": "Suchen Sie Ihre Anträge…",
     "noMatches": "Keine Anträge passen zu Ihrer Suche.",
-    "loadError": "Die Anträge konnten nicht geladen werden: {{error}}"
+    "loadError": "Die Anträge konnten nicht geladen werden: {{error}}",
+    "changingLang": "Sprache wechseln…",
+    "slowLocalHint": "Bei dem kostenlosen lokalen Modell kann dies einige Minuten dauern. Abbrechen beendet die Erstellung und freigt die KI für andere Aufgaben."
   },
   "letters": {
     "title": "Brief",

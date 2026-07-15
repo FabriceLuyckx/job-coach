@@ -11,11 +11,26 @@ retryable message, not a stack trace.
 """
 
 import json
+import threading
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 
 
 class AIResponseError(ValueError):
     """The model returned something we couldn't parse into the expected shape."""
+
+
+class GenerationCancelled(Exception):
+    """The caller asked to stop this generation (user hit Cancel). Distinct from a
+    failure — callers map it to a 'cancelled' job, not an error."""
+
+
+# The cancel token for the generation running on the current thread. An async job
+# worker sets this before calling complete(); complete() forwards it to the engine
+# so a Cancel can interrupt a slow local model mid-generation and free the engine.
+# A ContextVar (not a plain arg) so it reaches complete() without threading a
+# `cancel` param through every service function (tailor, build_guide, …).
+current_cancel: ContextVar[threading.Event | None] = ContextVar("current_cancel", default=None)
 
 
 @dataclass
@@ -38,25 +53,30 @@ def complete(
     tool_choice: dict | None = None,
     cfg: dict | None = None,
     max_tokens: int | None = None,
+    cancel: threading.Event | None = None,
 ) -> LLMResponse:
     """Run one chat completion against the configured engine.
 
     Resolves the engine from ``cfg`` (or the persisted config when None) and
     dispatches to the matching provider. Raises ValueError when no engine is
     configured/ready, so threaded callers can surface ``str(e)`` directly.
+
+    ``cancel`` (or the thread's ``current_cancel`` token) lets a Cancel interrupt a
+    slow generation and free the engine; the engine raises ``GenerationCancelled``.
     """
     # Imported here to avoid a config → llm import cycle.
     from app import config
 
+    cancel = cancel or current_cancel.get()
     engine = config.require_engine(cfg)
     if engine.provider == "local":
         from app.services.engines import local
         return local.complete(
-            engine, messages, tools=tools, tool_choice=tool_choice, max_tokens=max_tokens
+            engine, messages, tools=tools, tool_choice=tool_choice, max_tokens=max_tokens, cancel=cancel
         )
     from app.services.engines import openrouter
     return openrouter.complete(
-        engine, messages, tools=tools, tool_choice=tool_choice, max_tokens=max_tokens
+        engine, messages, tools=tools, tool_choice=tool_choice, max_tokens=max_tokens, cancel=cancel
     )
 
 
