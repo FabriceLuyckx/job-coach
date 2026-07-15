@@ -376,6 +376,16 @@ All tests exercise rejection paths only, so they never touch your local data.
 
 ---
 
+## Spec-driven changes (maintainers)
+
+Non-trivial changes are planned with [OpenSpec](https://github.com/Fission-AI/OpenSpec)
+(`npm install -g @fission-ai/openspec`). Project context lives in
+`openspec/config.yaml`; in Claude Code use `/opsx:propose` to draft a change
+(proposal, design, tasks), `/opsx:apply` to implement it, and `/opsx:archive`
+when done.
+
+---
+
 ## Building a desktop release (maintainers)
 
 The downloadable apps are built with [PyInstaller](https://pyinstaller.org) from

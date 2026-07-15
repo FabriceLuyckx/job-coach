@@ -621,6 +621,7 @@ scanner reads the page directly.
 ## Development Rules
 
 - **Always update `README.md`** when making changes that affect how the project is run or used — new CLI flags, new setup steps, new usable phases. Do this as part of the same change, not as a follow-up.
+- **Plan non-trivial changes with OpenSpec** (`openspec/` + the `/opsx:*` slash commands / `openspec-*` skills): `/opsx:propose` to draft proposal/design/tasks, `/opsx:apply` to implement, `/opsx:archive` when done. Project context for artifact generation lives in `openspec/config.yaml`. Small fixes don't need a change — go straight to code.
 
 ---
 

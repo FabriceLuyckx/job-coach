@@ -1,0 +1,35 @@
+schema: spec-driven
+
+context: |
+  Job Coach — local-first AI career assistant (tailored CVs + AI-filtered job
+  suggestions). Full architecture, phase plan, data formats, and development
+  rules live in CLAUDE.md at the repo root — read it before planning.
+
+  Tech stack:
+  - Backend: Python / FastAPI (uv-managed), SQLite (jobs/jobs.db), served by uvicorn
+  - Frontend: React + TypeScript SPA (Vite) in frontend/, i18n via react-i18next
+    (English source catalog frontend/src/locales/en.json)
+  - AI: pluggable engine (app/services/llm.py) — OpenRouter (Claude) or local GGUF
+    via llama-cpp-python; every call goes through complete() with forced tool schemas
+  - CV output: Jinja2 HTML → PDF via headless Chromium (Playwright)
+  - Tests: uv run pytest (tests/)
+
+  Conventions:
+  - Profile source of truth: profile/profile.json (schema career-profile-v5,
+    normalize_profile migrates older versions on load)
+  - UI style: Bauhaus/Swiss poster (cream/ink/vermilion/teal, Inter only, zero
+    border-radius, no emoji); shared primitives (Button, Toast, Modal, Collapsible,
+    EmptyState, Badge) — never reimplement them inline
+  - NEVER run scripts/translate_locales.py — a pre-commit hook owns locale
+    translation; only edit en.json. The i18n parity test failing after an en.json
+    edit is expected, not a regression.
+  - Always update README.md when a change affects how the project is run or used
+  - App is localhost-only today; the security prerequisites in CLAUDE.md (auth,
+    SSRF guards, CORS) MUST land before any networked deployment
+
+rules:
+  proposal:
+    - Keep proposals under 500 words
+    - State which phase (per CLAUDE.md) the change belongs to
+  tasks:
+    - Include a task to update README.md/CLAUDE.md when the change affects usage
