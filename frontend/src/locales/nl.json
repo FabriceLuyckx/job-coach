@@ -455,8 +455,8 @@
     "noSuggestionsTitle": "Nog geen suggesties",
     "noSuggestionsNoSources": "Voeg hierboven een vacaturepagina toe en zoek naar nieuwe vacatures — openstaande functies die overeenkomen met jouw profiel verschijnen hier.",
     "noSuggestionsHasSources": "Run “Find new listings” — openings that match your profile will appear here with a short reason.",
-    "acceptTitle": "Genereert een op deze vacature afgestemd cv en opent het in de cv-generator",
-    "acceptGenerate": "Accepteren → cv genereren",
+    "acceptTitle": "Genereert een aangepaste CV en briefvoorbeeld en opent deze op de pagina met toepassingen",
+    "acceptGenerate": "Accepteren",
     "reject": "Afwijzen",
     "rejectedToast": "\"{{title}}\" afgewezen",
     "undo": "Ongedaan maken",
@@ -465,8 +465,6 @@
     "rejected": "Afgewezen",
     "restore": "Herstellen",
     "openCv": "Aanvraag openen",
-    "regenerateTitle": "Voer de cv-generatie voor deze vacature opnieuw uit",
-    "regenerateCv": "CV opnieuw genereren",
     "readingPosting": "Leest functieaanbieding {{current}} van {{total}}…",
     "recheck": "Filterde vacatures opnieuw controleren",
     "rechecking": "Bezig met opnieuw controleren…",
@@ -490,7 +488,9 @@
     "filteredOutHelp": "Vacatures die de filter als ondoelmatig heeft beoordeeld, met de reden. Als het fout is gegaan, suggereer het toch.",
     "suggestAnyway": "Suggereer toch",
     "suggestAnywayTitle": "Dit terug in je suggesties verplaatsen",
-    "showMore": "Toon {{count}} meer"
+    "showMore": "Toon {{count}} meer",
+    "sourceLastScanned": "Laatste scan {{time}}",
+    "cancelScan": "Scan annuleren"
   },
   "cveditor": {
     "sections": {

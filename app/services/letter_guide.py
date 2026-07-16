@@ -41,7 +41,7 @@ _TOOL = {
                     "type": "array",
                     "minItems": 3,
                     "maxItems": 5,
-                    "description": "3–5 sections you name for this posting. Each an object with a title, a goal, and the real profile facts to cite.",
+                    "description": "3–5 sections you name for this posting — each a paragraph of the letter itself (never a tips/advice section; that goes in `tips`). Each an object with a title, a goal, and the real profile facts to cite.",
                     "items": {
                         "type": "object",
                         "required": ["title", "goal", "evidence"],
@@ -75,7 +75,7 @@ DEFAULT_LETTER_PROMPT = """You are a cover-letter writing coach. You NEVER write
 Rules:
 - Write ALL output in {lang_name}.
 - NEVER write letter sentences or paragraphs to paste. Every goal is an instruction to the writer, e.g. "Open by naming what draws you to them — cite a specific product or mission" — not "I have long admired your mission."
-- structure: 3–5 sections you name and order for THIS posting (e.g. a hook, why-you, why-them, close). Give each a clear goal and the specific real profile facts (a role, project, or skill) to cite there. No generic advice like "show enthusiasm", and never invent experience the candidate doesn't have.
+- structure: 3–5 sections you name and order for THIS posting (e.g. a hook, why-you, why-them, close). Every section is a paragraph OF THE LETTER — never a "tips"/"advice"/"checklist" section; that belongs only in tips. Give each a clear goal and the specific real profile facts (a role, project, or skill) to cite there. No generic advice like "show enthusiasm", and never invent experience the candidate doesn't have.
 - Use the profile's preferences (looking_for, notes) to ground the motivation section in what the candidate actually wants from a role.
 - tips: 3–5 short practical reminders for writing it — address a real person (find the hiring manager; else "Dear Hiring Team"), quantify impact ("so what?" — the concrete result), keep it to ~250–350 words on one page, and match the employer's tone while writing in {lang_name}."""
 

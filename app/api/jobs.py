@@ -23,6 +23,7 @@ from app.services.job_scanner import (
     extract_openings, fetch_listing_links, links_hash,
     prescreen_openings, review_posting,
 )
+from app.services.llm import GenerationCancelled, current_cancel
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
@@ -109,6 +110,8 @@ def _review_one(opening: dict, text: str, profile: dict, cfg: dict,
         return {**row, "status": "suggested", "reason": _FETCH_CAVEAT}
     try:
         r = review_posting(opening, text, profile, cfg, filter_prompt)
+    except GenerationCancelled:
+        raise  # a cancel must stop the scan, not masquerade as a suggested job
     except Exception:
         return {**row, "status": "suggested", "reason": _FETCH_CAVEAT}
     row["posting_text"] = text[:20000]
@@ -120,7 +123,35 @@ def _review_one(opening: dict, text: str, profile: dict, cfg: dict,
     return row
 
 
+def _insert_opening(conn, opening: dict, source_url: str, row: dict) -> None:
+    """Persist one reviewed opening. INSERT OR IGNORE so a concurrent/duplicate
+    URL is harmless — the point of writing per-opening is that a later cancel
+    never discards a verdict already stored here."""
+    conn.execute(
+        """INSERT OR IGNORE INTO job_openings
+           (id, url, title, source_url, status, reason, lang,
+            posting_text, posting_json, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (str(uuid.uuid4()), opening["url"], opening["title"], source_url,
+         row["status"], row["reason"], row["lang"],
+         row["posting_text"], row["posting_json"], _now()),
+    )
+
+
+def _mark_scanned(sid: str, lhash: str) -> None:
+    """Stamp a source as fully scanned: record its link-set hash (skip marker for
+    next time) and the scan time. Only called once a source completes uncancelled."""
+    with db.get_db() as conn:
+        conn.execute("UPDATE job_sources SET links_hash = ?, last_scanned = ? WHERE id = ?",
+                     (lhash, _now(), sid))
+
+
 def _run_scan(scan_id: str) -> None:
+    with _scans_lock:
+        cancel = _scans[scan_id]["cancel"]
+    token = current_cancel.set(cancel)  # makes every complete() inside interruptible
+    found = 0
+    errors: dict[str, str] = {}  # source name → what went wrong
     try:
         with _scans_lock:
             _scans[scan_id]["status"] = "running"
@@ -135,9 +166,9 @@ def _run_scan(scan_id: str) -> None:
             sources = [dict(r) for r in conn.execute("SELECT * FROM job_sources").fetchall()]
             known = {r["url"] for r in conn.execute("SELECT url FROM job_openings").fetchall()}
 
-        found = 0
-        errors: dict[str, str] = {}  # source name → what went wrong
         for i, src in enumerate(sources):
+            if cancel.is_set():
+                break
             name = src["name"] or src["url"]
             with _scans_lock:
                 _scans[scan_id].update({"current": i + 1, "total": len(sources),
@@ -150,50 +181,69 @@ def _run_scan(scan_id: str) -> None:
                 links = fetch_listing_links(src["url"])
                 lhash = links_hash(links)
                 if lhash and lhash == src.get("links_hash"):
+                    _mark_scanned(src["id"], lhash)  # source WAS checked, just empty
                     continue
                 openings = extract_openings(src["url"], cfg, extract_prompt, links=links)
                 new = [o for o in openings if o["url"] not in known]
                 survivors = prescreen_openings(new, profile, cfg) if new else []
+            except GenerationCancelled:
+                raise  # cancel — stop the whole scan, don't record it as a source error
             except Exception as e:
                 errors[name] = str(e)
                 continue
+
+            # Incremental persistence: write each verdict the moment it exists so a
+            # cancel never discards paid LLM work. Prescreened-out openings have a
+            # final 'seen' verdict now (no review coming); survivors are inserted
+            # after their review below. A re-scan re-reviews nothing already stored.
+            survivor_urls = {o["url"] for o in survivors}
+            with db.get_db() as conn:
+                for o in new:
+                    if o["url"] in survivor_urls:
+                        continue
+                    _insert_opening(conn, o, src["url"],
+                                    {"status": "seen", "reason": None, "lang": "en",
+                                     "posting_text": None, "posting_json": None})
+                    known.add(o["url"])
 
             # Fetch every surviving posting in parallel (I/O-bound), then review
             # them one at a time — the local engine serialises LLM calls anyway,
             # so the parallelism that matters is the fetching.
             texts = fetch_texts([o["url"] for o in survivors])
+            interrupted = False
             for j, o in enumerate(survivors):
+                if cancel.is_set():
+                    interrupted = True
+                    break
                 with _scans_lock:
                     _scans[scan_id].update({"reading_current": j + 1,
                                             "reading_total": len(survivors)})
-                o["_row"] = _review_one(o, texts.get(o["url"]) or "",
-                                        profile, cfg, filter_prompt)
+                row = _review_one(o, texts.get(o["url"]) or "", profile, cfg, filter_prompt)
+                with db.get_db() as conn:
+                    _insert_opening(conn, o, src["url"], row)
+                known.add(o["url"])
+                if row["status"] == "suggested":
+                    found += 1
 
-            with db.get_db() as conn:
-                for o in new:
-                    r = o.get("_row") or {"status": "seen", "reason": None, "lang": "en",
-                                          "posting_text": None, "posting_json": None}
-                    conn.execute(
-                        """INSERT OR IGNORE INTO job_openings
-                           (id, url, title, source_url, status, reason, lang,
-                            posting_text, posting_json, created_at)
-                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                        (str(uuid.uuid4()), o["url"], o["title"], src["url"],
-                         r["status"], r["reason"], r["lang"],
-                         r["posting_text"], r["posting_json"], _now()),
-                    )
-                    known.add(o["url"])
-                    if r["status"] == "suggested":
-                        found += 1
-                conn.execute("UPDATE job_sources SET links_hash = ? WHERE id = ?",
-                             (lhash, src["id"]))
+            if interrupted or cancel.is_set():
+                break  # source incomplete: leave its skip marker unset so it's re-examined
+            _mark_scanned(src["id"], lhash)
 
+        if cancel.is_set():
+            with _scans_lock:
+                _scans[scan_id].update({"status": "cancelled", "found": found, "errors": errors})
+            return
         config.save({"jobs_last_scan": _now()})  # ponytail: scan time in config.json to avoid a one-value table.
         with _scans_lock:
             _scans[scan_id].update({"status": "done", "found": found, "errors": errors})
+    except GenerationCancelled:
+        with _scans_lock:
+            _scans[scan_id].update({"status": "cancelled", "found": found, "errors": errors})
     except Exception as e:
         with _scans_lock:
             _scans[scan_id].update({"status": "error", "error": str(e)})
+    finally:
+        current_cancel.reset(token)
 
 
 @router.post("/scan")
@@ -201,7 +251,8 @@ def scan():
     scan_id = str(uuid.uuid4())
     with _scans_lock:
         _evict_scans()
-        _scans[scan_id] = {"status": "pending", "created": time.time()}
+        _scans[scan_id] = {"status": "pending", "created": time.time(),
+                           "cancel": threading.Event()}
     threading.Thread(target=_run_scan, args=(scan_id,), daemon=True).start()
     return {"scan_id": scan_id}
 
@@ -210,6 +261,10 @@ def _run_recheck(scan_id: str) -> None:
     """Re-judge already-seen openings against the CURRENT profile, using their
     cached posting text (no fetching). Newly matching ones become suggestions.
     Reuses the scan status dict so the UI poller works unchanged."""
+    with _scans_lock:
+        cancel = _scans[scan_id]["cancel"]
+    token = current_cancel.set(cancel)
+    found = 0
     try:
         with _scans_lock:
             _scans[scan_id]["status"] = "running"
@@ -225,8 +280,9 @@ def _run_recheck(scan_id: str) -> None:
                    ORDER BY created_at DESC LIMIT 100"""
             ).fetchall()]
 
-        found = 0
         for i, row in enumerate(rows):
+            if cancel.is_set():
+                break
             with _scans_lock:
                 _scans[scan_id].update({"reading_current": i + 1, "reading_total": len(rows)})
             r = _review_one({"title": row["title"], "url": row["url"]},
@@ -246,12 +302,21 @@ def _run_recheck(scan_id: str) -> None:
             if r["status"] == "suggested":
                 found += 1
 
+        if cancel.is_set():
+            with _scans_lock:
+                _scans[scan_id].update({"status": "cancelled", "found": found, "errors": {}})
+            return
         config.save({"jobs_last_recheck": _now()})  # clears the profile-changed nudge
         with _scans_lock:
             _scans[scan_id].update({"status": "done", "found": found, "errors": {}})
+    except GenerationCancelled:
+        with _scans_lock:
+            _scans[scan_id].update({"status": "cancelled", "found": found, "errors": {}})
     except Exception as e:
         with _scans_lock:
             _scans[scan_id].update({"status": "error", "error": str(e)})
+    finally:
+        current_cancel.reset(token)
 
 
 @router.post("/recheck")
@@ -260,7 +325,8 @@ def recheck():
     scan_id = str(uuid.uuid4())
     with _scans_lock:
         _evict_scans()
-        _scans[scan_id] = {"status": "pending", "created": time.time()}
+        _scans[scan_id] = {"status": "pending", "created": time.time(),
+                           "cancel": threading.Event()}
     threading.Thread(target=_run_recheck, args=(scan_id,), daemon=True).start()
     return {"scan_id": scan_id}
 
@@ -271,7 +337,20 @@ def scan_status(scan_id: str):
         s = _scans.get(scan_id)
     if not s:
         raise HTTPException(404, "Scan not found")
-    return s
+    # Strip the internal cancel Event (not JSON-serialisable).
+    return {k: v for k, v in s.items() if k != "cancel"}
+
+
+@router.post("/scan/cancel/{scan_id}")
+def cancel_scan(scan_id: str):
+    """Signal a running scan/recheck to stop — interrupts the in-flight local
+    generation so the engine is freed. 404 if the scan id is unknown."""
+    with _scans_lock:
+        s = _scans.get(scan_id)
+    if not s:
+        raise HTTPException(404, "Scan not found")
+    s["cancel"].set()
+    return {"ok": True}
 
 
 @router.get("/last-scan")

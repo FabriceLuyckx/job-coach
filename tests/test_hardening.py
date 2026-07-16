@@ -277,7 +277,8 @@ def test_recheck_llm_failure_keeps_old_verdict(monkeypatch):
              '{"employer": "ACME"}', "2026-01-01T00:00:00Z"),
         )
     sid = "test-recheck-scan"
-    jobs._scans[sid] = {"status": "pending", "created": 0}
+    import threading
+    jobs._scans[sid] = {"status": "pending", "created": 0, "cancel": threading.Event()}
     try:
         jobs._run_recheck(sid)
         assert jobs._scans[sid]["status"] == "done"
@@ -404,3 +405,24 @@ def test_changed_keys_detects_new_and_updated():
     head = {"a": "one", "b": "TWO-old"}  # a unchanged, b edited, c new
     assert changed_keys(en, head) == {"b", "c"}
     assert changed_keys(en, en) == set()
+
+
+# ---------- job-scan cancel endpoint ----------
+
+def test_cancel_scan_unknown_id_404():
+    assert client.post("/api/jobs/scan/cancel/nope").status_code == 404
+
+
+def test_cancel_scan_sets_event():
+    import app.api.jobs as jobs_api
+    import threading
+    sid = "test-scan"
+    ev = threading.Event()
+    jobs_api._scans[sid] = {"status": "running", "created": 0, "cancel": ev}
+    try:
+        assert client.post(f"/api/jobs/scan/cancel/{sid}").status_code == 200
+        assert ev.is_set()
+        # The cancel Event must never leak into the JSON status response.
+        assert "cancel" not in client.get(f"/api/jobs/scan/status/{sid}").json()
+    finally:
+        jobs_api._scans.pop(sid, None)

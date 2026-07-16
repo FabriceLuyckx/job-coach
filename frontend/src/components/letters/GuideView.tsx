@@ -12,7 +12,9 @@ import { useToast } from '../Toast'
 // back to pointers and default missing arrays to [] so historical guides still render.
 const secFacts = (s: { evidence?: string[]; pointers?: string[] }) => s.evidence ?? s.pointers ?? []
 
-/** Plain-text outline (markdown) — the clipboard fallback for plain editors. */
+/** Plain-text outline (markdown) — the clipboard fallback for plain editors.
+ * Tips are deliberately NOT copied: the copy is a skeleton to draft the letter
+ * around in a doc, while tips are on-screen writing reminders. */
 function toMarkdown(g: LetterGuide, t: (k: string) => string): string {
   const lines: string[] = [
     `# ${t('letters.guide.headingFor')} ${g.job_title} @ ${g.employer}`,
@@ -23,11 +25,6 @@ function toMarkdown(g: LetterGuide, t: (k: string) => string): string {
     lines.push('', `### ${i + 1}. ${s.title}`, `_${s.goal}_`)
     secFacts(s).forEach(f => lines.push(`- ${f}`))
   })
-  const tips = g.tips ?? []
-  if (tips.length) {
-    lines.push('', `## ${t('letters.guide.tips')}`)
-    tips.forEach(tip => lines.push(`- ${tip}`))
-  }
   return lines.join('\n')
 }
 
@@ -44,10 +41,6 @@ function toHtml(g: LetterGuide, t: (k: string) => string): string {
     const facts = secFacts(s)
     if (facts.length) parts.push(`<ul>${facts.map(f => `<li>${esc(f)}</li>`).join('')}</ul>`)
   })
-  const tips = g.tips ?? []
-  if (tips.length) {
-    parts.push(`<h2>${esc(t('letters.guide.tips'))}</h2>`, `<ul>${tips.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`)
-  }
   return parts.join('')
 }
 

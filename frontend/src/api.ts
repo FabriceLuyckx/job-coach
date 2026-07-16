@@ -91,6 +91,7 @@ export interface JobSource {
   id: string
   url: string
   name: string
+  last_scanned?: string | null // when this source was last successfully scanned
 }
 
 export interface JobDigest {
@@ -260,6 +261,7 @@ export const api = {
       reading_current?: number // 1-based index of the posting being read in Stage 2
       reading_total?: number // postings to read for the current source (0 if none)
     }>(`/jobs/scan/status/${id}`),
+  cancelScan: (id: string) => request<{ ok: boolean }>(`/jobs/scan/cancel/${id}`, { method: 'POST' }),
   getLastScan: () => request<{ last_scan: string | null; profile_changed: boolean }>('/jobs/last-scan'),
 
   getOpenings: (includeSeen = false) =>

@@ -59,6 +59,12 @@ function Digest({ digest }: { digest: JobDigest | null }) {
   )
 }
 
+// Remembered across left-nav navigation (module stays loaded) so a scan started
+// here still shows as running when the user returns; the server keeps it running
+// and its status queryable for 1h. Resets on full page reload.
+// ponytail: in-memory only — swap to localStorage if reload-persistence is wanted.
+let activeScan: { id: string; kind: 'scan' | 'recheck' } | null = null
+
 export default function JobsPage() {
   const navigate = useNavigate()
   const toast = useToast()
@@ -118,7 +124,10 @@ export default function JobsPage() {
 
   // Shared driver for the two long-running background jobs (scan + recheck):
   // both return a scan_id and report progress through the same status endpoint.
-  function pollJob(scanId: string, setBusyFlag: (b: boolean) => void, onDone: (found: number) => void) {
+  // `resumed` = re-attaching to a scan started before this mount; a 404 then
+  // (server restarted / TTL passed) resets quietly instead of alarming.
+  function pollJob(scanId: string, setBusyFlag: (b: boolean) => void,
+                   onDone: (found: number) => void, resumed = false) {
     poller.start(async () => {
       try {
         const s = await api.getScanStatus(scanId)
@@ -129,26 +138,54 @@ export default function JobsPage() {
           return false
         }
         if (s.status === 'done') {
-          setBusyFlag(false); setScanProgress('')
+          setBusyFlag(false); setScanProgress(''); activeScan = null
           setSourceErrors(s.errors ?? {})
           onDone(s.found ?? 0)
           reloadOpenings()
           api.getLastScan().then(r => { setLastScan(r.last_scan); setProfileChanged(r.profile_changed) }).catch(() => {})
           return true
         }
+        if (s.status === 'cancelled') {
+          setBusyFlag(false); setScanProgress(''); activeScan = null
+          reloadOpenings()  // work stored before the cancel may exist
+          return true
+        }
         if (s.status === 'error') {
-          setBusyFlag(false); setScanProgress('')
+          setBusyFlag(false); setScanProgress(''); activeScan = null
           toast.error(s.error ?? t('jobs.scanFailed'))
           return true
         }
         return false
       } catch {
-        setBusyFlag(false); setScanProgress('')
-        toast.error(t('jobs.scanFailedRestart'))
+        setBusyFlag(false); setScanProgress(''); activeScan = null
+        if (!resumed) toast.error(t('jobs.scanFailedRestart'))
         return true
       }
     })
   }
+
+  // Kick off (or re-attach to) a scan/recheck poll, remembering it module-side.
+  function startPolling(scanId: string, kind: 'scan' | 'recheck', resumed = false) {
+    activeScan = { id: scanId, kind }
+    if (kind === 'scan') {
+      setScanning(true)
+      pollJob(scanId, setScanning, found =>
+        toast.success(found ? t('jobs.foundListings', { count: found }) : t('jobs.noNewListings')), resumed)
+    } else {
+      setRechecking(true)
+      pollJob(scanId, setRechecking, found =>
+        toast.success(found ? t('jobs.recheckFound', { count: found }) : t('jobs.recheckNone')), resumed)
+    }
+  }
+
+  // Resume a scan that was running when the user last left the page.
+  useEffect(() => {
+    if (activeScan) {
+      setScanProgress(t('jobs.starting'))
+      startPolling(activeScan.id, activeScan.kind, true)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function scan() {
     setScanning(true)
@@ -156,8 +193,7 @@ export default function JobsPage() {
     setSourceErrors({})
     try {
       const { scan_id } = await api.startScan()
-      pollJob(scan_id, setScanning, found =>
-        toast.success(found ? t('jobs.foundListings', { count: found }) : t('jobs.noNewListings')))
+      startPolling(scan_id, 'scan')
     } catch (e) {
       setScanning(false); setScanProgress('')
       toast.error(errMsg(e))
@@ -169,12 +205,15 @@ export default function JobsPage() {
     setScanProgress(t('jobs.starting'))
     try {
       const { scan_id } = await api.recheckOpenings()
-      pollJob(scan_id, setRechecking, found =>
-        toast.success(found ? t('jobs.recheckFound', { count: found }) : t('jobs.recheckNone')))
+      startPolling(scan_id, 'recheck')
     } catch (e) {
       setRechecking(false); setScanProgress('')
       toast.error(errMsg(e))
     }
+  }
+
+  function cancelScan() {
+    if (activeScan) api.cancelScan(activeScan.id).catch(() => {})  // poll resolves the true state
   }
 
   async function checkJob() {
@@ -194,7 +233,7 @@ export default function JobsPage() {
     }
   }
 
-  async function accept(o: JobOpening, retry = false) {
+  async function accept(o: JobOpening) {
     setBusy(o.id)
     try {
       const { cv_job_id, letter_job_id, job_url } = await api.acceptOpening(o.id)
@@ -205,7 +244,6 @@ export default function JobsPage() {
       setBusy(null)
       toast.error(errMsg(e))
     }
-    if (retry) return
   }
 
   async function reject(o: JobOpening) {
@@ -297,6 +335,11 @@ export default function JobsPage() {
         {sources.map(s => (
           <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', padding: '4px 0' }}>
             <a href={s.url} target="_blank" rel="noreferrer" style={{ flex: 1 }}>{s.name}</a>
+            {s.last_scanned && (
+              <span className="muted-sm" title={t('jobs.sourceLastScanned', { time: formatDateTime(s.last_scanned) })}>
+                {formatDateTime(s.last_scanned)}
+              </span>
+            )}
             {sourceErrors[s.name] && (
               <span className="muted-sm" style={{ color: 'var(--danger)' }}>{t('jobs.couldntRead')}</span>
             )}
@@ -314,22 +357,16 @@ export default function JobsPage() {
             {!scanning && <Search size={15} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
             {scanning ? (scanProgress || t('jobs.scanning')) : t('jobs.findNew')}
           </Button>
-          {filteredOut.length > 0 && (
-            <Button variant="secondary" onClick={recheck} busy={rechecking}
-              disabled={busyScan || keySet === false} title={t('jobs.recheckTitle')}>
-              {!rechecking && <RefreshCw size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
-              {rechecking ? (scanProgress || t('jobs.rechecking')) : t('jobs.recheck')}
+          {scanning && (
+            <Button variant="ghost" onClick={cancelScan} title={t('jobs.cancelScan')}>
+              <X size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />
+              {t('common.cancel')}
             </Button>
           )}
           <span className="muted-sm">
             {lastScan ? t('jobs.lastScan', { time: formatDateTime(lastScan) }) : t('jobs.neverScanned')}
           </span>
         </div>
-        {profileChanged && lastScan && (
-          <p className="muted-sm" style={{ marginTop: 'var(--space-2)', color: 'var(--accent)' }}>
-            {t('jobs.profileChanged')}
-          </p>
-        )}
         {keySet === false && (
           <p className="muted-sm" style={{ marginTop: 'var(--space-2)' }}>
             {t('jobs.needEngine')}
@@ -344,26 +381,6 @@ export default function JobsPage() {
             </div>
           </div>
         )}
-      </div>
-
-      <div className="card">
-        <div className="section-title" style={{ marginBottom: 'var(--space-2)' }}>{t('jobs.checkTitle')}</div>
-        <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{t('jobs.checkHelp')}</p>
-        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-          <input
-            value={checkUrl}
-            onChange={e => setCheckUrl(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && !checking && checkJob()}
-            placeholder="https://example.com/jobs/data-scientist"
-            aria-label={t('jobs.checkAria')}
-            style={{ flex: 1 }}
-          />
-          <Button variant="secondary" onClick={checkJob} busy={checking}
-            disabled={checking || keySet === false} title={keySet === false ? t('jobs.needEngine') : undefined}>
-            {!checking && <Link2 size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
-            {t('jobs.check')}
-          </Button>
-        </div>
       </div>
 
       <div className="section-title" style={{ marginBottom: 'var(--space-3)' }}>{t('jobs.suggestions')}</div>
@@ -386,7 +403,7 @@ export default function JobsPage() {
           </EmptyState>
         </div>
       ) : suggested.map(o => (
-        <div key={o.id} className="card" style={{ marginBottom: 'var(--space-2)', display: 'flex', alignItems: 'flex-start', gap: 'var(--space-4)' }}>
+        <div key={o.id} className="card" style={{ marginBottom: 'var(--space-2)', display: 'flex', gap: 'var(--space-4)' }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
               <a href={o.url} target="_blank" rel="noreferrer">{o.title || host(o.url)}</a>
@@ -396,7 +413,7 @@ export default function JobsPage() {
             {o.reason && <div style={{ fontSize: 'var(--fs-sm)', marginTop: 'var(--space-2)' }}>{o.reason}</div>}
             <Digest digest={o.digest} />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', flexShrink: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'var(--space-2)', flexShrink: 0 }}>
             <Button variant="primary" onClick={() => accept(o)} busy={busy === o.id}
               title={t('jobs.acceptTitle')}>
               <Check size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
@@ -409,6 +426,26 @@ export default function JobsPage() {
           </div>
         </div>
       ))}
+
+      <div className="card" style={{ marginTop: 'var(--space-5)' }}>
+        <div className="section-title" style={{ marginBottom: 'var(--space-2)' }}>{t('jobs.checkTitle')}</div>
+        <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{t('jobs.checkHelp')}</p>
+        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+          <input
+            value={checkUrl}
+            onChange={e => setCheckUrl(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && !checking && checkJob()}
+            placeholder="https://example.com/jobs/data-scientist"
+            aria-label={t('jobs.checkAria')}
+            style={{ flex: 1 }}
+          />
+          <Button variant="secondary" onClick={checkJob} busy={checking}
+            disabled={checking || keySet === false} title={keySet === false ? t('jobs.needEngine') : undefined}>
+            {!checking && <Link2 size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
+            {t('jobs.check')}
+          </Button>
+        </div>
+      </div>
 
       {filteredOut.length > 0 && (
         <div style={{ marginTop: 'var(--space-5)' }}>
@@ -431,6 +468,22 @@ export default function JobsPage() {
               </div>
             ))}
           </Collapsible>
+          <div style={{ marginTop: 'var(--space-2)', display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+            <Button variant="secondary" onClick={recheck} busy={rechecking}
+              disabled={busyScan || keySet === false} title={t('jobs.recheckTitle')}>
+              {!rechecking && <RefreshCw size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
+              {rechecking ? (scanProgress || t('jobs.rechecking')) : t('jobs.recheck')}
+            </Button>
+            {rechecking && (
+              <Button variant="ghost" onClick={cancelScan} title={t('jobs.cancelScan')}>
+                <X size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />
+                {t('common.cancel')}
+              </Button>
+            )}
+            {profileChanged && lastScan && (
+              <span className="muted-sm" style={{ color: 'var(--accent)' }}>{t('jobs.profileChanged')}</span>
+            )}
+          </div>
         </div>
       )}
 
@@ -468,11 +521,6 @@ export default function JobsPage() {
                       <Button variant="secondary" onClick={() => openCV(o)}>
                         <ExternalLink size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
                         {t('jobs.openCv')}
-                      </Button>
-                      <Button variant="ghost" onClick={() => accept(o, true)} busy={busy === o.id}
-                        title={t('jobs.regenerateTitle')}>
-                        <RotateCcw size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
-                        {t('jobs.regenerateCv')}
                       </Button>
                       <Button variant="ghost" className="btn-icon-danger" onClick={() => reject(o)} disabled={busy === o.id}>
                         {t('jobs.reject')}

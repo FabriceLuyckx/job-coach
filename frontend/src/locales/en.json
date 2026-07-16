@@ -509,8 +509,8 @@
     "suggestAnyway": "Suggest anyway",
     "suggestAnywayTitle": "Move this back into your suggestions",
     "showMore": "Show {{count}} more",
-    "acceptTitle": "Generates a tailored CV for this job and opens it in the CV Generator",
-    "acceptGenerate": "Accept → generate CV",
+    "acceptTitle": "Generates a tailored CV and cover-letter guide and opens them on the Applications page",
+    "acceptGenerate": "Accept",
     "reject": "Reject",
     "rejectedToast": "Rejected “{{title}}”",
     "undo": "Undo",
@@ -519,8 +519,8 @@
     "rejected": "Rejected",
     "restore": "Restore",
     "openCv": "Open application",
-    "regenerateTitle": "Run the CV generation for this opening again",
-    "regenerateCv": "Regenerate CV"
+    "sourceLastScanned": "Last scanned {{time}}",
+    "cancelScan": "Cancel scan"
   },
   "cveditor": {
     "sections": {

@@ -159,6 +159,7 @@ button:disabled { cursor: not-allowed; }
 }
 
 /* ── Forms ──────────────────────────────────────────────────────────────── */
+input:not([type]), input[type="search"],
 input[type="text"], input[type="email"], input[type="tel"], input[type="url"],
 input[type="number"], input[type="password"], select, textarea {
   font-family: inherit;

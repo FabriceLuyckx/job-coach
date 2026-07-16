@@ -455,8 +455,8 @@
     "noSuggestionsTitle": "Aucune suggestion pour l'instant",
     "noSuggestionsNoSources": "Ajoutez une page d'offres ci-dessus, puis recherchez de nouvelles offres — les postes correspondant à votre profil apparaîtront ici.",
     "noSuggestionsHasSources": "Lancez « Rechercher de nouvelles offres » — les postes correspondant à votre profil apparaîtront ici avec une courte explication.",
-    "acceptTitle": "Génère un CV personnalisé pour ce poste et l'ouvre dans le Générateur de CV",
-    "acceptGenerate": "Accepter → générer le CV",
+    "acceptTitle": "Génère un CV et une lettre de motivation personnalisés et les ouvre sur la page des candidatures",
+    "acceptGenerate": "Accepter",
     "reject": "Rejeter",
     "rejectedToast": "« {{title}} » rejeté",
     "undo": "Annuler",
@@ -465,8 +465,6 @@
     "rejected": "Rejeté",
     "restore": "Restaurer",
     "openCv": "Ouvrir l'application",
-    "regenerateTitle": "Relancer la génération du CV pour cette offre",
-    "regenerateCv": "Régénérer le CV",
     "readingPosting": "Lecture de l'annonce {{current}} sur {{total}}…",
     "recheck": "Vérifier à nouveau les emplois filtrés",
     "rechecking": "En cours de vérification…",
@@ -490,7 +488,9 @@
     "filteredOutHelp": "Postes jugés hors cible par le filtre, avec la raison. Si l'un d'entre eux a été mal jugé, suggérez-le quand même.",
     "suggestAnyway": "Suggérer quand même",
     "suggestAnywayTitle": "Remettre ce poste dans vos suggestions",
-    "showMore": "Afficher {{count}} autres"
+    "showMore": "Afficher {{count}} autres",
+    "sourceLastScanned": "Dernière balayage {{time}}",
+    "cancelScan": "Annuler le balayage"
   },
   "cveditor": {
     "sections": {

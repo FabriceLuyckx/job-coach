@@ -455,8 +455,8 @@
     "noSuggestionsTitle": "Nessun suggerimento ancora",
     "noSuggestionsNoSources": "Aggiungi una pagina di offerte di lavoro qui sopra, poi cerca nuove inserzioni — le posizioni aperte in linea con il tuo profilo appariranno qui.",
     "noSuggestionsHasSources": "Run “Find new listings” — openings that match your profile will appear here with a short reason.",
-    "acceptTitle": "Genera un CV personalizzato per questo lavoro e lo apre nel Generatore di CV",
-    "acceptGenerate": "Accetta → genera CV",
+    "acceptTitle": "Genera un CV e una guida per la lettera di presentazione personalizzata e li apre sulla pagina Applicazioni",
+    "acceptGenerate": "Accetta",
     "reject": "Rifiuta",
     "rejectedToast": "\"{{title}}\" rifiutato",
     "undo": "Annulla",
@@ -465,8 +465,6 @@
     "rejected": "Rifiutato",
     "restore": "Ripristina",
     "openCv": "Apri l'applicazione",
-    "regenerateTitle": "Esegui nuovamente la generazione del CV per questa offerta",
-    "regenerateCv": "Rigenera CV",
     "readingPosting": "Sto leggendo l'annuncio {{current}} di {{total}}…",
     "recheck": "Ricontrolla i lavori filtri",
     "rechecking": "Sto ricontrollando…",
@@ -490,7 +488,9 @@
     "filteredOutHelp": "Offerte che il filtro ha giudicato fuori target, con il motivo. Se il giudizio è stato errato, propone comunque.",
     "suggestAnyway": "Propone comunque",
     "suggestAnywayTitle": "Sposta questo nel tuo elenco di suggerimenti",
-    "showMore": "Mostra {{count}} altri"
+    "showMore": "Mostra {{count}} altri",
+    "sourceLastScanned": "Ultimo scan {{time}}",
+    "cancelScan": "Annulla il scan"
   },
   "cveditor": {
     "sections": {

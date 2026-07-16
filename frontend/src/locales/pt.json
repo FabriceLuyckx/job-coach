@@ -455,8 +455,8 @@
     "noSuggestionsTitle": "Sem sugestões ainda",
     "noSuggestionsNoSources": "Adicione uma página de vagas acima, depois busque novas listagens — as oportunidades que correspondem ao seu perfil aparecerão aqui.",
     "noSuggestionsHasSources": "Run “Find new listings” — openings that match your profile will appear here with a short reason.",
-    "acceptTitle": "Gera um CV personalizado para esta vaga e abre-o no Gerador de CV",
-    "acceptGenerate": "Aceitar → gerar CV",
+    "acceptTitle": "Gera um guia personalizado de CV e carta de apresentação e abre-os na página de Aplicações",
+    "acceptGenerate": "Aceitar",
     "reject": "Rejeitar",
     "rejectedToast": "\"{{title}}\" rejeitado",
     "undo": "Desfazer",
@@ -465,8 +465,6 @@
     "rejected": "Rejeitado",
     "restore": "Restaurar",
     "openCv": "Abrir aplicação",
-    "regenerateTitle": "Executar novamente a geração de CV para esta vaga",
-    "regenerateCv": "Regenerar CV",
     "readingPosting": "Lendo o anúncio {{current}} de {{total}}…",
     "recheck": "Reverificar empregos filtrados",
     "rechecking": "Reverificando…",
@@ -490,7 +488,9 @@
     "filteredOutHelp": "Vagas que foram julgadas fora do alvo pelo filtro, com a razão. Se a avaliação estiver errada, sugira mesmo assim.",
     "suggestAnyway": "Sugerir mesmo assim",
     "suggestAnywayTitle": "Mover esta vaga para suas sugestões",
-    "showMore": "Mostrar {{count}} mais"
+    "showMore": "Mostrar {{count}} mais",
+    "sourceLastScanned": "Última escaneamento {{time}}",
+    "cancelScan": "Cancelar escaneamento"
   },
   "cveditor": {
     "sections": {

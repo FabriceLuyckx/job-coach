@@ -455,8 +455,8 @@
     "noSuggestionsTitle": "Brak sugestii",
     "noSuggestionsNoSources": "Dodaj powyżej stronę z ofertami pracy, a następnie wyszukaj nowe ogłoszenia — pasujące do Twojego profilu oferty pojawią się tutaj.",
     "noSuggestionsHasSources": "Run “Find new listings” — openings that match your profile will appear here with a short reason.",
-    "acceptTitle": "Generuje dopasowane CV dla tej oferty pracy i otwiera je w Generatorze CV",
-    "acceptGenerate": "Zaakceptuj → wygeneruj CV",
+    "acceptTitle": "Generuje dostosowaną doświadczenie i listę zatrudnienia oraz otwiera je na stronie Zastosowań",
+    "acceptGenerate": "Akceptuj",
     "reject": "Odrzuć",
     "rejectedToast": "Rejected “{{title}}”",
     "undo": "Cofnij",
@@ -465,8 +465,6 @@
     "rejected": "Odrzucono",
     "restore": "Przywróć",
     "openCv": "Otwórz zastosowanie",
-    "regenerateTitle": "Uruchom ponownie generowanie CV dla tej oferty",
-    "regenerateCv": "Wygeneruj CV ponownie",
     "readingPosting": "Odczytuję ofertę {{current}} z {{total}}…",
     "recheck": "Ponownie sprawdź filtryowane stanowiska",
     "rechecking": "Sprawdzanie…",
@@ -490,7 +488,9 @@
     "filteredOutHelp": "Stanowiska, które zostały ocenione jako niepasujące, z powodzeniem. Jeśli jedno zostało ocenione niepoprawnie, zproponuj je ponownie.",
     "suggestAnyway": "Zaproponuj nadal",
     "suggestAnywayTitle": "Przenieś to do Twoich propozycji",
-    "showMore": "Pokaż {{count}} więcej"
+    "showMore": "Pokaż {{count}} więcej",
+    "sourceLastScanned": "Ostatnio skanowano {{time}}",
+    "cancelScan": "Anuluj skanowanie"
   },
   "cveditor": {
     "sections": {

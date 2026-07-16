@@ -373,6 +373,7 @@ DELETE /api/jobs/sources/{id}           Remove a source
 POST   /api/jobs/scan                   Async scan of all sources → {scan_id}
 POST   /api/jobs/recheck                Async re-judge of 'filtered out' openings against the current profile → {scan_id}
 GET    /api/jobs/scan/status/{scan_id}  Poll scan/recheck status (shared dict)
+POST   /api/jobs/scan/cancel/{scan_id}  Signal a running scan/recheck to stop (interrupts the in-flight local generation); status → 'cancelled'; 404 if unknown
 GET    /api/jobs/last-scan              {last_scan, profile_changed} (nudge to re-check after profile edits)
 GET    /api/jobs/openings[?include_seen] Suggested + decided openings; include_seen also appends the 50 newest 'filtered out'
 POST   /api/jobs/check                  Judge one pasted URL {url} → the opening row (existing rows returned as-is, no LLM call)
@@ -385,7 +386,21 @@ POST   /api/jobs/openings/{id}/restore  Back to 'suggested' (Undo for reject; al
 recheck) reports progress while running (`current`/`total`/`source` for the
 source loop, `reading_current`/`reading_total` for the per-posting loop) and,
 when done, `found` plus a per-source `errors` map (`{source name: message}`) so
-a broken source is visible instead of silently skipped.
+a broken source is visible instead of silently skipped. The scan runs in a
+daemon thread whose status stays queryable for 1h, so navigating away from the
+page and back **resumes** the running display (the frontend remembers the active
+scan id module-side and re-attaches its poller on mount). A **Cancel** button
+(mirroring CV generation) hits `POST /api/jobs/scan/cancel/{scan_id}`, which sets
+a `threading.Event` published via the `current_cancel` ContextVar so the local
+engine interrupts the in-flight generation (status → `cancelled`, no
+`jobs_last_scan` stamp). **Cancelled work is never re-paid**: `_run_scan`
+persists each opening's verdict the moment it exists (prescreened-out rows right
+after the prescreen, each survivor immediately after its review) and stamps a
+source's `links_hash` + `last_scanned` only once it completes uncancelled — so a
+re-scan re-runs only cheap link extraction and reviews nothing already judged
+(the "paid exactly once per opening ever" invariant survives cancellation). The
+source list shows each source's `last_scanned` time (stamped on every successful
+pass, including the link-hash skip).
 
 **Trust & recall**: a review's `reason` is stored even for non-matches, so the
 `seen` rows are auditable. The **Filtered out** UI section (a collapsible fed by
@@ -401,7 +416,7 @@ where a new opening must not be buried).
 
 **Data model** (SQLite):
 ```
-job_sources:  id, url (UNIQUE), name, created_at, links_hash
+job_sources:  id, url (UNIQUE), name, created_at, links_hash, last_scanned
 job_openings: id, url (UNIQUE), title, source_url,
               status (seen|suggested|accepted|rejected),
               reason, lang, cv_slug, created_at, decided_at,

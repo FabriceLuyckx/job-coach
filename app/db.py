@@ -80,6 +80,8 @@ def init_db() -> None:
         _add_column(conn, "job_openings", "posting_json TEXT")
         # Skip the LLM link-extraction for a source whose link set is unchanged.
         _add_column(conn, "job_sources", "links_hash TEXT")
+        # When this source was last successfully scanned (shown in the source list).
+        _add_column(conn, "job_sources", "last_scanned TEXT")
 
         # Cover-letter writing guides (job posting → outline+pointers, pure JSON).
         # job_url is the join key for a future CV+letter "Application" view.
