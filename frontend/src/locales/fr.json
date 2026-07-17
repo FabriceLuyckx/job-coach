@@ -4,9 +4,9 @@
     "brandEm": "Coach",
     "profile": "Profil",
     "preferences": "Préférences",
-    "jobs": "Offres d'emploi",
+    "jobs": "Suggestions d'emploi",
     "settings": "Paramètres",
-    "applications": "Applications"
+    "applications": "Candidatures"
   },
   "common": {
     "loading": "Chargement…",
@@ -81,7 +81,7 @@
       "removed": "Photo supprimée",
       "includeByDefault": "Inclure la photo dans les nouveaux CV par défaut",
       "adjustTitle": "Ajuster la photo",
-      "adjustHelp": "Déplacez la photo en la déplaçant, et utilisez la barre de défilement (ou faites défiler) pour zoomer. Votre fichier d'origine n'est jamais modifié.",
+      "adjustHelp": "Faites glisser la photo pour la repositionner, et utilisez le curseur (ou la molette) pour zoomer. Votre fichier d'origine n'est jamais modifié.",
       "zoom": "Zoom",
       "resetCrop": "Réinitialiser le cadre"
     },
@@ -107,7 +107,7 @@
       "label": "Langue de l'application",
       "other": "Autre langue…",
       "otherHelp": "Saisissez un nom de langue. Elle sera traduite sur l'appareil par votre moteur IA — le résultat peut comporter des imperfections.",
-      "otherPlaceholder": "ex. Suédois, Vietnamien, Grec",
+      "otherPlaceholder": "ex. suédois, vietnamien, grec",
       "generate": "Utiliser cette langue",
       "generating": "Traduction de l'interface… {{pct}}%",
       "generated": "Interface traduite en {{lang}}.",
@@ -133,7 +133,7 @@
     },
     "template": {
       "label": "Modèle de CV",
-      "help": "Choisissez un layout. Les aperçus montrent vos couleurs sélectionnées.",
+      "help": "Choisissez une mise en page. Les aperçus montrent vos couleurs sélectionnées.",
       "palette": "Palette de couleurs",
       "appliesToAll": "Les modifications de design s'appliquent à tous les CV — ouvrez-en un dans Applications pour le voir.",
       "names": {
@@ -144,13 +144,13 @@
         "minimal": "Minimal"
       },
       "palettes": {
-        "navy": "Navy",
+        "navy": "Marine",
         "jobcoach": "Job Coach",
         "forest": "Forêt",
-        "burgundy": "Burgundy",
-        "teal": "Teal",
-        "slate": "Slate",
-        "charcoal": "Charcoal"
+        "burgundy": "Bordeaux",
+        "teal": "Sarcelle",
+        "slate": "Ardoise",
+        "charcoal": "Anthracite"
       },
       "colors": {
         "title": "Couleurs",
@@ -183,7 +183,7 @@
     "enableImportLink": "Configurez un moteur IA dans les Paramètres",
     "enableImportSuffix": "pour activer l'import de CV.",
     "addSection": "+ Ajouter une section",
-    "hasContent": "contient du contenu",
+    "hasContent": "a du contenu",
     "notesForAi": "Notes pour l'IA (facultatif)",
     "notesForAiHelp": "Non imprimé — aide l'IA à décider quand mettre en avant ce poste et comment le formuler.",
     "aiNotesPlaceholder": "ex. Idéal pour les rôles de leadership ou axés sur les données ; rattaché au CTO ; temps partiel",
@@ -317,11 +317,11 @@
       "years": "Années",
       "descriptionPlaceholder": "Pour qui avez-vous enseigné (niveau, taille du groupe), et qu'avez-vous fait ?",
       "types": {
-        "course_instructor": "Enseignant de cours",
-        "guest_lecture": "Conférence invitée",
-        "tutorials_seminars": "Tutoriels & séminaires",
+        "course_instructor": "Chargé de cours",
+        "guest_lecture": "Intervention invitée",
+        "tutorials_seminars": "Travaux dirigés & séminaires",
         "workshop_training": "Atelier / formation",
-        "supervision": "Soutien",
+        "supervision": "Encadrement",
         "other": "Autre"
       }
     }
@@ -339,7 +339,7 @@
       "locationsPlaceholder": "ex. Gand — appuyez sur Entrée pour l'ajouter",
       "workingStyle": "Style de travail",
       "languages": "Langues que vous pouvez utiliser",
-      "languagesPlaceholder": "ex. Néerlandais — appuyez sur Entrée pour l'ajouter",
+      "languagesPlaceholder": "ex. néerlandais — appuyez sur Entrée pour l'ajouter",
       "great": "Qu'est-ce qui rend un emploi un bon match ?",
       "greatSub": "Le travail, l'industrie, la mission — tout ce qui vous ferait vraiment vouloir postuler. Des phrases complètes sont acceptées ; l'IA les lit comme un collègue.",
       "greatPlaceholder": "ex. Un travail centré sur la recherche où je peux construire des produits de données de bout en bout, idéalement avec un impact social",
@@ -347,7 +347,7 @@
       "dealbreakersSub": "Même si le titre correspond. Les offres qui touchent l'un de ces critères sont ignorées.",
       "dealbreakersPlaceholder": "ex. Travail purement administratif, acquisition froide, shifts le week-end",
       "practical": "N'oubliez pas les points pratiques à vérifier ?",
-      "practicalSub": "Expectations salariales, type de contrat, heures, date de début, déplacements — les détails importants à vérifier avant de lire une offre vous-même.",
+      "practicalSub": "Attentes salariales, type de contrat, horaires, date de début, déplacements — les détails importants à vérifier avant de lire une offre vous-même.",
       "practicalPlaceholder": "ex. Temps plein à partir de septembre, au moins 3 500 €/mois, un maximum de 1 jour de déplacement par semaine"
     },
     "suggest": {
@@ -457,10 +457,10 @@
     "searchPlaceholder": "Rechercher dans vos CVs…",
     "noMatches": "Aucun CV ne correspond à votre recherche.",
     "autoDetect": "Détecter automatiquement",
-    "detectingLang": "Détection du langage..."
+    "detectingLang": "Détection de la langue…"
   },
   "jobs": {
-    "title": "Suggestions d'emplois",
+    "title": "Suggestions d'emploi",
     "loadError": "Impossible de charger cette page : {{error}}",
     "sources": "Sources",
     "sourcesHelp": "Ajoutez des pages d'offres d'emploi à surveiller. La recherche de nouvelles offres analyse chacune d'elles et les filtre selon votre profil.",
@@ -495,11 +495,11 @@
     "accepted": "Accepté",
     "rejected": "Rejeté",
     "restore": "Restaurer",
-    "openCv": "Ouvrir l'application",
+    "openCv": "Voir la candidature",
     "readingPosting": "Lecture de l'annonce {{current}} sur {{total}}…",
     "recheck": "Vérifier à nouveau les emplois filtrés",
     "rechecking": "En cours de vérification…",
-    "recheckTitle": "Rejuger les emplois filtrés selon vos préférences actuelles",
+    "recheckTitle": "Réévaluer les emplois filtrés selon vos préférences actuelles",
     "recheckFound_one": "{{count}} emploi filtré correspond maintenant",
     "recheckFound_other": "{{count}} emplois filtrés correspondent maintenant",
     "recheckNone": "Aucun emploi filtré ne correspond à vos préférences actuelles",
@@ -515,13 +515,13 @@
     "allSources": "Toutes les sources",
     "noSuggestionsFiltered": "Aucune suggestion ne correspond à votre recherche ou à votre filtre de source.",
     "filteredOut_one": "Filtré ({{count}})",
-    "filteredOut_other": "Filtré ({{count}})",
+    "filteredOut_other": "Filtrés ({{count}})",
     "filteredOutHelp": "Postes jugés hors cible par le filtre, avec la raison. Si l'un d'entre eux a été mal jugé, suggérez-le quand même.",
     "suggestAnyway": "Suggérer quand même",
     "suggestAnywayTitle": "Remettre ce poste dans vos suggestions",
     "showMore": "Afficher {{count}} autres",
-    "sourceLastScanned": "Dernière balayage {{time}}",
-    "cancelScan": "Annuler le balayage"
+    "sourceLastScanned": "Dernière analyse {{time}}",
+    "cancelScan": "Annuler l'analyse"
   },
   "cveditor": {
     "sections": {
@@ -539,7 +539,7 @@
       "certifications": "Certifications",
       "courses": "Cours",
       "awards": "Récompenses",
-      "memberships": "Membres",
+      "memberships": "Adhésions",
       "volunteering": "Volontariat",
       "custom_sections": "Sections personnalisées"
     },
@@ -573,7 +573,7 @@
     "pdfError": "Impossible de générer le PDF : {{error}}",
     "refreshPreviewTip": "Recharger la prévisualisation avec votre profil et votre design mis à jour",
     "sectionsTitle": "Sections",
-    "aiLeftOut": "Les compétences ont été omises par l'IA",
+    "aiLeftOut": "Omis par l'IA",
     "restoreTip": "Remettre cette section sur le CV",
     "emphasisedSkills": "Compétences soulignées",
     "saving": "Enregistrement en cours…",
@@ -609,25 +609,25 @@
     "credit": "Créé pour vous par <a>Fabrice Luyckx</a> sous GPLv3"
   },
   "applications": {
-    "title": "Applications",
-    "new": "Nouvelle application",
-    "newTitle": "Nouvelle application",
+    "title": "Candidatures",
+    "new": "Nouvelle candidature",
+    "newTitle": "Nouvelle candidature",
     "generate": "Générer",
     "tailoredCv": "CV adapté",
     "letterGuide": "Guide de lettre",
     "cvTab": "CV",
     "letterTab": "Lettre",
     "artifactDone": "Terminé",
-    "noCvYet": "Aucun CV adapté pour ce poste encore.",
-    "noLetterYet": "Aucun guide de lettre pour ce poste encore.",
+    "noCvYet": "Pas encore de CV adapté pour ce poste.",
+    "noLetterYet": "Pas encore de guide de lettre pour ce poste.",
     "createCv": "Générer le CV",
     "createLetter": "Créer un guide de lettre",
-    "noUrl": "Cette entrée n'a pas de URL de poste enregistrée, donc rien ne peut être généré.",
-    "deleteApp": "Supprimer l'application pour {{title}}",
+    "noUrl": "Cette entrée n'a pas d'URL de poste enregistrée, donc rien ne peut plus être généré pour elle.",
+    "deleteApp": "Supprimer la candidature pour {{title}}",
     "deleteLetter": "Supprimer ce guide de lettre",
-    "deletedToast": "L'application pour «{{title}}» a été supprimée",
-    "noneForJob": "Aucun résultat pour ce poste — la génération a peut-être échoué. Réessayez depuis la page des suggestions de poste.",
-    "emptyTitle": "Aucune application encore",
+    "deletedToast": "La candidature pour « {{title}} » a été supprimée",
+    "noneForJob": "Aucun résultat pour ce poste — la génération a peut-être échoué. Réessayez depuis la page Suggestions d'emploi.",
+    "emptyTitle": "Aucune candidature pour l'instant",
     "emptyBody": "Collez l'URL d'un poste et l'IA construit un CV adapté et un guide de rédaction de lettre — prêt à être consulté, édité et téléchargé.",
     "searchPlaceholder": "Rechercher vos applications…",
     "noMatches": "Aucune application ne correspond à votre recherche.",
@@ -643,9 +643,9 @@
     "starting": "En cours…",
     "emptyTitle": "Aucun guide de lettre encore",
     "emptyBody": "Collez l'URL d'un poste ci-dessus pour obtenir un plan adapté à la rédaction de votre lettre.",
-    "deletedToast": "Le guide pour «{{title}}» a été supprimé",
+    "deletedToast": "Le guide pour « {{title}} » a été supprimé",
     "explainer": {
-      "headline": "Ce outil ne rédige pas votre lettre — c'est le point.",
+      "headline": "Cet outil ne rédige pas votre lettre — et c'est voulu.",
       "body": "Une lettre de motivation ne fonctionne que si elle est écrite par vous-même ; les recruteurs rejettent de plus en plus les lettres générées par l'IA. Vous obtenez au contraire un plan adapté : ce qu'il faut dire, dans quel ordre, et quelles parties de votre profil utiliser comme preuves. L'écriture reste à vous."
     },
     "guide": {
@@ -654,7 +654,7 @@
       "copied": "Guide copié — collez-le dans votre document",
       "copyFailed": "Impossible de copier dans le presse-papiers",
       "tips": "Conseils de rédaction",
-      "copy": "Guide de copie"
+      "copy": "Copier le guide"
     }
   }
 }

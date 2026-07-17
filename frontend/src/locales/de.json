@@ -3,10 +3,10 @@
     "brand": "Job",
     "brandEm": "Coach",
     "profile": "Profil",
-    "preferences": "Einstellungen",
+    "preferences": "Präferenzen",
     "jobs": "Jobvorschläge",
     "settings": "Einstellungen",
-    "applications": "Anträge"
+    "applications": "Bewerbungen"
   },
   "common": {
     "loading": "Wird geladen…",
@@ -22,19 +22,19 @@
   },
   "onboarding": {
     "welcome": "Willkommen bei Job Coach",
-    "intro": "Zwei kurze Einstellungen und du bist startklar. Beides kannst du später in den Einstellungen ändern.",
+    "intro": "Zwei kurze Einstellungen, und schon sind Sie startklar. Beides können Sie später in den Einstellungen ändern.",
     "skip": "Vorerst überspringen",
     "back": "Zurück",
     "next": "Weiter",
     "done": "Fertig",
     "step": "Schritt {{n}} von {{total}}",
     "langTitle": "Wählen Sie Ihre Sprache",
-    "langHelp": "Die App ist standardmäßig auf Englisch. Wähle eine Sprache – andere sind KI-übersetzt.",
+    "langHelp": "Die App ist standardmäßig auf Englisch. Wählen Sie eine Sprache – andere sind KI-übersetzt.",
     "langOther": "Andere Sprache…",
-    "langOtherHelp": "Gib einen 2-Buchstaben-Code ein (z. B. sv, ja). Die Übersetzung erfolgt auf deinem Gerät, sobald deine KI-Engine eingerichtet ist.",
+    "langOtherHelp": "Geben Sie einen 2-Buchstaben-Code ein (z. B. sv, ja). Die Übersetzung erfolgt auf Ihrem Gerät, sobald Ihre KI-Engine eingerichtet ist.",
     "langQueued": "Wir übersetzen die Benutzeroberfläche, sobald Sie eine KI-Engine eingerichtet haben.",
     "engineTitle": "KI einrichten",
-    "engineHelp": "Die KI passt deine Lebensläufe an und scannt Stellenanzeigen. Wähle, wie sie arbeiten soll.",
+    "engineHelp": "Die KI passt Ihre Lebensläufe an und scannt Stellenanzeigen. Wählen Sie, wie sie arbeiten soll.",
     "engineLocalCta": "Kostenloses Modell herunterladen",
     "engineDownloading": "Wird heruntergeladen… {{pct}}%",
     "engineLocalReady": "Kostenloses Modell bereit.",
@@ -43,11 +43,11 @@
     "engineKeySaved": "API-Schlüssel gespeichert.",
     "engineGetKey": "Schlüssel auf openrouter.ai holen",
     "doneTitle": "Alles erledigt",
-    "doneBody": "Weiter: Erstelle dein Profil (importiere einen vorhandenen Lebenslauf für einen schnellen Start) und füge dann Jobquellen unter Jobvorschläge hinzu.",
+    "doneBody": "Weiter: Erstellen Sie Ihr Profil (importieren Sie einen vorhandenen Lebenslauf für einen schnellen Start) und fügen Sie dann Jobquellen unter Jobvorschläge hinzu.",
     "finish": "Job Coach verwenden"
   },
   "banner": {
-    "engineNotReady": "Willkommen! Um Lebensläufe zu erstellen und Stellenanzeigen zu scannen, richte eine KI-Engine in den <settings>Einstellungen</settings> ein – lade das kostenlose lokale Modell herunter oder füge einen OpenRouter-API-Schlüssel hinzu.",
+    "engineNotReady": "Willkommen! Um Lebensläufe zu erstellen und Stellenanzeigen zu scannen, richten Sie eine KI-Engine in den <settings>Einstellungen</settings> ein – laden Sie das kostenlose lokale Modell herunter oder fügen Sie einen OpenRouter-API-Schlüssel hinzu.",
     "setupInstalling": "Die PDF-Engine wird eingerichtet (einmalig, ca. 150 MB). Alles außer dem PDF-Export funktioniert bereits während dieses Vorgangs.",
     "setupError": "Die PDF-Engine konnte nicht eingerichtet werden: {{error}}. Der PDF-Export ist erst verfügbar, wenn das Problem behoben ist."
   },
@@ -56,7 +56,7 @@
     "loadError": "Einstellungen konnten nicht geladen werden: {{error}}",
     "openrouter": {
       "title": "OpenRouter-Verbindung",
-      "help": "OpenRouter leitet Anfragen über einen einzigen API-Schlüssel an Claude, GPT-4 und andere Modelle weiter. Deinen Schlüssel erhältst du unter <link>openrouter.ai/keys</link>.",
+      "help": "OpenRouter leitet Anfragen über einen einzigen API-Schlüssel an Claude, GPT-4 und andere Modelle weiter. Ihren Schlüssel erhalten Sie unter <link>openrouter.ai/keys</link>.",
       "balance": "Guthaben",
       "used": "Verbraucht",
       "balanceUnavailable": "Guthaben nicht verfügbar",
@@ -94,31 +94,31 @@
     },
     "backup": {
       "title": "Sicherung & Wiederherstellung",
-      "help": "Wechsle den Computer oder erstelle eine sichere Kopie deiner Daten. <b>Exportieren</b> lädt eine <code>.zip</code>-Datei herunter, die dein Profil & Foto, Einstellungen, Jobquellen & -verlauf sowie alle generierten Lebensläufe enthält. Installiere auf dem neuen Gerät Job Coach und nutze <b>Wiederherstellen</b>, um die Datei zu laden.",
+      "help": "Wechseln Sie den Computer, oder erstellen Sie eine sichere Kopie Ihrer Daten. <b>Exportieren</b> lädt eine <code>.zip</code>-Datei herunter, die Ihr Profil & Foto, Einstellungen, Jobquellen & -verlauf sowie alle generierten Lebensläufe enthält. Installieren Sie auf dem neuen Gerät Job Coach und nutzen Sie <b>Wiederherstellen</b>, um die Datei zu laden.",
       "export": "Sicherung exportieren (.zip)",
       "restore": "Aus Sicherung wiederherstellen…",
-      "confirmRestore": "Durch das Wiederherstellen einer Sicherung werden Profil, Einstellungen, Jobverlauf und generierte Lebensläufe auf diesem Computer durch den Inhalt der Sicherung ersetzt (dein API-Schlüssel bleibt erhalten). Dies kann nicht rückgängig gemacht werden. Fortfahren?",
+      "confirmRestore": "Durch das Wiederherstellen einer Sicherung werden Profil, Einstellungen, Jobverlauf und generierte Lebensläufe auf diesem Computer durch den Inhalt der Sicherung ersetzt (Ihr API-Schlüssel bleibt erhalten). Dies kann nicht rückgängig gemacht werden. Fortfahren?",
       "restored": "Sicherung wiederhergestellt – wird neu geladen…",
-      "note": "Das Wiederherstellen <b>ersetzt</b> dein Profil, den Jobverlauf und die generierten Lebensläufe durch den Inhalt der Sicherung – es findet keine Zusammenführung statt. Dein OpenRouter-API-Schlüssel wird nie in den Export einbezogen und beim Wiederherstellen nicht verändert."
+      "note": "Das Wiederherstellen <b>ersetzt</b> Ihr Profil, den Jobverlauf und die generierten Lebensläufe durch den Inhalt der Sicherung – es findet keine Zusammenführung statt. Ihr OpenRouter-API-Schlüssel wird nie in den Export einbezogen und beim Wiederherstellen nicht verändert."
     },
     "language": {
       "title": "Sprache",
-      "help": "Die Sprache der App-Oberfläche. Englisch ist die Originalsprache; andere Sprachen werden von deiner KI-Engine übersetzt.",
+      "help": "Die Sprache der App-Oberfläche. Englisch ist die Originalsprache; andere Sprachen werden von Ihrer KI-Engine übersetzt.",
       "label": "App-Sprache",
       "other": "Andere Sprache…",
-      "otherHelp": "Gib einen Sprachnamen ein. Die Übersetzung erfolgt auf dem Gerät durch deine KI-Engine – das Ergebnis kann vereinzelte Fehler enthalten.",
+      "otherHelp": "Geben Sie einen Sprachnamen ein. Die Übersetzung erfolgt auf dem Gerät durch Ihre KI-Engine – das Ergebnis kann vereinzelte Fehler enthalten.",
       "otherPlaceholder": "z. B. Schwedisch, Vietnamesisch, Griechisch",
       "generate": "Diese Sprache verwenden",
       "generating": "Oberfläche wird übersetzt… {{pct}}%",
       "generated": "Oberfläche wurde in {{lang}} übersetzt.",
       "experimental": "KI-übersetzt – kann vereinzelte Fehler enthalten.",
-      "needEngineFirst": "Richte zuerst eine KI-Engine ein, bevor du eine neue Sprache hinzufügst.",
+      "needEngineFirst": "Richten Sie zuerst eine KI-Engine ein, bevor Sie eine neue Sprache hinzufügen.",
       "badCode": "Gib einen 2-buchstabigen Sprachcode ein (z. B. sv, ja, ar).",
       "genFailed": "Übersetzung fehlgeschlagen – bitte versuche es erneut."
     },
     "prompts": {
       "title": "Erweitert – KI-Prompts",
-      "help": "Dies sind die genauen Anweisungen, die an die KI gesendet werden. Die Standardwerte funktionieren gut – bearbeite sie nur, wenn du ändern möchtest, wie Lebensläufe verfasst oder Stellenanzeigen gefiltert werden. Du kannst jederzeit auf den Standard zurücksetzen.",
+      "help": "Dies sind die genauen Anweisungen, die an die KI gesendet werden. Die Standardwerte funktionieren gut – bearbeiten Sie sie nur, wenn Sie ändern möchten, wie Lebensläufe verfasst oder Stellenanzeigen gefiltert werden. Sie können jederzeit auf den Standard zurücksetzen.",
       "savePrompt": "Prompt speichern",
       "reset": "Auf Standard zurücksetzen",
       "langPlaceholderError": "Der Prompt muss den Platzhalter {lang_name} enthalten – er teilt der KI mit, in welcher Sprache sie schreiben soll.",
@@ -195,7 +195,7 @@
     "untitledSection": "(Abschnitt ohne Titel)",
     "addEntry": "+ Eintrag hinzufügen",
     "fields": {
-      "jobTitle": "Berufsbezeichnung",
+      "jobTitle": "Position",
       "employer": "Arbeitgeber",
       "location": "Standort",
       "startDate": "Startdatum",
@@ -264,12 +264,12 @@
       "grants": "Für akademische/Forschungsstellen – erscheinen in der Seitenleiste des Lebenslaufs.",
       "customSections": "Fügen Sie beliebige Abschnitte für Ihr Fachgebiet hinzu – jeder wird als eigener Titelblock in Ihrem Lebenslauf dargestellt.",
       "teaching": "Druckt sich auf Ihr CV als Liste Ihrer Lehraufgaben; die KI lässt es bei Rollen weg, bei denen es nicht relevant ist.",
-      "languages": "Die Sprachen, die Sie sprechen, und in welcher Sprache — angezeigt in der Seitenleiste Ihres Lebenslaufes."
+      "languages": "Die Sprachen, die Sie sprechen, und wie gut — angezeigt in der Seitenleiste Ihres Lebenslaufs."
     },
     "add": {
       "project": "+ Projekt hinzufügen",
       "volunteering": "+ Ehrenamt hinzufügen",
-      "certification": "+ Zertifizierung hinzufügen",
+      "certification": "+ Zertifikat hinzufügen",
       "course": "+ Kurs hinzufügen",
       "award": "+ Auszeichnung hinzufügen",
       "membership": "+ Mitgliedschaft hinzufügen",
@@ -327,34 +327,34 @@
     }
   },
   "preferences": {
-    "title": "Einstellungen",
+    "title": "Präferenzen",
     "help": "Fünf schnelle Fragen. Der Job-Coach vergleicht jede neue Stellenanzeige mit Ihren Antworten hier — nichts auf dieser Seite erscheint auf Ihrem Lebenslauf.",
     "q": {
       "roles": "Welche Berufsbezeichnungen sollen wir beobachten?",
       "rolesSub": "Fügen Sie alle Titel hinzu, an die Sie tatsächlich bewerben würden, einschließlich Varianten und Übersetzungen. Dies ist das erste, was der Scanner mit einer Stellenanzeige vergleicht.",
       "rolesPlaceholder": "z. B. Data Scientist — drücken Sie Enter, um hinzuzufügen",
       "where": "Wo — und wie — möchten Sie arbeiten?",
-      "whereSub": "Stellenaufrufe außerhalb dieser Orte, Sprachen oder Arbeitsstile werden filtriert.",
+      "whereSub": "Stellenanzeigen außerhalb dieser Orte, Sprachen oder Arbeitsstile werden herausgefiltert.",
       "locations": "Städte oder Regionen, zu denen Sie pendeln können",
       "locationsPlaceholder": "z. B. Gent — drücken Sie Enter, um hinzuzufügen",
       "workingStyle": "Arbeitsweise",
       "languages": "Sprachen, in denen Sie arbeiten können",
       "languagesPlaceholder": "z. B. Niederländisch — drücken Sie Enter, um hinzuzufügen",
-      "great": "Was macht eine Stelle zu einem tollen Fit?",
-      "greatSub": "Die Arbeit, die Branche, die Mission — alles, was Sie wirklich wollen, um sich zu bewerben. Vollständige Sätze sind in Ordnung; der AI liest das wie ein Kollege.",
+      "great": "Was macht eine Stelle zu einem tollen Treffer?",
+      "greatSub": "Die Arbeit, die Branche, die Mission — alles, was Sie wirklich zu einer Bewerbung bewegen würde. Vollständige Sätze sind in Ordnung; die KI liest das wie eine Kollegin oder ein Kollege.",
       "greatPlaceholder": "z. B. Forschungsorientierte Arbeit, bei der ich end-to-end Datenprodukte entwickeln kann, idealerweise mit sozialer Auswirkung",
-      "dealbreakers": "Was ausschließt eine Stelle?",
-      "dealbreakersSub": "Auch wenn der Titel passt. Stellen, die auf diese Punkte stoßen, werden abgelehnt.",
-      "dealbreakersPlaceholder": "z. B. rein administrativer Arbeit, kalte Akquise, Wochenendarbeit",
+      "dealbreakers": "Was schließt eine Stelle aus?",
+      "dealbreakersSub": "Auch wenn der Titel passt. Stellen, auf die einer dieser Punkte zutrifft, werden verworfen.",
+      "dealbreakersPlaceholder": "z. B. Rein administrative Arbeit, Kaltakquise, Wochenendarbeit",
       "practical": "Ist noch etwas praktisches zu überprüfen?",
-      "practicalSub": "Lohnvorstellungen, Vertragsart, Arbeitszeiten, Startdatum, Reisen — die kleinen Dinge, die vor der eigentlichen Lesung einer Stellenanzeige beachtet werden sollten.",
+      "practicalSub": "Gehaltsvorstellungen, Vertragsart, Arbeitszeiten, Startdatum, Reisebereitschaft — die kleinen Details, die Sie am besten schon kennen, bevor Sie eine Stellenanzeige selbst lesen.",
       "practicalPlaceholder": "z. B. Vollzeit ab September, mindestens €3.500/Monat, maximal ein Tag Reise pro Woche"
     },
     "suggest": {
       "admin": "Rein administrativer Arbeit",
-      "travel": "Frequent Reisen",
+      "travel": "Häufige Reisen",
       "shifts": "Abend- oder Wochenendarbeit",
-      "sales": "Kalte Anrufe oder Türen-zu-Türen-Verkäufe"
+      "sales": "Kaltakquise oder Haustürverkauf"
     }
   },
   "badges": {
@@ -367,7 +367,7 @@
       "description": "Name, Kontaktdaten und Links."
     },
     "summary": {
-      "label": "Profil / Zusammenfassung",
+      "label": "Berufliches Profil",
       "description": "Eine kurze Einleitung am Anfang Ihres Lebenslaufs."
     },
     "experience": {
@@ -376,7 +376,7 @@
     },
     "skills": {
       "label": "Fähigkeiten",
-      "description": "Gruppierte Fähigkeiten und Sprachen."
+      "description": "Fähigkeiten, gruppiert unter eigenen Überschriften."
     },
     "education": {
       "label": "Ausbildung",
@@ -424,7 +424,7 @@
     },
     "languages": {
       "label": "Sprachen",
-      "description": "Die Sprachen, die Sie sprechen, mit der Profilierung."
+      "description": "Die Sprachen, die Sie sprechen, mit Sprachniveau."
     }
   },
   "cv": {
@@ -438,7 +438,7 @@
     "language": "Sprache",
     "generateCv": "Lebenslauf generieren",
     "generatingHint": "Stellenanzeige wird gelesen und Ihr Lebenslauf angepasst – dauert in der Regel ca. 30 Sekunden.",
-    "needEngine": "Für die Generierung wird eine konfigurierte KI-Engine benötigt – richte eine in den Einstellungen ein.",
+    "needEngine": "Für die Generierung wird eine konfigurierte KI-Engine benötigt – richten Sie eine in den Einstellungen ein.",
     "generationFailed": "Generierung fehlgeschlagen",
     "generationFailedRestart": "Generierung fehlgeschlagen – der Server wurde möglicherweise neu gestartet. Überprüfe die Verlaufsliste unten.",
     "fetchingListing": "Stellenanzeige wird abgerufen…",
@@ -446,16 +446,16 @@
     "starting": "Wird gestartet…",
     "listing": "Auflistung",
     "deleteCv": "Lebenslauf für {{title}} löschen",
-    "deletedToast": "Deleted the CV for “{{title}}”",
-    "noCvForJob": "No CV found for that job yet — its generation may have failed. Use “Regenerate CV” on the Job Suggestions page to try again.",
+    "deletedToast": "Lebenslauf für „{{title}}“ gelöscht",
+    "noCvForJob": "Für diese Stelle wurde noch kein Lebenslauf gefunden – die Erstellung ist möglicherweise fehlgeschlagen. Verwenden Sie „Lebenslauf neu erstellen“ auf der Seite „Jobvorschläge“, um es erneut zu versuchen.",
     "undo": "Rückgängig",
     "stage": {
       "fetching": "Lese die Stellenausschreibung…",
       "thinking": "Anpassung mit KI… ",
       "rendering": "Erstelle dein CV…"
     },
-    "searchPlaceholder": "Suche in deinen CVs…",
-    "noMatches": "Keine CVs passen zu deiner Suche.",
+    "searchPlaceholder": "Suche in Ihren Lebensläufen…",
+    "noMatches": "Keine Lebensläufe passen zu Ihrer Suche.",
     "autoDetect": "Sprache automatisch erkennen",
     "detectingLang": "Sprache erkennen…"
   },
@@ -463,10 +463,10 @@
     "title": "Jobvorschläge",
     "loadError": "Diese Seite konnte nicht geladen werden: {{error}}",
     "sources": "Quellen",
-    "sourcesHelp": "Füge Stellenangebotsseiten zum Beobachten hinzu. Die Suche nach neuen Angeboten durchsucht jede Seite nach offenen Stellen und filtert sie anhand deines Profils.",
+    "sourcesHelp": "Fügen Sie Stellenangebotsseiten zum Beobachten hinzu. Die Suche nach neuen Angeboten durchsucht jede Seite nach offenen Stellen und filtert sie anhand Ihres Profils.",
     "sourceUrlAria": "URL der Stellenanzeigeseite",
     "add": "Hinzufügen",
-    "noSources": "Noch keine Quellen – füge oben eine Karriereseiten-URL ein.",
+    "noSources": "Noch keine Quellen – fügen Sie oben eine Karriereseiten-URL ein.",
     "couldntRead": "konnte nicht gelesen werden",
     "removeSource": "{{name}} entfernen",
     "findNew": "Neue Stellenanzeigen finden",
@@ -480,22 +480,22 @@
     "noNewListings": "Keine neuen Einträge gefunden",
     "scanFailed": "Scan fehlgeschlagen",
     "scanFailedRestart": "Scan fehlgeschlagen – der Server wurde möglicherweise neu gestartet.",
-    "needEngine": "Für das Scannen wird eine konfigurierte KI-Engine benötigt – richte eine in den Einstellungen ein.",
+    "needEngine": "Für das Scannen wird eine konfigurierte KI-Engine benötigt – richten Sie eine in den Einstellungen ein.",
     "couldntReadSource": "<b>{{name}}</b> konnte nicht gelesen werden – {{err}}",
     "suggestions": "Vorschläge",
     "noSuggestionsTitle": "Noch keine Vorschläge",
-    "noSuggestionsNoSources": "Füge oben eine Stellenbörse hinzu und suche dann nach neuen Anzeigen – passende Stellen für dein Profil werden hier angezeigt.",
-    "noSuggestionsHasSources": "Run “Find new listings” — openings that match your profile will appear here with a short reason.",
-    "acceptTitle": "Erstellt ein maßgeschneidertes CV und einen Briefvorschlag und öffnet sie auf der Seite \"Anträge\"",
+    "noSuggestionsNoSources": "Fügen Sie oben eine Stellenbörse hinzu und suchen Sie dann nach neuen Anzeigen – passende Stellen für Ihr Profil werden hier angezeigt.",
+    "noSuggestionsHasSources": "Klicken Sie auf „Neue Stellenanzeigen finden“ — passende Angebote erscheinen hier mit einer kurzen Begründung.",
+    "acceptTitle": "Erstellt einen maßgeschneiderten Lebenslauf und eine Briefanleitung und öffnet sie auf der Seite „Bewerbungen“",
     "acceptGenerate": "Akzeptieren",
     "reject": "Ablehnen",
-    "rejectedToast": "Rejected “{{title}}”",
+    "rejectedToast": "„{{title}}“ abgelehnt",
     "undo": "Rückgängig",
     "history": "Verlauf",
     "accepted": "Angenommen",
     "rejected": "Abgelehnt",
     "restore": "Wiederherstellen",
-    "openCv": "Antrag öffnen",
+    "openCv": "Bewerbung öffnen",
     "readingPosting": "Lesen der Stellenausschreibung {{current}} von {{total}}…",
     "recheck": "Filterte Stellen erneut überprüfen",
     "rechecking": "Wird überprüft…",
@@ -505,20 +505,20 @@
     "recheckNone": "Keine gefilterten Stellen passen Ihren aktuellen Präferenzen",
     "profileChanged": "Ihre Profildaten wurden seit der letzten Suche geändert — die gefilterten Stellen erneut überprüfen, um die Änderung anzuwenden.",
     "checkTitle": "Eine bestimmte Stelle überprüfen",
-    "checkHelp": "Ein Posting gefunden? Fügen Sie die URL ein, um es gegen Ihr Profil zu beurteilen — genauso wie eine Suche es täte.",
+    "checkHelp": "Ein Posting gefunden? Fügen Sie die URL ein, um es gegen Ihr Profil zu beurteilen — genauso wie ein Scan es tun würde.",
     "checkAria": "URL des Stellenangebots zum Überprüfen",
     "check": "Diese Stelle überprüfen",
-    "checkMatch": "Es ist ein Match — wurde in Ihre Empfehlungen aufgenommen.",
+    "checkMatch": "Es ist ein Match — wurde in Ihre Vorschläge aufgenommen.",
     "checkNoMatch": "Abgefiltert: {{reason}}",
     "searchPlaceholder": "Suchvorschläge…",
     "filterBySource": "Nach Quelle filtern",
     "allSources": "Alle Quellen",
-    "noSuggestionsFiltered": "Keine Vorschläge passen Ihrer Suche oder Quelle-Filterung.",
+    "noSuggestionsFiltered": "Keine Vorschläge passen zu Ihrer Suche oder Ihrem Quellenfilter.",
     "filteredOut_one": "Abgefiltert ({{count}})",
     "filteredOut_other": "Abgefiltert ({{count}})",
     "filteredOutHelp": "Stellen, die durch den Filter als nicht passend erkannt wurden, mit dem Grund. Wenn der Filter einen Fehler gemacht hat, empfehlen Sie ihn dennoch.",
     "suggestAnyway": "Dennoch empfehlen",
-    "suggestAnywayTitle": "Diese Stelle in Ihre Empfehlungen zurückbringen",
+    "suggestAnywayTitle": "Diese Stelle wieder in Ihre Vorschläge aufnehmen",
     "showMore": "Noch {{count}} anzeigen",
     "sourceLastScanned": "Zuletzt gescannt um {{time}}",
     "cancelScan": "Scan abbrechen"
@@ -529,7 +529,7 @@
       "experience": "Erfahrung",
       "publications": "Publikationen",
       "links": "Links",
-      "skills": "Kenntnisse",
+      "skills": "Fähigkeiten",
       "languages": "Sprachen",
       "education": "Ausbildung",
       "grants": "Förderungen",
@@ -538,9 +538,9 @@
       "teaching": "Lehre",
       "certifications": "Zertifikate",
       "courses": "Kurse",
-      "awards": "Ehrungen",
+      "awards": "Auszeichnungen",
       "memberships": "Mitgliedschaften",
-      "volunteering": "Freiwilligenarbeit",
+      "volunteering": "Ehrenamt",
       "custom_sections": "Benutzerdefinierte Abschnitte"
     },
     "retailorTitle": "Mit KI neu anpassen",
@@ -558,23 +558,23 @@
     "addPhotoLink": "Foto in den Einstellungen hinzufügen",
     "addPhotoSuffix": "um ihn zu aktivieren.",
     "editContent": "Generierten Inhalt bearbeiten",
-    "editHelp": "Die Änderungen unten werden automatisch gespeichert. Wähle Text aus und drücke <b>⌘/Ctrl+B</b> oder <b>⌘/Ctrl+I</b>, um fett oder kursiv zu machen. Ziehe das Handle, um die Punkte neu zu ordnen.",
+    "editHelp": "Die Änderungen unten werden automatisch gespeichert. Wählen Sie Text aus und drücken Sie <b>⌘/Ctrl+B</b> oder <b>⌘/Ctrl+I</b>, um ihn fett oder kursiv zu machen. Ziehen Sie am Griff, um die Punkte neu anzuordnen.",
     "professionalSummary": "Berufliches Profil",
-    "aiSummaryTooltip": "KI eine neue Zusammenfassung basierend auf deinem Profil und dieser Stelle schreiben lassen",
+    "aiSummaryTooltip": "KI eine neue Zusammenfassung basierend auf Ihrem Profil und dieser Stelle schreiben lassen",
     "generatingSummary": "Wird generiert…",
     "aiSummary": "KI-Zusammenfassung",
     "bulletsCount": "{{count}}/4 Stichpunkte",
     "bulletPlaceholder": "Stichpunkt…",
-    "editingUnavailable": "Dieses CV hat noch kein editierbares Plan – verwende <b>Ein editierbares CV aus Ausschreibung erstellen</b>, um eines zu erstellen.",
+    "editingUnavailable": "Dieses CV hat noch keinen editierbaren Plan – verwenden Sie <b>Editierbares CV aus Ausschreibung erstellen</b>, um einen zu erstellen.",
     "regenDone": "CV neu angepasst.",
     "updateWithAi": "Mit KI aktualisieren…",
     "rebuildFromUrl": "Editierbares CV aus Ausschreibung erstellen",
     "preparingPdf": "PDF vorbereiten…",
     "pdfError": "PDF konnte nicht erstellt werden: {{error}}",
-    "refreshPreviewTip": "Lade die Voransicht neu mit deinem neuesten Profil und Design",
+    "refreshPreviewTip": "Lade die Voransicht neu mit Ihrem neuesten Profil und Design",
     "sectionsTitle": "Abschnitte",
-    "aiLeftOut": "KI hat das übergangen",
-    "restoreTip": "Setze diesen Abschnitt wieder auf das CV",
+    "aiLeftOut": "Von der KI ausgelassen",
+    "restoreTip": "Diesen Abschnitt wieder im Lebenslauf anzeigen",
     "emphasisedSkills": "Hervorgehobene Fähigkeiten",
     "saving": "Speichere…",
     "saved": "Gespeichert",
@@ -586,7 +586,7 @@
     "help": "Wähle, wie die App ihre KI nutzt (Lebensläufe anpassen, Stellen scannen). Du kannst jederzeit wechseln.",
     "local": {
       "title": "Kostenloses lokales Modell",
-      "desc": "Kostenlos & privat – läuft auf deinem Computer. Gute Ergebnisse; kein Konto erforderlich.",
+      "desc": "Kostenlos & privat – läuft auf Ihrem Computer. Gute Ergebnisse; kein Konto erforderlich.",
       "sizeNote": "Download-Größe ~{{size}} · empfohlen {{ram}} GB RAM. Läuft nach dem Download vollständig offline.",
       "recommended": "Empfohlenes Modell",
       "ready": "Heruntergeladen und bereit",
@@ -609,11 +609,11 @@
     "credit": "Für Sie erstellt von <a>Fabrice Luyckx</a> unter GPLv3"
   },
   "applications": {
-    "title": "Anträge",
-    "new": "Neuer Antrag",
-    "newTitle": "Neuer Antrag",
+    "title": "Bewerbungen",
+    "new": "Neue Bewerbung",
+    "newTitle": "Neue Bewerbung",
     "generate": "Erstellen",
-    "tailoredCv": "Anpassung des Lebenslaufs",
+    "tailoredCv": "Angepasster Lebenslauf",
     "letterGuide": "Briefanleitung",
     "cvTab": "Lebenslauf",
     "letterTab": "Brief",
@@ -623,17 +623,17 @@
     "createCv": "Lebenslauf erstellen",
     "createLetter": "Briefanleitung erstellen",
     "noUrl": "Diese Eintragung hat keine gespeicherte Stellenanzeige-URL, daher kann nichts mehr für sie generiert werden.",
-    "deleteApp": "Antrag für {{title}} löschen",
+    "deleteApp": "Bewerbung für {{title}} löschen",
     "deleteLetter": "Diese Briefanleitung löschen",
-    "deletedToast": "Antrag für „{{title}}“ gelöscht",
-    "noneForJob": "Für diese Stelle wurde bisher nichts gefunden — die Erstellung konnte fehlschlagen. Bitte erneut von der Seite „Jobvorschläge“ aus versuchen.",
-    "emptyTitle": "Keine Anträge bisher",
-    "emptyBody": "Fügen Sie eine Stellenanzeige-URL ein und der AI erstellt einen anpassenden Lebenslauf und eine Anleitung für die Schreibarbeit des Briefs — bereit zum Vorabsehen, Bearbeiten und Herunterladen.",
-    "searchPlaceholder": "Suchen Sie Ihre Anträge…",
-    "noMatches": "Keine Anträge passen zu Ihrer Suche.",
-    "loadError": "Die Anträge konnten nicht geladen werden: {{error}}",
+    "deletedToast": "Bewerbung für „{{title}}“ gelöscht",
+    "noneForJob": "Für diese Stelle wurde bisher nichts gefunden — die Erstellung ist möglicherweise fehlgeschlagen. Bitte erneut von der Seite „Jobvorschläge“ aus versuchen.",
+    "emptyTitle": "Noch keine Bewerbungen",
+    "emptyBody": "Fügen Sie eine Stellenanzeige-URL ein, und die KI erstellt einen angepassten Lebenslauf sowie eine Briefanleitung dafür — bereit zur Vorschau, Bearbeitung und zum Download.",
+    "searchPlaceholder": "Suchen Sie Ihre Bewerbungen…",
+    "noMatches": "Keine Bewerbungen passen zu Ihrer Suche.",
+    "loadError": "Die Bewerbungen konnten nicht geladen werden: {{error}}",
     "changingLang": "Sprache wechseln…",
-    "slowLocalHint": "Bei dem kostenlosen lokalen Modell kann dies einige Minuten dauern. Abbrechen beendet die Erstellung und freigt die KI für andere Aufgaben."
+    "slowLocalHint": "Bei dem kostenlosen lokalen Modell kann dies einige Minuten dauern. Abbrechen beendet die Erstellung und gibt die KI für andere Aufgaben frei."
   },
   "letters": {
     "title": "Brief",
@@ -646,15 +646,15 @@
     "deletedToast": "Anleitung für „{{title}}“ gelöscht",
     "explainer": {
       "headline": "Dieses Tool schreibt Ihren Brief nicht — das ist der Punkt.",
-      "body": "Ein Brief funktioniert nur, wenn er in Ihren eigenen Worten geschrieben ist; Recruiter diskreditieren zunehmend AI-geschriebene Briefe. Stattdessen erhalten Sie einen angepassten Plan: Was sagen, in welcher Reihenfolge und welche Teile Ihres Profils als Belege verwenden. Die Schreibarbeit bleibt bei Ihnen."
+      "body": "Ein Brief funktioniert nur, wenn er in Ihren eigenen Worten geschrieben ist; von der KI verfasste Briefe werden von Recruitern zunehmend aussortiert."
     },
     "guide": {
       "headingFor": "Briefanleitung für",
       "structure": "Struktur",
-      "copied": "Leitfaden kopiert — fügen Sie ihn in Ihr Dokument ein",
+      "copied": "Anleitung kopiert — fügen Sie sie in Ihr Dokument ein",
       "copyFailed": "Kopieren in die Zwischenablage fehlgeschlagen",
       "tips": "Schreibtipps",
-      "copy": "Textleitfaden kopieren"
+      "copy": "Anleitung kopieren"
     }
   }
 }

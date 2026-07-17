@@ -6,14 +6,14 @@
     "preferences": "Preferências",
     "jobs": "Sugestões de Emprego",
     "settings": "Configurações",
-    "applications": "Aplicações"
+    "applications": "Candidaturas"
   },
   "common": {
     "loading": "A carregar…",
     "save": "Guardar",
     "cancel": "Cancelar",
     "remove": "Remover",
-    "delete": "Eliminar",
+    "delete": "Excluir",
     "retry": "Tentar novamente",
     "close": "Fechar",
     "edit": "Editar",
@@ -22,7 +22,7 @@
   },
   "onboarding": {
     "welcome": "Bem-vindo ao Job Coach",
-    "intro": "Duas escolhas rápidas e está pronto. Pode alterar ambas depois em Definições.",
+    "intro": "Duas escolhas rápidas e está pronto. Pode alterar ambas depois em Configurações.",
     "skip": "Ignorar por agora",
     "back": "Voltar",
     "next": "Seguinte",
@@ -79,11 +79,11 @@
       "upload": "Carregar foto",
       "uploaded": "Foto carregada",
       "removed": "Foto removida",
-      "includeByDefault": "Incluir foto nos novos CVs por padrão",
+      "includeByDefault": "Incluir foto nos novos CVs por predefinição",
       "adjustTitle": "Ajustar foto",
-      "adjustHelp": "Arraste a foto para repositioná-la e use o controle deslizante (ou rolagem) para ampliar. A versão original upload nunca é alterada.",
+      "adjustHelp": "Arraste a foto para a reposicionar e utilize o cursor (ou a roda do rato) para ampliar. O seu ficheiro original nunca é alterado.",
       "zoom": "Ampliação",
-      "resetCrop": "Resetar recorte"
+      "resetCrop": "Repor recorte"
     },
     "visual": {
       "title": "Preferências Visuais do CV",
@@ -127,15 +127,15 @@
       "extractTitle": "Sugestões de Emprego — prompt de extração de links",
       "extractHelp": "Seleciona quais os links de uma página que são ofertas de emprego reais. A lista de links encontrados na página é adicionada automaticamente abaixo.",
       "filterTitle": "Sugestões de Emprego — prompt de filtro de relevância",
-      "filterHelp": "Avalia cada novo anúncio lendo a publicação completa: decide se ele se encaixa com você e extrai um resumo curto (empregador, local, salário, prazo, requisitos). As partes relevantes do seu perfil são adicionadas automaticamente abaixo.",
+      "filterHelp": "Avalia cada novo anúncio lendo a publicação completa: decide se é adequado para si e extrai um resumo curto (empregador, localização, salário, prazo, requisitos). As partes relevantes do seu perfil são adicionadas automaticamente abaixo.",
       "letterTitle": "Carta de apresentação — prompt de guia",
-      "letterHelp": "Enviado quando se cria um guia para carta de apresentação. Seu perfil e o anúncio de emprego são adicionados automaticamente abaixo. Isso gera um esqueleto de escrita (3–5 seções com os fatos do perfil a citar, mais dicas de escrita) — nunca um texto final da carta. <code>{lang_name}</code> é substituído pela linguagem de saída — deve permanecer no prompt."
+      "letterHelp": "Enviado quando se cria um guia para carta de apresentação. O seu perfil e a oferta de emprego são adicionados automaticamente abaixo. Isto gera um esqueleto de escrita (3–5 secções com os factos do perfil a citar, mais dicas de escrita) — nunca um texto final da carta. <code>{lang_name}</code> é substituído pelo idioma de saída — deve permanecer no prompt."
     },
     "template": {
       "label": "Modelo de CV",
       "help": "Escolha um layout. As pré-visualizações mostram as cores selecionadas.",
       "palette": "Paleta de cores",
-      "appliesToAll": "As alterações de design são aplicadas a todos os CVs — abra um sob Aplicações para vê-lo.",
+      "appliesToAll": "As alterações de design são aplicadas a todos os CVs — abra um em Candidaturas para vê-lo.",
       "names": {
         "default": "Barra lateral",
         "classic": "Clássico",
@@ -147,10 +147,10 @@
         "navy": "Azul-marinho",
         "jobcoach": "Job Coach",
         "forest": "Floresta",
-        "burgundy": "Roxo",
-        "teal": "Teal",
-        "slate": "Slate",
-        "charcoal": "Carvão"
+        "burgundy": "Bordô",
+        "teal": "Verde-azulado",
+        "slate": "Ardósia",
+        "charcoal": "Antracite"
       },
       "colors": {
         "title": "Cores",
@@ -167,7 +167,7 @@
     "autoSaveNote": "Tudo o que introduzir aqui é guardado automaticamente enquanto escreve.",
     "importFromCv": "Importar do CV",
     "importTooltip": "Extraia os seus dados de um CV existente",
-    "needEngineTooltip": "Configure primeiro um motor de IA nas Definições",
+    "needEngineTooltip": "Configure primeiro um motor de IA nas Configurações",
     "saving": "A guardar…",
     "allSaved": "Todas as alterações guardadas",
     "cantSave": "Não foi possível guardar: {{error}}",
@@ -180,7 +180,7 @@
     "emptyBody": "Importe um PDF ou cole o seu CV para começar mais rápido, ou preencha cada secção manualmente.",
     "importExisting": "Importar de um CV existente",
     "fillManually": "Preencher manualmente",
-    "enableImportLink": "Configure um motor de IA nas Definições",
+    "enableImportLink": "Configure um motor de IA nas Configurações",
     "enableImportSuffix": "para ativar a importação de CV.",
     "addSection": "+ Adicionar secção",
     "hasContent": "tem conteúdo",
@@ -200,7 +200,7 @@
       "location": "Localização",
       "startDate": "Data de início",
       "endDate": "Data de fim",
-      "whatYouDid": "O que você fez (esses itens se tornam os bullets do seu CV)",
+      "whatYouDid": "O que fez (estes tornam-se os tópicos do seu CV)",
       "technologies": "Tecnologias / ferramentas (opcional)",
       "name": "Nome",
       "fullName": "Nome completo",
@@ -238,11 +238,11 @@
       "subheading": "Subtítulo (opcional)",
       "dateOptional": "Data (opcional)",
       "responsibilityPlaceholder": "Comece com um verbo; inclua resultados mensuráveis quando possível",
-      "roleSkillsTools": "Habilidades e ferramentas utilizadas nessa função",
-      "summaryPlaceholder": "2–4 frases: quem você é profissionalmente, suas principais especialidades e o que está buscando",
+      "roleSkillsTools": "Competências e ferramentas utilizadas nesta função",
+      "summaryPlaceholder": "2–4 frases: quem é profissionalmente, as suas principais especialidades e o que procura",
       "projectDescriptionPlaceholder": "O que foi, para quem foi e qual foi o resultado?",
       "educationDescriptionOptional": "Observações (opcional)",
-      "educationDescriptionPlaceholder": "Tema de tese, especialização ou curso relevante para os cargos que você deseja",
+      "educationDescriptionPlaceholder": "Tema de tese, especialização ou curso relevante para os cargos que pretende",
       "years": "Anos",
       "funderOptional": "Financiador (opcional)",
       "amountOptional": "Valor (opcional)"
@@ -263,8 +263,8 @@
       "publications": "Para funções académicas/de investigação. Cole a citação APA completa; a IA pode omitir esta secção em vagas não académicas.",
       "grants": "Para funções académicas/de investigação — exibidos na barra lateral do CV.",
       "customSections": "Adicione as secções que a sua área exige — cada uma torna-se um bloco com título próprio no seu CV.",
-      "teaching": "Impresso em seu CV como uma lista de suas funções de ensino; a IA o remove para funções onde não é relevante.",
-      "languages": "Idiomas que você fala e o nível de domínio — exibidos na barra lateral do seu CV."
+      "teaching": "Impresso no seu CV como uma lista das suas funções de ensino; a IA remove-a nas funções onde não é relevante.",
+      "languages": "Idiomas que fala e o respetivo nível — exibidos na barra lateral do seu CV."
     },
     "add": {
       "project": "+ Adicionar projeto",
@@ -272,7 +272,7 @@
       "certification": "+ Adicionar certificação",
       "course": "+ Adicionar curso",
       "award": "+ Adicionar prémio",
-      "membership": "+ Adicionar membro",
+      "membership": "+ Adicionar associação",
       "publication": "+ Adicionar publicação",
       "grant": "+ Adicionar bolsa",
       "customSection": "+ Adicionar secção personalizada",
@@ -301,7 +301,7 @@
       "title": "Importar de um CV existente",
       "help": "Carregue um PDF ou cole o texto do seu CV. A IA extrai os seus dados para o perfil para que os reveja e edite — nada é guardado até confirmar.",
       "replaceWarn": "Isto substitui os dados atualmente no seu perfil.",
-      "localWarn": "Está a usar o modelo local gratuito: importar um CV pode ser lento e menos preciso. Para melhores resultados, configure uma chave OpenRouter nas Definições.",
+      "localWarn": "Está a usar o modelo local gratuito: importar um CV pode ser lento e menos preciso. Para melhores resultados, configure uma chave OpenRouter nas Configurações.",
       "uploadPdf": "Carregar um PDF",
       "pasteText": "…ou cole o texto do seu CV",
       "pastePlaceholder": "Cole aqui o texto completo do seu CV",
@@ -315,7 +315,7 @@
       "typeOther": "Tipo (por favor, especifique)",
       "subject": "Assunto / título do curso",
       "years": "Anos",
-      "descriptionPlaceholder": "Quem você ensinou (nível, tamanho do grupo) e o que você fez?",
+      "descriptionPlaceholder": "Quem ensinou (nível, tamanho do grupo) e o que fez?",
       "types": {
         "course_instructor": "Instrutor de curso",
         "guest_lecture": "Aula convidada",
@@ -328,33 +328,33 @@
   },
   "preferences": {
     "title": "Preferências",
-    "help": "Cinco perguntas rápidas. O Coach de Emprego analisa cada novo anúncio de emprego com base nas suas respostas aqui — nada neste formulário aparece no seu CV.",
+    "help": "Cinco perguntas rápidas. O Job Coach analisa cada novo anúncio de emprego com base nas suas respostas aqui — nada nesta página aparece no seu CV.",
     "q": {
-      "roles": "Quais títulos de cargo devemos monitorar?",
-      "rolesSub": "Adicione cada título que realmente aplicaria, incluindo variantes e traduções. Este é o primeiro ponto que o analisador verifica em um anúncio.",
-      "rolesPlaceholder": "e.g. Data Scientist — press Enter para adicionar",
-      "where": "Onde — e como — você quer trabalhar?",
-      "whereSub": "Anúncios fora dessas localidades, idiomas ou estilos de trabalho são filtrados.",
-      "locations": "Cidades ou regiões que você poderia deslocar-se",
-      "locationsPlaceholder": "e.g. Ghent — press Enter para adicionar",
+      "roles": "Que títulos de cargo devemos monitorizar?",
+      "rolesSub": "Adicione todos os títulos a que se candidataria realmente, incluindo variantes e traduções. É o primeiro elemento que o analisador verifica num anúncio.",
+      "rolesPlaceholder": "ex.: Data Scientist — prima Enter para adicionar",
+      "where": "Onde — e como — quer trabalhar?",
+      "whereSub": "Anúncios fora destes locais, idiomas ou estilos de trabalho são filtrados.",
+      "locations": "Cidades ou regiões para onde poderia deslocar-se",
+      "locationsPlaceholder": "ex.: Gante — prima Enter para adicionar",
       "workingStyle": "Estilo de trabalho",
-      "languages": "Idiomas que você pode trabalhar",
-      "languagesPlaceholder": "e.g. Dutch — press Enter para adicionar",
+      "languages": "Idiomas em que pode trabalhar",
+      "languagesPlaceholder": "ex.: Neerlandês — prima Enter para adicionar",
       "great": "O que torna um emprego um bom ajuste?",
-      "greatSub": "O trabalho, a indústria, a missão — qualquer coisa que o tornasse realmente querer se candidatar. Frases completas estão bem; a IA lê isso como um colega faria.",
-      "greatPlaceholder": "e.g. Trabalho baseado em pesquisa onde consigo construir produtos de dados de ponta a ponta, idealmente com impacto social",
+      "greatSub": "O trabalho, a indústria, a missão — qualquer coisa que o fizesse realmente querer candidatar-se. Frases completas estão bem; a IA lê isto como um colega leria.",
+      "greatPlaceholder": "ex.: Trabalho baseado em investigação onde consigo construir produtos de dados de ponta a ponta, idealmente com impacto social",
       "dealbreakers": "O que elimina um emprego?",
-      "dealbreakersSub": "Mesmo que o título corresponda. Anúncios que atingem qualquer um desses pontos são descartados.",
-      "dealbreakersPlaceholder": "e.g. Trabalho puramente administrativo, vendas diretas, turnos nos fins de semana",
-      "practical": "Qualquer coisa prática que devemos verificar?",
-      "practicalSub": "Expectativas de salário, tipo de contrato, horas, data de início, viagens — os detalhes pequenos que vale a pena notar antes de ler um anúncio por si mesmo.",
-      "practicalPlaceholder": "e.g. Full-time a partir de setembro, pelo menos €3.500/mês, no máximo um dia de viagem por semana"
+      "dealbreakersSub": "Mesmo que o título corresponda. Anúncios que atingem qualquer um destes pontos são descartados.",
+      "dealbreakersPlaceholder": "ex.: Trabalho puramente administrativo, prospeção a frio, turnos aos fins de semana",
+      "practical": "Há algo prático que devêssemos verificar?",
+      "practicalSub": "Expectativas salariais, tipo de contrato, horário, data de início, viagens — os pequenos detalhes que vale a pena notar antes de ler um anúncio por si próprio.",
+      "practicalPlaceholder": "ex.: A tempo inteiro a partir de setembro, pelo menos €3.500/mês, no máximo um dia de viagem por semana"
     },
     "suggest": {
       "admin": "Trabalho puramente administrativo",
       "travel": "Viagens frequentes",
-      "shifts": "Turnos noturnos ou nos fins de semana",
-      "sales": "Vendas diretas ou de porta em porta"
+      "shifts": "Turnos à noite ou aos fins de semana",
+      "sales": "Prospeção a frio ou vendas porta-a-porta"
     }
   },
   "badges": {
@@ -376,7 +376,7 @@
     },
     "skills": {
       "label": "Competências",
-      "description": "Competências e idiomas agrupados."
+      "description": "Competências agrupadas sob os seus próprios títulos."
     },
     "education": {
       "label": "Formação",
@@ -411,7 +411,7 @@
       "description": "Para funções académicas/investigação — citações completas em APA."
     },
     "grants": {
-      "label": "Bolsas e Fellowships",
+      "label": "Bolsas e Financiamentos",
       "description": "Para funções académicas/investigação — exibido na barra lateral do CV."
     },
     "teaching": {
@@ -424,7 +424,7 @@
     },
     "languages": {
       "label": "Idiomas",
-      "description": "Idiomas que você fala, com nível de competência."
+      "description": "Idiomas que fala, com o respetivo nível de proficiência."
     }
   },
   "cv": {
@@ -446,15 +446,15 @@
     "starting": "A iniciar…",
     "listing": "Listagem",
     "deleteCv": "Excluir CV de {{title}}",
-    "deletedToast": "Deleted the CV for “{{title}}”",
-    "noCvForJob": "No CV found for that job yet — its generation may have failed. Use “Regenerate CV” on the Job Suggestions page to try again.",
+    "deletedToast": "CV excluído para “{{title}}”",
+    "noCvForJob": "Ainda não foi encontrado nenhum CV para este emprego — a geração pode ter falhado. Volte à página de Sugestões de Emprego para tentar novamente.",
     "undo": "Desfazer",
     "stage": {
-      "fetching": "Lendo a vaga de emprego…",
+      "fetching": "A ler a oferta de emprego…",
       "thinking": "Ajustando com IA…",
-      "rendering": "Construindo seu CV…"
+      "rendering": "A construir o seu CV…"
     },
-    "searchPlaceholder": "Procure seus CVs…",
+    "searchPlaceholder": "Procure os seus CVs…",
     "noMatches": "Nenhum CV corresponde à sua busca.",
     "autoDetect": "Detecção automática",
     "detectingLang": "Detectando idioma…"
@@ -463,14 +463,14 @@
     "title": "Sugestões de Emprego",
     "loadError": "Não foi possível carregar esta página: {{error}}",
     "sources": "Fontes",
-    "sourcesHelp": "Adicione páginas de vagas para monitorar. A busca por novas vagas verifica cada uma em busca de oportunidades e as filtra de acordo com o seu perfil.",
+    "sourcesHelp": "Adicione páginas de vagas para monitorizar. Ao encontrar novas vagas, cada página é verificada em busca de oportunidades, que são filtradas de acordo com o seu perfil.",
     "sourceUrlAria": "URL da página de listagem de vagas",
     "add": "Adicionar",
-    "noSources": "Nenhuma fonte ainda — cole uma URL de página de carreiras acima.",
+    "noSources": "Nenhuma fonte ainda — cole um URL de página de carreiras acima.",
     "couldntRead": "não foi possível ler",
     "removeSource": "Remover {{name}}",
     "findNew": "Encontrar novas vagas",
-    "scanning": "Verificando…",
+    "scanning": "A verificar…",
     "scanProgress": "A analisar {{source}} ({{current}} de {{total}})…",
     "starting": "A iniciar…",
     "lastScan": "Última verificação: {{time}}",
@@ -480,13 +480,13 @@
     "noNewListings": "Nenhuma nova vaga encontrada",
     "scanFailed": "Falha na verificação",
     "scanFailedRestart": "Falha na verificação — o servidor pode ter reiniciado.",
-    "needEngine": "A verificação requer um motor de IA configurado — configure um nas Definições.",
+    "needEngine": "A verificação requer um motor de IA configurado — configure um nas Configurações.",
     "couldntReadSource": "Não foi possível ler <b>{{name}}</b> — {{err}}",
     "suggestions": "Sugestões",
     "noSuggestionsTitle": "Sem sugestões ainda",
     "noSuggestionsNoSources": "Adicione uma página de vagas acima, depois busque novas listagens — as oportunidades que correspondem ao seu perfil aparecerão aqui.",
-    "noSuggestionsHasSources": "Run “Find new listings” — openings that match your profile will appear here with a short reason.",
-    "acceptTitle": "Gera um guia personalizado de CV e carta de apresentação e abre-os na página de Aplicações",
+    "noSuggestionsHasSources": "Clique em “Encontrar novas vagas” — as ofertas que corresponderem ao seu perfil aparecerão aqui com um breve motivo.",
+    "acceptTitle": "Gera um CV personalizado e um guia de carta de apresentação, e abre-os na página de Candidaturas",
     "acceptGenerate": "Aceitar",
     "reject": "Rejeitar",
     "rejectedToast": "\"{{title}}\" rejeitado",
@@ -495,17 +495,17 @@
     "accepted": "Aceito",
     "rejected": "Rejeitado",
     "restore": "Restaurar",
-    "openCv": "Abrir aplicação",
-    "readingPosting": "Lendo o anúncio {{current}} de {{total}}…",
+    "openCv": "Abrir candidatura",
+    "readingPosting": "A ler o anúncio {{current}} de {{total}}…",
     "recheck": "Reverificar empregos filtrados",
-    "rechecking": "Reverificando…",
-    "recheckTitle": "Reavaliar os empregos filtrados contra suas preferências atuais",
+    "rechecking": "A reverificar…",
+    "recheckTitle": "Reavaliar os empregos filtrados contra as suas preferências atuais",
     "recheckFound_one": "{{count}} emprego filtrado agora corresponde",
     "recheckFound_other": "{{count}} empregos filtrados agora correspondem",
     "recheckNone": "Nenhum emprego filtrado corresponde às suas preferências atuais",
-    "profileChanged": "Seu perfil mudou desde a última varredura — revise os empregos filtrados para aplicar a mudança.",
+    "profileChanged": "O seu perfil foi alterado desde a última verificação — reveja os empregos filtrados para aplicar a alteração.",
     "checkTitle": "Verificar um emprego específico",
-    "checkHelp": "Encontrou um anúncio em outro lugar? Cole a URL para avaliar contra seu perfil — da mesma forma que uma varredura faria.",
+    "checkHelp": "Encontrou um anúncio noutro sítio? Cole o URL para o avaliar contra o seu perfil — da mesma forma que uma verificação faria.",
     "checkAria": "URL do anúncio para verificar",
     "check": "Verificar este emprego",
     "checkMatch": "É um bom ajuste — adicionado às suas sugestões.",
@@ -518,10 +518,10 @@
     "filteredOut_other": "Filtrado ({{count}})",
     "filteredOutHelp": "Vagas que foram julgadas fora do alvo pelo filtro, com a razão. Se a avaliação estiver errada, sugira mesmo assim.",
     "suggestAnyway": "Sugerir mesmo assim",
-    "suggestAnywayTitle": "Mover esta vaga para suas sugestões",
+    "suggestAnywayTitle": "Mover esta vaga para as suas sugestões",
     "showMore": "Mostrar {{count}} mais",
-    "sourceLastScanned": "Última escaneamento {{time}}",
-    "cancelScan": "Cancelar escaneamento"
+    "sourceLastScanned": "Última verificação {{time}}",
+    "cancelScan": "Cancelar verificação"
   },
   "cveditor": {
     "sections": {
@@ -538,8 +538,8 @@
       "teaching": "Ensino",
       "certifications": "Certificações",
       "courses": "Cursos",
-      "awards": "Prêmios",
-      "memberships": "Membros",
+      "awards": "Prémios",
+      "memberships": "Associações",
       "volunteering": "Voluntariado",
       "custom_sections": "Seções personalizadas"
     },
@@ -553,16 +553,16 @@
     "cvPreview": "Pré-visualização do CV",
     "regeneratingCv": "Regenerando CV…",
     "reRunningNote": "Executando a IA novamente — isso leva cerca de 30 segundos.",
-    "downloadPdf": "Baixar PDF",
-    "photoDisabled": "A seção <b>Foto</b> está desativada porque nenhuma foto está cadastrada. ",
+    "downloadPdf": "Transferir PDF",
+    "photoDisabled": "A secção <b>Foto</b> está desativada porque nenhuma foto está cadastrada. ",
     "addPhotoLink": "Adicione uma foto nas Configurações",
     "addPhotoSuffix": "para ativá-la.",
     "editContent": "Editar conteúdo gerado",
-    "editHelp": "As edições abaixo são salvas automaticamente. Selecione o texto e pressione <b>⌘/Ctrl+B</b> ou <b>⌘/Ctrl+I</b> para torná-lo em negrito ou itálico. Arraste o manipulador para reordenar os itens.",
+    "editHelp": "As edições abaixo são guardadas automaticamente. Selecione o texto e prima <b>⌘/Ctrl+B</b> ou <b>⌘/Ctrl+I</b> para o tornar negrito ou itálico. Arraste a pega para reordenar os tópicos.",
     "professionalSummary": "Resumo Profissional",
     "aiSummaryTooltip": "Peça à IA para escrever um novo resumo com base no seu perfil e nesta vaga",
-    "generatingSummary": "Gerando…",
-    "aiSummary": "Resumo IA",
+    "generatingSummary": "A gerar…",
+    "aiSummary": "Resumo da IA",
     "bulletsCount": "{{count}}/4 tópicos",
     "bulletPlaceholder": "Tópico…",
     "editingUnavailable": "Este CV não possui plano editável ainda — use <b>Construir CV editável a partir da vaga</b> para criá-lo.",
@@ -571,34 +571,34 @@
     "rebuildFromUrl": "Construir CV editável a partir da vaga",
     "preparingPdf": "Preparando PDF…",
     "pdfError": "Não foi possível construir o PDF: {{error}}",
-    "refreshPreviewTip": "Recarregue a prévia com seu perfil e design mais recentes",
+    "refreshPreviewTip": "Recarregue a pré-visualização com o seu perfil e design mais recentes",
     "sectionsTitle": "Seções",
-    "aiLeftOut": "Habilidades deixadas de lado pela IA",
-    "restoreTip": "Coloque esta seção de volta no CV",
+    "aiLeftOut": "Omitido pela IA",
+    "restoreTip": "Coloque esta secção de volta no CV",
     "emphasisedSkills": "Habilidades destacadas",
-    "saving": "Salvando…",
-    "saved": "Salvo",
-    "saveError": "Não foi possível salvar",
+    "saving": "A guardar…",
+    "saved": "Guardado",
+    "saveError": "Não foi possível guardar",
     "aiNeedsUrl": "Nenhum URL de emprego armazenado, portanto a IA não pode reler o anúncio para este CV"
   },
   "engine": {
     "title": "Motor de IA",
-    "help": "Escolha como o aplicativo executa sua IA (personalização de CVs, análise de vagas). Você pode alternar a qualquer momento.",
+    "help": "Escolha como a aplicação executa a sua IA (personalização de CVs, análise de vagas). Pode alternar a qualquer momento.",
     "local": {
       "title": "Modelo local gratuito",
-      "desc": "Gratuito e privado — roda no seu computador. Bons resultados; sem necessidade de conta.",
-      "sizeNote": "Tamanho do download ~{{size}} · recomendado {{ram}} GB de RAM. Funciona totalmente offline após o download.",
+      "desc": "Gratuito e privado — corre no seu computador. Bons resultados; sem necessidade de conta.",
+      "sizeNote": "Tamanho da transferência ~{{size}} · recomendado {{ram}} GB de RAM. Funciona totalmente offline depois de transferido.",
       "recommended": "Modelo recomendado",
-      "ready": "Baixado e pronto",
+      "ready": "Transferido e pronto",
       "deleteModel": "Excluir modelo",
-      "download": "Baixar modelo",
-      "downloading": "Baixando… {{done}} / {{total}} ({{pct}}%)",
-      "resuming": "Retomando… {{done}} / {{total}} ({{pct}}%)",
-      "downloaded": "Modelo baixado — o motor de IA gratuito está pronto.",
-      "downloadFailed": "Falha no download: {{error}}",
+      "download": "Transferir modelo",
+      "downloading": "A transferir… {{done}} / {{total}} ({{pct}}%)",
+      "resuming": "A retomar… {{done}} / {{total}} ({{pct}}%)",
+      "downloaded": "Modelo transferido — o motor de IA gratuito está pronto.",
+      "downloadFailed": "Falha na transferência: {{error}}",
       "deleted": "Modelo excluído",
-      "confirmDelete": "Excluir o modelo baixado? Você pode baixá-lo novamente mais tarde.",
-      "confirmForce": "{{msg}}\n\nBaixar mesmo assim?"
+      "confirmDelete": "Excluir o modelo transferido? Pode voltar a transferi-lo mais tarde.",
+      "confirmForce": "{{msg}}\n\nTransferir mesmo assim?"
     },
     "openrouter": {
       "title": "OpenRouter",
@@ -606,12 +606,12 @@
     }
   },
   "footer": {
-    "credit": "Criado para você por <a>Fabrice Luyckx</a> sob GPLv3"
+    "credit": "Criado para si por <a>Fabrice Luyckx</a> sob a GPLv3"
   },
   "applications": {
-    "title": "Aplicações",
-    "new": "Nova aplicação",
-    "newTitle": "Nova aplicação",
+    "title": "Candidaturas",
+    "new": "Nova candidatura",
+    "newTitle": "Nova candidatura",
     "generate": "Gerar",
     "tailoredCv": "CV personalizado",
     "letterGuide": "Guia de carta",
@@ -623,15 +623,15 @@
     "createCv": "Gerar CV",
     "createLetter": "Criar guia de carta",
     "noUrl": "Este item não tem URL do emprego salvo, portanto nada mais pode ser gerado para ele.",
-    "deleteApp": "Excluir aplicação para {{title}}",
+    "deleteApp": "Excluir candidatura de {{title}}",
     "deleteLetter": "Excluir este guia de carta",
-    "deletedToast": "Aplicação excluída para \"{{title}}\"",
+    "deletedToast": "Candidatura excluída para \"{{title}}\"",
     "noneForJob": "Nada encontrado para este emprego ainda — a geração pode ter falhado. Tente novamente a partir da página de sugestões de empregos.",
-    "emptyTitle": "Nenhuma aplicação ainda",
-    "emptyBody": "Cole a URL do anúncio de emprego e o AI cria um CV personalizado e um guia para escrever a carta de apresentação — pronto para visualizar, editar e baixar.",
-    "searchPlaceholder": "Pesquisar suas aplicações…",
-    "noMatches": "Nenhuma aplicação corresponde à sua pesquisa.",
-    "loadError": "Não foi possível carregar suas aplicações: {{error}}",
+    "emptyTitle": "Nenhuma candidatura ainda",
+    "emptyBody": "Cole o URL de um anúncio de emprego e a IA cria um CV personalizado e um guia para escrever a carta de apresentação — pronto para pré-visualizar, editar e transferir.",
+    "searchPlaceholder": "Pesquisar as suas candidaturas…",
+    "noMatches": "Nenhuma candidatura corresponde à sua pesquisa.",
+    "loadError": "Não foi possível carregar as suas candidaturas: {{error}}",
     "changingLang": "Mudando o idioma…",
     "slowLocalHint": "No modelo local gratuito isso pode levar alguns minutos. Cancelar interrompe a geração e libera a IA para outras tarefas."
   },
@@ -639,14 +639,14 @@
     "title": "Carta de apresentação",
     "jobUrl": "URL do anúncio de emprego",
     "generate": "Criar guia",
-    "generating": "Criando…",
-    "starting": "Iniciando…",
+    "generating": "A criar…",
+    "starting": "A iniciar…",
     "emptyTitle": "Nenhum guia de carta ainda",
-    "emptyBody": "Cole a URL do anúncio de emprego acima para obter um plano personalizado para escrever sua carta.",
+    "emptyBody": "Cole o URL de um anúncio de emprego acima para obter um plano personalizado para escrever a sua carta.",
     "deletedToast": "Guia excluído para \"{{title}}\"",
     "explainer": {
-      "headline": "Esta ferramenta não escreve sua carta — isso é o ponto.",
-      "body": "Uma carta de apresentação só funciona se for escrita em suas próprias palavras; os recrutadores descartam cada vez mais cartas escritas por IA. Em vez disso, você recebe um plano personalizado: o que dizer, em que ordem e quais partes do seu perfil usar como evidência. A escrita permanece sua."
+      "headline": "Esta ferramenta não escreve a sua carta — esse é o objetivo.",
+      "body": "Uma carta de apresentação só funciona se for escrita nas suas próprias palavras; os recrutadores descartam cada vez mais cartas escritas por IA. Em vez disso, recebe um plano personalizado: o que dizer, em que ordem e quais partes do seu perfil usar como evidência. A escrita continua a ser sua."
     },
     "guide": {
       "headingFor": "Guia de carta para",
@@ -654,7 +654,7 @@
       "copied": "Guia copiado — cole-o no seu documento",
       "copyFailed": "Impossível copiar para o clipboard",
       "tips": "Dicas de escrita",
-      "copy": "Guia de cópia"
+      "copy": "Copiar guia"
     }
   }
 }

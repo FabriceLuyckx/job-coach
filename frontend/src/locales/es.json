@@ -81,9 +81,9 @@
       "removed": "Foto eliminada",
       "includeByDefault": "Incluir foto en nuevos CVs por defecto",
       "adjustTitle": "Ajustar foto",
-      "adjustHelp": "Arrastre la foto para reubicarla, y use el control deslizante (o desplace el ratón) para acercar o alejar. Su archivo original nunca se modifica.",
+      "adjustHelp": "Arrastra la foto para reubicarla, y usa el control deslizante (o la rueda del ratón) para acercar o alejar. Tu archivo original nunca se modifica.",
       "zoom": "Zoom",
-      "resetCrop": "Restablecer el marco"
+      "resetCrop": "Restablecer encuadre"
     },
     "visual": {
       "title": "Preferencias visuales del CV",
@@ -128,8 +128,8 @@
       "extractHelp": "Selecciona cuáles de los enlaces de una página son ofertas de empleo reales. La lista de enlaces encontrados en la página se añade automáticamente a continuación.",
       "filterTitle": "Sugerencias de empleo — instrucción de filtro de relevancia",
       "filterHelp": "Evalúa cada nuevo anuncio leyendo su descripción completa: decide si coincide contigo y extrae un resumen breve (empresa, ubicación, salario, plazo, requisitos). Las partes relevantes de tu perfil se agregan automáticamente debajo.",
-      "letterTitle": "Carta de presentación — prompt de guía",
-      "letterHelp": "Envía cuando se crea una guía para una carta de presentación. Tu perfil y el anuncio de empleo se agregan automáticamente a continuación. Esto genera un esqueleto de escritura (3–5 secciones con los hechos del perfil para citar, más consejos de redacción) — nunca un texto completo de carta. <code>{lang_name}</code> se reemplaza por el idioma de salida — debe quedar en el prompt."
+      "letterTitle": "Carta de presentación — instrucción de guía",
+      "letterHelp": "Se envía al crear una guía para una carta de presentación. Tu perfil y el anuncio de empleo se agregan automáticamente a continuación. Esto genera un esqueleto de escritura (3–5 secciones con los hechos del perfil para citar, más consejos de redacción) — nunca un texto completo de carta. <code>{lang_name}</code> se reemplaza por el idioma de salida — debe permanecer en la instrucción."
     },
     "template": {
       "label": "Plantilla de CV",
@@ -147,9 +147,9 @@
         "navy": "Azul marino",
         "jobcoach": "Job Coach",
         "forest": "Bosque",
-        "burgundy": "Rojizo",
-        "teal": "Teal",
-        "slate": "Slate",
+        "burgundy": "Burdeos",
+        "teal": "Verde azulado",
+        "slate": "Pizarra",
         "charcoal": "Carbón"
       },
       "colors": {
@@ -244,7 +244,7 @@
       "educationDescriptionOptional": "Notas (opcional)",
       "educationDescriptionPlaceholder": "Tema de tesis, especialización o asignatura relevante para los empleos que buscas",
       "years": "Años",
-      "funderOptional": "Fondador (opcional)",
+      "funderOptional": "Financiador (opcional)",
       "amountOptional": "Importe (opcional)"
     },
     "help": {
@@ -263,7 +263,7 @@
       "publications": "Para puestos académicos o de investigación. Pega la cita APA completa; la IA puede omitir esta sección para empleos no académicos.",
       "grants": "Para puestos académicos o de investigación — se muestran en la barra lateral del CV.",
       "customSections": "Añade cualquier sección que tu campo necesite — cada una se convierte en su propio bloque con título en tu CV.",
-      "teaching": "Impreso en tu CV como una lista de tus roles docentes; el IA lo omite para roles donde no sea relevante.",
+      "teaching": "Impreso en tu CV como una lista de tus roles docentes; la IA lo omite para roles donde no sea relevante.",
       "languages": "Idiomas que hablas y en qué medida — mostrados en el panel lateral de tu CV."
     },
     "add": {
@@ -301,7 +301,7 @@
       "title": "Importar desde un CV existente",
       "help": "Sube un PDF o pega el texto de tu CV. La IA extrae tus datos al perfil para que los revises y edites — nada se guarda hasta que lo compruebes.",
       "replaceWarn": "Esto reemplazará los datos actuales de tu perfil.",
-      "localWarn": "Estás usando el modelo local gratuito: importar un CV puede ser lento y menos preciso. Para mejores resultados, cambia a una clave de OpenRouter en Ajustes.",
+      "localWarn": "Estás usando el modelo local gratuito: importar un CV puede ser lento y menos preciso. Para mejores resultados, cambia a una clave de OpenRouter en Configuración.",
       "uploadPdf": "Subir un PDF",
       "pasteText": "…o pega el texto de tu CV",
       "pastePlaceholder": "Pega aquí el texto completo de tu CV",
@@ -341,7 +341,7 @@
       "languages": "Idiomas en los que puedes trabajar",
       "languagesPlaceholder": "e.g. Neerlandés — presiona Enter para añadir",
       "great": "¿Qué hace que un trabajo sea un buen ajuste?",
-      "greatSub": "El trabajo, la industria, la misión — cualquier cosa que te haga realmente querer aplicar. Se aceptan frases completas; el IA lo lee como un colega.",
+      "greatSub": "El trabajo, la industria, la misión — cualquier cosa que te haga realmente querer aplicar. Se aceptan frases completas; la IA lo lee como lo haría un colega.",
       "greatPlaceholder": "e.g. Trabajo basado en investigación donde puedo construir productos de datos desde cero, idealmente con impacto social",
       "dealbreakers": "¿Qué condiciones eliminan un trabajo?",
       "dealbreakersSub": "Aunque el título encaje. Los anuncios que tocan cualquiera de estos se descartan.",
@@ -438,7 +438,7 @@
     "language": "Idioma",
     "generateCv": "Generar CV",
     "generatingHint": "Leyendo la oferta y adaptando tu CV — normalmente unos 30 segundos.",
-    "needEngine": "Para generar, necesitas un motor de IA configurado — configura uno en Ajustes.",
+    "needEngine": "Para generar, necesitas un motor de IA configurado — configura uno en Configuración.",
     "generationFailed": "La generación ha fallado",
     "generationFailedRestart": "Error en la generación: es posible que el servidor se haya reiniciado. Consulta el historial a continuación.",
     "fetchingListing": "Obteniendo oferta de trabajo…",
@@ -450,7 +450,7 @@
     "noCvForJob": "No se encontró ningún CV para ese trabajo todavía — es posible que su generación haya fallado. Usa «Regenerar CV» en la página de Sugerencias de Trabajo para intentarlo de nuevo.",
     "undo": "Deshacer",
     "stage": {
-      "fetching": "Leeyendo la oferta de trabajo…",
+      "fetching": "Leyendo la oferta de trabajo…",
       "thinking": "Personalización con IA…",
       "rendering": "Creación de tu CV…"
     },
@@ -480,12 +480,12 @@
     "noNewListings": "No se encontraron nuevas ofertas",
     "scanFailed": "Análisis fallido",
     "scanFailedRestart": "El escaneo falló — es posible que el servidor se haya reiniciado.",
-    "needEngine": "El escaneo necesita un motor de IA configurado — configura uno en Ajustes.",
+    "needEngine": "El escaneo necesita un motor de IA configurado — configura uno en Configuración.",
     "couldntReadSource": "No se pudo leer <b>{{name}}</b> — {{err}}",
     "suggestions": "Sugerencias",
     "noSuggestionsTitle": "Aún no hay sugerencias",
     "noSuggestionsNoSources": "Añade una página de ofertas de empleo arriba, luego busca nuevas ofertas — las vacantes que coincidan con tu perfil aparecerán aquí.",
-    "noSuggestionsHasSources": "Run “Find new listings” — openings that match your profile will appear here with a short reason.",
+    "noSuggestionsHasSources": "Pulsa «Buscar nuevas ofertas» — las vacantes que coincidan con tu perfil aparecerán aquí con un breve motivo.",
     "acceptTitle": "Genera un CV y una guía de carta de presentación personalizada y los abre en la página de Aplicaciones",
     "acceptGenerate": "Aceptar",
     "reject": "Rechazar",
@@ -503,9 +503,9 @@
     "recheckFound_one": "{{count}} empleo filtrado ahora coincide",
     "recheckFound_other": "{{count}} empleos filtrados ahora coinciden",
     "recheckNone": "No hay empleos filtrados que coincidan con tus preferencias actuales",
-    "profileChanged": "Tu perfil cambió desde la última escaneo — revisa nuevamente los empleos filtrados para aplicar el cambio.",
+    "profileChanged": "Tu perfil cambió desde el último escaneo — revisa nuevamente los empleos filtrados para aplicar el cambio.",
     "checkTitle": "Verificar un empleo específico",
-    "checkHelp": "Encontraste un anuncio en otro lugar? Pega la URL para evaluarlo contra tu perfil — de la misma forma que lo haría un escaneo.",
+    "checkHelp": "¿Encontraste un anuncio en otro lugar? Pega la URL para evaluarlo contra tu perfil — de la misma forma que lo haría un escaneo.",
     "checkAria": "URL del anuncio para verificar",
     "check": "Verificar este empleo",
     "checkMatch": "Es un match — añadido a tus sugerencias.",
@@ -520,7 +520,7 @@
     "suggestAnyway": "Sugerir de todos modos",
     "suggestAnywayTitle": "Mover esta oferta a tus sugerencias",
     "showMore": "Mostrar {{count}} más",
-    "sourceLastScanned": "Última escaneo {{time}}",
+    "sourceLastScanned": "Último escaneo {{time}}",
     "cancelScan": "Cancelar escaneo"
   },
   "cveditor": {
@@ -555,7 +555,7 @@
     "reRunningNote": "Ejecutando la IA de nuevo — tarda unos 30 segundos.",
     "downloadPdf": "Descargar PDF",
     "photoDisabled": "La sección <b>Foto</b> está desactivada porque no hay ninguna foto guardada. ",
-    "addPhotoLink": "Añade una foto en Ajustes",
+    "addPhotoLink": "Añade una foto en Configuración",
     "addPhotoSuffix": "para activarla.",
     "editContent": "Editar contenido generado",
     "editHelp": "Los cambios a continuación se guardan automáticamente. Seleccione texto y presione <b>⌘/Ctrl+B</b> o <b>⌘/Ctrl+I</b> para hacerlo negrita o cursiva. Arrastre el control para reordenar las listas.",
@@ -573,13 +573,13 @@
     "pdfError": "No se pudo generar el PDF: {{error}}",
     "refreshPreviewTip": "Recargar la vista previa con tu perfil y diseño actualizados",
     "sectionsTitle": "Secciones",
-    "aiLeftOut": "Herramienta de IA omitida",
+    "aiLeftOut": "La IA omitió",
     "restoreTip": "Colocar esta sección de nuevo en el CV",
     "emphasisedSkills": "Habilidades destacadas",
     "saving": "Guardando…",
     "saved": "Guardado",
     "saveError": "No se pudo guardar",
-    "aiNeedsUrl": "No se ha guardado ninguna URL de empleo, por lo que el AI no puede releer el anuncio para este CV"
+    "aiNeedsUrl": "No se ha guardado ninguna URL de empleo, por lo que la IA no puede releer el anuncio para este CV"
   },
   "engine": {
     "title": "Motor de IA",
@@ -633,7 +633,7 @@
     "noMatches": "No hay aplicaciones que coincidan con tu búsqueda.",
     "loadError": "No se pudieron cargar tus aplicaciones: {{error}}",
     "changingLang": "Cambiando el idioma…",
-    "slowLocalHint": "En el modelo local gratuito esto puede tardar unos minutos. Cancelar detiene la generación y libera al AI para otras tareas."
+    "slowLocalHint": "En el modelo local gratuito esto puede tardar unos minutos. Cancelar detiene la generación y libera la IA para otras tareas."
   },
   "letters": {
     "title": "Carta de presentación",
@@ -654,7 +654,7 @@
       "copied": "Guía copiada — pégala en tu documento",
       "copyFailed": "No se pudo copiar al portapapeles",
       "tips": "Consejos para escribir",
-      "copy": "Guía de redacción"
+      "copy": "Copiar guía"
     }
   }
 }

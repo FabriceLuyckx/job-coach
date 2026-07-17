@@ -6,7 +6,7 @@
     "preferences": "Voorkeuren",
     "jobs": "Vacaturesuggesties",
     "settings": "Instellingen",
-    "applications": "Aanvragen"
+    "applications": "Sollicitaties"
   },
   "common": {
     "loading": "Laden…",
@@ -81,9 +81,9 @@
       "removed": "Foto verwijderd",
       "includeByDefault": "Foto inclusief in nieuwe CV's standaard",
       "adjustTitle": "Foto aanpassen",
-      "adjustHelp": "Sleep het foto om het te verplaatsen, en gebruik de schaal (of scroll) om te vergroten. Je oorspronkelijke upload wordt nooit gewijzigd.",
+      "adjustHelp": "Sleep de foto om hem te verplaatsen, en gebruik de schuifregelaar (of scroll) om te zoomen. Je oorspronkelijke upload wordt nooit gewijzigd.",
       "zoom": "Vergroten",
-      "resetCrop": "Framing opnieuw instellen"
+      "resetCrop": "Kadrering herstellen"
     },
     "visual": {
       "title": "Visuele voorkeuren cv",
@@ -137,20 +137,20 @@
       "palette": "Kleurenpalet",
       "appliesToAll": "Ontwerpveranderingen worden toegepast op elk CV — open een CV onder Toepassingen om het te zien.",
       "names": {
-        "default": "Kantel",
+        "default": "Zijbalk",
         "classic": "Klassiek",
         "banner": "Banner",
         "compact": "Compact",
         "minimal": "Minimalistisch"
       },
       "palettes": {
-        "navy": "Navy",
+        "navy": "Marineblauw",
         "jobcoach": "Job Coach",
-        "forest": "Woud",
-        "burgundy": "Burgund",
-        "teal": "Teal",
-        "slate": "Slate",
-        "charcoal": "Charcoal"
+        "forest": "Bos",
+        "burgundy": "Bordeauxrood",
+        "teal": "Petrolblauw",
+        "slate": "Leigrijs",
+        "charcoal": "Antraciet"
       },
       "colors": {
         "title": "Kleuren",
@@ -243,28 +243,28 @@
       "projectDescriptionPlaceholder": "Wat was het, voor wie was het, en wat was het resultaat?",
       "educationDescriptionOptional": "Notities (optioneel)",
       "educationDescriptionPlaceholder": "Thesisonderwerp, specialisatie of cursus die relevant zijn voor de functies die je wilt",
-      "years": "Jaar",
-      "funderOptional": "Funder (optioneel)",
+      "years": "Periode",
+      "funderOptional": "Financier (optioneel)",
       "amountOptional": "Bedrag (optioneel)"
     },
     "help": {
-      "personal": "Uw naam, contactgegevens en links — weergegeven bovenaan elk cv.",
-      "linksHelp": "Voeg profielen of portfoliolinks toe die relevant zijn voor uw vakgebied.",
-      "summary": "2–4 zinnen bovenaan uw cv. Bij het afstemmen op een vacature herschrijft de AI dit; wat u hier invult is uw standaardtekst.",
-      "experience": "Uw functies, nieuwste eerst. De bulletpunten vormen de inhoud van uw cv.",
-      "skills": "Groepeer uw vaardigheden onder passende koppen (bijv. Technische vaardigheden, Klinische vaardigheden, Ontwerptools) — elke groep met inhoud wordt weergegeven op uw cv.",
-      "education": "Opleidingen, nieuwste eerst — weergegeven in de zijbalk van uw cv.",
-      "projects": "Opvallende projecten of nevenwerk — weergegeven op uw cv.",
-      "volunteering": "Vrijwilligerswerk en maatschappelijke activiteiten — weergegeven op uw cv.",
-      "certifications": "Professionele certificeringen — weergegeven op uw cv.",
-      "courses": "Cursussen en trainingen zonder formeel certificaat — weergegeven op uw cv.",
-      "awards": "Onderscheidingen en prijzen — weergegeven op uw cv.",
-      "memberships": "Verenigingen en beroepsorganisaties waarbij u aangesloten bent — weergegeven op uw cv.",
+      "personal": "Je naam, contactgegevens en links — weergegeven bovenaan elk cv.",
+      "linksHelp": "Voeg profielen of portfoliolinks toe die relevant zijn voor jouw vakgebied.",
+      "summary": "2–4 zinnen bovenaan je cv. Bij het afstemmen op een vacature herschrijft de AI dit; wat je hier invult is je standaardtekst.",
+      "experience": "Je functies, nieuwste eerst. De bulletpunten vormen de inhoud van je cv.",
+      "skills": "Groepeer je vaardigheden onder passende koppen (bijv. Technische vaardigheden, Klinische vaardigheden, Ontwerptools) — elke groep met inhoud wordt weergegeven op je cv.",
+      "education": "Opleidingen, nieuwste eerst — weergegeven in de zijbalk van je cv.",
+      "projects": "Opvallende projecten of nevenwerk — weergegeven op je cv.",
+      "volunteering": "Vrijwilligerswerk en maatschappelijke activiteiten — weergegeven op je cv.",
+      "certifications": "Professionele certificeringen — weergegeven op je cv.",
+      "courses": "Cursussen en trainingen zonder formeel certificaat — weergegeven op je cv.",
+      "awards": "Onderscheidingen en prijzen — weergegeven op je cv.",
+      "memberships": "Verenigingen en beroepsorganisaties waarbij je aangesloten bent — weergegeven op je cv.",
       "publications": "Voor academische/onderzoeksfuncties. Plak de volledige APA-referentie; de AI kan deze sectie weglaten voor niet-academische vacatures.",
-      "grants": "Voor academische/onderzoeksfuncties — weergegeven in de zijbalk van uw cv.",
-      "customSections": "Voeg secties toe die uw vakgebied vereist — elke sectie wordt een eigen blok met titel op uw cv.",
-      "teaching": "Afgewerkt op je CV als lijst van je docentenrollen; de AI negeert deze voor functies waar het niet relevant is.",
-      "languages": "De talen die u spreekt en hoe goed — weergegeven in de zijbalk van uw CV."
+      "grants": "Voor academische/onderzoeksfuncties — weergegeven in de zijbalk van je cv.",
+      "customSections": "Voeg secties toe die jouw vakgebied vereist — elke sectie wordt een eigen blok met titel op je cv.",
+      "teaching": "Wordt op je cv weergegeven als lijst van je onderwijsrollen; de AI laat dit weg voor functies waar het niet relevant is.",
+      "languages": "De talen die je spreekt en hoe goed — weergegeven in de zijbalk van je cv."
     },
     "add": {
       "project": "+ Project toevoegen",
@@ -314,7 +314,7 @@
       "typePlaceholder": "Selecteer een type…",
       "typeOther": "Type (specificeer alsjeblieft)",
       "subject": "Onderwerp / cursustitel",
-      "years": "Jaar",
+      "years": "Periode",
       "descriptionPlaceholder": "Voor wie heb je geleerd (niveau, groepsgrootte), en wat heb je gedaan?",
       "types": {
         "course_instructor": "Cursusinstructor",
@@ -335,26 +335,26 @@
       "rolesPlaceholder": "bijv. Data Scientist — druk Enter om toe te voegen",
       "where": "Waar — en hoe — wil je werken?",
       "whereSub": "Aanbiedingen buiten deze plaatsen, talen of werkstijlen worden gefilterd.",
-      "locations": "Steden of regio's waar je zou kunnen reizen",
+      "locations": "Steden of regio's waar je naartoe zou kunnen pendelen",
       "locationsPlaceholder": "bijv. Gent — druk Enter om toe te voegen",
       "workingStyle": "Werkstijl",
       "languages": "Talen waarin je kunt werken",
       "languagesPlaceholder": "bijv. Nederlands — druk Enter om toe te voegen",
       "great": "Wat maakt een functie een geweldige match?",
       "greatSub": "Het werk, de sector, de missie — alles wat je echt zou willen aanvragen. Volledige zinnen zijn prima; de AI leest dit alsof een collega het zou lezen.",
-      "greatPlaceholder": "bijv. Onderzoek gerichte werkzaamheden waar ik dataproducten eind tot eind kan bouwen, ideale met sociale impact",
-      "dealbreakers": "Wat zet een functie uit?",
-      "dealbreakersSub": "Zelfs als de titel past. Aanbiedingen die een van deze punten raakt worden verwijderd.",
-      "dealbreakersPlaceholder": "bijv. Uitsluitend administratief werk, koude aanbieding, weekendverzorging",
+      "greatPlaceholder": "bijv. Onderzoeksgericht werk waarbij ik end-to-end dataproducten kan bouwen, idealiter met sociale impact",
+      "dealbreakers": "Wat sluit een functie uit?",
+      "dealbreakersSub": "Zelfs als de titel past. Aanbiedingen die een van deze punten raken, worden verwijderd.",
+      "dealbreakersPlaceholder": "bijv. Uitsluitend administratief werk, koude acquisitie, weekenddiensten",
       "practical": "Wat praktische dingen moeten we controleren?",
       "practicalSub": "Salariestelling, contracttype, uren, startdatum, reizen — de kleine details die vooraf moeten worden gecontroleerd voordat je een aanbod zelf leest.",
-      "practicalPlaceholder": "bijv. Volledige tijd van september, minimaal €3.500 per maand, maximaal één dag reizen per week"
+      "practicalPlaceholder": "bijv. Fulltime vanaf september, minimaal €3.500 per maand, maximaal één dag reizen per week"
     },
     "suggest": {
       "admin": "Uitsluitend administratief werk",
       "travel": "Frequent reizen",
-      "shifts": "Avond- of weekendverzorging",
-      "sales": "Koude aanroepen of deur tot deur verkoop"
+      "shifts": "Avond- of weekenddiensten",
+      "sales": "Koude acquisitie of deur-aan-deurverkoop"
     }
   },
   "badges": {
@@ -376,7 +376,7 @@
     },
     "skills": {
       "label": "Vaardigheden",
-      "description": "Gegroepeerde vaardigheden en talen."
+      "description": "Vaardigheden gegroepeerd onder je eigen koppen."
     },
     "education": {
       "label": "Opleiding",
@@ -446,8 +446,8 @@
     "starting": "Bezig met starten…",
     "listing": "Overzicht",
     "deleteCv": "CV verwijderen voor {{title}}",
-    "deletedToast": "Deleted the CV for “{{title}}”",
-    "noCvForJob": "Geen cv gevonden voor die vacature — de generatie ervan is mogelijk mislukt. Gebruik 'Cv opnieuw genereren' op de pagina Vacaturesuggesties om het opnieuw te proberen.",
+    "deletedToast": "Cv verwijderd voor ‘{{title}}’",
+    "noCvForJob": "Geen cv gevonden voor die vacature — de generatie ervan is mogelijk mislukt. Gebruik ‘CV opnieuw genereren’ op de pagina Vacaturesuggesties om het opnieuw te proberen.",
     "undo": "Ongedaan maken",
     "stage": {
       "fetching": "Het lezen van de functieaanbieding…",
@@ -460,7 +460,7 @@
     "detectingLang": "Taal detecteren..."
   },
   "jobs": {
-    "title": "Functiesuggesties",
+    "title": "Vacaturesuggesties",
     "loadError": "Deze pagina kon niet worden geladen: {{error}}",
     "sources": "Bronnen",
     "sourcesHelp": "Voeg vacaturepagina's toe om te volgen. Bij het zoeken naar nieuwe vacatures wordt elke pagina gescand op openstaande functies en gefilterd op basis van jouw profiel.",
@@ -485,11 +485,11 @@
     "suggestions": "Suggesties",
     "noSuggestionsTitle": "Nog geen suggesties",
     "noSuggestionsNoSources": "Voeg hierboven een vacaturepagina toe en zoek naar nieuwe vacatures — openstaande functies die overeenkomen met jouw profiel verschijnen hier.",
-    "noSuggestionsHasSources": "Run “Find new listings” — openings that match your profile will appear here with a short reason.",
-    "acceptTitle": "Genereert een aangepaste CV en briefvoorbeeld en opent deze op de pagina met toepassingen",
+    "noSuggestionsHasSources": "Klik op “Nieuwe vacatures zoeken” — vacatures die bij je profiel passen verschijnen hier met een korte reden.",
+    "acceptTitle": "Genereert een aangepast cv en een briefgids, en opent ze op de pagina Sollicitaties",
     "acceptGenerate": "Accepteren",
     "reject": "Afwijzen",
-    "rejectedToast": "\"{{title}}\" afgewezen",
+    "rejectedToast": "‘{{title}}’ afgewezen",
     "undo": "Ongedaan maken",
     "history": "Geschiedenis",
     "accepted": "Geaccepteerd",
@@ -499,13 +499,13 @@
     "readingPosting": "Leest functieaanbieding {{current}} van {{total}}…",
     "recheck": "Filterde vacatures opnieuw controleren",
     "rechecking": "Bezig met opnieuw controleren…",
-    "recheckTitle": "Beoordeel opnieuw de vacatures die je vorige keer hebt gefilterd tegen je huidige voorkeuren",
+    "recheckTitle": "Herbeoordeel de vacatures die je eerder hebt gefilterd, op basis van je huidige voorkeuren",
     "recheckFound_one": "{{count}} gefilterde vacature past nu",
     "recheckFound_other": "{{count}} gefilterde vacatures passen nu",
-    "recheckNone": "Geen gefilterde vacatures passen aan je huidige voorkeuren",
+    "recheckNone": "Geen gefilterde vacatures passen bij je huidige voorkeuren",
     "profileChanged": "Je profiel is gewijzigd sinds de laatste scan — controleer opnieuw gefilterde vacatures om het toe te passen.",
     "checkTitle": "Een specifieke vacature beoordelen",
-    "checkHelp": "Een advertentie gevonden op een andere plek? Plak de URL hieronder om het te beoordelen tegen je profiel — net zoals een scan het zou doen.",
+    "checkHelp": "Een vacature elders gevonden? Plak de URL hieronder om hem te beoordelen aan de hand van je profiel — net zoals bij een scan.",
     "checkAria": "URL van de vacature om te controleren",
     "check": "Deze vacature controleren",
     "checkMatch": "Het past — toegevoegd aan je suggesties.",
@@ -513,10 +513,10 @@
     "searchPlaceholder": "Zoek suggesties…",
     "filterBySource": "Filter op bron",
     "allSources": "Alle bronnen",
-    "noSuggestionsFiltered": "Geen suggesties passen aan je zoekopdracht of bronfilter.",
+    "noSuggestionsFiltered": "Geen suggesties passen bij je zoekopdracht of bronfilter.",
     "filteredOut_one": "Gefilterd uit ({{count}})",
     "filteredOut_other": "Gefilterd uit ({{count}})",
-    "filteredOutHelp": "Vacatures die de filter als ondoelmatig heeft beoordeeld, met de reden. Als het fout is gegaan, suggereer het toch.",
+    "filteredOutHelp": "Vacatures die de filter als niet-passend heeft beoordeeld, met de reden. Zat de filter ernaast? Suggereer de vacature dan alsnog.",
     "suggestAnyway": "Suggereer toch",
     "suggestAnywayTitle": "Dit terug in je suggesties verplaatsen",
     "showMore": "Toon {{count}} meer",
@@ -541,7 +541,7 @@
       "awards": "Prestaties",
       "memberships": "Lidmaatschappen",
       "volunteering": "Vrijwilligerswerk",
-      "custom_sections": "Aanpassingssecties"
+      "custom_sections": "Aangepaste secties"
     },
     "retailorTitle": "Opnieuw afstemmen met AI",
     "retailorPrompt": "De AI opnieuw uitvoeren voor de <b>{{lang}}</b> versie. Behoud je bewerkte samenvatting en opsommingspunten, of begin opnieuw?",
@@ -558,7 +558,7 @@
     "addPhotoLink": "Voeg een foto toe in Instellingen",
     "addPhotoSuffix": "om het in te schakelen.",
     "editContent": "Gegenereerde inhoud bewerken",
-    "editHelp": "De bewerkingen hieronder worden automatisch opgeslagen. Selecteer tekst en druk <b>⌘/Ctrl+B</b> of <b>⌘/Ctrl+I</b> om het vet of italic te maken. Zet de hand om de opmerkingen te herordenen.",
+    "editHelp": "De bewerkingen hieronder worden automatisch opgeslagen. Selecteer tekst en druk <b>⌘/Ctrl+B</b> of <b>⌘/Ctrl+I</b> om het vet of cursief te maken. Sleep de handgreep om de opsommingspunten opnieuw te ordenen.",
     "professionalSummary": "Professionele samenvatting",
     "aiSummaryTooltip": "Vraag de AI om een nieuwe samenvatting te schrijven op basis van je profiel en deze vacature",
     "generatingSummary": "Genereren…",
@@ -573,11 +573,11 @@
     "pdfError": "Kan de PDF niet bouwen: {{error}}",
     "refreshPreviewTip": "Laad de voorbeeldweergave opnieuw met uw laatste profiel en ontwerp",
     "sectionsTitle": "Secties",
-    "aiLeftOut": "AI is genegeerd",
+    "aiLeftOut": "Door AI weggelaten",
     "restoreTip": "Plaats deze sectie terug op het CV",
     "emphasisedSkills": "Gewaardeerde vaardigheden",
     "saving": "Bewaren…",
-    "saved": "Geslagen",
+    "saved": "Opgeslagen",
     "saveError": "Kan niet opslaan",
     "aiNeedsUrl": "Geen functie-URL opgeslagen, dus kan de AI de functie niet opnieuw lezen voor dit CV"
   },
@@ -609,31 +609,31 @@
     "credit": "Gemaakt voor jou door <a>Fabrice Luyckx</a> onder GPLv3"
   },
   "applications": {
-    "title": "Aanvragen",
-    "new": "Nieuwe aanvraag",
-    "newTitle": "Nieuwe aanvraag",
+    "title": "Sollicitaties",
+    "new": "Nieuwe sollicitatie",
+    "newTitle": "Nieuwe sollicitatie",
     "generate": "Genereren",
-    "tailoredCv": "Aanpassing CV",
+    "tailoredCv": "Aangepast cv",
     "letterGuide": "Briefgids",
     "cvTab": "CV",
     "letterTab": "Brief",
     "artifactDone": "Gedaan",
-    "noCvYet": "Geen aangepast CV voor deze functie nog.",
-    "noLetterYet": "Geen briefgids voor deze functie nog.",
+    "noCvYet": "Nog geen aangepast cv voor deze functie.",
+    "noLetterYet": "Nog geen briefgids voor deze functie.",
     "createCv": "CV genereren",
     "createLetter": "Briefgids aanmaken",
-    "noUrl": "Deze entry heeft geen opgeslagen functie-URL, dus niets meer kan worden gegenereerd.",
-    "deleteApp": "Aanvraag verwijderen voor {{title}}",
+    "noUrl": "Deze vermelding heeft geen opgeslagen functie-URL, dus kan er niets meer voor worden gegenereerd.",
+    "deleteApp": "Sollicitatie verwijderen voor {{title}}",
     "deleteLetter": "Deze briefgids verwijderen",
-    "deletedToast": "Aanvraag verwijderd voor ‘{{title}}’",
-    "noneForJob": "Niets gevonden voor deze functie — de generatie is mogelijk mislukt. Probeer opnieuw via de pagina 'Functievoorstellen'.",
-    "emptyTitle": "Geen aanvragen nog",
-    "emptyBody": "Plak een functie-URL en de AI maakt een aangepast CV en een briefgids voor het schrijven van je brief — klaar om te bekijken, te bewerken en te downloaden.",
-    "searchPlaceholder": "Zoek je aanvragen…",
-    "noMatches": "Geen aanvragen matchen met jouw zoekopdracht.",
-    "loadError": "Kon je aanvragen niet laden: {{error}}",
-    "changingLang": "Taal veranderen...",
-    "slowLocalHint": "Op de gratis lokale model kan dit enkele minuten duren. Annuleren stopt de generatie en vrijmaakt de AI voor andere taken."
+    "deletedToast": "Sollicitatie verwijderd voor ‘{{title}}’",
+    "noneForJob": "Nog niets gevonden voor deze functie — de generatie is mogelijk mislukt. Probeer het opnieuw via de pagina Vacaturesuggesties.",
+    "emptyTitle": "Nog geen sollicitaties",
+    "emptyBody": "Plak een functie-URL en de AI maakt een aangepast cv en een briefgids voor het schrijven van je brief — klaar om te bekijken, te bewerken en te downloaden.",
+    "searchPlaceholder": "Zoek je sollicitaties…",
+    "noMatches": "Geen sollicitaties komen overeen met je zoekopdracht.",
+    "loadError": "Kon je sollicitaties niet laden: {{error}}",
+    "changingLang": "Taal wijzigen…",
+    "slowLocalHint": "Bij het gratis lokale model kan dit enkele minuten duren. Annuleren stopt de generatie en maakt de AI vrij voor andere taken."
   },
   "letters": {
     "title": "Brief",
@@ -646,15 +646,15 @@
     "deletedToast": "Gids verwijderd voor ‘{{title}}’",
     "explainer": {
       "headline": "Dit hulpprogramma schrijft niet jouw brief — dat is het doel.",
-      "body": "Een brief werkt alleen als het in jouw eigen woorden staat; recruiters verwijderen steeds meer AI-gebaseerde berichten. In plaats daarvan krijg je een aangepast plan: wat te zeggen, in welke volgorde, en welke delen van jouw profiel als bewijs te gebruiken. Het schrijven blijft jouw eigen."
+      "body": "Een brief werkt alleen als hij in je eigen woorden is geschreven; recruiters wijzen AI-geschreven brieven steeds vaker af. In plaats daarvan krijg je een aangepast plan: wat te zeggen, in welke volgorde, en welke delen van je profiel je als bewijs kunt gebruiken. Het schrijven blijft van jou."
     },
     "guide": {
       "headingFor": "Briefgids voor",
       "structure": "Structuur",
-      "copied": "Handleiding gekopieerd — plak het in je document",
+      "copied": "Gids gekopieerd — plak hem in je document",
       "copyFailed": "Kan niet kopiëren naar klembord",
       "tips": "Schrijfadviezen",
-      "copy": "Handleiding kopiëren"
+      "copy": "Gids kopiëren"
     }
   }
 }
