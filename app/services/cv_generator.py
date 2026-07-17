@@ -93,9 +93,11 @@ _TOOL = {
                     "description": "Map of experience ID → up to 4 bullet points per role, in the target language, combining the most relevant responsibilities and achievements for this job",
                     "additionalProperties": {"type": "array", "items": {"type": "string"}},
                 },
+                # Replaced per call by _tool_for(), which enumerates the exact
+                # profile strings as properties — see _translatable().
                 "sidebar_translations": {
                     "type": "object",
-                    "description": "For non-English CVs only: map each English sidebar string that should be translated — education fields of study, distinctions, grant/fellowship names, and language names like 'Dutch'/'English' — to its translation in the target language. Keep degree titles (e.g. 'Doctor of Philosophy (PhD)'), skill/tool names and most institution names in English (omit them). Return an empty object for English CVs.",
+                    "description": "For non-English CVs only: translations of the CV's static sidebar text.",
                     "additionalProperties": {"type": "string"},
                 },
                 "highlighted_skills": {
@@ -121,6 +123,57 @@ _TOOL = {
     },
 }
 
+
+def _translatable(profile: dict) -> list[str]:
+    """The exact profile strings a non-English CV should have translated.
+
+    apply_tailoring() substitutes sidebar_translations by exact string match, so
+    only real profile strings can ever land on the CV. Left free-form, the model
+    answered with category buckets instead — {"languages": "Nederlands, Engels…"} —
+    which matched nothing, so a Dutch CV silently kept its English skill headings
+    and language names. Enumerating these as schema properties makes that
+    unrepresentable: the local engine compiles the schema to a grammar, so the
+    keys can only be strings from this list.
+
+    Deliberately excluded (they stay English, per the prompt): degree titles,
+    institution names, and the skill items themselves — 'Python' is 'Python'.
+    """
+    skills = profile.get("skills") or {}
+    values = [
+        *(edu.get(k) for edu in profile.get("education") or [] for k in ("field", "distinction")),
+        *(g.get("name") for g in profile.get("grants") or []),
+        *(lang.get("language") for lang in skills.get("languages") or []),
+        *(g.get("label") for g in skills.get("groups") or []),
+        *(sec.get("title") for sec in profile.get("custom_sections") or []),
+    ]
+    # dict, not set: stable order keeps the schema (and its grammar) reproducible.
+    return list({v: None for v in values if isinstance(v, str) and v.strip()})
+
+
+def _tool_for(profile: dict, lang: str) -> dict:
+    """The tailoring tool with sidebar_translations pinned to this profile's
+    strings — or dropped entirely for an English CV, where there is nothing to
+    translate and an empty object is just one more thing to get wrong."""
+    tool = copy.deepcopy(_TOOL)
+    params = tool["function"]["parameters"]
+    strings = _translatable(profile) if lang != "en" else []
+    if strings:
+        params["properties"]["sidebar_translations"] = {
+            "type": "object",
+            "description": (
+                f"Each key is a string from the profile; set its value to that "
+                f"string translated into {lang_name(lang)}. Omit any key that "
+                f"should stay in English (degree titles, tool names)."
+            ),
+            "properties": {s: {"type": "string"} for s in strings},
+            "additionalProperties": False,
+        }
+    else:
+        params["properties"].pop("sidebar_translations")
+        params["required"] = [k for k in params["required"] if k != "sidebar_translations"]
+    return tool
+
+
 # Editable via Settings → "CV Generator Prompt". {lang_name} is substituted at
 # call time. The candidate profile JSON is appended automatically after this.
 DEFAULT_CV_PROMPT = """You are an expert career coach helping tailor CVs to specific job openings.
@@ -131,7 +184,7 @@ Rules:
 - Professional summary: maximum 4 sentences, direct and specific to this role
 - Select only experience entries that are genuinely relevant to the role
 - For each selected role, write a SINGLE list of at most 4 bullet points that combines its most relevant responsibilities and achievements for this job, in adjusted_responsibilities
-- For non-English CVs, also translate the static sidebar text (education fields of study, distinctions, grant names, language names) via sidebar_translations; keep degree titles (e.g. "Doctor of Philosophy (PhD)", "Master's Degree"), skill/tool names and institution names in English
+- For non-English CVs, fill in sidebar_translations: every key is one exact string copied from the profile — translate each into {lang_name} as its value, and omit any that should stay as-is. Keep degree titles (e.g. "Doctor of Philosophy (PhD)", "Master's Degree") and skill/tool names (Python, AWS) in English; DO translate skill group headings, language names, education fields of study, distinctions and grant names
 - Mirror the language of the job description, but only honestly
 - Do not invent skills or experience not present in the profile
 - Keep bullets concise (one line each); never more than 4 per role
@@ -225,7 +278,7 @@ def tailor(
                 ),
             },
         ],
-        tools=[_TOOL],
+        tools=[_tool_for(profile, lang)],
         tool_choice={"type": "function", "function": {"name": "cv_tailoring_plan"}},
         cfg=cfg,
         max_tokens=4096,  # 2048 truncated the JSON plan on large profiles → AIResponseError
@@ -309,17 +362,20 @@ def apply_tailoring(profile: dict, plan: TailoringPlan) -> dict:
     if "teaching" in plan.excluded_sections:
         p["teaching"] = {"entries": []}
 
-    # Translate static sidebar text (education, grants, languages) for non-English
-    # CVs. Only strings the model chose to translate are replaced; the rest stay.
+    # Translate static sidebar text for non-English CVs. Substitution is by exact
+    # string match, and the keys offered to the model are built from these very
+    # fields (_translatable) — the two lists must stay in step, or a string gets
+    # translated in the plan and never swapped in (or vice versa).
     tr = plan.sidebar_translations or {}
     if tr:
         def t(s):
             return tr.get(s, s) if isinstance(s, str) else s
         for edu in p.get("education", []):
-            # Degree titles stay in English everywhere (e.g. "Doctor of Philosophy
-            # (PhD)", "Master's Degree") — translations were awkward, and keeping
-            # them English also preserves the template's "hide High School" filter.
-            for k in ("field", "institution", "distinction"):
+            # Degree titles and institutions stay in English everywhere (e.g.
+            # "Doctor of Philosophy (PhD)") — translations were awkward, and
+            # keeping them English also preserves the template's "hide High
+            # School" filter.
+            for k in ("field", "distinction"):
                 if edu.get(k):
                     edu[k] = t(edu[k])
         for grant in p.get("grants", []):
@@ -331,6 +387,9 @@ def apply_tailoring(profile: dict, plan: TailoringPlan) -> dict:
         for g in p.get("skills", {}).get("groups", []):
             if g.get("label"):
                 g["label"] = t(g["label"])
+        for sec in p.get("custom_sections", []):
+            if sec.get("title"):
+                sec["title"] = t(sec["title"])
 
     return p
 

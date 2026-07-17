@@ -79,12 +79,14 @@
       "upload": "Subir foto",
       "uploaded": "Foto subida",
       "removed": "Foto eliminada",
-      "includeInCv": "Incluir foto en los CVs generados"
+      "includeByDefault": "Incluir foto en nuevos CVs por defecto",
+      "adjustTitle": "Ajustar foto",
+      "adjustHelp": "Arrastre la foto para reubicarla, y use el control deslizante (o desplace el ratón) para acercar o alejar. Su archivo original nunca se modifica.",
+      "zoom": "Zoom",
+      "resetCrop": "Restablecer el marco"
     },
     "visual": {
       "title": "Preferencias visuales del CV",
-      "accent": "Color de acento",
-      "accentPlaceholder": "#1B3A6B o 'Azul oscuro'",
       "font": "Estilo de fuente",
       "styleNotes": "Notas de estilo (para la IA)",
       "stylePlaceholder": "p. ej. Minimalista",
@@ -128,6 +130,35 @@
       "filterHelp": "Evalúa cada nuevo anuncio leyendo su descripción completa: decide si coincide contigo y extrae un resumen breve (empresa, ubicación, salario, plazo, requisitos). Las partes relevantes de tu perfil se agregan automáticamente debajo.",
       "letterTitle": "Carta de presentación — prompt de guía",
       "letterHelp": "Envía cuando se crea una guía para una carta de presentación. Tu perfil y el anuncio de empleo se agregan automáticamente a continuación. Esto genera un esqueleto de escritura (3–5 secciones con los hechos del perfil para citar, más consejos de redacción) — nunca un texto completo de carta. <code>{lang_name}</code> se reemplaza por el idioma de salida — debe quedar en el prompt."
+    },
+    "template": {
+      "label": "Plantilla de CV",
+      "help": "Elige un diseño. Las vistas previas muestran los colores seleccionados.",
+      "palette": "Paleta de colores",
+      "appliesToAll": "Los cambios de diseño se aplican a todos los CVs — abra uno bajo Aplicaciones para verlo.",
+      "names": {
+        "default": "Barra lateral",
+        "classic": "Clásico",
+        "banner": "Banner",
+        "compact": "Compacto",
+        "minimal": "Minimalista"
+      },
+      "palettes": {
+        "navy": "Azul marino",
+        "jobcoach": "Job Coach",
+        "forest": "Bosque",
+        "burgundy": "Rojizo",
+        "teal": "Teal",
+        "slate": "Slate",
+        "charcoal": "Carbón"
+      },
+      "colors": {
+        "title": "Colores",
+        "help": "Los colores de la paleta — cambie cualquiera de ellos para personalizarla.",
+        "accent": "Color de acento",
+        "text": "Color del texto",
+        "background": "Color de fondo"
+      }
     }
   },
   "profile": {

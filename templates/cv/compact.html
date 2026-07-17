@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+{#
+  COMPACT — two columns with the sidebar on the RIGHT, tighter type and spacing
+  for long CVs. Section markup comes from _sections.html; this file owns layout
+  + CSS only.
+
+  Print mirrors default.html's proven mechanism, mirrored horizontally: the
+  colour band is `position: fixed` (Chromium repeats fixed elements on every
+  page, positioned against the page content box), the sidebar CONTENT is
+  absolute so it draws once on page 1, and the main column flows in normal block
+  flow with a right margin clearing the band. A single grid/flex container could
+  not break across pages — hence the separate print mechanism.
+#}
+<html lang="{{ lang }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base target="_blank">
+<title>{{ personal.name }} – CV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  {% set accent = cv_design_preferences.accent_color | default('#1B3A6B', true) %}
+  {% set colors = cv_design_preferences.colors | default({}, true) %}
+  {% set ink   = colors.ink   | default('#1E1E1E', true) %}
+  {% set paper = colors.paper | default('#FFFFFF', true) %}
+  :root {
+    --accent:     {{ accent }};
+    --accent-mid: color-mix(in srgb, {{ accent }} 70%, white);
+    --text:       {{ ink }};
+    --muted:      color-mix(in srgb, {{ ink }} 65%, white);
+    --paper:      {{ paper }};
+    --sidebar-bg: color-mix(in srgb, {{ accent }} 6%, {{ paper }});
+    --border:     color-mix(in srgb, {{ accent }} 20%, {{ paper }});
+
+    --sidebar-w: 58mm;   /* narrower than default — the main column gets the room */
+    --gutter:     5mm;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 8.5pt;
+    color: var(--text);
+    line-height: 1.4;
+    background: #d0d5e0;
+  }
+
+  .doc {
+    position: relative;
+    width: 210mm;
+    min-height: 297mm;
+    background: var(--paper);
+    margin: 20px auto;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    overflow: hidden;
+  }
+
+  /* Screen: flex row, main first, sidebar second (right). Both in normal flow,
+     so the page grows to whichever column is taller. */
+  .body { display: flex; align-items: stretch; min-height: 297mm; }
+
+  /* Repeating colour band (print only) — see the print rules. */
+  .sidebar-band { display: none; }
+
+  /* ── SIDEBAR (right) ── */
+  .sidebar {
+    flex: 0 0 var(--sidebar-w);
+    width: var(--sidebar-w);
+    background: var(--sidebar-bg);
+    border-left: 1px solid var(--border);
+    padding: 10mm 10px;
+    order: 2;
+  }
+
+  /* ── PHOTO ── small circle atop the sidebar */
+  .photo-frame {
+    width: 30mm;
+    height: 30mm;
+    overflow: hidden;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    margin: 0 auto 10px;
+  }
+
+  .photo-frame img { display: block; width: 100%; height: 100%; }
+
+  /* ── MAIN ── */
+  .main {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 10mm 12px 10mm 14mm;
+    order: 1;
+  }
+
+  .name-block { margin-bottom: 9px; }
+
+  .name-block h1 {
+    font-size: 19pt;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--accent);
+    line-height: 1.1;
+  }
+
+  .name-block h2 {
+    font-size: 9.5pt;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .name-contact {
+    font-size: 7.5pt;
+    color: var(--muted);
+    margin-top: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .name-contact a { color: var(--muted); text-decoration: none; }
+
+  /* ── SECTIONS ── */
+  .section { margin-bottom: 11px; }
+
+  .section-title {
+    font-size: 7.5pt;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 2px;
+    margin-bottom: 6px;
+  }
+
+  .summary {
+    font-size: 8.5pt;
+    line-height: 1.5;
+    margin-bottom: 11px;
+    padding-left: 8px;
+    border-left: 2px solid var(--accent);
+  }
+
+  /* ── ENTRIES ── dense: title and employer share a line where they fit */
+  .entry { margin-bottom: 8px; }
+
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .entry-title { font-size: 9pt; font-weight: 600; }
+  .entry-date  { font-size: 7pt; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+
+  .entry-employer {
+    font-size: 8pt;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+
+  .entry-body    { font-size: 8pt; }
+  .entry-body ul { padding-left: 12px; }
+  .entry-body li { margin-bottom: 1px; }
+
+  /* ── LINKS (sidebar) ── */
+  .link-item { margin-bottom: 4px; }
+
+  .link-label {
+    display: block;
+    font-size: 6.5pt;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+  }
+
+  .link-item a {
+    font-size: 7.5pt;
+    color: var(--accent-mid);
+    text-decoration: none;
+    word-break: break-all;
+  }
+
+  /* ── SKILLS ── */
+  .skills-group { margin-bottom: 5px; }
+
+  .skills-group-label {
+    font-size: 6.5pt;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 3px;
+  }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 3px; }
+
+  .tag {
+    background: var(--accent);
+    color: var(--paper);
+    font-size: 6.5pt;
+    font-weight: 500;
+    line-height: 1.35;
+    padding: 1px 5px;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  /* ── LANGUAGES ── */
+  .lang-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 3px;
+    font-size: 8pt;
+  }
+
+  .lang-dots { display: flex; gap: 2px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
+  .dot.on { background: var(--accent); }
+
+  /* ── EDUCATION / GRANTS / PUBLICATIONS ── */
+  .edu-entry  { margin-bottom: 6px; }
+  .edu-degree { font-weight: 600; font-size: 8pt; line-height: 1.3; }
+  .edu-field  { font-size: 7.5pt; color: var(--muted); font-style: italic; }
+  .edu-institution { font-size: 7.5pt; color: var(--accent); font-weight: 500; }
+  .edu-year   { font-size: 7pt; color: var(--muted); }
+  .edu-description { font-size: 7pt; color: var(--muted); margin-top: 1px; }
+
+  .grant-entry { font-size: 7.5pt; margin-bottom: 4px; line-height: 1.35; }
+  .grant-year  { font-weight: 600; color: var(--accent); }
+
+  .pub-entry   { margin-bottom: 5px; font-size: 7.5pt; line-height: 1.4; }
+  .pub-journal { color: var(--accent); font-weight: 500; }
+  .pub-note    { color: var(--muted); font-style: italic; }
+
+  /* ── PRINT ── default.html's mechanism, mirrored to the right. */
+  @page { size: A4 portrait; margin: 0; }
+
+  @media print {
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    html, body { margin: 0; padding: 0; background: var(--paper); }
+    body { font-size: 8pt; orphans: 2; widows: 2; }
+
+    .doc {
+      display: block;      /* drop the screen flex; back to block flow */
+      position: relative;  /* containing block for the absolute sidebar */
+      width: auto;
+      min-height: 0;
+      margin: 0;
+      box-shadow: none;
+      overflow: visible;
+    }
+
+    /* Body unwraps to block flow so the main column paginates and the sidebar
+       can be positioned against .doc. */
+    .body { display: block; min-height: 0; }
+
+    /* Colour band: fixed → repeats on every page, full content height, so the
+       right column never stops where the sidebar text ends. */
+    .sidebar-band {
+      display: block;
+      position: fixed;
+      top: 0;
+      right: 0; bottom: 0;
+      z-index: 0;
+      width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      border-left: 1px solid var(--border);
+    }
+
+    /* Sidebar content: absolute → drawn once on page 1, on top of the band. If
+       it overflows it spills to page 2, so keep it tight. */
+    .sidebar {
+      position: absolute;
+      top: 0;
+      right: 0; bottom: auto;
+      z-index: 1;
+      width: var(--sidebar-w);
+      background: transparent;
+      border-left: 0;
+      padding: 11mm 10px 10px;
+    }
+
+    /* Main: flows in the content box, clearing the band on every page. Cloned
+       padding repeats the top gap on each page fragment. */
+    .main {
+      position: relative;
+      z-index: 1;
+      margin-right: calc(var(--sidebar-w) + var(--gutter));
+      padding: 11mm 0 12mm 14mm;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+    }
+
+    .entry-body li, .pub-entry, .edu-entry, .lang-row, .summary { break-inside: avoid; }
+    .section-title, .entry-header, .entry-employer { break-after: avoid; }
+    .name-block { break-after: avoid; }
+    .sidebar .section, .grant-entry { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+{% import '_sections.html' as S with context %}
+<div class="doc">
+
+  <!-- Repeating colour band (print only) — sits behind the sidebar content -->
+  <div class="sidebar-band" aria-hidden="true"></div>
+
+  <div class="body">
+
+    <!-- MAIN CONTENT (left) -->
+    <main class="main">
+      <div class="name-block">
+        <h1>{{ personal.name }}</h1>
+        <h2>{{ personal.professional_title }}</h2>
+        <div class="name-contact">
+          <span>{{ personal.location.city }}, {{ personal.location.country }}</span>
+          <span><a href="mailto:{{ personal.email }}">{{ personal.email }}</a></span>
+          {% if personal.phone %}<span>{{ personal.phone }}</span>{% endif %}
+        </div>
+      </div>
+      {{ S.main_sections_two_col() }}
+    </main>
+
+    <!-- SIDEBAR (right) -->
+    <aside class="sidebar">
+      {{ S.photo_frame() }}
+      {{ S.sec_links() }}
+      {{ S.sec_skills() }}
+      {{ S.sec_languages() }}
+      {{ S.sec_education() }}
+      {{ S.sec_grants() }}
+    </aside>
+
+  </div><!-- /.body -->
+
+</div>
+</body>
+</html>

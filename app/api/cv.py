@@ -23,7 +23,8 @@ from app.services.cv_generator import (
 from app.api.i18n import ensure_cv_labels
 from app.i18n.languages import is_valid_code, lang_name
 from app.services.cv_renderer import (
-    OUTPUT_DIR, PROFILE_PATH, build_env, cv_labels, load_photo, load_profile, profile_for_tailoring,
+    OUTPUT_DIR, PROFILE_PATH, build_env, cv_labels, list_templates, load_photo, load_profile,
+    profile_for_tailoring,
 )
 from app.services.llm import AIResponseError, GenerationCancelled, complete, current_cancel, message_text
 
@@ -176,11 +177,21 @@ def _persist_plans(history_id: str, lang: str, plans: dict[str, dict]) -> None:
         )
 
 
+@router.get("/templates")
+def get_templates() -> dict:
+    """Built-in template ids + the shared palette list, for the Settings picker.
+    No LLM."""
+    return list_templates()
+
+
 def _render_html(plan: TailoringPlan, profile: dict, lang: str) -> str:
     """Apply tailoring plan and render the CV HTML (current template + profile)."""
     tailored = apply_tailoring(profile, plan)
     design = profile.get("cv_design_preferences", {})
-    photo_uri = load_photo() if design.get("include_photo", False) else None
+    # The photo is always passed when one exists; per-CV visibility lives in
+    # plan.hidden_sections ('photo'), seeded from include_photo at generation
+    # time. Gating here on the global flag would make the per-CV toggle a no-op.
+    photo_uri = load_photo()
     env = build_env()
     # Groundwork for the template-chooser phase: the template name comes from the
     # profile's design prefs, defaulting to "default"; unknown names fall back.
@@ -229,6 +240,20 @@ def _current_html(slug: str, lang: str) -> str | None:
     return path.read_text(encoding="utf-8") if path.exists() else None
 
 
+def _unique_slug(slug: str) -> str:
+    """A slug no existing history row uses. The slug is a CV's whole identity
+    (output dir, preview URL, and _current_html's plan lookup), so two rows
+    sharing one would silently render each other's edits."""
+    with db.get_db() as conn:
+        taken = {r["slug"] for r in conn.execute("SELECT slug FROM cv_history").fetchall()}
+    if slug not in taken:
+        return slug
+    n = 2
+    while f"{slug}-{n}" in taken:
+        n += 1
+    return f"{slug}-{n}"
+
+
 def _run_generation(job_id: str, url: str, lang: str, job_text: str | None = None) -> None:
     with _jobs_lock:
         cancel = _jobs[job_id].get("cancel")
@@ -246,6 +271,13 @@ def _run_generation(job_id: str, url: str, lang: str, job_text: str | None = Non
             job_text = fetch_job_description(url)
         _set_stage(job_id, "thinking")
         plan = tailor(profile, url, cfg, lang, prompt, job_text=job_text)
+        # include_photo is the default for NEW CVs only: it seeds the per-CV
+        # visibility (hidden_sections), which the editor's photo toggle then
+        # owns. Rendering itself never reads the global flag.
+        if not profile.get("cv_design_preferences", {}).get("include_photo", False) \
+                and "photo" not in plan.hidden_sections:
+            plan.hidden_sections.append("photo")
+        plan.slug = _unique_slug(plan.slug)
         _set_stage(job_id, "rendering")
         ensure_cv_labels(lang, cfg)  # no-op for reviewed/already-generated languages
         slug = _render_and_save(plan, profile, lang)

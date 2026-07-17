@@ -79,12 +79,14 @@
       "upload": "Télécharger une photo",
       "uploaded": "Photo téléchargée",
       "removed": "Photo supprimée",
-      "includeInCv": "Inclure la photo dans les CV générés"
+      "includeByDefault": "Inclure la photo dans les nouveaux CV par défaut",
+      "adjustTitle": "Ajuster la photo",
+      "adjustHelp": "Déplacez la photo en la déplaçant, et utilisez la barre de défilement (ou faites défiler) pour zoomer. Votre fichier d'origine n'est jamais modifié.",
+      "zoom": "Zoom",
+      "resetCrop": "Réinitialiser le cadre"
     },
     "visual": {
       "title": "Préférences visuelles du CV",
-      "accent": "Couleur d'accent",
-      "accentPlaceholder": "#1B3A6B ou 'Bleu foncé'",
       "font": "Style de police",
       "styleNotes": "Notes de style (pour l'IA)",
       "stylePlaceholder": "ex. Minimaliste",
@@ -128,6 +130,35 @@
       "filterHelp": "Évalue chaque nouveau poste en le lisant en entier : décide s'il correspond à vous et extrait une synthèse courte (employeur, localisation, salaire, délai, exigences). Les parties pertinentes de votre profil sont ajoutées automatiquement ci-dessous.",
       "letterTitle": "Lettre de motivation — prompt de guide",
       "letterHelp": "Envoyé lors de la création d'un guide de lettre de motivation. Profil et offre d'emploi sont ajoutés automatiquement ci-dessous. Cela produit un squelette de rédaction (3 à 5 sections avec les faits du profil à citer, ainsi que des conseils de rédaction) — la lettre n'est jamais complètement écrite. <code>{lang_name}</code> est remplacé par la langue de sortie — il doit rester dans le prompt."
+    },
+    "template": {
+      "label": "Modèle de CV",
+      "help": "Choisissez un layout. Les aperçus montrent vos couleurs sélectionnées.",
+      "palette": "Palette de couleurs",
+      "appliesToAll": "Les modifications de design s'appliquent à tous les CV — ouvrez-en un dans Applications pour le voir.",
+      "names": {
+        "default": "Barre latérale",
+        "classic": "Classique",
+        "banner": "Bannière",
+        "compact": "Compact",
+        "minimal": "Minimal"
+      },
+      "palettes": {
+        "navy": "Navy",
+        "jobcoach": "Job Coach",
+        "forest": "Forêt",
+        "burgundy": "Burgundy",
+        "teal": "Teal",
+        "slate": "Slate",
+        "charcoal": "Charcoal"
+      },
+      "colors": {
+        "title": "Couleurs",
+        "help": "Les couleurs de la palette — modifiez-en n'importe laquelle pour les rendre les vôtres.",
+        "accent": "Couleur d'accent",
+        "text": "Couleur du texte",
+        "background": "Couleur de fond"
+      }
     }
   },
   "profile": {

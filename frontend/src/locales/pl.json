@@ -79,12 +79,14 @@
       "upload": "Prześlij zdjęcie",
       "uploaded": "Zdjęcie przesłane",
       "removed": "Zdjęcie usunięte",
-      "includeInCv": "Dołącz zdjęcie do generowanych CV"
+      "includeByDefault": "Włącz zdjęcie w nowych CVach domyślnie",
+      "adjustTitle": "Przygotuj zdjęcie",
+      "adjustHelp": "Przesuń zdjęcie, aby je przesunąć, a użyj suwaka (lub przesuń myszką) do powiększenia. Oryginalne zdjęcie nie zostanie zmienione.",
+      "zoom": "Powiększenie",
+      "resetCrop": "Odblokuj ramkę"
     },
     "visual": {
       "title": "Preferencje wizualne CV",
-      "accent": "Kolor akcentu",
-      "accentPlaceholder": "#1B3A6B lub 'Ciemny niebieski'",
       "font": "Styl czcionki",
       "styleNotes": "Uwagi dotyczące stylu (dla AI)",
       "stylePlaceholder": "np. Minimalistyczny",
@@ -128,6 +130,35 @@
       "filterHelp": "Ocenia nowe oferty, czytając pełny opis: decyduje, czy pasuje Ci i wyciąga krótką podsumowanie (firmę, lokalizację, wynagrodzenie, termin, wymagania). Współczesne części Twojego profilu są automatycznie dodawane poniżej.",
       "letterTitle": "List — przewodnik promptowy",
       "letterHelp": "Wyświetzane podczas tworzeniu kierunku do napisania listy ofertowej. Profil i ogłoszenie pracy są automatycznie dodawane poniżej. Tworzy szkielet tekstu (3–5 sekcji z danymi profilu do cytowania, plus wskazówki do napisania) — tekst listy nie jest ukończony. <code>{lang_name}</code> jest zastępowany przez język wyjściowy — musi zostać zachowany w promptie."
+    },
+    "template": {
+      "label": "Szablon CV",
+      "help": "Wybierz układ. Prewizje pokazują wybrane kolory.",
+      "palette": "Paleta kolorów",
+      "appliesToAll": "Zmiany stylu stosowane są do wszystkich CV — otwórz jedno w sekcji Zastosowania, aby zobaczyć je.",
+      "names": {
+        "default": "Pasek boczny",
+        "classic": "Klasyczny",
+        "banner": "Pasek",
+        "compact": "Skompresowany",
+        "minimal": "Minimalny"
+      },
+      "palettes": {
+        "navy": "Navy",
+        "jobcoach": "Job Coach",
+        "forest": "Las",
+        "burgundy": "Burżuazja",
+        "teal": "Tęczowy",
+        "slate": "Slate",
+        "charcoal": "Charcoal"
+      },
+      "colors": {
+        "title": "Kolory",
+        "help": "Kolory palety — możesz zmienić dowolny z nich, aby to było Twoje.",
+        "accent": "Akcentowy kolor",
+        "text": "Kolor tekstu",
+        "background": "Kolor tła"
+      }
     }
   },
   "profile": {

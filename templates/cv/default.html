@@ -24,17 +24,27 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  {# Accent colour from cv_design_preferences (Settings → CV Visual Preferences);
-     falls back to the default dark blue. Lighter shades derived via color-mix. #}
+  {# Colours from cv_design_preferences (Settings → Visual preferences): the accent
+     plus the palette's optional ink/paper slots, each falling back to this
+     template's original value so existing profiles render identically. Every
+     value is validated as #RRGGBB on profile load — see _migrate_design_prefs_v3.
+     Lighter shades are derived via color-mix. #}
   {% set accent = cv_design_preferences.accent_color | default('#1B3A6B', true) %}
+  {% set colors = cv_design_preferences.colors | default({}, true) %}
+  {% set ink   = colors.ink   | default('#1E1E1E', true) %}
+  {% set paper = colors.paper | default('#FFFFFF', true) %}
   :root {
     --blue:        {{ accent }};
     --blue-mid:    color-mix(in srgb, {{ accent }} 70%, white);
-    --text:        #1E1E1E;
-    --muted:       #5A5A5A;
-    --sidebar-bg:  color-mix(in srgb, {{ accent }} 7%, white);
-    --border:      color-mix(in srgb, {{ accent }} 22%, white);
-    --white:       #FFFFFF;
+    --text:        {{ ink }};
+    {# 72% of the default ink lands on ~#5D5D5D — the hand-picked grey this
+       template used before the palette slots existed. #}
+    --muted:       color-mix(in srgb, {{ ink }} 72%, white);
+    --sidebar-bg:  color-mix(in srgb, {{ accent }} 7%, {{ paper }});
+    --border:      color-mix(in srgb, {{ accent }} 22%, {{ paper }});
+    --white:       {{ paper }};
+    {# The photo frame's letterbox backdrop (see photo_frame in _sections.html). #}
+    --paper:       {{ paper }};
 
     /* Layout geometry — shared by screen + print so both stay in sync */
     --header-h:  28mm;   /* fixed header band height            */
@@ -133,15 +143,22 @@
      on top of it — see the print rules. Hidden on screen. */
   .sidebar-band { display: none; }
 
-  /* ── PHOTO ── */
-  .photo {
-    display: block;
-    width: 50mm;
-    height: 50mm;
-    object-fit: cover;
-    border-radius: 6px;
+  /* ── PHOTO ── sidebar-top circle. The frame is a fixed-size window; the fit,
+     backdrop, pan and zoom all come from the inline style the photo_frame macro
+     writes from photo_crop. */
+  .photo-frame {
+    width: 42mm;
+    height: 42mm;
+    overflow: hidden;
+    border-radius: 50%;
     border: 2px solid var(--border);
     margin: 0 auto 16px;
+  }
+
+  .photo-frame img {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 
   /* ── MAIN ── (screen: in-flow flex column, fills remaining width) */
@@ -400,9 +417,9 @@
 </style>
 </head>
 <body>
-{# Sections the user toggled off in the editor. Defaulted so the CLIs
-   (generate_cv.py / tailor_cv.py), which don't pass it, still render. #}
-{% set hidden = hidden_sections | default([], true) %}
+{# Section markup (and the hidden_sections / photo guards) is shared by every
+   built-in template; this file owns the LAYOUT and the CSS only. #}
+{% import '_sections.html' as S with context %}
 <div class="doc">
 
   <!-- HEADER -->
@@ -428,239 +445,17 @@
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
-
-    {% if photo and 'photo' not in hidden %}
-    <img src="{{ photo }}" class="photo" alt="{{ personal.name }}" data-section="photo">
-    {% endif %}
-
-    {% if personal.links and 'links' not in hidden %}
-    <div class="section" data-section="links">
-      <div class="section-title">{{ labels.links }}</div>
-      {% for link in personal.links %}{% if link.url %}
-      <div class="link-item">
-        <span class="link-label">{{ link.label }}</span>
-        <a href="{{ link.url }}">{{ link.url | strip_scheme }}</a>
-      </div>
-      {% endif %}{% endfor %}
-    </div>
-    {% endif %}
-
-    {% if 'skills' not in hidden %}
-    <div class="section" data-section="skills">
-      <div class="section-title">{{ labels.skills }}</div>
-
-      {% for g in skills.groups %}{% if g['items'] %}
-      <div class="skills-group">
-        <div class="skills-group-label">{{ g['label'] }}</div>
-        <div class="tags">
-          {% for t in g['items'] %}<span class="tag">{{ t }}</span>{% endfor %}
-        </div>
-      </div>
-      {% endif %}{% endfor %}
-    </div>
-    {% endif %}
-
-    {% if 'languages' not in hidden %}
-    <div class="section" data-section="languages">
-      <div class="section-title">{{ labels.languages }}</div>
-      {% for lang_item in skills.languages %}
-      <div class="lang-row">
-        <span>{{ lang_item.language }}</span>
-        <div class="lang-dots">
-          {% for i in range(5) %}<div class="dot {% if i < lang_item.level %}on{% endif %}"></div>{% endfor %}
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    {% if 'education' not in hidden %}
-    <div class="section" data-section="education">
-      <div class="section-title">{{ labels.education }}</div>
-      {% for edu in education %}
-      {% if edu.degree != "High School" %}
-      <div class="edu-entry">
-        <div class="edu-degree">{{ edu.degree }}</div>
-        <div class="edu-field">{{ edu.field }}</div>
-        <div class="edu-institution">{{ edu.institution }}</div>
-        <div class="edu-year">
-          {{ edu.start_year }}–{{ edu.end_year }}{% if edu.distinction %} · {{ edu.distinction }}{% endif %}
-        </div>
-        {% if edu.description %}<div class="edu-description">{{ edu.description }}</div>{% endif %}
-      </div>
-      {% endif %}
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    {% if grants and 'grants' not in hidden %}
-    <div class="section" data-section="grants">
-      <div class="section-title">{{ labels.grants }}</div>
-      {% for grant in grants %}
-      <div class="grant-entry">
-        <span class="grant-year">{{ grant.years }}</span>
-        &nbsp;{{ grant.name }}{% if grant.funder %} — {{ grant.funder }}{% endif %}{% if grant.amount %} ({{ grant.amount }}){% endif %}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
+    {{ S.photo_frame() }}
+    {{ S.sec_links() }}
+    {{ S.sec_skills() }}
+    {{ S.sec_languages() }}
+    {{ S.sec_education() }}
+    {{ S.sec_grants() }}
   </aside>
 
   <!-- MAIN CONTENT -->
   <main class="main">
-
-    {% if summary and 'summary' not in hidden %}<div class="summary" data-section="summary">{{ summary | richtext }}</div>{% endif %}
-
-    {% if 'experience' not in hidden %}
-    <div class="section" data-section="experience">
-      <div class="section-title">{{ labels.experience }}</div>
-      {% for job in experience %}
-      <div class="entry">
-        <div class="entry-header">
-          <span class="entry-title">{{ job.title }}</span>
-          <span class="entry-date">
-            {{ job.start_date | format_date }} –
-            {% if job.end_date %}{{ job.end_date | format_date }}{% else %}{{ labels.present }}{% endif %}
-          </span>
-        </div>
-        <div class="entry-employer">{{ job.employer }} &middot; {{ job.location }}</div>
-        <div class="entry-body">
-          <ul>
-            {% for r in job.responsibilities %}<li>{{ r | richtext }}</li>{% endfor %}
-          </ul>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    {% if projects %}
-    <div class="section" data-section="projects">
-      <div class="section-title">{{ labels.projects }}</div>
-      {% for proj in projects %}
-      <div class="entry">
-        <div class="entry-header">
-          <span class="entry-title">{{ proj.name }}</span>
-        </div>
-        {% if proj.description %}<div class="entry-body">{{ proj.description | richtext }}</div>{% endif %}
-        {% if proj.technologies %}<div class="entry-employer">{{ proj.technologies | join(' · ') }}</div>{% endif %}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    {% if publications and 'publications' not in hidden %}
-    <div class="section" data-section="publications">
-      <div class="section-title">{{ labels.publications }}</div>
-      {% for pub in publications %}
-      <div class="pub-entry">
-        {{ pub.citation | richtext }}{% if pub.description %} <span class="pub-note">{{ pub.description }}</span>{% endif %}{% if pub.url %} <a href="{{ pub.url }}">{{ pub.url | strip_scheme }}</a>{% endif %}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    {% if teaching.entries %}
-    <div class="section" data-section="teaching">
-      <div class="section-title">{{ labels.teaching }}</div>
-      {% for te in teaching.entries %}
-      <div class="entry">
-        <div class="entry-header">
-          <span class="entry-title">
-            {%- if te.type == "other" -%}{{ te.type_other }}
-            {%- elif te.type -%}{{ labels["teaching_type_" ~ te.type] }}
-            {%- endif -%}
-            {%- if te.subject %} — {{ te.subject }}{% endif -%}
-          </span>
-          <span class="entry-date">{{ te.years }}</span>
-        </div>
-        {% if te.institution %}<div class="entry-employer">{{ te.institution }}</div>{% endif %}
-        {% if te.description %}<div class="entry-body">{{ te.description | richtext }}</div>{% endif %}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    {% if certifications %}
-    <div class="section" data-section="certifications">
-      <div class="section-title">{{ labels.certifications }}</div>
-      {% for cert in certifications %}
-      <div class="pub-entry">
-        {{ cert.name }}{% if cert.issuer %} — <span class="pub-journal">{{ cert.issuer }}</span>{% endif %}{% if cert.year %}, {{ cert.year }}{% endif %}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    {% if awards %}
-    <div class="section" data-section="awards">
-      <div class="section-title">{{ labels.awards }}</div>
-      {% for award in awards %}
-      <div class="pub-entry">
-        {% if award.year %}<span class="grant-year">{{ award.year }}</span>&nbsp;{% endif %}{{ award.name }}{% if award.description %} — {{ award.description }}{% endif %}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    {% if volunteering %}
-    <div class="section" data-section="volunteering">
-      <div class="section-title">{{ labels.volunteering }}</div>
-      {% for vol in volunteering %}
-      <div class="entry">
-        <div class="entry-header">
-          <span class="entry-title">{{ vol.role }}</span>
-          <span class="entry-date">
-            {{ vol.start_date | format_date }}{% if vol.start_date %} –{% endif %}
-            {% if vol.end_date %}{{ vol.end_date | format_date }}{% elif vol.start_date %}{{ labels.present }}{% endif %}
-          </span>
-        </div>
-        {% if vol.organisation %}<div class="entry-employer">{{ vol.organisation }}</div>{% endif %}
-        {% if vol.description %}<div class="entry-body">{{ vol.description | richtext }}</div>{% endif %}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    {% if courses %}
-    <div class="section" data-section="courses">
-      <div class="section-title">{{ labels.courses }}</div>
-      {% for course in courses %}
-      <div class="pub-entry">
-        {{ course.name }}{% if course.provider %} — <span class="pub-journal">{{ course.provider }}</span>{% endif %}{% if course.year %}, {{ course.year }}{% endif %}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    {% if memberships %}
-    <div class="section" data-section="memberships">
-      <div class="section-title">{{ labels.memberships }}</div>
-      {% for m in memberships %}
-      <div class="pub-entry">
-        {{ m.name }}{% if m.role %} — {{ m.role }}{% endif %}{% if m.year %}, {{ m.year }}{% endif %}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    {% for sec in custom_sections %}{% if sec.title and sec['items'] %}
-    <div class="section" data-section="custom">
-      <div class="section-title">{{ sec.title }}</div>
-      {% for item in sec['items'] %}
-      <div class="entry">
-        <div class="entry-header">
-          <span class="entry-title">{{ item.heading }}</span>
-          {% if item.date %}<span class="entry-date">{{ item.date }}</span>{% endif %}
-        </div>
-        {% if item.subheading %}<div class="entry-employer">{{ item.subheading }}</div>{% endif %}
-        {% if item.description %}<div class="entry-body">{{ item.description | richtext }}</div>{% endif %}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}{% endfor %}
-
+    {{ S.main_sections_two_col() }}
   </main>
 
   </div><!-- /.body -->

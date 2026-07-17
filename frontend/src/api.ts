@@ -143,7 +143,22 @@ export interface DownloadStatus {
   model_id?: string
 }
 
+export interface CVPalette {
+  id: string
+  accent_color: string
+  colors: { ink: string; paper: string }
+}
+
+export interface CVTemplateRegistry {
+  templates: string[]
+  // One shared palette list — same set and order for every template.
+  palettes: CVPalette[]
+}
+
 export const api = {
+  // Built-in CV template ids + the shared palettes. Display names are i18n keys
+  // (settings.template.names.<id> / .palettes.<id>), never server strings.
+  getTemplates: () => request<CVTemplateRegistry>('/cv/templates'),
   // Profile
   getProfile: () => request<Profile>('/profile'),
   putProfile: (p: Profile) =>

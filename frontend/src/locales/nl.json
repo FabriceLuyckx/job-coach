@@ -79,12 +79,14 @@
       "upload": "Foto uploaden",
       "uploaded": "Foto geüpload",
       "removed": "Foto verwijderd",
-      "includeInCv": "Foto opnemen in gegenereerde cv's"
+      "includeByDefault": "Foto inclusief in nieuwe CV's standaard",
+      "adjustTitle": "Foto aanpassen",
+      "adjustHelp": "Sleep het foto om het te verplaatsen, en gebruik de schaal (of scroll) om te vergroten. Je oorspronkelijke upload wordt nooit gewijzigd.",
+      "zoom": "Vergroten",
+      "resetCrop": "Framing opnieuw instellen"
     },
     "visual": {
       "title": "Visuele voorkeuren cv",
-      "accent": "Accentkleur",
-      "accentPlaceholder": "#1B3A6B of 'Donkerblauw'",
       "font": "Lettertype",
       "styleNotes": "Stijlnotities (voor de AI)",
       "stylePlaceholder": "bijv. Minimalistisch",
@@ -128,6 +130,35 @@
       "filterHelp": "Beoordeelt elke nieuwe functie door de volledige aanbieding te lezen: bepaalt of het past bij u en haalt een korte samenvatting (bedrijf, locatie, salaris, deadline, eisen) op. De relevante delen van uw profiel worden automatisch hieronder toegevoegd.",
       "letterTitle": "Brief — gidsprompt",
       "letterHelp": "Verstuurd bij het maken van een handleiding voor een sollicitatiebrief. Je profiel en de functieaanbod worden automatisch toegevoegd hieronder. Dit produceert een schrijfskelet (3–5 secties met de profielgegevens om te citeren, plus schrijfadviezen) — de brief wordt nooit volledig geschreven. <code>{lang_name}</code> wordt vervangen door de uitvoer taal — het moet in de prompt blijven."
+    },
+    "template": {
+      "label": "CV sjabloon",
+      "help": "Kies een layout. De voorbeelden tonen je geselecteerde kleuren.",
+      "palette": "Kleurenpalet",
+      "appliesToAll": "Ontwerpveranderingen worden toegepast op elk CV — open een CV onder Toepassingen om het te zien.",
+      "names": {
+        "default": "Kantel",
+        "classic": "Klassiek",
+        "banner": "Banner",
+        "compact": "Compact",
+        "minimal": "Minimalistisch"
+      },
+      "palettes": {
+        "navy": "Navy",
+        "jobcoach": "Job Coach",
+        "forest": "Woud",
+        "burgundy": "Burgund",
+        "teal": "Teal",
+        "slate": "Slate",
+        "charcoal": "Charcoal"
+      },
+      "colors": {
+        "title": "Kleuren",
+        "help": "De kleuren uit het palet — verander er een om het jouw eigen te maken.",
+        "accent": "Accentkleur",
+        "text": "Tekstkleur",
+        "background": "Achtergrondkleur"
+      }
     }
   },
   "profile": {

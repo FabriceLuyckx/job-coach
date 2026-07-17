@@ -3,27 +3,22 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { SlidersHorizontal } from 'lucide-react'
+import { Pencil, SlidersHorizontal } from 'lucide-react'
 import { api } from '../api'
 import type { Profile } from '../types'
 import Button from '../components/Button'
 import SaveButton from '../components/SaveButton'
 import Collapsible from '../components/Collapsible'
 import EngineSettings from '../components/EngineSettings'
+import TemplateThumb from '../components/TemplateThumb'
+import PhotoCropModal, { DEFAULT_CROP } from '../components/PhotoCropModal'
 import { useToast } from '../components/Toast'
 import { useKeyStatus } from '../components/KeyStatus'
 import LanguageSettings from '../components/LanguageSettings'
-import type { EngineProvider } from '../api'
+import type { CVTemplateRegistry, EngineProvider } from '../api'
 import { errMsg } from '../lib/errors'
 
-const ACCENT_PRESETS = [
-  { value: '#1B3A6B', label: 'Dark Blue (default)' },
-  { value: '#1a4a3a', label: 'Forest Green' },
-  { value: '#3a1a4a', label: 'Deep Purple' },
-  { value: '#4a2a1a', label: 'Warm Brown' },
-  { value: '#1a3a4a', label: 'Teal' },
-  { value: '#2a2a2a', label: 'Charcoal' },
-]
+const HEX_RE = /^#[0-9a-fA-F]{6}$/
 
 const OPENROUTER_MODELS = [
   'anthropic/claude-sonnet-4-6',
@@ -36,6 +31,14 @@ const OPENROUTER_MODELS = [
 ]
 
 const fmtUsd = (n: number | null | undefined) => (n == null ? '—' : `$${n.toFixed(2)}`)
+
+/** The design-prefs keys the Visual-preferences SaveButton owns. include_photo
+ *  is excluded on purpose: it saves itself on toggle (see togglePhoto), so it
+ *  must never arm this card's button. */
+const prefsSnapshot = (p: Profile) => {
+  const { include_photo: _ignored, ...rest } = p.cv_design_preferences
+  return JSON.stringify(rest)
+}
 
 interface Usage { balance: number | null; usage: number | null; remaining: number | null }
 
@@ -108,6 +111,9 @@ export default function SettingsPage() {
   const [scanFilter, setScanFilter] = useState('')
   const [savedPrefs, setSavedPrefs] = useState('')  // JSON snapshot of cv_design_preferences
 
+  const [registry, setRegistry] = useState<CVTemplateRegistry | null>(null)
+  const [cropping, setCropping] = useState(false)
+
   const [photoUploading, setPhotoUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const [importing, setImporting] = useState(false)
@@ -120,17 +126,18 @@ export default function SettingsPage() {
   }
 
   useEffect(() => {
-    Promise.all([api.getSettings(), api.getProfile(), api.getPhoto()]).then(([s, p, ph]) => {
+    Promise.all([api.getSettings(), api.getProfile(), api.getPhoto(), api.getTemplates()]).then(([s, p, ph, tpl]) => {
       setSettings(s)
       setProfile(p)
       setPhoto(ph)
+      setRegistry(tpl)
       setProvider(s.llm_provider)
       setModel(s.openrouter_model)
       setCvPrompt(s.cv_prompt)
       setLetterPrompt(s.letter_prompt)
       setScanExtract(s.scan_extract_prompt)
       setScanFilter(s.scan_filter_prompt)
-      setSavedPrefs(JSON.stringify(p.cv_design_preferences))
+      setSavedPrefs(prefsSnapshot(p))
       if (!OPENROUTER_MODELS.includes(s.openrouter_model)) setCustomModel(s.openrouter_model)
       if (s.openrouter_api_key_set) loadUsage()
     }).catch(e => setLoadError(errMsg(e)))
@@ -171,7 +178,36 @@ export default function SettingsPage() {
   async function saveVisualPrefs() {
     if (!profile) return
     await api.putProfile(profile)
-    setSavedPrefs(JSON.stringify(profile.cv_design_preferences))
+    setSavedPrefs(prefsSnapshot(profile))
+  }
+
+  /** Patch design prefs in local state — the SaveButton persists them. */
+  function setDesign(patch: Partial<Profile['cv_design_preferences']>) {
+    setProfile(p => p && { ...p, cv_design_preferences: { ...p.cv_design_preferences, ...patch } })
+  }
+
+  /** The include-photo default persists on its own (it's a switch, not a form
+   *  field): optimistic, reverting with an error toast if the save fails. */
+  async function togglePhoto(include: boolean) {
+    if (!profile) return
+    const next = { ...profile, cv_design_preferences: { ...profile.cv_design_preferences, include_photo: include } }
+    setProfile(next)
+    try {
+      await api.putProfile(next)
+    } catch (e) {
+      setProfile(profile)
+      toast.error(errMsg(e))
+    }
+  }
+
+  /** Crop is saved on confirm — the modal is the commit point, not the card. */
+  async function savePhotoCrop(photo_crop: NonNullable<Profile['cv_design_preferences']['photo_crop']>) {
+    if (!profile) return
+    const next = { ...profile, cv_design_preferences: { ...profile.cv_design_preferences, photo_crop } }
+    await api.putProfile(next)
+    setProfile(next)
+    setSavedPrefs(prefsSnapshot(next))
+    setCropping(false)
   }
 
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -182,6 +218,7 @@ export default function SettingsPage() {
       await api.uploadPhoto(file)
       setPhoto(await api.getPhoto())
       toast.success(t('settings.photo.uploaded'))
+      setCropping(true)  // frame the fresh upload right away
     } catch (e) {
       toast.error(errMsg(e))
     } finally { setPhotoUploading(false); if (fileRef.current) fileRef.current.value = '' }
@@ -230,7 +267,18 @@ export default function SettingsPage() {
   const isCustomModel = !OPENROUTER_MODELS.includes(settings.openrouter_model)
   const pendingModel = model !== '__custom__' ? model : customModel
   const connectionDirty = !!apiKey || pendingModel !== settings.openrouter_model
-  const prefsDirty = JSON.stringify(profile.cv_design_preferences) !== savedPrefs
+  const prefsDirty = prefsSnapshot(profile) !== savedPrefs
+
+  const design = profile.cv_design_preferences
+  // An unknown/legacy template id renders as 'default', mirroring the server.
+  const activeTemplate = registry?.templates.includes(design.template) ? design.template : 'default'
+  const crop = design.photo_crop ?? DEFAULT_CROP
+  // Thumbnails preview the live (unsaved) choice, so tapping a swatch or editing
+  // a colour recolours them immediately.
+  const inkColor = design.colors?.ink ?? '#1E1E1E'
+  const paperColor = design.colors?.paper ?? '#FFFFFF'
+  const thumbPalette = { accent: design.accent_color, ink: inkColor, paper: paperColor }
+  const hex = (s?: string) => (s ?? '').toLowerCase()
 
   return (
     <div>
@@ -308,11 +356,38 @@ export default function SettingsPage() {
       <div className="card">
         <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>{t('settings.photo.title')}</div>
         {photo?.exists && photo.data_uri && (
-          <img
-            src={photo.data_uri}
-            alt="Profile"
-            style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 'var(--radius-sm)', marginBottom: 'var(--space-3)', display: 'block', border: '2px solid var(--border)' }}
-          />
+          <div style={{ position: 'relative', width: 120, height: 120, marginBottom: 'var(--space-3)' }}>
+            {/* Same circle + crop CSS the templates use, so this preview is
+                exactly what lands on the CV. */}
+            <div style={{
+              width: '100%', height: '100%', overflow: 'hidden', borderRadius: '50%',
+              border: '2px solid var(--border)', background: paperColor,
+            }}>
+              <img
+                src={photo.data_uri}
+                alt="Profile"
+                style={{
+                  display: 'block', width: '100%', height: '100%', objectFit: 'contain',
+                  transform: `translate(${crop.x - 50}%, ${crop.y - 50}%) scale(${crop.zoom})`,
+                }}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setCropping(true)}
+              disabled={photoUploading}
+              title={t('settings.photo.adjustTitle')}
+              aria-label={t('settings.photo.adjustTitle')}
+              style={{
+                position: 'absolute', top: 0, right: 0, width: 28, height: 28,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'var(--paper)', border: '1px solid var(--ink)',
+                cursor: 'pointer', padding: 0,
+              }}
+            >
+              <Pencil size={14} aria-hidden />
+            </button>
+          </div>
         )}
         <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', flexWrap: 'wrap' }}>
           <input
@@ -334,43 +409,118 @@ export default function SettingsPage() {
             <input
               type="checkbox"
               checked={profile.cv_design_preferences.include_photo}
-              onChange={e => setProfile({ ...profile, cv_design_preferences: { ...profile.cv_design_preferences, include_photo: e.target.checked } })}
+              onChange={e => togglePhoto(e.target.checked)}
             />
-            {t('settings.photo.includeInCv')}
+            {t('settings.photo.includeByDefault')}
           </label>
         </div>
       </div>
 
-      {/* Visual preferences */}
+      {cropping && photo?.data_uri && (
+        <PhotoCropModal
+          src={photo.data_uri}
+          initial={profile.cv_design_preferences.photo_crop ?? DEFAULT_CROP}
+          paper={paperColor}
+          onCancel={() => setCropping(false)}
+          onSave={savePhotoCrop}
+        />
+      )}
+
+      {/* Visual preferences — template, palette, custom accent. One self-contained
+          block so a future Settings-tabs split can move it wholesale. */}
       <div className="card">
         <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>{t('settings.visual.title')}</div>
+
         <div className="field">
-          <label>{t('settings.visual.accent')}</label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
-            {ACCENT_PRESETS.map(({ value, label }) => (
-              <button
-                key={value}
-                type="button"
-                title={label}
-                aria-label={label}
-                onClick={() => setProfile({ ...profile, cv_design_preferences: { ...profile.cv_design_preferences, accent_color: value } })}
-                style={{
-                  width: 32, height: 32, borderRadius: '50%', background: value, border: `3px solid ${profile.cv_design_preferences.accent_color === value ? 'var(--surface)' : 'transparent'}`,
-                  outline: profile.cv_design_preferences.accent_color === value ? `2px solid ${value}` : 'none',
-                  cursor: 'pointer', padding: 0,
-                }}
-              />
-            ))}
+          <label>{t('settings.template.label')}</label>
+          <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{t('settings.template.help')}</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}>
+            {registry?.templates.map(id => {
+              const isSel = activeTemplate === id
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  aria-pressed={isSel}
+                  onClick={() => setDesign({ template: id })}
+                  style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-2)',
+                    background: 'none', padding: 'var(--space-2)', cursor: 'pointer',
+                    border: `2px solid ${isSel ? 'var(--accent)' : 'transparent'}`,
+                  }}
+                >
+                  <TemplateThumb layout={id} palette={thumbPalette} selected={isSel} />
+                  <span style={{ fontSize: 'var(--fs-xs)', fontWeight: isSel ? 600 : 400 }}>
+                    {t(`settings.template.names.${id}`)}
+                  </span>
+                </button>
+              )
+            })}
           </div>
-          <input
-            type="text"
-            value={profile.cv_design_preferences.accent_color}
-            onChange={e => setProfile({ ...profile, cv_design_preferences: { ...profile.cv_design_preferences, accent_color: e.target.value } })}
-            placeholder={t('settings.visual.accentPlaceholder')}
-            style={{ width: 200 }}
-          />
+        </div>
+
+        <div className="field">
+          <label>{t('settings.template.palette')}</label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+            {registry?.palettes.map(pal => {
+              const isSel = hex(design.accent_color) === hex(pal.accent_color)
+                && hex(design.colors?.ink) === hex(pal.colors.ink)
+                && hex(design.colors?.paper) === hex(pal.colors.paper)
+              return (
+                <button
+                  key={pal.id}
+                  type="button"
+                  aria-pressed={isSel}
+                  title={t(`settings.template.palettes.${pal.id}`)}
+                  aria-label={t(`settings.template.palettes.${pal.id}`)}
+                  onClick={() => setDesign({ accent_color: pal.accent_color, colors: pal.colors })}
+                  style={{
+                    display: 'flex', width: 44, height: 26, padding: 0, cursor: 'pointer',
+                    border: `2px solid ${isSel ? 'var(--ink)' : 'var(--border)'}`,
+                  }}
+                >
+                  {/* the palette's slots, in the proportion the CV uses them */}
+                  <span style={{ flex: 2, background: pal.accent_color }} />
+                  <span style={{ flex: 1, background: pal.colors.ink }} />
+                  <span style={{ flex: 1, background: pal.colors.paper }} />
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* The selected palette's colours, each editable — overwrite any of them
+            to make your own palette. */}
+        <div className="field">
+          <label>{t('settings.template.colors.title')}</label>
+          <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{t('settings.template.colors.help')}</p>
+          {([
+            { slot: 'accent', value: design.accent_color, write: (v: string) => setDesign({ accent_color: v }) },
+            { slot: 'text', value: inkColor, write: (v: string) => setDesign({ colors: { ...design.colors, ink: v } }) },
+            { slot: 'background', value: paperColor, write: (v: string) => setDesign({ colors: { ...design.colors, paper: v } }) },
+          ]).map(({ slot, value, write }) => (
+            <div key={slot} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
+              <span style={{ width: 140, fontSize: 'var(--fs-sm)' }}>{t(`settings.template.colors.${slot}`)}</span>
+              <input
+                type="color"
+                value={HEX_RE.test(value) ? value : '#000000'}
+                onChange={e => write(e.target.value)}
+                aria-label={t(`settings.template.colors.${slot}`)}
+                style={{ width: 34, height: 26, padding: 0, border: '1px solid var(--border)', cursor: 'pointer', background: 'none' }}
+              />
+              <input
+                type="text"
+                value={value}
+                onChange={e => write(e.target.value)}
+                style={{ width: 110, fontFamily: 'monospace' }}
+              />
+            </div>
+          ))}
         </div>
         <SaveButton dirty={prefsDirty} onSave={saveVisualPrefs} idleLabel={t('settings.visual.save')} />
+        <p className="help-text" style={{ marginTop: 'var(--space-3)', marginBottom: 0 }}>
+          {t('settings.template.appliesToAll')}
+        </p>
       </div>
 
       {/* Backup & restore */}

@@ -16,7 +16,7 @@ The app runs locally first, designed for easy cloud deployment. AI is powered vi
 | Artifact | Status | Notes |
 |----------|--------|-------|
 | `profile/profile.json` | Done | Full structured career data from questionnaire |
-| `templates/cv/default.html` | Done | Two-column Jinja2 CV template with language support and photo slot |
+| `templates/cv/*.html` | Done | Five selectable Jinja2 CV templates (`default`/`classic`/`banner`/`compact`/`minimal`) + `_sections.html` macros; palettes in `manifest.json` |
 | `scripts/generate_cv.py` | Done | CLI: `--lang`, `--job`, photo support, job-slug output dirs |
 | `app/services/cv_generator.py` | Done | `tailor()` + `apply_tailoring()` — called by CLI and API |
 | `app/services/cv_renderer.py` | Done | Shared Jinja2 utilities (LABELS, filters, photo) |
@@ -58,8 +58,13 @@ job-coach/
 │   └── photo.jpg                 # Optional CV photo (jpg/jpeg/png/webp accepted)
 ├── templates/
 │   └── cv/
-│       ├── default.html          # Base CV Jinja2 template (two-column, dark blue)
-│       └── academic.html         # (future) Academic-focused variant
+│       ├── manifest.json         # Template registry: ids + curated palettes (one source of truth)
+│       ├── _sections.html        # Shared Jinja macros: ALL section markup + the contract
+│       ├── default.html          # Two-column, left sidebar (the default)
+│       ├── classic.html          # Single column, centered header, serif headings
+│       ├── banner.html           # Full-width accent header band, single column
+│       ├── compact.html          # Right sidebar, dense — for long CVs
+│       └── minimal.html          # Typographic, no filled blocks
 ├── output/                       # Generated CVs — gitignored
 │   ├── cv_en.html                # Generic English CV
 │   ├── cv_nl.html                # Generic Dutch CV
@@ -194,9 +199,23 @@ output/
   },
   "highlighted_skills": ["Python", "Data analysis"],
   "slug": "ugent-data-scientist",
-  "tailoring_notes": "Why this role matches and what was emphasised"
+  "tailoring_notes": "Why this role matches and what was emphasised",
+  "sidebar_translations": {"Programming": "Programmeren", "Dutch": "Nederlands"}
 }
 ```
+
+`sidebar_translations` carries the CV's static text (skill group headings, language
+names, education fields, distinctions, grant names, custom-section titles) into a
+non-English CV; `apply_tailoring` substitutes it **by exact string match**. The tool
+schema is therefore built per call by `_tool_for()`, which enumerates those exact
+profile strings as `properties` with `additionalProperties: false` (and drops the
+field entirely for an English CV) — `_translatable()` is the one list, and it must
+stay in step with what `apply_tailoring` swaps (`tests/test_tailoring_translations.py`
+pins both). Left free-form, the local 4B model answered with category buckets
+(`{"languages": "Nederlands, Engels…"}`), every key missed, and Dutch CVs silently
+kept their English headings — the enumerated schema compiles to a grammar locally, so
+that is now unrepresentable. Degree titles, institutions and skill/tool names are
+deliberately never offered.
 
 **CLI**:
 ```bash
@@ -253,6 +272,7 @@ GET  /api/i18n/{lang}          Serve a UI locale catalog (shipped bundle or gene
 POST /api/settings/photo       Upload profile photo
 GET  /api/settings/photo       Return photo as base64 data URI
 DELETE /api/settings/photo     Remove photo
+GET  /api/cv/templates         Built-in CV templates + their curated palettes (no LLM)
 POST /api/cv/generate          Generate tailored CV → saves HTML + history row
 POST /api/cv/detect-lang       Detect a posting's language (ISO 639-1) from its URL — Applications 'New' slot Auto-detect
 GET  /api/cv/history           Return all generated CVs, newest first
@@ -308,6 +328,61 @@ surfaced to `complete()` via the `current_cancel` ContextVar (`app/services/llm.
 local engine streams (`create_chat_completion(stream=True)`) and checks the event between
 chunks, raising `GenerationCancelled` → job status `cancelled` (client treats it as an
 abort, not an error).
+
+**CV templates** (`templates/cv/`, Settings → **Visual preferences**): five built-in
+layouts — `default` (two-column, left sidebar), `classic` (single column, centered
+serif header), `banner` (full-width accent band), `compact` (right sidebar, dense),
+`minimal` (typographic, no filled blocks) — picked from a grid of `TemplateThumb`
+schematics (abstract div mockups drawn in React and recoloured live by the selected
+palette; no screenshots, no image assets, no AI). **`_sections.html` owns every
+section's markup as Jinja macros** (`{% import '_sections.html' as S with context %}`),
+so the contract — `data-section` tags, `hidden_sections`, the photo guard — lives in
+one file and a template only decides layout + CSS. Macros are `sec_`-prefixed because
+a bare `education()` would shadow the `education` context variable. **Every** section
+honours `hidden_sections` under its own `data-section` key, and `CVEditor` derives its
+checkbox row from the keys it finds in the rendered preview (union'd with the
+currently-hidden ones, which the server omits) — so a section can never render
+without a way to remove it, and a new one needs no frontend change beyond a
+`cveditor.sections.<key>` label. A hardcoded list is what left Teaching (and every
+other optional section) un-removable until 2026-07.
+`manifest.json` is the registry — `{templates: [ids], palettes: [...]}` with **one
+shared palette list** (same set and order for every template, so the swatch row
+never reorders when switching templates; includes a `jobcoach` palette echoing the
+app's own cream/ink/vermilion) — served verbatim by `GET /api/cv/templates` and
+used as the server-side allowlist; display names are i18n keys
+(`settings.template.names.<id>`), never manifest strings. A **palette** sets
+`accent_color` + `colors {ink, paper}` together; below the swatch row the three
+colours are shown as labelled editable rows (native color picker + hex input), so
+overwriting any slot makes a custom palette — there is no separate accent-preset
+picker. Templates read the slots with their own value as the fallback and derive
+shades via `color-mix()`, so a profile without `colors` renders exactly as before. Print CSS is per-template: single-column layouts
+paginate natively, while `compact` mirrors `default`'s fixed-band trick (`position:
+fixed` band repeats per page, sidebar content absolute on page 1, `box-decoration-break:
+clone` on the main column). The **photo** is placed deliberately per template — always a **circle** (sidebar,
+in-band, top-center, top-right) — via one shared crop frame (`photo_frame` in
+`_sections.html`, the only place the photo's fit is decided; templates just size
+the frame): `photo_crop {zoom, x, y}` is applied as pure CSS (`object-fit: contain`
+on a `var(--paper)` backdrop + `translate` + `scale`), so the upload is
+**never re-encoded** — lossless and re-editable. `contain` letterboxes every photo
+into the same square canvas, so `zoom` floors at **0.5** (pull back past the image's
+own edges) and the backdrop sits on the frame, not the img (at zoom < 1 the img box
+shrinks away from the frame edge and both gaps must be the same paper). x/y pan via
+`translate((x-50)%, (y-50)%)` — **not** `object-position`, which can only shift the
+photo through its slack inside the box and so couldn't move a portrait photo
+vertically at all under `contain` (its height exactly fills the frame). translate is
+measured against the unscaled box, so it pans freely on both axes at any zoom and
+runs in the same direction as the drag
+(`PhotoCropModal`: drag to pan, slider/wheel to zoom, circular mask showing what
+gets cropped, frame painted in the CV's own paper colour; opens automatically after
+an upload, and via the pencil overlay on the Settings preview).
+**Photo visibility is per-CV**: `_render_html` always passes the photo when one
+exists; `include_photo` only seeds `'photo'` into a new CV's `plan.hidden_sections`
+at generation time, which the CV editor's photo toggle then owns (gating rendering
+on the global flag made that toggle a no-op — fixed 2026-07). Slugs are deduped at
+generation (`_unique_slug`) because a slug is a CV's whole identity
+(output dir, preview URL, `_current_html`'s plan lookup). No preview endpoint:
+`_current_html` re-renders from the live profile, so design changes show up on any open
+CV immediately. Zero LLM tokens in the whole feature.
 
 **Backup & restore** (`app/api/backup.py`): export bundles the writable data dir —
 `config.json` (with `openrouter_api_key` stripped), `profile/profile.json` + photo,
@@ -607,7 +682,7 @@ generic/free-form section is (and remains) `custom_sections`, the escape hatch.
 | `volunteering[]` | (optional) `role`, `organisation`, `start_date`, `end_date`, `description` |
 | `memberships[]` | (optional) Professional memberships — `name`, `role?`, `year?` |
 | `custom_sections[]` | (optional) The escape hatch — `{title, items: [{heading, subheading?, date?, description?}]}`, each rendered as its own titled CV section |
-| `cv_design_preferences` | `{accent_color, include_photo}` — the only two keys ever read (Settings UI + the CV template) |
+| `cv_design_preferences` | `{template, accent_color, colors?, include_photo, photo_crop?}` — the CV's look (Settings → Visual preferences + the CV templates). `template` is a `manifest.json` id (unknown → `default`); `colors` holds the optional `{ink, paper}` palette slots; `photo_crop` is `{zoom 0.5–3, x, y}` (x/y = pan, 50 = centred, applied as `translate((x-50)%, (y-50)%)`). Every hex is validated `#RRGGBB` and the crop clamped in `_migrate_design_prefs_v3` — these are interpolated unescaped into the CV's `<style>`, so normalize is the sanitization boundary |
 
 **First-run onboarding** (`frontend/src/components/Onboarding.tsx`): a modal wizard
 shown when `GET /api/engine` reports not-ready **and** config `onboarding_done` is

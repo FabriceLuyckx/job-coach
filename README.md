@@ -150,9 +150,11 @@ panel header) and the preview refreshes itself — there is no Save button.
 Edits are stored **per language**, so switching the application's **Language** back and
 forth (the selector above the tabs) keeps each language's edits intact.
 
-**Sections.** Under the preview, tick sections on/off to show or hide them. Unlike
-before, the choice is **real**: it applies to the preview, the PDF, "open in new
-tab", and the next time you open the CV. The same cluster shows the AI's decisions
+**Sections.** Under the preview, tick sections on/off to show or hide them. You get
+one checkbox per section actually on this CV — teaching, projects, awards, your own
+custom sections, all of them — and the choice is **real**: it applies to the preview,
+the PDF, "open in new tab", and the next time you open the CV. It is also **per CV**:
+hiding a section here never touches your other applications. The same cluster shows the AI's decisions
 — which **skills it emphasised**, and any sections it **left out** as irrelevant
 (each with a one-tap **restore**).
 
@@ -244,13 +246,42 @@ Setup above.
 > output files, but the browser's print dialog handles the two-column layout
 > poorly across pages — prefer the **Download PDF** button.
 
+## Choose how your CV looks
+
+**Settings → Visual preferences** holds the whole design. Nothing here costs AI
+credits, and every change applies to **all** your CVs — open one under
+**Applications** to see it.
+
+- **Template** — five layouts, shown as small previews drawn in your own colours:
+  **Sidebar** (two columns, the default), **Classic** (single column, centered
+  serif header), **Banner** (full-width colour band), **Compact** (right sidebar,
+  denser — for long CVs), and **Minimal** (typographic, nothing filled in — the
+  friendliest to a black-and-white office printer).
+- **Colour palette** — curated palettes (including one in Job Coach's own
+  colours); tapping one recolours the previews straight away.
+- **Colours** — the selected palette's accent, text, and background colours,
+  each shown with an editable colour picker and hex box. Overwrite any of them
+  to make the palette your own.
+
 ## Add a photo
 
 1. Place your photo at `profile/photo.jpg` (`.jpeg`, `.png`, and `.webp` also accepted)
 2. In `profile/profile.json`, set `"include_photo": true` under `cv_design_preferences`
 3. Re-run either script — the photo is embedded directly in the HTML
 
-Alternatively, upload via the **Settings** page in the web UI.
+Alternatively, upload via the **Settings** page in the web UI, where you can also:
+
+- **Adjust the framing** — the editor opens right after an upload (and any time
+  via the pencil on the photo preview): drag to reposition, zoom with the
+  slider, and the circle shows exactly what will appear on the CV. The photo sits
+  on a square canvas painted in your CV's background colour, so you can zoom out
+  past its own edges and place it freely — whatever ends up beside it is simply
+  part of the CV's background. Your uploaded file is never modified, so you can
+  re-adjust any time without losing quality. Each template places the photo where
+  its design wants it (in the sidebar, inside the banner, above your name…),
+  always as a circle.
+- **Include photo on new CVs by default** — saves the moment you toggle it, and
+  each CV keeps its own photo on/off switch in the CV editor.
 
 ---
 

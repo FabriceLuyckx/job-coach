@@ -14,6 +14,7 @@ import base64
 import html as html_lib
 import json
 import re
+from functools import lru_cache
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
@@ -422,16 +423,55 @@ def _migrate_teaching_v3(teaching: dict | None, extra_subjects: list[str]) -> di
     return t
 
 
+_HEX_RE = re.compile(r"#[0-9a-fA-F]{6}")
+
+
+def _hex_or(value, fallback: str | None) -> str | None:
+    """Return value if it's a #RRGGBB string, else fallback. These colours are
+    interpolated unescaped into the CV's <style>, so this is the sanitization."""
+    return value if isinstance(value, str) and _HEX_RE.fullmatch(value) else fallback
+
+
+def _clamp(value, lo: float, hi: float, fallback: float) -> float:
+    """Coerce to float and clamp; junk (None, strings, NaN) → fallback. Like the
+    hex check, the point is that these end up inside a style attribute."""
+    try:
+        f = float(value)
+    except (TypeError, ValueError):
+        return fallback
+    return fallback if f != f else min(max(f, lo), hi)  # f != f ⇒ NaN
+
+
 def _migrate_design_prefs_v3(prefs: dict | None) -> dict:
-    """v2 cv_design_preferences had 10 questionnaire fields; only these two are
-    ever read (Settings UI + the CV template's accent colour)."""
+    """v2 cv_design_preferences had 10 questionnaire fields; only these are ever
+    read (Settings UI + the CV templates). Also the choke point where template,
+    colours and crop values are validated on every load."""
     d = dict(prefs or {})
-    return {
-        "accent_color": d.get("accent_color") or "#1B3A6B",
+    template = d.get("template")
+    out = {
+        "accent_color": _hex_or(d.get("accent_color"), "#1B3A6B"),
         "include_photo": bool(d.get("include_photo", False)),
-        # Groundwork for the template-chooser phase; only "default" ships today.
-        "template": d.get("template") or "default",
+        "template": template if template in template_ids() else "default",
     }
+
+    # Optional per-palette colour slots; an invalid value drops out (the template
+    # then falls back to its own default), an empty dict drops the whole key.
+    colors = {k: _hex_or(v, None) for k, v in (d.get("colors") or {}).items()
+              if k in ("ink", "paper")}
+    colors = {k: v for k, v in colors.items() if v}
+    if colors:
+        out["colors"] = colors
+
+    crop = d.get("photo_crop")
+    if isinstance(crop, dict):
+        out["photo_crop"] = {
+            # Floor below 1 on purpose: the photo is letterboxed (object-fit:
+            # contain), so pulling back past its edges is a legitimate framing.
+            "zoom": _clamp(crop.get("zoom"), 0.5, 3.0, 1.0),
+            "x": _clamp(crop.get("x"), 0, 100, 50),
+            "y": _clamp(crop.get("y"), 0, 100, 50),
+        }
+    return out
 
 
 # ── Profile schema v4 migration ──────────────────────────────────────────────
@@ -798,6 +838,23 @@ def load_photo() -> str | None:
             data = base64.b64encode(path.read_bytes()).decode()
             return f"data:{mime};base64,{data}"
     return None
+
+
+@lru_cache(maxsize=1)
+def list_templates() -> dict:
+    """The template registry (templates/cv/manifest.json): built-in template ids
+    plus ONE shared palette list — {"templates": [...], "palettes": [...]}.
+    Palettes are deliberately global, not per-template, so the picker's swatch
+    row is identical (same set, same order) whichever template is selected.
+
+    One source of truth: the allowlist for cv_design_preferences.template and the
+    payload of GET /api/cv/templates. Display names are i18n keys on the client,
+    never manifest strings."""
+    return json.loads((TEMPLATES_DIR / "manifest.json").read_text(encoding="utf-8"))
+
+
+def template_ids() -> frozenset[str]:
+    return frozenset(list_templates()["templates"])
 
 
 def build_env() -> Environment:

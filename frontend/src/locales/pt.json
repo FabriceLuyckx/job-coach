@@ -79,12 +79,14 @@
       "upload": "Carregar foto",
       "uploaded": "Foto carregada",
       "removed": "Foto removida",
-      "includeInCv": "Incluir foto nos CVs gerados"
+      "includeByDefault": "Incluir foto nos novos CVs por padrão",
+      "adjustTitle": "Ajustar foto",
+      "adjustHelp": "Arraste a foto para repositioná-la e use o controle deslizante (ou rolagem) para ampliar. A versão original upload nunca é alterada.",
+      "zoom": "Ampliação",
+      "resetCrop": "Resetar recorte"
     },
     "visual": {
       "title": "Preferências Visuais do CV",
-      "accent": "Cor de destaque",
-      "accentPlaceholder": "#1B3A6B ou 'Azul escuro'",
       "font": "Estilo de fonte",
       "styleNotes": "Notas de estilo (para a IA)",
       "stylePlaceholder": "ex.: Minimalista",
@@ -128,6 +130,35 @@
       "filterHelp": "Avalia cada novo anúncio lendo a publicação completa: decide se ele se encaixa com você e extrai um resumo curto (empregador, local, salário, prazo, requisitos). As partes relevantes do seu perfil são adicionadas automaticamente abaixo.",
       "letterTitle": "Carta de apresentação — prompt de guia",
       "letterHelp": "Enviado quando se cria um guia para carta de apresentação. Seu perfil e o anúncio de emprego são adicionados automaticamente abaixo. Isso gera um esqueleto de escrita (3–5 seções com os fatos do perfil a citar, mais dicas de escrita) — nunca um texto final da carta. <code>{lang_name}</code> é substituído pela linguagem de saída — deve permanecer no prompt."
+    },
+    "template": {
+      "label": "Modelo de CV",
+      "help": "Escolha um layout. As pré-visualizações mostram as cores selecionadas.",
+      "palette": "Paleta de cores",
+      "appliesToAll": "As alterações de design são aplicadas a todos os CVs — abra um sob Aplicações para vê-lo.",
+      "names": {
+        "default": "Barra lateral",
+        "classic": "Clássico",
+        "banner": "Banner",
+        "compact": "Compacto",
+        "minimal": "Minimalista"
+      },
+      "palettes": {
+        "navy": "Azul-marinho",
+        "jobcoach": "Job Coach",
+        "forest": "Floresta",
+        "burgundy": "Roxo",
+        "teal": "Teal",
+        "slate": "Slate",
+        "charcoal": "Carvão"
+      },
+      "colors": {
+        "title": "Cores",
+        "help": "As cores da paleta — altere qualquer uma delas para torná-la sua.",
+        "accent": "Cor de destaque",
+        "text": "Cor do texto",
+        "background": "Cor de fundo"
+      }
     }
   },
   "profile": {

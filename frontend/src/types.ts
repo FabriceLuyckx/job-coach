@@ -170,6 +170,12 @@ export interface Preferences {
 export interface CVDesignPreferences {
   accent_color: string
   include_photo: boolean
+  /** Built-in template id (see GET /api/cv/templates); unknown ids fall back to 'default'. */
+  template: string
+  /** Palette colour slots. Optional — a template falls back to its own defaults. */
+  colors?: { ink?: string; paper?: string }
+  /** How the photo is framed: zoom 1–3, x/y are object-position percentages. */
+  photo_crop?: { zoom: number; x: number; y: number }
 }
 
 export interface ProfileMeta {

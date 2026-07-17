@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+{#
+  CLASSIC — single column, centered header, serif headings, hairline rules.
+  Section markup comes from _sections.html (the contract lives there); this file
+  owns layout + CSS only. Single-column block flow paginates natively, so print
+  needs nothing beyond colour-adjust and break-inside hints.
+#}
+<html lang="{{ lang }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base target="_blank">
+<title>{{ personal.name }} – CV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  {% set accent = cv_design_preferences.accent_color | default('#23303F', true) %}
+  {% set colors = cv_design_preferences.colors | default({}, true) %}
+  {% set ink   = colors.ink   | default('#1A1A1A', true) %}
+  {% set paper = colors.paper | default('#FFFFFF', true) %}
+  :root {
+    --accent: {{ accent }};
+    --text:   {{ ink }};
+    --muted:  color-mix(in srgb, {{ ink }} 60%, white);
+    --paper:  {{ paper }};
+    --rule:   color-mix(in srgb, {{ ink }} 25%, {{ paper }});
+    --tint:   color-mix(in srgb, {{ accent }} 6%, {{ paper }});
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 9.5pt;
+    color: var(--text);
+    line-height: 1.55;
+    background: #d8d8d4;
+  }
+
+  .doc {
+    width: 210mm;
+    min-height: 297mm;
+    background: var(--paper);
+    margin: 20px auto;
+    padding: 18mm 20mm;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  }
+
+  /* ── HEADER ── centered, serif name, rule underneath */
+  .header {
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .header h1 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 25pt;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    color: var(--accent);
+    line-height: 1.15;
+  }
+
+  .header h2 {
+    font-size: 10.5pt;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 0.3px;
+  }
+
+  .header-contact {
+    font-size: 8.5pt;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  .header-contact a { color: var(--muted); text-decoration: none; }
+  .header-contact span + span::before { content: ' · '; }
+
+  /* ── PHOTO ── top-center, above the name */
+  .photo-frame {
+    width: 32mm;
+    height: 32mm;
+    overflow: hidden;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+    margin: 0 auto 10px;
+  }
+
+  .photo-frame img { display: block; width: 100%; height: 100%; }
+
+  /* ── SECTIONS ── serif titles over a hairline rule */
+  .section { margin-bottom: 15px; }
+
+  .section-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 11pt;
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 3px;
+    margin-bottom: 8px;
+  }
+
+  /* ── SUMMARY ── */
+  .summary {
+    font-size: 9.5pt;
+    line-height: 1.65;
+    margin-bottom: 15px;
+    padding: 10px 12px;
+    background: var(--tint);
+    text-align: justify;
+  }
+
+  /* ── ENTRIES ── */
+  .entry { margin-bottom: 11px; }
+
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .entry-title { font-size: 10pt; font-weight: 600; }
+  .entry-date  { font-size: 8pt; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+
+  .entry-employer {
+    font-size: 9pt;
+    color: var(--accent);
+    font-style: italic;
+    margin-bottom: 3px;
+  }
+
+  .entry-body    { font-size: 9pt; }
+  .entry-body ul { padding-left: 15px; }
+  .entry-body li { margin-bottom: 2px; }
+
+  /* ── LINKS ── inline row, not a stacked sidebar list */
+  .link-item {
+    display: inline-block;
+    margin-right: 14px;
+    font-size: 8.5pt;
+  }
+
+  .link-label {
+    color: var(--muted);
+    text-transform: uppercase;
+    font-size: 7pt;
+    letter-spacing: 0.6px;
+    margin-right: 4px;
+  }
+
+  .link-item a { color: var(--accent); text-decoration: none; }
+
+  /* ── SKILLS ── comma-free tag row, outlined not filled */
+  .skills-group { margin-bottom: 7px; }
+
+  .skills-group-label {
+    font-size: 8pt;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 3px;
+  }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+
+  .tag {
+    border: 1px solid var(--rule);
+    color: var(--text);
+    font-size: 8pt;
+    padding: 1px 6px;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  /* ── LANGUAGES ── two-per-row grid; dots keep the CV scannable */
+  .lang-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: 48%;
+    padding-right: 14px;  /* gutter: min gap to the next column */
+    margin-bottom: 4px;
+    font-size: 9pt;
+  }
+
+  /* No margin-left: auto — in this two-column layout, dots pushed to the
+     column's far edge sit nearer the NEXT column's language than their own.
+     Instead the name reserves a fixed min-width so every row's dots start on
+     the same line, with the row's leftover width as the gap to the next
+     column. min-width, not width: an unusually long name pushes its own dots
+     out rather than running under them. */
+  .lang-row > span { min-width: 22mm; }
+  .lang-dots { display: flex; gap: 3px; }
+
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--rule); }
+  .dot.on { background: var(--accent); }
+
+  /* ── EDUCATION / GRANTS / PUBLICATIONS ── */
+  .edu-entry { margin-bottom: 7px; }
+  .edu-degree { font-weight: 600; font-size: 9.5pt; }
+  .edu-field  { font-size: 9pt; color: var(--muted); font-style: italic; }
+  .edu-institution { font-size: 9pt; color: var(--accent); }
+  .edu-year   { font-size: 8pt; color: var(--muted); }
+  .edu-description { font-size: 8.5pt; color: var(--muted); margin-top: 2px; }
+
+  .grant-entry { font-size: 9pt; margin-bottom: 4px; }
+  .grant-year  { font-weight: 600; color: var(--accent); }
+
+  .pub-entry   { margin-bottom: 5px; font-size: 8.5pt; line-height: 1.5; }
+  .pub-journal { color: var(--accent); }
+  .pub-note    { color: var(--muted); font-style: italic; }
+
+  /* ── PRINT ── block flow paginates on its own; only the frame and the
+     break hints need saying. */
+  @page { size: A4 portrait; margin: 14mm 16mm; }
+
+  @media print {
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    html, body { margin: 0; padding: 0; background: var(--paper); }
+    body { font-size: 9pt; orphans: 2; widows: 2; }
+
+    .doc {
+      width: auto;
+      min-height: 0;
+      margin: 0;
+      padding: 0;
+      box-shadow: none;
+    }
+
+    .entry-body li, .pub-entry, .edu-entry, .lang-row, .summary { break-inside: avoid; }
+    .section-title, .entry-header, .entry-employer { break-after: avoid; }
+    .header { break-after: avoid; }
+  }
+</style>
+</head>
+<body>
+{% import '_sections.html' as S with context %}
+<div class="doc">
+
+  <header class="header">
+    {{ S.photo_frame() }}
+    <h1>{{ personal.name }}</h1>
+    <h2>{{ personal.professional_title }}</h2>
+    <div class="header-contact">
+      <span>{{ personal.location.city }}, {{ personal.location.country }}</span>
+      <span><a href="mailto:{{ personal.email }}">{{ personal.email }}</a></span>
+      {% if personal.phone %}<span>{{ personal.phone }}</span>{% endif %}
+    </div>
+  </header>
+
+  <main>
+    {{ S.main_sections() }}
+  </main>
+
+</div>
+</body>
+</html>

@@ -79,12 +79,14 @@
       "upload": "Foto hochladen",
       "uploaded": "Foto hochgeladen",
       "removed": "Foto entfernt",
-      "includeInCv": "Foto in generierten Lebensläufen einfügen"
+      "includeByDefault": "Foto bei neuen Lebenslaufversionen standardmäßig einbeziehen",
+      "adjustTitle": "Foto anpassen",
+      "adjustHelp": "Ziehen Sie das Foto, um es neu zu positionieren, und verwenden Sie den Slider (oder scrollen Sie), um es zu vergrößern. Ihr ursprüngliches Hochladen wird nie geändert.",
+      "zoom": "Vergrößern",
+      "resetCrop": "Framing zurücksetzen"
     },
     "visual": {
       "title": "Visuelle Einstellungen",
-      "accent": "Akzentfarbe",
-      "accentPlaceholder": "#1B3A6B oder 'Dunkelblau'",
       "font": "Schriftstil",
       "styleNotes": "Stilhinweise (für die KI)",
       "stylePlaceholder": "z. B. Minimalistisch",
@@ -128,6 +130,35 @@
       "filterHelp": "Beurteilt jedes neue Stellenausschreibung, indem es den vollständigen Text liest: entscheidet, ob es zu Ihnen passt und extrahiert eine kurze Zusammenfassung (Unternehmen, Ort, Lohn, Frist, Anforderungen). Die relevanten Teile Ihres Profils werden automatisch unterhalb angezeigt.",
       "letterTitle": "Brief — Anleitungsprompt",
       "letterHelp": "Gesendet, wenn ein Leitfaden für eine Einstellungsanschreiben erstellt wird. Ihr Profil und die Stellenausschreibung werden automatisch unten hinzugefügt. Dadurch entsteht ein Schablonenrahmen (3–5 Abschnitte mit den Profile-Fakten, die zitiert werden sollen, sowie Schreibtipps) — kein vollständiges Brieftext. <code>{lang_name}</code> wird durch die Ausgabesprache ersetzt — es muss im Prompt erhalten bleiben."
+    },
+    "template": {
+      "label": "Lebenslaufvorlage",
+      "help": "Wählen Sie eine Layout-Vorlage. Die Vorschauen zeigen Ihre gewählten Farben.",
+      "palette": "Farbpalette",
+      "appliesToAll": "Designänderungen gelten für alle Lebensläufe — öffnen Sie einen unter Anwendungen, um ihn zu sehen.",
+      "names": {
+        "default": "Seitenleiste",
+        "classic": "Klassisch",
+        "banner": "Banner",
+        "compact": "Kompakt",
+        "minimal": "Minimal"
+      },
+      "palettes": {
+        "navy": "Navy",
+        "jobcoach": "Job Coach",
+        "forest": "Wald",
+        "burgundy": "Burgund",
+        "teal": "Teal",
+        "slate": "Slate",
+        "charcoal": "Charcoal"
+      },
+      "colors": {
+        "title": "Farben",
+        "help": "Die Farben der Palette – ändern Sie beliebig, um sie zu Ihrem eigenen zu machen.",
+        "accent": "Akzentfarbe",
+        "text": "Textfarbe",
+        "background": "Hintergrundfarbe"
+      }
     }
   },
   "profile": {

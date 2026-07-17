@@ -16,12 +16,6 @@ import { useToast } from '../Toast'
 import { errMsg } from '../../lib/errors'
 import { LANGUAGE_NAMES } from '../../i18n'
 
-// The user-toggleable sections (must match data-section keys in the template).
-const SECTIONS = [
-  'summary', 'experience', 'publications', 'links', 'skills',
-  'languages', 'education', 'grants', 'photo',
-] as const
-
 const langLabel = (code: string) => LANGUAGE_NAMES[code] ?? code
 
 type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
@@ -111,20 +105,35 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
   // Load the editable plan for the current language, without scheduling a save.
   function loadPlan() {
     api.getCVPlan(result.history_id)
-      .then(p => { setPlan(p); latestPlan.current = p; setSaveState('idle') })
+      .then(p => { setPlan(p); latestPlan.current = p; setSaveState('idle'); readSections() })
       .catch(() => { setPlan(null); latestPlan.current = null })
   }
   useEffect(() => { loadPlan() }, [result.history_id]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Section visibility in the live preview ──
+  // ── Section toggles ──
+  // The togglable list is whatever this CV actually renders — read from the
+  // preview, so a section only gets a checkbox when there's data behind it, and
+  // a new template section needs no change here. Union across reloads because
+  // the server omits hidden sections: once seen, a key keeps its checkbox (and
+  // its place in the row) even while hidden.
+  const [sections, setSections] = useState<string[]>([])
+  const readSections = useCallback(() => {
+    const d = iframeRef.current?.contentDocument
+    if (!d) return
+    const found = [...d.querySelectorAll<HTMLElement>('[data-section]')]
+      .map(el => el.dataset.section!)
+    // Nothing yet (iframe still blank) — wait, so the row keeps CV order rather
+    // than leading with whatever was hidden.
+    if (!found.length) return
+    setSections(prev => [...new Set([...prev, ...found, ...(latestPlan.current?.hidden_sections ?? [])])])
+  }, [])
+
   const applyVisibility = useCallback(() => {
     const d = iframeRef.current?.contentDocument
     if (!d) return
     const hidden = new Set(plan?.hidden_sections ?? [])
-    SECTIONS.forEach(key => {
-      d.querySelectorAll<HTMLElement>(`[data-section="${key}"]`).forEach(el => {
-        el.style.display = hidden.has(key) ? 'none' : ''
-      })
+    d.querySelectorAll<HTMLElement>('[data-section]').forEach(el => {
+      el.style.display = hidden.has(el.dataset.section!) ? 'none' : ''
     })
   }, [plan])
 
@@ -287,7 +296,7 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
           key={previewKey}
           ref={iframeRef}
           src={result.preview_url}
-          onLoad={applyVisibility}
+          onLoad={() => { readSections(); applyVisibility() }}
           style={{ width: '100%', height: '80vh', border: 'none', display: 'block' }}
           title={t('cveditor.cvPreview')}
         />
@@ -337,28 +346,24 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
         <div style={{ marginBottom: 'var(--space-4)' }}>
           <div className="editor-cluster-label">{t('cveditor.sectionsTitle')}</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {SECTIONS.map(key => {
-              const disabled = key === 'photo' && !hasPhoto
-              return (
-                <label
-                  key={key}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 6,
-                    border: '1px solid var(--border)', padding: '4px 10px',
-                    cursor: disabled ? 'default' : 'pointer', fontSize: 'var(--fs-sm)',
-                    color: disabled ? 'var(--muted)' : 'var(--ink)',
-                    opacity: disabled ? 0.45 : 1, fontWeight: 400, marginBottom: 0,
-                  }}
-                >
-                  <input
-                    type="checkbox" checked={!hidden.has(key)} disabled={disabled}
-                    onChange={e => toggleSection(key, e.target.checked)}
-                    style={{ width: 'auto' }}
-                  />
-                  {t(`cveditor.sections.${key}`)}
-                </label>
-              )
-            })}
+            {sections.map(key => (
+              <label
+                key={key}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  border: '1px solid var(--border)', padding: '4px 10px',
+                  cursor: 'pointer', fontSize: 'var(--fs-sm)', color: 'var(--ink)',
+                  fontWeight: 400, marginBottom: 0,
+                }}
+              >
+                <input
+                  type="checkbox" checked={!hidden.has(key)}
+                  onChange={e => toggleSection(key, e.target.checked)}
+                  style={{ width: 'auto' }}
+                />
+                {t(`cveditor.sections.${key}`, key)}
+              </label>
+            ))}
           </div>
 
           {plan.excluded_sections.length > 0 && (

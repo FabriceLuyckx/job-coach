@@ -109,12 +109,14 @@
       "upload": "Upload photo",
       "uploaded": "Photo uploaded",
       "removed": "Photo removed",
-      "includeInCv": "Include photo in generated CVs"
+      "includeByDefault": "Include photo on new CVs by default",
+      "adjustTitle": "Adjust photo",
+      "adjustHelp": "Drag the photo to reposition it, and use the slider (or scroll) to zoom. Your original upload is never changed.",
+      "zoom": "Zoom",
+      "resetCrop": "Reset framing"
     },
     "visual": {
       "title": "CV Visual Preferences",
-      "accent": "Accent colour",
-      "accentPlaceholder": "#1B3A6B or 'Dark blue'",
       "font": "Font style",
       "styleNotes": "Style notes (for the AI)",
       "stylePlaceholder": "e.g. Minimalist",
@@ -158,6 +160,35 @@
       "filterHelp": "Judges each new opening by reading its full posting: decides whether it matches you and pulls out a short digest (employer, location, salary, deadline, requirements). The relevant parts of your profile are added automatically below it.",
       "letterTitle": "Cover Letter — guide prompt",
       "letterHelp": "Sent when building a cover-letter guide. Your profile and the job listing are added automatically below it. This produces a writing skeleton (3–5 sections with the profile facts to cite, plus writing tips) — never finished letter text. <code>{lang_name}</code> is replaced with the output language — it must stay in the prompt."
+    },
+    "template": {
+      "label": "CV template",
+      "help": "Pick a layout. The previews show your selected colours.",
+      "palette": "Colour palette",
+      "appliesToAll": "Design changes apply to every CV — open one under Applications to see it.",
+      "names": {
+        "default": "Sidebar",
+        "classic": "Classic",
+        "banner": "Banner",
+        "compact": "Compact",
+        "minimal": "Minimal"
+      },
+      "palettes": {
+        "navy": "Navy",
+        "jobcoach": "Job Coach",
+        "forest": "Forest",
+        "burgundy": "Burgundy",
+        "teal": "Teal",
+        "slate": "Slate",
+        "charcoal": "Charcoal"
+      },
+      "colors": {
+        "title": "Colours",
+        "help": "The palette's colours — change any of them to make it your own.",
+        "accent": "Accent colour",
+        "text": "Text colour",
+        "background": "Background colour"
+      }
     }
   },
   "profile": {
