@@ -579,7 +579,8 @@
     "saving": "Bewaren…",
     "saved": "Opgeslagen",
     "saveError": "Kan niet opslaan",
-    "aiNeedsUrl": "Geen functie-URL opgeslagen, dus kan de AI de functie niet opnieuw lezen voor dit CV"
+    "aiNeedsUrl": "Geen functie-URL opgeslagen, dus kan de AI de functie niet opnieuw lezen voor dit CV",
+    "sectionsShownCount": "{{shown}} van {{total}} getoond"
   },
   "engine": {
     "title": "AI-engine",
@@ -633,7 +634,12 @@
     "noMatches": "Geen sollicitaties komen overeen met je zoekopdracht.",
     "loadError": "Kon je sollicitaties niet laden: {{error}}",
     "changingLang": "Taal wijzigen…",
-    "slowLocalHint": "Bij het gratis lokale model kan dit enkele minuten duren. Annuleren stopt de generatie en maakt de AI vrij voor andere taken."
+    "slowLocalHint": "Bij het gratis lokale model kan dit enkele minuten duren. Annuleren stopt de generatie en maakt de AI vrij voor andere taken.",
+    "tabExists": "{{name}} — gemaakt",
+    "tabMissing": "{{name}} — nog niet gemaakt",
+    "changeLangTitle": "Taal wijzigen?",
+    "changeLangBody": "Dit hermaakt de handleiding voor het sollicitatiebrief in <b>{{lang}}</b> en vervangt de huidige, en herpast je CV (je bewerkingen worden behouden).",
+    "changeLangConfirm": "Taal wijzigen"
   },
   "letters": {
     "title": "Brief",

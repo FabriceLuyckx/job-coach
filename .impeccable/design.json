@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-17T00:00:00Z",
+  "title": "Design System: Job Coach",
+  "extensions": {
+    "colorMeta": {
+      "paper": { "role": "neutral", "displayName": "Cream", "canonical": "oklch(95.6% 0.014 88)", "tonalRamp": ["oklch(18% 0.01 88)", "oklch(30% 0.012 88)", "oklch(45% 0.013 88)", "oklch(60% 0.013 88)", "oklch(75% 0.014 88)", "oklch(85% 0.014 88)", "oklch(92% 0.014 88)", "oklch(97% 0.012 88)"] },
+      "surface": { "role": "neutral", "displayName": "Card White", "canonical": "oklch(97.8% 0.009 90)", "tonalRamp": ["oklch(18% 0.006 90)", "oklch(30% 0.007 90)", "oklch(45% 0.008 90)", "oklch(60% 0.008 90)", "oklch(75% 0.009 90)", "oklch(88% 0.009 90)", "oklch(94% 0.009 90)", "oklch(98% 0.008 90)"] },
+      "surface-dim": { "role": "neutral", "displayName": "Panel Cream", "canonical": "oklch(92.3% 0.017 92)", "tonalRamp": ["oklch(17% 0.012 92)", "oklch(28% 0.014 92)", "oklch(42% 0.015 92)", "oklch(56% 0.016 92)", "oklch(70% 0.017 92)", "oklch(82% 0.017 92)", "oklch(89% 0.017 92)", "oklch(94% 0.016 92)"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "oklch(19.8% 0.006 80)", "tonalRamp": ["oklch(12% 0.004 80)", "oklch(20% 0.005 80)", "oklch(32% 0.006 80)", "oklch(46% 0.007 80)", "oklch(60% 0.007 80)", "oklch(74% 0.007 80)", "oklch(87% 0.006 80)", "oklch(95% 0.005 80)"] },
+      "muted": { "role": "neutral", "displayName": "Muted", "canonical": "oklch(48.5% 0.014 90)", "tonalRamp": ["oklch(20% 0.01 90)", "oklch(32% 0.012 90)", "oklch(42% 0.013 90)", "oklch(52% 0.014 90)", "oklch(62% 0.014 90)", "oklch(74% 0.013 90)", "oklch(85% 0.012 90)", "oklch(93% 0.01 90)"] },
+      "accent": { "role": "primary", "displayName": "Vermilion", "canonical": "oklch(53.4% 0.183 34)", "tonalRamp": ["oklch(18% 0.09 34)", "oklch(28% 0.13 34)", "oklch(38% 0.16 34)", "oklch(48% 0.18 34)", "oklch(58% 0.18 34)", "oklch(70% 0.15 34)", "oklch(82% 0.1 34)", "oklch(92% 0.05 34)"] },
+      "accent-hover": { "role": "primary", "displayName": "Vermilion (hover)", "canonical": "oklch(44.7% 0.17 32)", "tonalRamp": [] },
+      "accent-soft": { "role": "primary", "displayName": "Vermilion tint", "canonical": "oklch(90.7% 0.038 30)", "tonalRamp": [] },
+      "teal": { "role": "secondary", "displayName": "Teal", "canonical": "oklch(44.8% 0.055 190)", "tonalRamp": ["oklch(15% 0.03 190)", "oklch(24% 0.04 190)", "oklch(33% 0.05 190)", "oklch(42% 0.055 190)", "oklch(52% 0.055 190)", "oklch(65% 0.05 190)", "oklch(78% 0.04 190)", "oklch(90% 0.025 190)"] },
+      "wall-teal": { "role": "tertiary", "displayName": "Wall Teal", "canonical": "oklch(60.1% 0.038 200)", "tonalRamp": ["oklch(22% 0.02 200)", "oklch(34% 0.028 200)", "oklch(46% 0.034 200)", "oklch(56% 0.038 200)", "oklch(66% 0.038 200)", "oklch(76% 0.032 200)", "oklch(86% 0.024 200)", "oklch(94% 0.014 200)"] },
+      "mustard": { "role": "semantic", "displayName": "Mustard", "canonical": "oklch(51.2% 0.11 75)", "tonalRamp": [] },
+      "deep-red": { "role": "semantic", "displayName": "Deep Red", "canonical": "oklch(35.6% 0.135 28)", "tonalRamp": [] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display / Page & Section Titles", "purpose": "Page titles (with the 4px ink rule), section/collapsible/modal headings. Always 800 weight, uppercase, 0.02em tracking." },
+      "body": { "displayName": "Body", "purpose": "All prose and form values. Never uppercase, never bold beyond ~600." },
+      "label": { "displayName": "Label", "purpose": "Button text and badges — uppercase, 700 weight, tracked. Names an action or category, never a sentence." }
+    },
+    "shadows": [
+      { "name": "poster-pop", "value": "6px 6px 0 rgba(20, 19, 17, 0.18)", "purpose": "The one shadow in the system. Hard offset, no blur — for the page sheet, modals, dropdown menus, and toasts only. Never on resting cards, buttons, or inputs." }
+    ],
+    "motion": [
+      { "name": "state-transition", "value": "background 0.15s, color 0.15s, border-color 0.15s", "purpose": "Default easing for buttons/inputs/nav hover and focus state changes." },
+      { "name": "toast-in", "value": "opacity 0 → 1, translateY(8px → 0), 0.18s ease-out", "purpose": "Toast entrance." },
+      { "name": "chevron-rotate", "value": "transform 0.15s, rotate 0 → 90deg", "purpose": "Collapsible chevron open/close." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The default call-to-action. Vermilion fill, white uppercase label, zero radius.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Generate CV</button>",
+      "css": ".ds-btn { font-family: 'Inter', sans-serif; cursor: pointer; border: none; border-radius: 0; padding: 8px 15px; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; transition: background 0.15s, color 0.15s, border-color 0.15s; } .ds-btn-primary { background: #C8401F; color: #fff; } .ds-btn-primary:hover { background: #A83415; } .ds-btn-primary:focus-visible { outline: 2px solid #1C1A16; outline-offset: 2px; } .ds-btn-primary:disabled { background: color-mix(in srgb, #C8401F 38%, #F2EFE4); cursor: not-allowed; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Poster inversion: ink outline that fills solid on hover.",
+      "html": "<button class=\"ds-btn ds-btn-secondary\">Cancel</button>",
+      "css": ".ds-btn-secondary { background: transparent; color: #1C1A16; border: 1.5px solid #1C1A16; padding: 7px 14px; border-radius: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; transition: background 0.15s, color 0.15s; } .ds-btn-secondary:hover { background: #1C1A16; color: #F2EFE4; } .ds-btn-secondary:focus-visible { outline: 2px solid #C8401F; outline-offset: 2px; }"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Destructive actions — a distinct deep-red hue so it never reads as a primary action.",
+      "html": "<button class=\"ds-btn ds-btn-danger\">Reject</button>",
+      "css": ".ds-btn-danger { background: #8F2410; color: #fff; border: none; border-radius: 0; padding: 8px 15px; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; } .ds-btn-danger:hover { background: color-mix(in srgb, #8F2410 85%, black); }"
+    },
+    {
+      "name": "Filled Badge",
+      "kind": "chip",
+      "refersTo": "badge-cv",
+      "description": "Small squared status/category chip, filled, uppercase, tracked.",
+      "html": "<span class=\"ds-badge\">CV</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 8px; border-radius: 2px; background: #C8401F; color: #F2EFE4; white-space: nowrap; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "The base container: cream-white fill, ink hairline border, zero radius, no shadow.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Section title</div><p>Card body text sits here at 14px.</p></div>",
+      "css": ".ds-card { background: #FBFAF3; border: 1px solid #1C1A16; border-radius: 0; padding: 20px; } .ds-card-title { font-family: 'Inter', sans-serif; font-weight: 800; text-transform: uppercase; letter-spacing: 0.02em; font-size: 17px; color: #141311; margin-bottom: 16px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Ink-bordered field; focus swaps the border to vermilion, no glow ring.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Job title\" />",
+      "css": ".ds-input { font-family: 'Inter', sans-serif; font-size: 14px; border: 1px solid #1C1A16; border-radius: 0; padding: 7px 10px; width: 100%; background: #FBFAF3; color: #1C1A16; transition: border-color 0.15s; } .ds-input:focus { outline: none; border-color: #C8401F; }"
+    },
+    {
+      "name": "Active Nav Item",
+      "kind": "nav",
+      "refersTo": "sidebar-nav-active",
+      "description": "The active sidebar link reads as a cream tab cut from the poster sheet against the teal wall.",
+      "html": "<a class=\"ds-nav-item ds-nav-item-active\" href=\"#\">Profile</a>",
+      "css": ".ds-nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 20px; font-size: 14px; font-weight: 500; text-decoration: none; border-left: 3px solid transparent; color: color-mix(in srgb, #F2EFE4 82%, transparent); transition: background 0.15s, color 0.15s; } .ds-nav-item-active { color: #1C1A16; border-left-color: #C8401F; background: #F2EFE4; font-weight: 600; }"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "custom",
+      "refersTo": "seg",
+      "description": "Squared single-choice control; the ink-fill selected state mirrors the secondary-button hover treatment app-wide.",
+      "html": "<div class=\"ds-seg\"><button class=\"ds-seg-btn ds-seg-active\">Remote</button><button class=\"ds-seg-btn\">Hybrid</button><button class=\"ds-seg-btn\">On-site</button></div>",
+      "css": ".ds-seg { display: inline-flex; border: 1px solid #1C1A16; width: fit-content; } .ds-seg-btn { padding: 6px 14px; background: transparent; border: none; border-right: 1px solid #1C1A16; font-size: 13px; color: #1C1A16; cursor: pointer; } .ds-seg-btn:last-child { border-right: none; } .ds-seg-active { background: #1C1A16; color: #F2EFE4; font-weight: 600; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Print Shop",
+    "overview": "Job Coach reads as something printed, not something rendered: ink-black hairline rules, flat color blocks instead of gradients, hard offset shadows instead of soft blurs, and squared corners everywhere. Each page is a cream poster sheet laid on a muted teal gallery wall (the app shell behind the fixed sidebar) — the sheet gets a hard drop shadow, the wall doesn't. Headings are one grotesque family (Inter), always bold and uppercase; there is no second display font pretending to be more decorative than the first. That printed confidence is structural, not emotional. Job Coach's brand personality is calm, trustworthy, reassuring — job hunting is stressful enough — so the boldness lives in geometry and typography, while color usage, motion, and copy stay restrained. Vermilion is loud by hue, but it is rationed to one thing at a time.",
+    "keyCharacteristics": [
+      "Flat ink-on-cream print system: zero border-radius, hairline borders, no gradients",
+      "One grotesque type family; hierarchy is weight/case/size, not font-switching",
+      "A single accent (vermilion) used sparingly, rationed to primary actions and state",
+      "A teal counterpoint used specifically for AI/\"good\" signals (success, AI badges)",
+      "Hard offset shadows reserved for things that float: modals, menus, toasts, the page sheet itself"
+    ],
+    "rules": [
+      { "name": "The One Ink Rule", "body": "Every border, hairline, and rule in the system is --ink (#1C1A16) at full or mixed opacity — never a separate mid-gray border color.", "section": "colors" },
+      { "name": "The Rationed Accent Rule", "body": "Vermilion marks one primary thing per view: the default action, the active tab, or the single most important chip. If two elements both want vermilion, one of them is wrong.", "section": "colors" },
+      { "name": "The Case Signal Rule", "body": "Uppercase means \"this labels an action or category.\" Sentence case means \"this is content.\" Never uppercase a sentence the user is meant to read as prose.", "section": "typography" },
+      { "name": "The Flat-At-Rest Rule", "body": "Nothing in normal document flow gets a shadow. Shadows are reserved for elements that visually detach from the page (overlays, floating menus, the page sheet against the wall).", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep every border and rule at --ink; never introduce a separate gray border token.",
+      "Do ration vermilion to one primary signal per screen.",
+      "Do keep hard, offset, blur-free shadows exclusive to floating elements.",
+      "Do keep uppercase reserved for actions/labels/headings and sentence case for content.",
+      "Do keep copy and motion calm even where the geometry is bold."
+    ],
+    "donts": [
+      "Don't round any corner — border-radius is 0px everywhere except the 2px chip radius.",
+      "Don't build a generic SaaS dashboard: no soft card shadows, no blue-and-white gradients, no pastel status pills.",
+      "Don't read as corporate job-board chrome: avoid dense blue UI chrome or stock-photo emptiness.",
+      "Don't give the AI a chat-bot persona: no chat bubbles, no glowing gradient orbs, no sparkle/magic-wand iconography.",
+      "Don't use a second display typeface for decorative contrast — Inter carries the whole hierarchy alone.",
+      "Don't soften the vermilion into a lighter tint for primary actions — softness lives in copy and motion, not in desaturating the accent."
+    ]
+  }
+}

@@ -579,7 +579,8 @@
     "saving": "Speichere…",
     "saved": "Gespeichert",
     "saveError": "Speichern fehlgeschlagen",
-    "aiNeedsUrl": "Keine Job-URL gespeichert, daher kann die KI den Job-Auszug nicht erneut lesen"
+    "aiNeedsUrl": "Keine Job-URL gespeichert, daher kann die KI den Job-Auszug nicht erneut lesen",
+    "sectionsShownCount": "{{shown}} von {{total}} angezeigt"
   },
   "engine": {
     "title": "KI-Engine",
@@ -633,7 +634,12 @@
     "noMatches": "Keine Bewerbungen passen zu Ihrer Suche.",
     "loadError": "Die Bewerbungen konnten nicht geladen werden: {{error}}",
     "changingLang": "Sprache wechseln…",
-    "slowLocalHint": "Bei dem kostenlosen lokalen Modell kann dies einige Minuten dauern. Abbrechen beendet die Erstellung und gibt die KI für andere Aufgaben frei."
+    "slowLocalHint": "Bei dem kostenlosen lokalen Modell kann dies einige Minuten dauern. Abbrechen beendet die Erstellung und gibt die KI für andere Aufgaben frei.",
+    "tabExists": "{{name}} — erstellt",
+    "tabMissing": "{{name}} — noch nicht erstellt",
+    "changeLangTitle": "Sprache ändern?",
+    "changeLangBody": "Dies regeneriert die Lebenslaufanleitung in <b>{{lang}}</b> und ersetzt die aktuelle, und passt Ihren Lebenslauf neu an (Ihre Änderungen werden beibehalten).",
+    "changeLangConfirm": "Sprache ändern"
   },
   "letters": {
     "title": "Brief",

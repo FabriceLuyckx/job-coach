@@ -579,7 +579,8 @@
     "saving": "Salvataggio in corso…",
     "saved": "Salvato",
     "saveError": "Impossibile salvare",
-    "aiNeedsUrl": "Nessun URL del lavoro salvato, quindi l'IA non può rileggere l'annuncio per questo CV"
+    "aiNeedsUrl": "Nessun URL del lavoro salvato, quindi l'IA non può rileggere l'annuncio per questo CV",
+    "sectionsShownCount": "{{shown}} di {{total}} mostrati"
   },
   "engine": {
     "title": "Motore IA",
@@ -633,7 +634,12 @@
     "noMatches": "Nessuna applicazione corrisponde alla tua ricerca.",
     "loadError": "Impossibile caricare le tue applicazioni: {{error}}",
     "changingLang": "Cambio di lingua…",
-    "slowLocalHint": "Sul modello locale gratuito questo può richiedere alcuni minuti. Annullare interrompe la generazione e libera l'IA per altri compiti."
+    "slowLocalHint": "Sul modello locale gratuito questo può richiedere alcuni minuti. Annullare interrompe la generazione e libera l'IA per altri compiti.",
+    "tabExists": "{{name}} — creato",
+    "tabMissing": "{{name}} — non creato ancora",
+    "changeLangTitle": "Cambiare lingua?",
+    "changeLangBody": "Questo ricrea il modello della lettera di presentazione in <b>{{lang}}</b> e sostituisce quello attuale, e riadatta il tuo CV (le tue modifiche vengono conservate).",
+    "changeLangConfirm": "Cambiare lingua"
   },
   "letters": {
     "title": "Lettera di presentazione",

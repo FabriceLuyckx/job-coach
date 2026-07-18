@@ -579,7 +579,8 @@
     "saving": "Enregistrement en cours…",
     "saved": "Enregistré",
     "saveError": "Impossible d'enregistrer",
-    "aiNeedsUrl": "Aucune URL de poste enregistrée, donc l'IA ne peut pas relire l'offre pour ce CV"
+    "aiNeedsUrl": "Aucune URL de poste enregistrée, donc l'IA ne peut pas relire l'offre pour ce CV",
+    "sectionsShownCount": "{{shown}} sur {{total}} affichés"
   },
   "engine": {
     "title": "Moteur IA",
@@ -633,7 +634,12 @@
     "noMatches": "Aucune application ne correspond à votre recherche.",
     "loadError": "Impossible de charger vos applications : {{error}}",
     "changingLang": "Changement de langue...",
-    "slowLocalHint": "Sur le modèle local gratuit, cela peut prendre quelques minutes. Annuler arrête la génération et libère l'IA pour d'autres tâches."
+    "slowLocalHint": "Sur le modèle local gratuit, cela peut prendre quelques minutes. Annuler arrête la génération et libère l'IA pour d'autres tâches.",
+    "tabExists": "{{name}} — créé",
+    "tabMissing": "{{name}} — pas encore créé",
+    "changeLangTitle": "Changer la langue ?",
+    "changeLangBody": "Cela régénère le guide de lettre de motivation en <b>{{lang}}</b> et remplace le fichier actuel, et réadapte votre CV (vos modifications sont conservées).",
+    "changeLangConfirm": "Changer la langue"
   },
   "letters": {
     "title": "Lettre de motivation",

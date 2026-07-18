@@ -579,7 +579,8 @@
     "saving": "Zapisywanie…",
     "saved": "Zapisane",
     "saveError": "Nie można zapisać",
-    "aiNeedsUrl": "Brak URL stanowiska, dlatego AI nie może ponownie przeczytać ogłoszenia dla tego CV"
+    "aiNeedsUrl": "Brak URL stanowiska, dlatego AI nie może ponownie przeczytać ogłoszenia dla tego CV",
+    "sectionsShownCount": "{{shown}} z {{total}} pokazanych"
   },
   "engine": {
     "title": "Silnik AI",
@@ -633,7 +634,12 @@
     "noMatches": "Brak aplikacji pasujących do Twojego wyszukiwania.",
     "loadError": "Nie udało się załadować Twoich aplikacji: {{error}}",
     "changingLang": "Zmiana języka…",
-    "slowLocalHint": "W modelu lokalnym darmowym to może zająć kilka minut. Anulowanie przerwie generowanie i zwolni AI do innych zadań."
+    "slowLocalHint": "W modelu lokalnym darmowym to może zająć kilka minut. Anulowanie przerwie generowanie i zwolni AI do innych zadań.",
+    "tabExists": "{{name}} — utworzony",
+    "tabMissing": "{{name}} — jeszcze nie utworzony",
+    "changeLangTitle": "Zmienić język?",
+    "changeLangBody": "To regeneruje przewodnik do listy zatrudnienia w <b>{{lang}}</b> i zastępuje obecny, a Twoje edycje zostają zachowane.",
+    "changeLangConfirm": "Zmienić język"
   },
   "letters": {
     "title": "List motywacyjny",

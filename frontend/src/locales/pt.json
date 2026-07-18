@@ -579,7 +579,8 @@
     "saving": "A guardar…",
     "saved": "Guardado",
     "saveError": "Não foi possível guardar",
-    "aiNeedsUrl": "Nenhum URL de emprego armazenado, portanto a IA não pode reler o anúncio para este CV"
+    "aiNeedsUrl": "Nenhum URL de emprego armazenado, portanto a IA não pode reler o anúncio para este CV",
+    "sectionsShownCount": "{{shown}} de {{total}} exibidos"
   },
   "engine": {
     "title": "Motor de IA",
@@ -633,7 +634,12 @@
     "noMatches": "Nenhuma candidatura corresponde à sua pesquisa.",
     "loadError": "Não foi possível carregar as suas candidaturas: {{error}}",
     "changingLang": "Mudando o idioma…",
-    "slowLocalHint": "No modelo local gratuito isso pode levar alguns minutos. Cancelar interrompe a geração e libera a IA para outras tarefas."
+    "slowLocalHint": "No modelo local gratuito isso pode levar alguns minutos. Cancelar interrompe a geração e libera a IA para outras tarefas.",
+    "tabExists": "{{name}} — criado",
+    "tabMissing": "{{name}} — ainda não criado",
+    "changeLangTitle": "Mudar o idioma?",
+    "changeLangBody": "Isso regenera o guia de carta de apresentação em <b>{{lang}}</b> e substitui o atual, e reajusta seu CV (suas edições são mantidas).",
+    "changeLangConfirm": "Mudar o idioma"
   },
   "letters": {
     "title": "Carta de apresentação",

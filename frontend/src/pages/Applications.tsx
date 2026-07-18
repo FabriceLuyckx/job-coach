@@ -2,12 +2,14 @@
 // Copyright (C) 2026 Fabrice Luyckx
 
 import { useState, useEffect, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
-import { ExternalLink, FileText, Plus, X } from 'lucide-react'
+import { Trans, useTranslation } from 'react-i18next'
+import { Check, ExternalLink, FileText, Minus, Plus, X } from 'lucide-react'
 import { api, pollCVJob, PollAbortedError, type CvHistoryEntry, type CVResult, type CVMutation } from '../api'
 import type { LetterHistoryEntry } from '../types'
 import Button from '../components/Button'
 import Collapsible from '../components/Collapsible'
+import Modal from '../components/Modal'
+import { LANGUAGE_NAMES } from '../i18n'
 import EmptyState from '../components/EmptyState'
 import CreditChip from '../components/CreditChip'
 import LangSelect from '../components/LangSelect'
@@ -198,7 +200,7 @@ function NewApplicationSlot({ pending, onCvGenerated, onLetterGenerated, onClose
     if (stage === null) return null
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--fs-sm)' }}>
-        {done ? <span aria-hidden>✓</span> : <span className="spinner" />}
+        {done ? <Check size={15} aria-hidden /> : <span className="spinner" />}
         <strong>{label}</strong>
         <span className="muted-sm">{done ? t('applications.artifactDone') : (stage || t('cv.starting'))}</span>
       </div>
@@ -297,6 +299,10 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
   const [lang, setLang] = useState(app.cv?.lang ?? app.letter?.lang ?? 'en')
   const [relanging, setRelanging] = useState(false)
   const [relangErr, setRelangErr] = useState('')
+  // A language change regenerates the letter (replacing the old one) — confirm
+  // before that destructive, token-costing step. A CV-only change re-tailors in
+  // place with edits preserved, so it runs without a prompt.
+  const [pendingLang, setPendingLang] = useState<string | null>(null)
 
   const cvResult: CVResult | null = cv && {
     history_id: cv.id, slug: cv.slug, job_title: cv.job_title, employer: cv.employer,
@@ -376,12 +382,26 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
     setRelanging(false)
   }
 
-  const tabBtn = (key: 'cv' | 'letter', has: boolean) => (
-    <button type="button" aria-pressed={tab === key} onClick={() => pickTab(key)}>
-      {t(key === 'cv' ? 'applications.cvTab' : 'applications.letterTab')}
-      <span style={{ marginLeft: 6, opacity: has ? 1 : 0.6 }} aria-hidden>{has ? '✓' : '—'}</span>
-    </button>
-  )
+  // Gate: prompt before a change that regenerates (and deletes) the letter;
+  // run straight through when only a CV would be re-tailored (edits preserved).
+  function requestLangChange(newLang: string) {
+    if (newLang === lang || relanging || !app.jobUrl) return
+    if (letter) setPendingLang(newLang)
+    else changeListingLang(newLang)
+  }
+
+  const tabBtn = (key: 'cv' | 'letter', has: boolean) => {
+    const name = t(key === 'cv' ? 'applications.cvTab' : 'applications.letterTab')
+    return (
+      <button type="button" aria-pressed={tab === key} onClick={() => pickTab(key)}
+        aria-label={t(has ? 'applications.tabExists' : 'applications.tabMissing', { name })}>
+        {name}
+        {has
+          ? <Check size={14} aria-hidden style={{ marginLeft: 6, verticalAlign: -2 }} />
+          : <Minus size={14} aria-hidden style={{ marginLeft: 6, verticalAlign: -2, opacity: 0.6 }} />}
+      </button>
+    )
+  }
 
   function missingArtifact(kind: 'cv' | 'letter') {
     if (!app.jobUrl) return <p className="muted-sm">{t('applications.noUrl')}</p>
@@ -410,6 +430,20 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
 
   return (
     <div className="card" style={{ padding: 0 }}>
+      {pendingLang && (
+        <Modal title={t('applications.changeLangTitle')} onClose={() => setPendingLang(null)}>
+          <p style={{ lineHeight: 1.6, marginBottom: 'var(--space-4)' }}>
+            <Trans i18nKey="applications.changeLangBody"
+              values={{ lang: LANGUAGE_NAMES[pendingLang] ?? pendingLang }} components={{ b: <strong /> }} />
+          </p>
+          <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+            <Button variant="primary" onClick={() => { const l = pendingLang; setPendingLang(null); changeListingLang(l) }}>
+              {t('applications.changeLangConfirm')}
+            </Button>
+            <Button variant="ghost" onClick={() => setPendingLang(null)}>{t('common.cancel')}</Button>
+          </div>
+        </Modal>
+      )}
       <div style={{ padding: '11px 16px' }}>
         <Collapsible
           flat open={expanded} onToggle={toggleExpanded}
@@ -438,7 +472,7 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
                 <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 0, fontSize: 'var(--fs-sm)', color: 'var(--muted)' }}>
                   {t('cv.language')}
                   <LangSelect value={lang} extra={cv?.lang ?? letter?.lang} disabled={relanging}
-                    onChange={changeListingLang} style={{ padding: '3px 6px', fontSize: 'var(--fs-sm)', width: 'auto' }} />
+                    onChange={requestLangChange} style={{ padding: '3px 6px', fontSize: 'var(--fs-sm)', width: 'auto' }} />
                 </label>
                 {relanging && (
                   <>
@@ -600,7 +634,7 @@ export default function ApplicationsPage() {
         <div className="page-head-actions">
           <CreditChip />
           {!slotOpen && (
-            <Button variant="primary" onClick={() => setShowNew(true)}>
+            <Button variant="secondary" onClick={() => setShowNew(true)}>
               <Plus size={15} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
               {t('applications.new')}
             </Button>

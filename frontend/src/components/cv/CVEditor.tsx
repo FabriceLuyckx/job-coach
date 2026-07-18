@@ -11,6 +11,7 @@ import {
 } from '../../api'
 import BulletListEditor from '../BulletListEditor'
 import Button from '../Button'
+import Collapsible from '../Collapsible'
 import Modal from '../Modal'
 import { useToast } from '../Toast'
 import { errMsg } from '../../lib/errors'
@@ -234,6 +235,7 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
   const busyAI = regenerating
   const stageText = stage ? t(`cv.stage.${stage}`) : ''
   const hidden = new Set(plan?.hidden_sections ?? [])
+  const shownCount = sections.filter(k => !hidden.has(k)).length
 
   const saveLabel = saveState === 'saving' || saveState === 'pending' ? t('cveditor.saving')
     : saveState === 'saved' ? t('cveditor.saved')
@@ -341,55 +343,8 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
         </Button>
       </div>
 
-      {/* Sections cluster: user toggles + AI decisions (WS1 + WS5) */}
-      {plan && (
-        <div style={{ marginBottom: 'var(--space-4)' }}>
-          <div className="editor-cluster-label">{t('cveditor.sectionsTitle')}</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {sections.map(key => (
-              <label
-                key={key}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  border: '1px solid var(--border)', padding: '4px 10px',
-                  cursor: 'pointer', fontSize: 'var(--fs-sm)', color: 'var(--ink)',
-                  fontWeight: 400, marginBottom: 0,
-                }}
-              >
-                <input
-                  type="checkbox" checked={!hidden.has(key)}
-                  onChange={e => toggleSection(key, e.target.checked)}
-                  style={{ width: 'auto' }}
-                />
-                {t(`cveditor.sections.${key}`, key)}
-              </label>
-            ))}
-          </div>
-
-          {plan.excluded_sections.length > 0 && (
-            <div style={{ marginTop: 'var(--space-3)' }}>
-              <span className="muted-sm">{t('cveditor.aiLeftOut')}: </span>
-              {plan.excluded_sections.map(key => (
-                <button key={key} type="button" className="chip-restore" onClick={() => restoreSection(key)}
-                  title={t('cveditor.restoreTip')}>
-                  {t(`cveditor.sections.${key}`, key)} <RotateCcw size={11} aria-hidden />
-                </button>
-              ))}
-            </div>
-          )}
-
-          {plan.highlighted_skills.length > 0 && (
-            <div style={{ marginTop: 'var(--space-2)' }}>
-              <span className="muted-sm">{t('cveditor.emphasisedSkills')}: </span>
-              {plan.highlighted_skills.map(s => (
-                <span key={s} className="chip-readonly">{s}</span>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Photo CTA */}
+      {/* Photo nudge — a one-time state hint (not a control), so it stays
+          visible rather than hiding behind the section disclosure below. */}
       {!hasPhoto && (
         <div className="callout callout-highlight" style={{ marginBottom: 'var(--space-4)' }}>
           <ImageOff size={16} className="callout-icon" aria-hidden />
@@ -397,6 +352,52 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
             <Trans i18nKey="cveditor.photoDisabled" components={{ b: <strong /> }} />
             <Link to="/settings">{t('cveditor.addPhotoLink')}</Link> {t('cveditor.addPhotoSuffix')}
           </span>
+        </div>
+      )}
+
+      {/* Section controls behind one disclosure — header names the payoff with a
+          live count, so the CV tab opens on preview + actions + editor, not a wall. */}
+      {plan && (
+        <div style={{ marginBottom: 'var(--space-4)' }}>
+          <Collapsible flat title={
+            <span className="editor-cluster-label">
+              {t('cveditor.sectionsTitle')}
+              {sections.length > 0 && ` — ${t('cveditor.sectionsShownCount', { shown: shownCount, total: sections.length })}`}
+            </span>
+          }>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+              {sections.map(key => (
+                <label key={key} className="chip-check">
+                  <input
+                    type="checkbox" checked={!hidden.has(key)}
+                    onChange={e => toggleSection(key, e.target.checked)}
+                  />
+                  {t(`cveditor.sections.${key}`, key)}
+                </label>
+              ))}
+            </div>
+
+            {plan.excluded_sections.length > 0 && (
+              <div style={{ marginTop: 'var(--space-3)' }}>
+                <span className="muted-sm">{t('cveditor.aiLeftOut')}: </span>
+                {plan.excluded_sections.map(key => (
+                  <button key={key} type="button" className="chip-restore" onClick={() => restoreSection(key)}
+                    title={t('cveditor.restoreTip')}>
+                    {t(`cveditor.sections.${key}`, key)} <RotateCcw size={11} aria-hidden />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {plan.highlighted_skills.length > 0 && (
+              <div style={{ marginTop: 'var(--space-2)' }}>
+                <span className="muted-sm">{t('cveditor.emphasisedSkills')}: </span>
+                {plan.highlighted_skills.map(s => (
+                  <span key={s} className="chip-readonly">{s}</span>
+                ))}
+              </div>
+            )}
+          </Collapsible>
         </div>
       )}
 

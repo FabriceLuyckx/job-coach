@@ -312,7 +312,12 @@ time, so neither editor gets denser). Reuses `CVEditor` and `GuideView`. **Langu
 one setting per listing**: a single `LangSelect` above the tab strip owns the whole
 application's language — changing it re-tailors the existing CV (via `relangCV`, edits
 preserved) *and* regenerates the existing letter (`runLetter`, deleting the old-language
-row), in parallel; a missing artifact adopts it when created. `CVEditor` no longer has
+row), in parallel; a missing artifact adopts it when created. Because that letter
+regeneration deletes the old-language guide, picking a new language when a letter
+already exists first shows a confirmation modal naming both effects (letter replaced,
+CV re-tailored with edits kept) — declining leaves the control and both artifacts
+untouched; a CV-only change (no letter yet) runs immediately with no prompt, since
+nothing is destroyed. `CVEditor` no longer has
 its own language dropdown (it's keyed by `` `${cv.id}:${cv.lang}` `` so a relang result
 remounts it). The **New** slot's language defaults to **Auto-detect**: a manually-pasted
 URL is language-detected (`POST /api/cv/detect-lang` → `detect_language()` in
