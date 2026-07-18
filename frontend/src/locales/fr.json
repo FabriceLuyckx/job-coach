@@ -486,7 +486,7 @@
     "noSuggestionsTitle": "Aucune suggestion pour l'instant",
     "noSuggestionsNoSources": "Ajoutez une page d'offres ci-dessus, puis recherchez de nouvelles offres — les postes correspondant à votre profil apparaîtront ici.",
     "noSuggestionsHasSources": "Lancez « Rechercher de nouvelles offres » — les postes correspondant à votre profil apparaîtront ici avec une courte explication.",
-    "acceptTitle": "Génère un CV et une lettre de motivation personnalisés et les ouvre sur la page des candidatures",
+    "acceptTitle": "Génère un CV et un guide de lettre de motivation personnalisés pour ce poste",
     "acceptGenerate": "Accepter",
     "reject": "Rejeter",
     "rejectedToast": "« {{title}} » rejeté",
@@ -521,7 +521,26 @@
     "suggestAnywayTitle": "Remettre ce poste dans vos suggestions",
     "showMore": "Afficher {{count}} autres",
     "sourceLastScanned": "Dernière analyse {{time}}",
-    "cancelScan": "Annuler l'analyse"
+    "cancelScan": "Annuler l'analyse",
+    "clearFilters": "Effacer la recherche et les filtres",
+    "editPreferences": "Modifier vos préférences →",
+    "acceptHint": "L'acceptation crée un CV et un guide de lettre de motivation personnalisés pour ce poste — cela utilise des crédits AI.",
+    "filteredOutLabel": "Filtré",
+    "filteredOutNone": "Rien n'a encore été filtré.",
+    "acceptedToast": "Accepté «{{title}}» — création de votre CV et de votre guide de lettre de motivation",
+    "acceptedQueued": "Accepté — consultez-le dans les Candidatures",
+    "filteredByTitle": "Écarté par son titre — le poste n'a pas été lu.",
+    "recheckNothing": "Rien ici ne peut être réévalué — ces postes ont été écartés par titre, donc aucun texte du poste n'est enregistré pour être réexaminé.",
+    "recheckNoneYet": "Rien n'a encore été filtré, il n'y a donc rien à réexaminer.",
+    "rejectedKeptArtifacts": "Rejeté «{{title}}» — son CV et sa lettre restent dans les Candidatures",
+    "digest": {
+      "employer": "Entreprise",
+      "location": "Lieu",
+      "remote": "Mode de travail",
+      "contract": "Contrat",
+      "salary": "Salaire",
+      "deadline": "Date limite"
+    }
   },
   "cveditor": {
     "sections": {

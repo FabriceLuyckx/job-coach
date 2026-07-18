@@ -486,7 +486,7 @@
     "noSuggestionsTitle": "Brak sugestii",
     "noSuggestionsNoSources": "Dodaj powyżej stronę z ofertami pracy, a następnie wyszukaj nowe ogłoszenia — pasujące do Twojego profilu oferty pojawią się tutaj.",
     "noSuggestionsHasSources": "Uruchom „Znajdź nowe oferty” — oferty pasujące do Twojego profilu pojawią się tutaj wraz z krótkim uzasadnieniem.",
-    "acceptTitle": "Tworzy dopasowane CV i przewodnik listu motywacyjnego, i otwiera je na stronie Aplikacje",
+    "acceptTitle": "Tworzy dostosowaną wersję CV i kierunek listy do tego stanowiska",
     "acceptGenerate": "Akceptuj",
     "reject": "Odrzuć",
     "rejectedToast": "Odrzucono „{{title}}”",
@@ -521,7 +521,26 @@
     "suggestAnywayTitle": "Przenieś to do Twoich propozycji",
     "showMore": "Pokaż {{count}} więcej",
     "sourceLastScanned": "Ostatnio skanowano {{time}}",
-    "cancelScan": "Anuluj skanowanie"
+    "cancelScan": "Anuluj skanowanie",
+    "clearFilters": "Wyczyść wyszukiwanie i filtry",
+    "editPreferences": "Dostosuj swoje preferencje →",
+    "acceptHint": "Akceptowanie tworzy dostosowaną wersję CV i kierunek listy do tego stanowiska — wykorzystuje to kredyt AI.",
+    "filteredOutLabel": "Odrzucone",
+    "filteredOutNone": "Nic jeszcze nie zostało odrzuconych.",
+    "acceptedToast": "Akceptowane „{{title}}” — tworzenie Twojego CV i kierunku listy",
+    "acceptedQueued": "Akceptowane — zobacz to w Zastosowaniach",
+    "filteredByTitle": "Odrzucone przez tytuł — ogłoszenie nie zostało przeczytane.",
+    "recheckNothing": "Nic tutaj nie można ponownie sprawdzić — te ogłoszenia zostały odrzucone przez tytuł, więc nie ma zapisanego tekstu ogłoszenia do ponownego oceniania.",
+    "recheckNoneYet": "Nic jeszcze nie zostało odrzuconych, więc nic do ponownego sprawdzenia.",
+    "rejectedKeptArtifacts": "Odrzucone „{{title}}” — CV i listę pozostają w Zastosowaniach",
+    "digest": {
+      "employer": "Firma",
+      "location": "Miejsce",
+      "remote": "Styl pracy",
+      "contract": "Umowa",
+      "salary": "Płaca",
+      "deadline": "Limit terminu"
+    }
   },
   "cveditor": {
     "sections": {

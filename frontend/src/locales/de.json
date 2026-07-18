@@ -486,7 +486,7 @@
     "noSuggestionsTitle": "Noch keine Vorschläge",
     "noSuggestionsNoSources": "Fügen Sie oben eine Stellenbörse hinzu und suchen Sie dann nach neuen Anzeigen – passende Stellen für Ihr Profil werden hier angezeigt.",
     "noSuggestionsHasSources": "Klicken Sie auf „Neue Stellenanzeigen finden“ — passende Angebote erscheinen hier mit einer kurzen Begründung.",
-    "acceptTitle": "Erstellt einen maßgeschneiderten Lebenslauf und eine Briefanleitung und öffnet sie auf der Seite „Bewerbungen“",
+    "acceptTitle": "Erstellt ein maßgeschneidertes CV und einen Briefvorschlag für diese Stelle",
     "acceptGenerate": "Akzeptieren",
     "reject": "Ablehnen",
     "rejectedToast": "„{{title}}“ abgelehnt",
@@ -521,7 +521,26 @@
     "suggestAnywayTitle": "Diese Stelle wieder in Ihre Vorschläge aufnehmen",
     "showMore": "Noch {{count}} anzeigen",
     "sourceLastScanned": "Zuletzt gescannt um {{time}}",
-    "cancelScan": "Scan abbrechen"
+    "cancelScan": "Scan abbrechen",
+    "clearFilters": "Filter entfernen",
+    "editPreferences": "Präferenzen anpassen →",
+    "acceptHint": "Die Annahme erstellt ein maßgeschneidertes CV und einen Briefvorschlag für diese Stelle – dies verbraucht AI-Kredit.",
+    "filteredOutLabel": "Gefiltert",
+    "filteredOutNone": "Noch nichts wurde gefiltert.",
+    "acceptedToast": "„{{title}}“ akzeptiert – Ihr CV und Briefvorschlag werden erstellt",
+    "acceptedQueued": "Akzeptiert – im Bereich „Anträge“ anzeigen",
+    "filteredByTitle": "Durch den Titel abgelehnt – die Stellenanzeige wurde nicht gelesen.",
+    "recheckNothing": "Hier kann nichts erneut geprüft werden – diese Stellen wurden durch den Titel abgelehnt, daher gibt es keinen gespeicherten Text zur Wiederbeurteilung.",
+    "recheckNoneYet": "Noch nichts wurde gefiltert, daher gibt es nichts zum Überprüfen.",
+    "rejectedKeptArtifacts": "„{{title}}“ abgelehnt – CV und Brief bleiben im Bereich „Anträge“",
+    "digest": {
+      "employer": "Unternehmen",
+      "location": "Ort",
+      "remote": "Arbeitsweise",
+      "contract": "Vertrag",
+      "salary": "Gehalt",
+      "deadline": "Frist"
+    }
   },
   "cveditor": {
     "sections": {

@@ -486,7 +486,7 @@
     "noSuggestionsTitle": "Nessun suggerimento ancora",
     "noSuggestionsNoSources": "Aggiungi una pagina di offerte di lavoro qui sopra, poi cerca nuove inserzioni — le posizioni aperte in linea con il tuo profilo appariranno qui.",
     "noSuggestionsHasSources": "Premi “Trova nuove offerte” — le posizioni in linea con il tuo profilo appariranno qui con una breve motivazione.",
-    "acceptTitle": "Genera un CV e una guida per la lettera di presentazione, entrambi personalizzati, e li apre nella pagina Applicazioni",
+    "acceptTitle": "Genera un CV personalizzato e una guida per la lettera di presentazione per questo lavoro",
     "acceptGenerate": "Accetta",
     "reject": "Rifiuta",
     "rejectedToast": "\"{{title}}\" rifiutato",
@@ -521,7 +521,26 @@
     "suggestAnywayTitle": "Sposta questo nel tuo elenco di suggerimenti",
     "showMore": "Mostra {{count}} altri",
     "sourceLastScanned": "Ultima scansione {{time}}",
-    "cancelScan": "Annulla la scansione"
+    "cancelScan": "Annulla la scansione",
+    "clearFilters": "Pulisci ricerca e filtri",
+    "editPreferences": "Modifica le tue preferenze →",
+    "acceptHint": "Accettare genera un CV personalizzato e una guida per la lettera di presentazione per questo lavoro — utilizza crediti AI.",
+    "filteredOutLabel": "Filtrato",
+    "filteredOutNone": "Niente è stato ancora filtrato.",
+    "acceptedToast": "Accettato “{{title}}” — stai creando il tuo CV e la guida per la lettera di presentazione",
+    "acceptedQueued": "Accettato — vedi nel riepilogo delle candidature",
+    "filteredByTitle": "Filtrato per il titolo — il post non è stato letto.",
+    "recheckNothing": "Niente qui può essere ri-controllato — sono stati filtrati per titolo, quindi non c'è testo del post salvato per riprendere la valutazione.",
+    "recheckNoneYet": "Niente è stato ancora filtrato, quindi niente da controllare.",
+    "rejectedKeptArtifacts": "Rifiutato “{{title}}” — il CV e la lettera restano nelle candidature",
+    "digest": {
+      "employer": "Azienda",
+      "location": "Luogo",
+      "remote": "Modalità di lavoro",
+      "contract": "Contratto",
+      "salary": "Stipendio",
+      "deadline": "Scadenza"
+    }
   },
   "cveditor": {
     "sections": {

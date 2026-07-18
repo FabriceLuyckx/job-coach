@@ -486,7 +486,7 @@
     "noSuggestionsTitle": "Sem sugestões ainda",
     "noSuggestionsNoSources": "Adicione uma página de vagas acima, depois busque novas listagens — as oportunidades que correspondem ao seu perfil aparecerão aqui.",
     "noSuggestionsHasSources": "Clique em “Encontrar novas vagas” — as ofertas que corresponderem ao seu perfil aparecerão aqui com um breve motivo.",
-    "acceptTitle": "Gera um CV personalizado e um guia de carta de apresentação, e abre-os na página de Candidaturas",
+    "acceptTitle": "Gera um CV personalizado e um guia de carta de apresentação para este emprego",
     "acceptGenerate": "Aceitar",
     "reject": "Rejeitar",
     "rejectedToast": "\"{{title}}\" rejeitado",
@@ -521,7 +521,26 @@
     "suggestAnywayTitle": "Mover esta vaga para as suas sugestões",
     "showMore": "Mostrar {{count}} mais",
     "sourceLastScanned": "Última verificação {{time}}",
-    "cancelScan": "Cancelar verificação"
+    "cancelScan": "Cancelar verificação",
+    "clearFilters": "Limpar busca e filtros",
+    "editPreferences": "Ajustar suas preferências →",
+    "acceptHint": "Aceitar cria um CV personalizado e um guia de carta de apresentação para esse emprego — isso utiliza créditos de IA.",
+    "filteredOutLabel": "Filtrado",
+    "filteredOutNone": "Nada foi filtrado até agora.",
+    "acceptedToast": "Aceito “{{title}}” — está sendo construído seu CV e guia de carta de apresentação",
+    "acceptedQueued": "Aceito — veja no Aplicativos",
+    "filteredByTitle": "Filtrado por título — o anúncio não foi lido.",
+    "recheckNothing": "Nada aqui pode ser reavaliado — foram filtrados por título, então não há texto do anúncio salvo para reavaliar.",
+    "recheckNoneYet": "Nada foi filtrado até agora, então não há nada para reavaliar.",
+    "rejectedKeptArtifacts": "Rejeitado “{{title}}” — seu CV e carta de apresentação permanecem nos Aplicativos",
+    "digest": {
+      "employer": "Empregador",
+      "location": "Localização",
+      "remote": "Modelo de trabalho",
+      "contract": "Contrato",
+      "salary": "Salário",
+      "deadline": "Prazo"
+    }
   },
   "cveditor": {
     "sections": {

@@ -76,9 +76,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={apiRef.current}>
       {children}
-      <div className="toast-stack" role="region" aria-label="Notifications">
+      {/* The live region is this persistent wrapper, not the individual toasts:
+          a live region that is inserted *along with* its content is announced
+          unreliably, while one that already exists and then changes is not. One
+          region for all kinds, so an error isn't announced twice by a nested
+          role="alert" inside a live parent. */}
+      <div className="toast-stack" role="region" aria-label="Notifications"
+        aria-live="polite" aria-relevant="additions text">
         {toasts.map(t => (
-          <div key={t.id} className={`toast toast-${t.kind}`} role={t.kind === 'error' ? 'alert' : 'status'}>
+          <div key={t.id} className={`toast toast-${t.kind}`}>
             <span className="toast-message">{t.message}</span>
             {t.action && (
               <button

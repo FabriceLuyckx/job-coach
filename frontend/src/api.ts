@@ -155,6 +155,8 @@ export interface CVTemplateRegistry {
   palettes: CVPalette[]
 }
 
+export interface ScanStart { scan_id: string; kind: 'scan' | 'recheck'; already_running: boolean }
+
 export const api = {
   // Built-in CV template ids + the shared palettes. Display names are i18n keys
   // (settings.template.names.<id> / .palettes.<id>), never server strings.
@@ -262,14 +264,16 @@ export const api = {
   deleteJobSource: (id: string) =>
     request<{ ok: boolean }>(`/jobs/sources/${id}`, { method: 'DELETE' }),
 
-  startScan: () => request<{ scan_id: string }>('/jobs/scan', { method: 'POST' }),
-  recheckOpenings: () => request<{ scan_id: string }>('/jobs/recheck', { method: 'POST' }),
+  // `kind`/`already_running`: the server hands back the job already in flight
+  // rather than starting a second one (see _start_or_attach).
+  startScan: () => request<ScanStart>('/jobs/scan', { method: 'POST' }),
+  recheckOpenings: () => request<ScanStart>('/jobs/recheck', { method: 'POST' }),
   getScanStatus: (id: string) =>
     request<{
       status: JobStatus
       found?: number
       error?: string
-      errors?: Record<string, string> // per-source failures: source name → message
+      errors?: Record<string, string> // per-source failures: source id → message
       current?: number // 1-based index of the source being scanned
       total?: number
       source?: string // name of the source being scanned
@@ -277,7 +281,7 @@ export const api = {
       reading_total?: number // postings to read for the current source (0 if none)
     }>(`/jobs/scan/status/${id}`),
   cancelScan: (id: string) => request<{ ok: boolean }>(`/jobs/scan/cancel/${id}`, { method: 'POST' }),
-  getLastScan: () => request<{ last_scan: string | null; profile_changed: boolean }>('/jobs/last-scan'),
+  getLastScan: () => request<{ last_scan: string | null; profile_changed: boolean; recheckable: number }>('/jobs/last-scan'),
 
   getOpenings: (includeSeen = false) =>
     request<JobOpening[]>(`/jobs/openings${includeSeen ? '?include_seen=true' : ''}`),

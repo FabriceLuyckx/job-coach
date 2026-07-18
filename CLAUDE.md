@@ -429,7 +429,7 @@ cd frontend && npm run dev
 1. Add job-listing page URLs one by one (stored in `job_sources`).
 2. **Find new listings** scans every source. Per source, in cost order: (a) read the page's actual `<a href>` links; if their hash equals last scan's (`job_sources.links_hash`), skip the source entirely — nothing new can exist. (b) LLM picks which links are real openings; dedup against `job_openings` by URL. (c) **Title prescreen** — a high-recall LLM triage drops only clearly off-target new openings (skipped, keep-all, at ≤5 new). (d) For each survivor: **fetch the posting page once** and make **one LLM call** returning a match verdict *and* a structured digest (employer, location, remote, contract, salary, deadline, ~50-word summary, top requirements). This is what lets preferences a title can't express (`avoid`, `notes`, `remote`) actually filter. Last-scan time shows beside the button (`jobs_last_scan` in config.json).
 3. Matching openings show as **Suggestions** (info left, Accept/red-Reject right) with a one-line reason, detected language, and the digest fields as chips + summary (the deadline chip is accented). Non-matches are stored as `seen` **with their reason kept** and their scraped text/digest cached — surfaced in a collapsible **Filtered out** section (each with **Suggest anyway** → restore). A posting whose page can't be read still shows as a suggestion with a "couldn't read the posting page" caveat rather than being buried. Past the 5th suggestion, a search box + source filter appear.
-4. **Accept** → marks `accepted`, kicks off **both** CV generation (reuses `cv.start_generation`, passing the cached `posting_text` so the page is **not** re-scraped) **and** cover-letter-guide generation (`letters.start_letter_generation`, which reuses the same cached posting itself) from its URL in the *detected language*, and hands off to the **Applications** page (via the `application_pending` localStorage key holding `{jobUrl, cvJobId, letterJobId}`) which shows both artifacts building. **Reject** greys it out.
+4. **Accept** → marks `accepted`, kicks off **both** CV generation (reuses `cv.start_generation`, passing the cached `posting_text` so the page is **not** re-scraped) **and** cover-letter-guide generation (`letters.start_letter_generation`, which reuses the same cached posting itself) from its URL in the *detected language*, and writes the `application_pending` localStorage key (`{jobUrl, cvJobId, letterJobId}`) so the **Applications** page shows both artifacts building. Accepting **stays on this page** — the row marks accepted in place with a "Generating…" state and an explicit *Open application* link, so a queue can be triaged in one pass; the toast's **Undo** cancels both generations (`cancelCVJob`) and restores the opening, since the AI work is already running. **Reject** marks it rejected (also undoable).
 5. **History** keeps accepted + rejected openings (full info, recency-first, paged with "Show more"; rejected greyed). Accepted rows have **Open CV** (deep-links to the matching CV via `cv_open_url` → matched by `job_url`) and can still be rejected.
 6. **Re-check filtered jobs** re-judges the cached `seen` openings against the current profile (rescuing ones improved Preferences now match); **Check a specific job** runs any pasted URL through the same review — for a posting found off-platform.
 
@@ -465,11 +465,21 @@ POST   /api/jobs/openings/{id}/restore  Back to 'suggested' (Undo for reject; al
 **Scan status** (`GET /api/jobs/scan/status/{scan_id}`, shared by scan +
 recheck) reports progress while running (`current`/`total`/`source` for the
 source loop, `reading_current`/`reading_total` for the per-posting loop) and,
-when done, `found` plus a per-source `errors` map (`{source name: message}`) so
-a broken source is visible instead of silently skipped. The scan runs in a
+when done, `found` plus a per-source `errors` map (`{source id: message}` — keyed
+by **id**, not name: names are hostname-derived, so two sources on one host would
+collide) so a broken source is visible instead of silently skipped. The scan runs in a
 daemon thread whose status stays queryable for 1h, so navigating away from the
 page and back **resumes** the running display (the frontend remembers the active
-scan id module-side and re-attaches its poller on mount). A **Cancel** button
+scan id module-side and re-attaches its poller on mount). `POST /scan` and
+`POST /recheck` go through `_start_or_attach()`, which **hands back the job
+already in flight** (with its real `kind`) instead of starting a second one —
+that module-side memory is lost on a hard refresh, so the next click would
+otherwise run two scans at once against the single serialised local engine
+(`tests/test_scan_concurrency.py`). Progress lives in **one
+`role="status"` strip** under the page title — not inside the button that started
+it (whose label stays stable and just shows `busy`) and not inside any results
+list, so it stays visible when scrolled away and can't vanish when a recheck
+empties the list it used to sit in. A **Cancel** button in that strip
 (mirroring CV generation) hits `POST /api/jobs/scan/cancel/{scan_id}`, which sets
 a `threading.Event` published via the `current_cancel` ContextVar so the local
 engine interrupts the in-flight generation (status → `cancelled`, no
@@ -505,7 +515,10 @@ job_openings: id, url (UNIQUE), title, source_url,
                             salary/deadline/summary/requirements)
 ```
 `GET /api/jobs/openings` parses `posting_json` into a `digest` object and never
-ships `posting_text` to the client. Scan status also reports
+ships `posting_text` to the client. `GET /api/jobs/last-scan` also returns a
+**`recheckable`** count (same `WHERE` as `_run_recheck`): title-prescreened rows
+have no `posting_text`, so a re-check can't re-judge them — the client gates the
+button on that count rather than guessing from the 50 `seen` rows it can see. Scan status also reports
 `reading_current`/`reading_total` during the per-posting Stage-2 loop.
 
 ---

@@ -486,7 +486,7 @@
     "noSuggestionsTitle": "Nog geen suggesties",
     "noSuggestionsNoSources": "Voeg hierboven een vacaturepagina toe en zoek naar nieuwe vacatures — openstaande functies die overeenkomen met jouw profiel verschijnen hier.",
     "noSuggestionsHasSources": "Klik op “Nieuwe vacatures zoeken” — vacatures die bij je profiel passen verschijnen hier met een korte reden.",
-    "acceptTitle": "Genereert een aangepast cv en een briefgids, en opent ze op de pagina Sollicitaties",
+    "acceptTitle": "Maakt een aangepaste CV en briefgids voor deze functie",
     "acceptGenerate": "Accepteren",
     "reject": "Afwijzen",
     "rejectedToast": "‘{{title}}’ afgewezen",
@@ -521,7 +521,26 @@
     "suggestAnywayTitle": "Dit terug in je suggesties verplaatsen",
     "showMore": "Toon {{count}} meer",
     "sourceLastScanned": "Laatste scan {{time}}",
-    "cancelScan": "Scan annuleren"
+    "cancelScan": "Scan annuleren",
+    "clearFilters": "Filteren wissen",
+    "editPreferences": "Je voorkeuren aanpassen →",
+    "acceptHint": "Accepteren bouwt een aangepaste CV en briefgids voor deze functie — dit gebruikt AI-credits",
+    "filteredOutLabel": "Gefilterd",
+    "filteredOutNone": "Niets is nog gefilterd.",
+    "acceptedToast": "Geaccepteerd “{{title}}” — je CV en briefgids worden gemaakt",
+    "acceptedQueued": "Geaccepteerd — zie het in Applicaties",
+    "filteredByTitle": "Gefilterd door titel — de aanbieding is niet gelezen",
+    "recheckNothing": "Niets hier kan herbekeken worden — deze zijn gefilterd door titel, dus er is geen opgeslagen tekst om te beoordelen.",
+    "recheckNoneYet": "Niets is nog gefilterd, dus er is niets om te herbeoordelen.",
+    "rejectedKeptArtifacts": "Afgewezen “{{title}}” — zijn CV en brief blijven in Applicaties",
+    "digest": {
+      "employer": "Uitgever",
+      "location": "Locatie",
+      "remote": "Werkstijl",
+      "contract": "Contract",
+      "salary": "Salaris",
+      "deadline": "Deadline"
+    }
   },
   "cveditor": {
     "sections": {

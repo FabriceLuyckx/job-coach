@@ -486,7 +486,7 @@
     "noSuggestionsTitle": "Aún no hay sugerencias",
     "noSuggestionsNoSources": "Añade una página de ofertas de empleo arriba, luego busca nuevas ofertas — las vacantes que coincidan con tu perfil aparecerán aquí.",
     "noSuggestionsHasSources": "Pulsa «Buscar nuevas ofertas» — las vacantes que coincidan con tu perfil aparecerán aquí con un breve motivo.",
-    "acceptTitle": "Genera un CV y una guía de carta de presentación personalizada y los abre en la página de Aplicaciones",
+    "acceptTitle": "Genera un CV personalizado y una guía de carta de presentación para este trabajo",
     "acceptGenerate": "Aceptar",
     "reject": "Rechazar",
     "rejectedToast": "«{{title}}» rechazado",
@@ -521,7 +521,26 @@
     "suggestAnywayTitle": "Mover esta oferta a tus sugerencias",
     "showMore": "Mostrar {{count}} más",
     "sourceLastScanned": "Último escaneo {{time}}",
-    "cancelScan": "Cancelar escaneo"
+    "cancelScan": "Cancelar escaneo",
+    "clearFilters": "Limpiar búsqueda y filtros",
+    "editPreferences": "Ajustar tus preferencias →",
+    "acceptHint": "Aceptar genera un CV personalizado y una guía de carta de presentación para este trabajo — se utiliza crédito de IA.",
+    "filteredOutLabel": "Filtrado",
+    "filteredOutNone": "Aún no se ha filtrado nada.",
+    "acceptedToast": "Aceptado “{{title}}” — generando tu CV y guía de carta de presentación",
+    "acceptedQueued": "Aceptado — verlo en Aplicaciones",
+    "filteredByTitle": "Filtrado por su título — el anuncio no fue leído.",
+    "recheckNothing": "Nada aquí puede ser reevaluado — fueron filtrados por título, por lo que no hay texto del anuncio guardado para reevaluar.",
+    "recheckNoneYet": "Aún no se ha filtrado nada, por lo que no hay nada que revisar.",
+    "rejectedKeptArtifacts": "Rechazado “{{title}}” — su CV y carta permanecen en Aplicaciones",
+    "digest": {
+      "employer": "Empresa",
+      "location": "Ubicación",
+      "remote": "Estilo de trabajo",
+      "contract": "Contrato",
+      "salary": "Sueldo",
+      "deadline": "Plazo"
+    }
   },
   "cveditor": {
     "sections": {

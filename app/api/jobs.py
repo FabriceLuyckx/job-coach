@@ -57,6 +57,28 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _source_error(e: Exception) -> str:
+    """Why a source couldn't be read, in words a non-technical user can act on.
+
+    The raw exception (`HTTPStatusError: 403 Client Error: Forbidden for url...`)
+    used to be interpolated straight into the UI. Keep the detail in the server
+    log, hand the user something they can decide about.
+    """
+    status = getattr(getattr(e, "response", None), "status_code", None)
+    if status == 404:
+        return "the page wasn't found — check the address"
+    if status in (401, 403):
+        return "the site blocked us from reading it"
+    if status and status >= 500:
+        return "the site is having problems right now"
+    name = type(e).__name__.lower()
+    if "timeout" in name:
+        return "the site took too long to respond"
+    if "connect" in name or "dns" in name or "resolve" in name:
+        return "we couldn't reach the site — check the address or your connection"
+    return "the page couldn't be read"
+
+
 class SourceRequest(BaseModel):
     url: str
 
@@ -151,7 +173,8 @@ def _run_scan(scan_id: str) -> None:
         cancel = _scans[scan_id]["cancel"]
     token = current_cancel.set(cancel)  # makes every complete() inside interruptible
     found = 0
-    errors: dict[str, str] = {}  # source name → what went wrong
+    errors: dict[str, str] = {}  # source id → what went wrong (id, not name:
+    # names are derived from the hostname, so two sources on one host collide)
     try:
         with _scans_lock:
             _scans[scan_id]["status"] = "running"
@@ -189,7 +212,7 @@ def _run_scan(scan_id: str) -> None:
             except GenerationCancelled:
                 raise  # cancel — stop the whole scan, don't record it as a source error
             except Exception as e:
-                errors[name] = str(e)
+                errors[src["id"]] = _source_error(e)
                 continue
 
             # Incremental persistence: write each verdict the moment it exists so a
@@ -246,15 +269,29 @@ def _run_scan(scan_id: str) -> None:
         current_cancel.reset(token)
 
 
-@router.post("/scan")
-def scan():
-    scan_id = str(uuid.uuid4())
+def _start_or_attach(kind: str, target) -> dict:
+    """Start a scan/re-check, or hand back the one already running.
+
+    The page remembers its scan id only in memory, so a hard refresh mid-scan
+    loses it while the server keeps going. Without this guard the next click
+    starts a *second* concurrent job — and since the local engine serialises all
+    AI behind one lock, two scans just take turns and double the cost.
+    """
     with _scans_lock:
         _evict_scans()
+        for sid, s in _scans.items():
+            if s.get("status") in ("pending", "running"):
+                return {"scan_id": sid, "kind": s.get("kind", "scan"), "already_running": True}
+        scan_id = str(uuid.uuid4())
         _scans[scan_id] = {"status": "pending", "created": time.time(),
-                           "cancel": threading.Event()}
-    threading.Thread(target=_run_scan, args=(scan_id,), daemon=True).start()
-    return {"scan_id": scan_id}
+                           "kind": kind, "cancel": threading.Event()}
+    threading.Thread(target=target, args=(scan_id,), daemon=True).start()
+    return {"scan_id": scan_id, "kind": kind, "already_running": False}
+
+
+@router.post("/scan")
+def scan():
+    return _start_or_attach("scan", _run_scan)
 
 
 def _run_recheck(scan_id: str) -> None:
@@ -322,13 +359,7 @@ def _run_recheck(scan_id: str) -> None:
 @router.post("/recheck")
 def recheck():
     """Re-judge past 'filtered out' openings against your current Preferences."""
-    scan_id = str(uuid.uuid4())
-    with _scans_lock:
-        _evict_scans()
-        _scans[scan_id] = {"status": "pending", "created": time.time(),
-                           "cancel": threading.Event()}
-    threading.Thread(target=_run_recheck, args=(scan_id,), daemon=True).start()
-    return {"scan_id": scan_id}
+    return _start_or_attach("recheck", _run_recheck)
 
 
 @router.get("/scan/status/{scan_id}")
@@ -367,7 +398,16 @@ def last_scan():
         changed = bool(updated) and (not judged or updated > judged)
     except Exception:
         pass  # a missing/broken profile just means "no nudge"
-    return {"last_scan": scanned, "profile_changed": changed}
+    # How many filtered-out openings a re-check could actually re-judge. The
+    # client can't derive this: it only sees the newest 50 'seen' rows, while a
+    # re-check reaches 100 — so a client-side guess disables the button while
+    # re-checkable rows sit just past its window. Same WHERE as _run_recheck.
+    with db.get_db() as conn:
+        recheckable = conn.execute(
+            """SELECT COUNT(*) FROM job_openings
+               WHERE status = 'seen' AND posting_text IS NOT NULL AND posting_text != ''"""
+        ).fetchone()[0]
+    return {"last_scan": scanned, "profile_changed": changed, "recheckable": recheckable}
 
 
 @router.get("/openings")

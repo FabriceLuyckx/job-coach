@@ -2,9 +2,9 @@
 // Copyright (C) 2026 Fabrice Luyckx
 
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Trans, useTranslation } from 'react-i18next'
-import { Search, Inbox, RotateCcw, ExternalLink, Check, X, RefreshCw, Link2,
+import { Search, Inbox, RotateCcw, ExternalLink, Check, X, RefreshCw, Link2, Filter,
   Building2, MapPin, Laptop, FileText, Banknote, CalendarClock, type LucideIcon } from 'lucide-react'
 import { api, type JobSource, type JobOpening, type JobDigest } from '../api'
 import Button from '../components/Button'
@@ -30,14 +30,17 @@ function host(url: string): string {
 // title; the ~50-word summary as muted text. The deadline chip is accented so
 // an expiring posting stands out.
 function Digest({ digest }: { digest: JobDigest | null }) {
+  const { t } = useTranslation()
   if (!digest) return null
-  const chips: [LucideIcon, string | undefined, boolean][] = [
-    [Building2, digest.employer, false],
-    [MapPin, digest.location, false],
-    [Laptop, digest.remote && digest.remote !== 'unknown' ? digest.remote : undefined, false],
-    [FileText, digest.contract, false],
-    [Banknote, digest.salary, false],
-    [CalendarClock, digest.deadline, true],
+  // The icon is decorative, so each chip carries a screen-reader-only label —
+  // without it a chip reads as a bare "Ghent" with no hint it's a location.
+  const chips: [LucideIcon, string | undefined, boolean, string][] = [
+    [Building2, digest.employer, false, 'employer'],
+    [MapPin, digest.location, false, 'location'],
+    [Laptop, digest.remote && digest.remote !== 'unknown' ? digest.remote : undefined, false, 'remote'],
+    [FileText, digest.contract, false, 'contract'],
+    [Banknote, digest.salary, false, 'salary'],
+    [CalendarClock, digest.deadline, true, 'deadline'],
   ]
   const shown = chips.filter(([, v]) => v)
   if (!shown.length && !digest.summary) return null
@@ -45,9 +48,10 @@ function Digest({ digest }: { digest: JobDigest | null }) {
     <>
       {shown.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', marginTop: 'var(--space-2)' }}>
-          {shown.map(([Icon, v, accent], i) => (
+          {shown.map(([Icon, v, accent, key], i) => (
             <span key={i} className={`badge ${accent ? 'badge-deadline' : 'badge-neutral'}`}>
-              <Icon size={12} style={{ marginRight: 4, verticalAlign: -2 }} aria-hidden />{v}
+              <Icon size={12} style={{ marginRight: 4, verticalAlign: -2 }} aria-hidden />
+              <span className="sr-only">{t(`jobs.digest.${key}`)}: </span>{v}
             </span>
           ))}
         </div>
@@ -74,6 +78,7 @@ export default function JobsPage() {
   const [openings, setOpenings] = useState<JobOpening[]>([])
   const [lastScan, setLastScan] = useState<string | null>(null)
   const [profileChanged, setProfileChanged] = useState(false)
+  const [recheckableCount, setRecheckableCount] = useState(0)
   const [newUrl, setNewUrl] = useState('')
   const [checkUrl, setCheckUrl] = useState('')
   const [checking, setChecking] = useState(false)
@@ -83,6 +88,9 @@ export default function JobsPage() {
   const [sourceErrors, setSourceErrors] = useState<Record<string, string>>({})
   const [loadError, setLoadError] = useState('')
   const [busy, setBusy] = useState<string | null>(null)
+  // Openings accepted this visit: kept in place in the suggestions list showing
+  // their generation state, instead of vanishing to History or navigating away.
+  const [accepted, setAccepted] = useState<Record<string, string>>({})
   const [query, setQuery] = useState('')
   const [sourceFilter, setSourceFilter] = useState('')
   const [historyLimit, setHistoryLimit] = useState(HISTORY_PAGE)
@@ -91,7 +99,7 @@ export default function JobsPage() {
   const load = useCallback(() => {
     setLoadError('')
     Promise.all([api.getJobSources(), api.getOpenings(true), api.getLastScan()])
-      .then(([s, o, l]) => { setSources(s); setOpenings(o); setLastScan(l.last_scan); setProfileChanged(l.profile_changed) })
+      .then(([s, o, l]) => { setSources(s); setOpenings(o); setLastScan(l.last_scan); setProfileChanged(l.profile_changed); setRecheckableCount(l.recheckable) })
       .catch(e => setLoadError(errMsg(e)))
   }, [])
 
@@ -99,6 +107,10 @@ export default function JobsPage() {
 
   function reloadOpenings() {
     api.getOpenings(true).then(setOpenings).catch(e => toast.error(errMsg(e)))
+    // Restoring a filtered row changes what a re-check could examine, so the
+    // server's re-checkable count has to move with the list — a stale count
+    // re-opens the "examined nothing, reported no matches" hole.
+    api.getLastScan().then(r => setRecheckableCount(r.recheckable)).catch(() => {})
   }
 
   async function addSource() {
@@ -142,7 +154,7 @@ export default function JobsPage() {
           setSourceErrors(s.errors ?? {})
           onDone(s.found ?? 0)
           reloadOpenings()
-          api.getLastScan().then(r => { setLastScan(r.last_scan); setProfileChanged(r.profile_changed) }).catch(() => {})
+          api.getLastScan().then(r => { setLastScan(r.last_scan); setProfileChanged(r.profile_changed); setRecheckableCount(r.recheckable) }).catch(() => {})
           return true
         }
         if (s.status === 'cancelled') {
@@ -192,8 +204,10 @@ export default function JobsPage() {
     setScanProgress(t('jobs.starting'))
     setSourceErrors({})
     try {
-      const { scan_id } = await api.startScan()
-      startPolling(scan_id, 'scan')
+      // The server hands back an in-flight job rather than starting a second
+      // one; poll it under the kind it actually is, not the button we clicked.
+      const { scan_id, kind } = await api.startScan()
+      startPolling(scan_id, kind)
     } catch (e) {
       setScanning(false); setScanProgress('')
       toast.error(errMsg(e))
@@ -203,9 +217,10 @@ export default function JobsPage() {
   async function recheck() {
     setRechecking(true)
     setScanProgress(t('jobs.starting'))
+    setSourceErrors({})  // a previous run's failure must not outlive it
     try {
-      const { scan_id } = await api.recheckOpenings()
-      startPolling(scan_id, 'recheck')
+      const { scan_id, kind } = await api.recheckOpenings()
+      startPolling(scan_id, kind)
     } catch (e) {
       setRechecking(false); setScanProgress('')
       toast.error(errMsg(e))
@@ -233,16 +248,35 @@ export default function JobsPage() {
     }
   }
 
+  // Accepting stays on this page so a queue can be triaged in one pass: the row
+  // marks accepted in place and links through, rather than navigating for you.
   async function accept(o: JobOpening) {
     setBusy(o.id)
     try {
       const { cv_job_id, letter_job_id, job_url } = await api.acceptOpening(o.id)
-      // Hand off to the Applications page, which polls both pending jobs on mount.
+      // Still handed off, so following the link shows both artifacts building.
       handoff.setPending({ jobUrl: job_url, cvJobId: cv_job_id, letterJobId: letter_job_id })
-      navigate('/applications')
+      setAccepted(a => ({ ...a, [o.id]: job_url }))
+      toast.success(t('jobs.acceptedToast', { title: o.title }), {
+        action: {
+          label: t('jobs.undo'),
+          // Undo the paid work too — the generations are already running, so
+          // restoring the opening without stopping them would burn tokens.
+          onClick: async () => {
+            [cv_job_id, letter_job_id].forEach(id => { if (id) api.cancelCVJob(id).catch(() => {}) })
+            handoff.clearPending()
+            try {
+              await api.restoreOpening(o.id)
+              setAccepted(a => { const { [o.id]: _drop, ...rest } = a; return rest })
+              reloadOpenings()
+            } catch (e) { toast.error(errMsg(e)) }
+          },
+        },
+      })
     } catch (e) {
-      setBusy(null)
       toast.error(errMsg(e))
+    } finally {
+      setBusy(null)
     }
   }
 
@@ -251,7 +285,12 @@ export default function JobsPage() {
     try {
       await api.rejectOpening(o.id)
       reloadOpenings()
-      toast.info(t('jobs.rejectedToast', { title: o.title }), {
+      // Rejecting an *accepted* job doesn't remove the CV and letter it already
+      // generated — say so, rather than silently orphaning them on Applications.
+      const msg = o.status === 'accepted'
+        ? t('jobs.rejectedKeptArtifacts', { title: o.title })
+        : t('jobs.rejectedToast', { title: o.title })
+      toast.info(msg, {
         action: {
           label: t('jobs.undo'),
           onClick: async () => {
@@ -289,6 +328,12 @@ export default function JobsPage() {
   const busyScan = scanning || rechecking
   const allSuggested = openings.filter(o => o.status === 'suggested')
   const filteredOut = openings.filter(o => o.status === 'seen')
+  // Re-check re-judges cached posting text, which title-prescreened rows don't
+  // have — without a gate the button runs, examines nothing, and still reports
+  // "no filtered jobs match". The count comes from the server (same WHERE the
+  // re-check uses): the client only sees the newest 50 'seen' rows, so counting
+  // them here would disable the button while re-checkable rows sit past 50.
+  const recheckable = recheckableCount > 0
   const decided = openings.filter(o => o.status === 'accepted' || o.status === 'rejected')
   const failedSources = Object.entries(sourceErrors)
 
@@ -317,18 +362,44 @@ export default function JobsPage() {
         </div>
       )}
 
+      {/* Coarse live region: announces once when work starts and once when it
+          stops. The visible counter below changes every poll tick — announcing
+          that would read out all 40 postings of a scan, one at a time. */}
+      <div role="status" aria-live="polite" className="sr-only">
+        {busyScan ? t(rechecking ? 'jobs.rechecking' : 'jobs.scanning') : ''}
+      </div>
+
+      {/* One home for long-running work: sticks to the top of the scroll, and is
+          never nested inside a results list — so Cancel can't vanish because the
+          list it sat in went empty. */}
+      {busyScan && (
+        <div className="callout scan-status" style={{ marginBottom: 'var(--space-4)' }}>
+          <span className="spinner" aria-hidden />
+          <span style={{ flex: 1 }}>
+            {scanProgress || t(rechecking ? 'jobs.rechecking' : 'jobs.scanning')}
+          </span>
+          <Button variant="ghost" onClick={cancelScan} title={t('jobs.cancelScan')}>
+            <X size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />
+            {t('common.cancel')}
+          </Button>
+        </div>
+      )}
+
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 'var(--space-2)' }}>{t('jobs.sources')}</div>
+        <h2 className="section-title" style={{ marginBottom: 'var(--space-2)' }}>{t('jobs.sources')}</h2>
         <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{t('jobs.sourcesHelp')}</p>
-        <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
-          <input
-            value={newUrl}
-            onChange={e => setNewUrl(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && addSource()}
-            placeholder="https://example.com/jobs"
-            aria-label={t('jobs.sourceUrlAria')}
-            style={{ flex: 1 }}
-          />
+        <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-3)', alignItems: 'flex-end' }}>
+          <div className="field" style={{ flex: 1, marginBottom: 0 }}>
+            <label htmlFor="job-source-url">{t('jobs.sourceUrlAria')}</label>
+            <input
+              id="job-source-url"
+              type="url"
+              value={newUrl}
+              onChange={e => setNewUrl(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && addSource()}
+              placeholder="https://example.com/jobs"
+            />
+          </div>
           <Button variant="secondary" onClick={addSource}>{t('jobs.add')}</Button>
         </div>
         {sources.length === 0 && <div className="muted-sm">{t('jobs.noSources')}</div>}
@@ -340,7 +411,7 @@ export default function JobsPage() {
                 {formatDateTime(s.last_scanned)}
               </span>
             )}
-            {sourceErrors[s.name] && (
+            {sourceErrors[s.id] && (
               <span className="muted-sm" style={{ color: 'var(--danger)' }}>{t('jobs.couldntRead')}</span>
             )}
             <RemoveButton onClick={() => removeSource(s.id)} title={t('jobs.removeSource', { name: s.name })} />
@@ -350,19 +421,14 @@ export default function JobsPage() {
           <Button
             variant="primary"
             onClick={scan}
-            busy={scanning}
             disabled={busyScan || sources.length === 0 || keySet === false}
             title={keySet === false ? t('jobs.needEngine') : undefined}
           >
-            {!scanning && <Search size={15} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
-            {scanning ? (scanProgress || t('jobs.scanning')) : t('jobs.findNew')}
+            {/* No `busy` spinner here — the status strip above owns the activity
+                indicator; two spinners for one job read as two jobs. */}
+            <Search size={15} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />
+            {t('jobs.findNew')}
           </Button>
-          {scanning && (
-            <Button variant="ghost" onClick={cancelScan} title={t('jobs.cancelScan')}>
-              <X size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />
-              {t('common.cancel')}
-            </Button>
-          )}
           <span className="muted-sm">
             {lastScan ? t('jobs.lastScan', { time: formatDateTime(lastScan) }) : t('jobs.neverScanned')}
           </span>
@@ -375,15 +441,22 @@ export default function JobsPage() {
         {failedSources.length > 0 && (
           <div className="load-error" style={{ marginTop: 'var(--space-3)', marginBottom: 0 }}>
             <div style={{ flex: 1 }}>
-              {failedSources.map(([name, err]) => (
-                <div key={name}><Trans i18nKey="jobs.couldntReadSource" values={{ name, err }} components={{ b: <strong /> }} /></div>
+              {failedSources.map(([id, err]) => (
+                <div key={id}><Trans i18nKey="jobs.couldntReadSource"
+                  values={{ name: sources.find(s => s.id === id)?.name ?? id, err }}
+                  components={{ b: <strong /> }} /></div>
               ))}
             </div>
           </div>
         )}
       </div>
 
-      <div className="section-title" style={{ marginBottom: 'var(--space-3)' }}>{t('jobs.suggestions')}</div>
+      <h2 className="section-title" style={{ marginBottom: 'var(--space-2)' }}>{t('jobs.suggestions')}</h2>
+      {/* Accepting spends real AI credit — say so where the decision is made,
+          not only in a hover title a first-timer will never trigger. */}
+      {suggested.length > 0 && (
+        <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{t('jobs.acceptHint')}</p>
+      )}
       {showFilters && (
         <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-3)', flexWrap: 'wrap' }}>
           <input value={query} onChange={e => setQuery(e.target.value)}
@@ -397,7 +470,12 @@ export default function JobsPage() {
       )}
       {suggested.length === 0 ? (
         <div style={{ marginBottom: 'var(--space-5)' }}>
-          <EmptyState icon={Inbox} title={t('jobs.noSuggestionsTitle')}>
+          <EmptyState icon={Inbox} title={t('jobs.noSuggestionsTitle')}
+            action={allSuggested.length > 0
+              ? <Button variant="secondary" onClick={() => { setQuery(''); setSourceFilter('') }}>
+                  {t('jobs.clearFilters')}
+                </Button>
+              : undefined}>
             {allSuggested.length > 0 ? t('jobs.noSuggestionsFiltered')
               : sources.length === 0 ? t('jobs.noSuggestionsNoSources') : t('jobs.noSuggestionsHasSources')}
           </EmptyState>
@@ -414,51 +492,70 @@ export default function JobsPage() {
             <Digest digest={o.digest} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'var(--space-2)', flexShrink: 0 }}>
-            <Button variant="primary" onClick={() => accept(o)} busy={busy === o.id}
-              title={t('jobs.acceptTitle')}>
-              <Check size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
-              {t('jobs.acceptGenerate')}
-            </Button>
-            <Button variant="secondary" onClick={() => reject(o)} disabled={busy === o.id}>
-              <X size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
-              {t('jobs.reject')}
-            </Button>
+            {accepted[o.id] ? (
+              <>
+                {/* Static, not a spinner: this page doesn't poll the generation
+                    (Applications does), so an in-progress indicator here could
+                    never resolve — it would spin forever on a failed job. */}
+                <span className="muted-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
+                  <Check size={14} aria-hidden />{t('jobs.acceptedQueued')}
+                </span>
+                <Button variant="secondary" onClick={() => openCV(o)}>
+                  <ExternalLink size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
+                  {t('jobs.openCv')}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="secondary" onClick={() => accept(o)} busy={busy === o.id}
+                  title={t('jobs.acceptTitle')}>
+                  <Check size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
+                  {t('jobs.acceptGenerate')}
+                </Button>
+                <Button variant="ghost" className="btn-danger-hover" onClick={() => reject(o)} disabled={busy === o.id}>
+                  <X size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
+                  {t('jobs.reject')}
+                </Button>
+              </>
+            )}
           </div>
         </div>
       ))}
 
-      <div className="card" style={{ marginTop: 'var(--space-5)' }}>
-        <div className="section-title" style={{ marginBottom: 'var(--space-2)' }}>{t('jobs.checkTitle')}</div>
-        <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{t('jobs.checkHelp')}</p>
-        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-          <input
-            value={checkUrl}
-            onChange={e => setCheckUrl(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && !checking && checkJob()}
-            placeholder="https://example.com/jobs/data-scientist"
-            aria-label={t('jobs.checkAria')}
-            style={{ flex: 1 }}
-          />
-          <Button variant="secondary" onClick={checkJob} busy={checking}
-            disabled={checking || keySet === false} title={keySet === false ? t('jobs.needEngine') : undefined}>
-            {!checking && <Link2 size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
-            {t('jobs.check')}
-          </Button>
-        </div>
-      </div>
 
-      {filteredOut.length > 0 && (
+      {(sources.length > 0 || filteredOut.length > 0) && (
         <div style={{ marginTop: 'var(--space-5)' }}>
+          {/* Outside the drawer, and never gated: the promise that nothing is
+              discarded has to be readable *before* you open the drawer, which is
+              when the user wonders where their missing job went. Inside a
+              collapsed panel it only answers a question you've already solved. */}
+          <p className="muted-sm" style={{ marginBottom: 'var(--space-2)' }}>
+            {t('jobs.filteredOutHelp')}{' '}
+            {/* These verdicts come from Preferences — link to the page that
+                actually changes them, rather than making the user recall it. */}
+            <Link to="/preferences">{t('jobs.editPreferences')}</Link>
+          </p>
           <Collapsible title={<span className="section-title">{t('jobs.filteredOut', { count: filteredOut.length })}</span>}>
-            <p className="muted-sm" style={{ marginBottom: 'var(--space-3)' }}>{t('jobs.filteredOutHelp')}</p>
+            {filteredOut.length === 0 && (
+              <p className="muted-sm" style={{ marginBottom: 'var(--space-3)' }}>{t('jobs.filteredOutNone')}</p>
+            )}
             {filteredOut.map(o => (
-              <div key={o.id} className="card" style={{ marginBottom: 'var(--space-2)', opacity: 0.7, display: 'flex', alignItems: 'flex-start', gap: 'var(--space-4)' }}>
+              <div key={o.id} className="card card-decided" style={{ marginBottom: 'var(--space-2)', display: 'flex', alignItems: 'flex-start', gap: 'var(--space-4)' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 500 }}>
+                  <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Filter size={14} color="var(--muted)" aria-hidden />
                     <a href={o.url} target="_blank" rel="noreferrer">{o.title || host(o.url)}</a>
                   </div>
-                  <div className="muted-sm">{host(o.source_url)}</div>
-                  {o.reason && <div style={{ fontSize: 'var(--fs-sm)', marginTop: 'var(--space-2)' }}>{o.reason}</div>}
+                  <div className="muted-sm">{host(o.source_url)} · {t('jobs.filteredOutLabel')}</div>
+                  {/* No reason means the title prescreen dropped it before the
+                      posting was ever fetched — say so, rather than leaving the
+                      row silent under help text that promises a reason. */}
+                  <div style={{ fontSize: 'var(--fs-sm)', marginTop: 'var(--space-2)' }}>
+                    {o.reason || t('jobs.filteredByTitle')}
+                  </div>
+                  {/* Same evidence as a suggestion: you're being asked to
+                      second-guess this row, so don't give it less to go on. */}
+                  <Digest digest={o.digest} />
                 </div>
                 <Button variant="ghost" onClick={() => suggestAnyway(o)} disabled={busy === o.id}
                   title={t('jobs.suggestAnywayTitle')} style={{ flexShrink: 0 }}>
@@ -469,32 +566,36 @@ export default function JobsPage() {
             ))}
           </Collapsible>
           <div style={{ marginTop: 'var(--space-2)', display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
-            <Button variant="secondary" onClick={recheck} busy={rechecking}
-              disabled={busyScan || keySet === false} title={t('jobs.recheckTitle')}>
-              {!rechecking && <RefreshCw size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
-              {rechecking ? (scanProgress || t('jobs.rechecking')) : t('jobs.recheck')}
+            <Button variant="secondary" onClick={recheck}
+              disabled={busyScan || keySet === false || !recheckable}
+              title={t('jobs.recheckTitle')}>
+              <RefreshCw size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />
+              {t('jobs.recheck')}
             </Button>
-            {rechecking && (
-              <Button variant="ghost" onClick={cancelScan} title={t('jobs.cancelScan')}>
-                <X size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />
-                {t('common.cancel')}
-              </Button>
-            )}
             {profileChanged && lastScan && (
-              <span className="muted-sm" style={{ color: 'var(--accent)' }}>{t('jobs.profileChanged')}</span>
+              /* --highlight, not --accent: accent at 13px is 4.33:1 (under AA),
+                 and DESIGN.md assigns mustard to exactly this "nudge" role. */
+              <span className="muted-sm" style={{ color: 'var(--highlight)' }}>{t('jobs.profileChanged')}</span>
             )}
           </div>
+          {/* Visible, not a `title`: a disabled button suppresses pointer events,
+              so a tooltip on it never renders. Mirrors the needEngine note above. */}
+          {!recheckable && !busyScan && keySet !== false && (
+            <p className="muted-sm" style={{ marginTop: 'var(--space-2)' }}>
+              {filteredOut.length === 0 ? t('jobs.recheckNoneYet') : t('jobs.recheckNothing')}
+            </p>
+          )}
         </div>
       )}
 
       {decided.length > 0 && (
         <>
-          <div className="section-title" style={{ marginTop: 'var(--space-6)', marginBottom: 'var(--space-3)' }}>{t('jobs.history')}</div>
+          <h2 className="section-title" style={{ marginTop: 'var(--space-6)', marginBottom: 'var(--space-3)' }}>{t('jobs.history')}</h2>
           {decided.slice(0, historyLimit).map(o => {
             const rejected = o.status === 'rejected'
             return (
-              <div key={o.id} className="card"
-                style={{ marginBottom: 'var(--space-2)', opacity: rejected ? 0.55 : 1, display: 'flex', alignItems: 'flex-start', gap: 'var(--space-4)' }}>
+              <div key={o.id} className={`card${rejected ? ' card-decided' : ''}`}
+                style={{ marginBottom: 'var(--space-2)', display: 'flex', alignItems: 'flex-start', gap: 'var(--space-4)' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
                     {rejected
@@ -522,7 +623,7 @@ export default function JobsPage() {
                         <ExternalLink size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
                         {t('jobs.openCv')}
                       </Button>
-                      <Button variant="ghost" className="btn-icon-danger" onClick={() => reject(o)} disabled={busy === o.id}>
+                      <Button variant="ghost" className="btn-danger-hover" onClick={() => reject(o)} disabled={busy === o.id}>
                         {t('jobs.reject')}
                       </Button>
                     </>
@@ -538,6 +639,29 @@ export default function JobsPage() {
           )}
         </>
       )}
+      <div className="card" style={{ marginTop: 'var(--space-6)' }}>
+        <h2 className="section-title" style={{ marginBottom: 'var(--space-2)' }}>{t('jobs.checkTitle')}</h2>
+        <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{t('jobs.checkHelp')}</p>
+        <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'flex-end' }}>
+          <div className="field" style={{ flex: 1, marginBottom: 0 }}>
+            <label htmlFor="job-check-url">{t('jobs.checkAria')}</label>
+            <input
+              id="job-check-url"
+              type="url"
+              value={checkUrl}
+              onChange={e => setCheckUrl(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && !checking && checkJob()}
+              placeholder="https://example.com/jobs/data-scientist"
+            />
+          </div>
+          <Button variant="secondary" onClick={checkJob} busy={checking}
+            disabled={checking || keySet === false} title={keySet === false ? t('jobs.needEngine') : undefined}>
+            {!checking && <Link2 size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
+            {t('jobs.check')}
+          </Button>
+        </div>
+      </div>
+
     </div>
   )
 }

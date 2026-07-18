@@ -6,7 +6,7 @@ colors:
   surface: "#FBFAF3"
   surface-dim: "#ECE8D9"
   ink: "#1C1A16"
-  muted: "#6E6A5E"
+  muted: "#666256"
   accent: "#C8401F"
   accent-hover: "#A83415"
   accent-soft: "#F5DFD5"
@@ -15,7 +15,7 @@ colors:
   wall-teal: "#6B8F91"
   deep-red: "#8F2410"
   deep-red-soft: "#F3DCD4"
-  mustard: "#8F6B0C"
+  mustard: "#7C5C08"
   info-soft: "#ECE8D9"
 typography:
   display:
@@ -143,10 +143,10 @@ semantic colors (mustard, deep red) that never get confused with the accent.
 - **Ink** (`--ink` / `--border` / `--heading` `#1C1A16`–`#141311`): body text,
   headings, and *every* hairline border in the system. Borders and text share the
   same ink value on purpose — there is no separate lighter "border gray".
-- **Muted** (`#6E6A5E`): secondary text, labels, help copy, disabled affordances.
+- **Muted** (`#666256`): secondary text, labels, help copy, disabled affordances. Chosen to clear WCAG AA (4.5:1) on every ground it sits on, including the dimmest (`--surface-dim`, 4.96:1).
 
 ### Semantic (narrow use)
-- **Mustard** (`#8F6B0C`): unsaved-change markers, low-credit warnings, info toasts.
+- **Mustard** (`#7C5C08`): unsaved-change markers, low-credit warnings, info toasts.
   Never used for errors.
 - **Deep Red** (`#8F2410`, tint `#F3DCD4`): errors and destructive actions.
   Deliberately deeper/darker than vermilion so a danger button never gets misread as
