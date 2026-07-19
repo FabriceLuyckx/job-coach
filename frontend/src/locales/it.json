@@ -25,7 +25,9 @@
     "reorderItem": "Riordina l'elemento {{n}} su {{total}}",
     "add": "+ Aggiungi",
     "removeNamed": "Rimuovi {{name}}",
-    "tagLengthHint": "Mantieni le competenze brevi (massimo {{max}} caratteri) affinché si adattino alla sidebar del CV."
+    "tagLengthHint": "Mantieni i testi brevi (massimo {{max}} caratteri).",
+    "removedNamed": "Rimosso {{name}}",
+    "tagLimit": "È il limite di {{max}} voci — {{dropped}} altre non sono state aggiunte."
   },
   "onboarding": {
     "welcome": "Benvenuto in Job Coach",
@@ -346,7 +348,7 @@
   },
   "preferences": {
     "title": "Preferenze",
-    "help": "Cinque domande rapide. Il Job Coach confronta ogni nuovo annuncio con le tue risposte qui — nulla in questa pagina compare mai sul tuo CV.",
+    "help": "Rispondi alle domande che ti sono possibili — il Job Coach analizza ogni nuovo annuncio in base a queste informazioni. Niente di ciò che hai inserito appare sul tuo CV; viene inviato al tuo motore AI ogni volta che viene letto un annuncio.",
     "q": {
       "roles": "Quali titoli di lavoro dovremmo monitorare?",
       "rolesSub": "Aggiungi ogni titolo a cui ti candideresti davvero, incluse varianti e traduzioni. È il primo elemento che il filtro verifica su un annuncio.",
@@ -373,7 +375,12 @@
       "travel": "Frequente viaggio",
       "shifts": "Turni serali o nei weekend",
       "sales": "Vendite a freddo o a porta a porta"
-    }
+    },
+    "loadError": "Impossibile caricare le tue preferenze: {{error}}",
+    "doneAction": "Aggiungi una pagina da monitorare",
+    "suggestLabel": "Dei criteri comuni di rifiuto — tocca uno per aggiungerlo",
+    "doneSubReady": "È sufficiente per iniziare a scansare. Successivamente, indica al Job Coach dove cercare — aggiungi una pagina dei posti di lavoro da monitorare.",
+    "doneSubNoRoles": "Aggiungi almeno un titolo di lavoro nella prima domanda — è ciò su cui ogni annuncio viene verificato per primo, quindi senza di esso il sistema trova pochi risultati."
   },
   "badges": {
     "cv": "Nel tuo CV",

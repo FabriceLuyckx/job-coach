@@ -243,11 +243,22 @@ uv run python scripts/tailor_cv.py --url https://... --lang nl
   split into always-visible **core** sections (Personal, Summary, Experience,
   Skills, Languages, Education) and **optional** sections added via **+ Add a section**; each
   section badged by where its data goes (On your CV / Helps the AI). The separate
-  **Preferences** page is a flat five-question form (numbered cards, no
-  collapsibles): target job titles, where/how to work (locations, a segmented
-  working-style control, languages), what makes a great match, dealbreakers
-  (with one-tap example chips), and practical notes — the data that drives job
-  matching, not the CV
+  **Preferences** page is a flat five-question form (no collapsibles, and no
+  step numbers — they promised a wizard with no progress or completion state,
+  and spent the rationed vermilion five times on ordinals): target job titles,
+  where/how to work (locations, a segmented working-style control, languages),
+  what makes a great match, dealbreakers (with one-tap example chips), and
+  practical notes — the data that drives job matching, not the CV. Each question
+  is an `<h2>` labelling its control. An answered/blank marker per card was
+  tried and **removed**: on a five-card page the answer is already visible in
+  the control right below it, and stamping "not answered" on four optional
+  questions turned an explicitly calm page into a compliance checklist. The
+  page ends with a **conditional** card (`.q-end`): with `target_roles` set it
+  names the next step and links to Job Suggestions, and without it drops the
+  primary action for a mustard line pointing back at Q1 — claiming the matcher
+  is ready would send someone to a page that can't help them yet. The
+  working-style control is a real `role="radiogroup"` (roving tabIndex, arrow
+  keys, `aria-labelledby`), not four toggle buttons
 - Inline editing of any field (text, lists, dates) with **auto-save** (debounced
   ~1.5s, single-flight; status shown in the page header; item removals get a 5s
   Undo toast) — there are no manual Save buttons on the Profile or Preferences page

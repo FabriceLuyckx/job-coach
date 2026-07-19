@@ -122,6 +122,17 @@ button:disabled { cursor: not-allowed; }
   color: #fff;
 }
 .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+/* A link that IS a primary action (Preferences' end card) — one tab stop rather
+   than a <Link> wrapping a <button>. Anchors don't get the `button` element
+   rule above, so the box is restated here, and the global link underline and
+   accent colour are cancelled. */
+a.btn-primary {
+  display: inline-block;
+  padding: 8px 15px;
+  color: #fff;
+  transition: background 0.15s;
+}
+a.btn-primary:hover { text-decoration: none; }
 /* Disabled keeps full label contrast (the old washed-out grey read as broken). */
 .btn-primary:disabled { background: color-mix(in srgb, var(--accent) 38%, var(--paper)); color: #fff; }
 
@@ -197,10 +208,19 @@ input:focus, select:focus, textarea:focus {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+/* `input:focus` above sets `outline: none` at specificity (0,1,1), which beats
+   the bare `:focus-visible` (0,1,0) — so the ring must be re-declared here or
+   text fields keep the colour-only cue the rule above exists to replace. */
 input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--accent);
   outline-offset: 1px;  /* these already have a border; hug it */
 }
 textarea { resize: vertical; min-height: 80px; }
+
+/* Unauthored, the UA default lands at 4.40:1 on --surface — under AA, and it
+   varies per browser. Every placeholder in this app carries a real example, so
+   it's content, not decoration. --muted is 5.82:1. */
+::placeholder { color: var(--muted); opacity: 1; }
 
 label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display: block; margin-bottom: var(--space-1); }
 
@@ -310,22 +330,35 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 .badge-deadline { background: transparent; color: var(--accent-text); border: 1px solid var(--accent-text); }
 
 /* ── Preferences questionnaire ──────────────────────────────────────────── */
-/* Numbered question card: ink number block + bold question, poster-style. */
-.q-head { display: flex; align-items: baseline; gap: var(--space-3); margin-bottom: var(--space-1); }
-.q-num {
-  background: var(--accent);
-  color: var(--paper);
-  font-weight: 700;
-  font-size: var(--fs-base);
-  width: 26px;
-  height: 26px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transform: translateY(4px);
+/* Unnumbered on purpose: ordinals imply a wizard with progress and an end, and
+   would spend the rationed accent five times. */
+
+/* Terminal card: the page's completion state, not another question. */
+.q-end { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
+.q-end .q-sub { flex: 1; margin: 0; min-width: 20ch; }
+/* Two classes: `.q-sub` is declared later in this file and would otherwise win
+   the single-class tie on `color`. */
+.q-sub.q-end-warn { color: var(--highlight); font-weight: 500; }
+
+/* Names a group of controls (a radiogroup) rather than one form control, so it
+   can't be a <label>. Matches `label`'s type so ranks read as equal. */
+.field-label {
+  display: block;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: var(--space-1);
 }
-.q-title { font-size: var(--fs-lg); }
+.q-title {
+  font-size: var(--fs-lg);
+  margin: 0 0 var(--space-1);
+  /* Real questions, read as prose — the Case Signal Rule reserves uppercase for
+     labels and categories, so the global heading transform is opted out here. */
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 700;
+}
+.q-title label { font: inherit; color: inherit; display: block; margin: 0; cursor: pointer; }
 .q-sub { font-size: var(--fs-sm); color: var(--muted); line-height: 1.55; margin: 0 0 var(--space-4); }
 
 /* Squared segmented control (single choice) — ink fill marks the active option. */
@@ -341,7 +374,12 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   cursor: pointer;
 }
 .seg button:last-child { border-right: none; }
-.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); font-weight: 600; }
+/* aria-pressed: toggle-style .seg (Applications' CV|Letter tabs).
+   aria-checked: radiogroup-style .seg (Preferences' working style). Same
+   affordance, same visual: ink fill = chosen. */
+.seg button[aria-pressed="true"], .seg button[aria-checked="true"] {
+  background: var(--ink); color: var(--paper); font-weight: 600;
+}
 
 /* One-tap example chips that append to a textarea. */
 .suggest-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-2); }
@@ -355,7 +393,15 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   cursor: pointer;
 }
 .suggest-row button:hover:not(:disabled) { border-color: var(--ink); color: var(--ink); border-style: solid; }
-.suggest-row button:disabled { opacity: 0.35; cursor: default; }
+/* The "already added" state was opacity 0.35 — 1.65:1, unreadable, and the only
+   signal that the item was present. Keep it at full contrast and let the solid
+   border plus the ✓ glyph (not colour) carry the state. */
+.suggest-row button:disabled {
+  cursor: default;
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--ink) 30%, transparent);
+  color: var(--muted);
+}
 
 .editor-cluster-label {
   font-size: var(--fs-xs); font-weight: 600; color: var(--muted);
@@ -388,13 +434,20 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   display: flex;
   align-items: center;
   gap: 4px;
+  /* A tag holds whatever was pasted into it; without these one long entry
+     stretches the row past the card edge. */
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 .tag button {
   background: none;
   border: none;
   color: inherit;
-  width: 16px;
-  height: 16px;
+  /* 24×24 is the WCAG 2.2 AA minimum target (2.5.8); the 6px tag gap is too
+     small for the spacing exception to apply. */
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
   margin-left: 2px;
   display: inline-flex;
   align-items: center;
@@ -608,6 +661,22 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   flex-shrink: 0;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* The save spinner runs on every keystroke burst — an indefinite animation is
+   exactly what someone asking for stillness doesn't want. Everything else here
+   is a 120–150ms state transition, so cutting them all to instant is safe. */
+/* Contract for anything added under this block: an indicator whose meaning is
+   carried by motion must also carry it in text or shape, because this stops the
+   motion. The spinner qualifies — "Saving…" sits beside it — so it degrades to
+   a plain static ring rather than a decapitated one. */
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation: none; border-top-color: currentColor; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 
 .row { display: flex; gap: var(--space-3); }
 .row > * { flex: 1; }

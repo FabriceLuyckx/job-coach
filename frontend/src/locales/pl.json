@@ -25,7 +25,9 @@
     "reorderItem": "Przesuń element {{n}} z {{total}}",
     "add": "+ Dodaj",
     "removeNamed": "Usuń {{name}}",
-    "tagLengthHint": "Zachowuj umiejętności krótkie (maks. {{max}} znaków), aby pasowały do boku CV."
+    "tagLengthHint": "Trzymaj wpisy krótkie (maks. {{max}} znaków).",
+    "removedNamed": "Usunięto {{name}}",
+    "tagLimit": "To jest limit {{max}} wpisów — {{dropped}} więcej nie zostały dodane."
   },
   "onboarding": {
     "welcome": "Witaj w Job Coach",
@@ -346,7 +348,7 @@
   },
   "preferences": {
     "title": "Preferencje",
-    "help": "Pięć szybkich pytań. Job Coach porównuje każdą nową ofertę pracy z Twoimi odpowiedziami tutaj — nic na tej stronie nigdy nie pojawia się na Twoim CV.",
+    "help": "Odpowiedz na to, co możesz — Job Coach porównuje nowe ogłoszenia z tymi odpowiedziami. Nic z tego nie pojawia się na Twoim CV; dane są przesyłane do Twojego silnika AI podczas analizy ogłoszeń.",
     "q": {
       "roles": "Które tytuły stanowisk powinny być śledzone?",
       "rolesSub": "Dodaj każdy tytuł, do którego naprawdę byś się zastosował, w tym warianty i tłumaczenia. To pierwsze, co sprawdza analizator w ofercie.",
@@ -373,7 +375,12 @@
       "travel": "Częste podróże",
       "shifts": "Zmiany wieczorne lub w weekendy",
       "sales": "Sprzedaż bez kontaktu lub w terenie"
-    }
+    },
+    "loadError": "Nie udało się wczytać preferencji: {{error}}",
+    "doneAction": "Dodaj stronę do obserwacji",
+    "suggestLabel": "Powszechne kryteria wykluczenia — naciśnij jeden, aby dodać",
+    "doneSubReady": "To wystarcza, aby rozpocząć analizę. Następnie powiedz Job Coach, gdzie szukać — dodaj stronę z karierą do obserwacji.",
+    "doneSubNoRoles": "Dodaj przynajmniej jedno stanowisko w pierwszym pytaniu — to jest to, na czym wszystkie ogłoszenia są sprawdzane, więc bez tego analiza nie znajduje nic."
   },
   "badges": {
     "cv": "W Twoim CV",

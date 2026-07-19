@@ -60,7 +60,9 @@
     "reorderItem": "Reorder item {{n}} of {{total}}",
     "add": "+ Add",
     "removeNamed": "Remove {{name}}",
-    "tagLengthHint": "Keep skills short ({{max}} characters max) so they fit the CV sidebar."
+    "tagLengthHint": "Keep entries short ({{max}} characters max).",
+    "removedNamed": "Removed {{name}}",
+    "tagLimit": "That's the {{max}}-entry limit — {{dropped}} more weren't added."
   },
   "onboarding": {
     "welcome": "Welcome to Job Coach",
@@ -381,7 +383,7 @@
   },
   "preferences": {
     "title": "Preferences",
-    "help": "Five quick questions. The Job Coach reads every new job posting against your answers here — nothing on this page ever appears on your CV.",
+    "help": "Answer what you can — the Job Coach reads every new job posting against these. Nothing here ever appears on your CV; it is sent to your AI engine each time it reads a posting.",
     "q": {
       "roles": "Which job titles should we watch for?",
       "rolesSub": "Add every title you'd actually apply to, including variants and translations. This is the first thing the scanner checks against a listing.",
@@ -408,7 +410,12 @@
       "travel": "Frequent travel",
       "shifts": "Evening or weekend shifts",
       "sales": "Cold-calling or door-to-door sales"
-    }
+    },
+    "loadError": "Couldn't load your preferences: {{error}}",
+    "doneAction": "Add a page to watch",
+    "suggestLabel": "Common dealbreakers — tap one to add it",
+    "doneSubReady": "That's enough to start scanning. Next, tell Job Coach where to look — add a careers page to watch.",
+    "doneSubNoRoles": "Add at least one job title in the first question — it's what every listing gets checked against first, so scanning without it finds little."
   },
   "badges": {
     "cv": "On your CV",

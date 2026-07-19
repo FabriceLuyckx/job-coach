@@ -4,7 +4,7 @@
 import { useEffect, useState, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Check, CloudUpload, FileUp, PencilLine, Upload } from 'lucide-react'
+import { FileUp, PencilLine, Upload } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { api } from '../api'
 import type {
@@ -16,6 +16,7 @@ import TagInput from '../components/TagInput'
 import BulletListEditor from '../components/BulletListEditor'
 import Button from '../components/Button'
 import RemoveButton from '../components/RemoveButton'
+import SaveStatus from '../components/SaveStatus'
 import StarRating from '../components/StarRating'
 import Badge from '../components/Badge'
 import Collapsible from '../components/Collapsible'
@@ -612,25 +613,15 @@ export default function ProfilePage() {
               <FileUp size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />{t('profile.importFromCv')}
             </Button>
           )}
-          <span className="muted-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }} role="status">
-            {(saveState === 'pending' || saveState === 'saving') && <><span className="spinner" style={{ width: 13, height: 13 }} />{t('profile.saving')}</>}
-            {saveState === 'saved' && <><Check size={14} color="var(--success)" aria-hidden />{t('profile.allSaved')}</>}
-            {saveState === 'error' && (
-              <>
-                <span style={{ color: 'var(--danger)' }}>{t('profile.cantSave', { error: saveError })}</span>
-                <Button variant="secondary" onClick={runSave} style={{ padding: '3px 10px', fontSize: 'var(--fs-sm)' }}>
-                  <CloudUpload size={13} style={{ marginRight: 4, verticalAlign: -2 }} aria-hidden />{t('common.retry')}
-                </Button>
-              </>
-            )}
-          </span>
+          <SaveStatus state={saveState} error={saveError} onRetry={runSave} />
         </div>
       </div>
 
+      {/* Kept directly after the sticky head so `.page-head-sticky + .help-text`
+          still matches; the modal renders as an overlay, so its DOM position
+          below is immaterial. */}
+      <p className="help-text">{t('profile.autoSaveNote')}</p>
       {showImport && <ImportCVModal hasContent={!pristine} localEngine={provider === 'local'} onClose={() => setShowImport(false)} onImported={onImported} />}
-      <p className="help-text" style={{ marginTop: 'calc(-1 * var(--space-4))' }}>
-        {t('profile.autoSaveNote')}
-      </p>
 
       {!showForm && (
         <EmptyState icon={FileUp} title={t('profile.emptyTitle')}

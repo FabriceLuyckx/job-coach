@@ -25,7 +25,9 @@
     "reorderItem": "Réorganiser l'élément {{n}} sur {{total}}",
     "add": "+ Ajouter",
     "removeNamed": "Supprimer {{name}}",
-    "tagLengthHint": "Faites rester vos compétences courtes ({{max}} caractères maximum) pour qu'elles s'adaptent à la barre latérale du CV."
+    "tagLengthHint": "Gardez les entrées courtes ({{max}} caractères maximum).",
+    "removedNamed": "Supprimé {{name}}",
+    "tagLimit": "C'est la limite de {{max}} entrées — {{dropped}} autres n'ont pas été ajoutés."
   },
   "onboarding": {
     "welcome": "Bienvenue sur Job Coach",
@@ -346,7 +348,7 @@
   },
   "preferences": {
     "title": "Préférences",
-    "help": "Cinq questions simples. Le Coach d'emploi compare chaque nouvelle offre d'emploi avec vos réponses ici — rien sur cette page ne figure sur votre CV.",
+    "help": "Répondez à vos capacités — le Job Coach compare chaque nouveau poste de travail à ces informations. Rien de ce qui est indiqué ici ne figure sur votre CV ; ces données sont envoyées à votre moteur d'IA chaque fois qu'il lit un nouveau poste.",
     "q": {
       "roles": "Quels titres de poste devons-nous surveiller ?",
       "rolesSub": "Ajoutez chaque titre que vous seriez prêt à postuler, y compris les variantes et les traductions. C'est la première chose que le lecteur vérifie dans une offre.",
@@ -373,7 +375,12 @@
       "travel": "Déplacements fréquents",
       "shifts": "Départs le soir ou les week-ends",
       "sales": "Ventes par appel ou en personne"
-    }
+    },
+    "loadError": "Impossible de charger vos préférences : {{error}}",
+    "doneAction": "Ajouter une page à surveiller",
+    "suggestLabel": "Critères fréquents — touchez-en un pour l'ajouter",
+    "doneSubReady": "Cela suffit pour commencer à scanner. Ensuite, dites à Job Coach où il doit chercher — ajoutez une page de carrière à surveiller.",
+    "doneSubNoRoles": "Ajoutez au moins un titre de poste dans la première question — c'est ce que chaque annonce vérifie en premier, donc sans cela, le scan ne trouve presque rien."
   },
   "badges": {
     "cv": "Sur votre CV",

@@ -25,7 +25,9 @@
     "reorderItem": "Reorganizar o item {{n}} de {{total}}",
     "add": "+ Adicionar",
     "removeNamed": "Remover {{name}}",
-    "tagLengthHint": "Mantenha as habilidades curtas ({{max}} caracteres máximo) para que sejam compatíveis com a barra lateral do CV."
+    "tagLengthHint": "Mantenha as entradas curtas ({{max}} caracteres máximo).",
+    "removedNamed": "Removido {{name}}",
+    "tagLimit": "É o limite de {{max}} entradas — {{dropped}} mais não foram adicionados."
   },
   "onboarding": {
     "welcome": "Bem-vindo ao Job Coach",
@@ -346,7 +348,7 @@
   },
   "preferences": {
     "title": "Preferências",
-    "help": "Cinco perguntas rápidas. O Job Coach analisa cada novo anúncio de emprego com base nas suas respostas aqui — nada nesta página aparece no seu CV.",
+    "help": "Responda o que puder — o Job Coach analisa cada novo anúncio com base nisso. Nada aqui aparece em seu currículo; é enviado ao seu motor de IA sempre que um anúncio for lido.",
     "q": {
       "roles": "Que títulos de cargo devemos monitorizar?",
       "rolesSub": "Adicione todos os títulos a que se candidataria realmente, incluindo variantes e traduções. É o primeiro elemento que o analisador verifica num anúncio.",
@@ -373,7 +375,12 @@
       "travel": "Viagens frequentes",
       "shifts": "Turnos à noite ou aos fins de semana",
       "sales": "Prospeção a frio ou vendas porta-a-porta"
-    }
+    },
+    "loadError": "Não foi possível carregar suas preferências: {{error}}",
+    "doneAction": "Adicione uma página para monitorar",
+    "suggestLabel": "Critérios comuns de rejeição — toque em um para adicioná-lo",
+    "doneSubReady": "Isso é suficiente para começar a escanear. Agora, diga ao Job Coach onde procurar — adicione uma página de carreiras para monitorar.",
+    "doneSubNoRoles": "Adicione pelo menos um título de cargo na primeira pergunta — é o que cada anúncio é verificado primeiro, então sem ele, a busca não encontra muito."
   },
   "badges": {
     "cv": "No seu CV",

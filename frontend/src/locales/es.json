@@ -25,7 +25,9 @@
     "reorderItem": "Reordenar el elemento {{n}} de {{total}}",
     "add": "+ Añadir",
     "removeNamed": "Eliminar {{name}}",
-    "tagLengthHint": "Mantén las habilidades cortas ({{max}} caracteres máximo) para que encajen en el panel lateral del CV."
+    "tagLengthHint": "Mantén los elementos cortos (máximo {{max}} caracteres).",
+    "removedNamed": "Eliminado {{name}}",
+    "tagLimit": "Ese es el límite de {{max}} elementos — {{dropped}} más no fueron añadidos."
   },
   "onboarding": {
     "welcome": "Bienvenido a Job Coach",
@@ -346,7 +348,7 @@
   },
   "preferences": {
     "title": "Preferencias",
-    "help": "Cinco preguntas rápidas. El Coach de Empleo revisa cada nuevo anuncio de empleo contra tus respuestas aquí — nada de lo que aparece en esta página se incluye en tu CV.",
+    "help": "Responde lo que puedas — el Coach de Empleo revisa cada nuevo anuncio contra estos. Nada de esto aparece en tu CV; se envía a tu motor de IA cada vez que lee un anuncio.",
     "q": {
       "roles": "¿Qué títulos de empleo deberíamos monitorear?",
       "rolesSub": "Añade cada título en el que realmente aplicarías, incluyendo variantes y traducciones. Este es el primer elemento que revisa el escáner contra un anuncio.",
@@ -373,7 +375,12 @@
       "travel": "Viajes frecuentes",
       "shifts": "Turnos de noche o fines de semana",
       "sales": "Ventas por contacto o de puerta en puerta"
-    }
+    },
+    "loadError": "No se pudieron cargar tus preferencias: {{error}}",
+    "doneAction": "Añade una página para seguir",
+    "suggestLabel": "Dealbreakers comunes — toca uno para añadirlo",
+    "doneSubReady": "Eso es suficiente para comenzar a escanear. A continuación, dile al Coach de Empleo dónde buscar — añade una página de empleos para seguir.",
+    "doneSubNoRoles": "Añade al menos un título de puesto en la primera pregunta — es lo que se compara en cada anuncio, así que sin él, el escaneo encuentra poco."
   },
   "badges": {
     "cv": "En tu CV",

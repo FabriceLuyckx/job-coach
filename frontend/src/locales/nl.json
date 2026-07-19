@@ -25,7 +25,9 @@
     "reorderItem": "Herordenen item {{n}} van {{total}}",
     "add": "+ Voeg toe",
     "removeNamed": "Verwijder {{name}}",
-    "tagLengthHint": "Houd vaardigheden kort (max {{max}} tekens) zodat ze passen in de CV sidebar."
+    "tagLengthHint": "Houd entries kort (max {{max}} tekens).",
+    "removedNamed": "Verwijderd {{name}}",
+    "tagLimit": "Dat is de {{max}}-item limiet — {{dropped}} meer zijn niet toegevoegd."
   },
   "onboarding": {
     "welcome": "Welkom bij Job Coach",
@@ -346,7 +348,7 @@
   },
   "preferences": {
     "title": "Voorkeuren",
-    "help": "Vijf snelle vragen. De Job Coach vergelijkt elke nieuwe functieaanbod met je antwoorden hier — niets op deze pagina verschijnt op je CV.",
+    "help": "Antwoord op wat je kunt — de Job Coach vergelijkt elke nieuwe functieaanbod tegen deze instellingen. Niets hier verschijnt op je CV; het wordt elke keer dat een aanbod wordt gelezen, gestuurd naar je AI-engine.",
     "q": {
       "roles": "Welke functietitels moeten we volgen?",
       "rolesSub": "Voeg elke titel toe die je daadwerkelijk zou aanvragen, inclusief varianten en vertalingen. Dit is het eerste wat de scanner controleert tegen een aanbod.",
@@ -373,7 +375,12 @@
       "travel": "Frequent reizen",
       "shifts": "Avond- of weekenddiensten",
       "sales": "Koude acquisitie of deur-aan-deurverkoop"
-    }
+    },
+    "loadError": "Kon je voorkeuren niet laden: {{error}}",
+    "doneAction": "Voeg een pagina toe om te volgen",
+    "suggestLabel": "Algemene afwijzingen — tik er één op om het toe te voegen",
+    "doneSubReady": "Dat is voldoende om te beginnen met scannen. Volgende stap: vertel Job Coach waar te kijken — voeg een carrièrepagina toe om te volgen.",
+    "doneSubNoRoles": "Voeg ten minste één functietitel toe in de eerste vraag — dat is wat elk aanbod eerst wordt gecontroleerd, dus zonder het vindt de scan weinig."
   },
   "badges": {
     "cv": "Op je cv",

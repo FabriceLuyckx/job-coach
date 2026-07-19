@@ -417,6 +417,15 @@ backup-import safety (zip bombs, path traversal, manifest checks), slug
 sanitisation, LLM-config and AI-response guards, and profile/prompt validation.
 All tests exercise rejection paths only, so they never touch your local data.
 
+The frontend has one standalone check (no test framework needed):
+
+```bash
+node frontend/scripts/check-tags.mjs
+```
+
+It covers `parseTags`, the tag-entry logic behind every tag field — comma/newline
+splitting, case-insensitive dedup, and per-entry length caps.
+
 ---
 
 ## Spec-driven changes (maintainers)

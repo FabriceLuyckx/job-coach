@@ -25,7 +25,9 @@
     "reorderItem": "Element {{n}} von {{total}} verschieben",
     "add": "+ Hinzufügen",
     "removeNamed": "Entfernen {{name}}",
-    "tagLengthHint": "Halte Fähigkeiten kurz (max. {{max}} Zeichen), damit sie in der CV-Seite passen."
+    "tagLengthHint": "Halte Einträge kurz (max. {{max}} Zeichen).",
+    "removedNamed": "{{name}} entfernt",
+    "tagLimit": "Das ist die {{max}}-Eintragsbegrenzung — {{dropped}} weitere wurden nicht hinzugefügt."
   },
   "onboarding": {
     "welcome": "Willkommen bei Job Coach",
@@ -346,7 +348,7 @@
   },
   "preferences": {
     "title": "Präferenzen",
-    "help": "Fünf schnelle Fragen. Der Job-Coach vergleicht jede neue Stellenanzeige mit Ihren Antworten hier — nichts auf dieser Seite erscheint auf Ihrem Lebenslauf.",
+    "help": "Antworte auf das, was du kannst — der Job-Coach vergleicht jede neue Stellenanzeige mit diesen Angaben. Dinge hier erscheinen nie auf deinem Lebenslauf; sie werden jedes Mal, wenn der Job-Coach eine Anzeige liest, an deine KI-Engine gesendet.",
     "q": {
       "roles": "Welche Berufsbezeichnungen sollen wir beobachten?",
       "rolesSub": "Fügen Sie alle Titel hinzu, an die Sie tatsächlich bewerben würden, einschließlich Varianten und Übersetzungen. Dies ist das erste, was der Scanner mit einer Stellenanzeige vergleicht.",
@@ -373,7 +375,12 @@
       "travel": "Häufige Reisen",
       "shifts": "Abend- oder Wochenendarbeit",
       "sales": "Kaltakquise oder Haustürverkauf"
-    }
+    },
+    "loadError": "Deine Einstellungen konnten nicht geladen werden: {{error}}",
+    "doneAction": "Eine Seite hinzufügen, die überwacht wird",
+    "suggestLabel": "Gängige Ausschlusskriterien — tippe eine aus, um sie hinzuzufügen",
+    "doneSubReady": "Das ist genug, um zu scannen. Nächste Schritt: Erkläre Job Coach, wo er suchen soll — füge eine Karriere-Page hinzu, die überwacht wird.",
+    "doneSubNoRoles": "Füge mindestens einen Berufsbezeichnung in der ersten Frage hinzu — das ist das, was jede Stellenanzeige zuerst abgeglichen wird, daher findet ein Scan ohne es wenig heraus."
   },
   "badges": {
     "cv": "Im Lebenslauf",

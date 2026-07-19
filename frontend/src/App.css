@@ -114,5 +114,12 @@
   z-index: 5;
   background: var(--paper);
   padding-bottom: var(--space-3);
+  /* Content scrolls under this band and would otherwise cut against identical
+     cream. In an ink-hairline system the edge has to be drawn. */
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 20%, transparent);
 }
+/* The help line tucks under the sticky band instead of starting a new block.
+   Was an inline `calc(-1 * var(--space-4))` duplicated on Profile and
+   Preferences. */
+.page-head-sticky + .help-text { margin-top: calc(-1 * var(--space-3)); }
 .page-head-actions { display: flex; align-items: center; gap: var(--space-3); }
