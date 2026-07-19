@@ -27,7 +27,9 @@
     "removeNamed": "Remover {{name}}",
     "tagLengthHint": "Mantenha as entradas curtas ({{max}} caracteres máximo).",
     "removedNamed": "Removido {{name}}",
-    "tagLimit": "É o limite de {{max}} entradas — {{dropped}} mais não foram adicionados."
+    "tagLimit": "É o limite de {{max}} entradas — {{dropped}} mais não foram adicionados.",
+    "saved": "Salvo",
+    "saving": "Salvando…"
   },
   "onboarding": {
     "welcome": "Bem-vindo ao Job Coach",
@@ -64,11 +66,10 @@
     "title": "Configurações",
     "loadError": "Não foi possível carregar as configurações: {{error}}",
     "openrouter": {
-      "title": "Ligação ao OpenRouter",
       "help": "O OpenRouter encaminha pedidos para o Claude, GPT-4 e outros modelos através de uma única chave de API. Obtenha a sua em <link>openrouter.ai/keys</link>.",
       "balance": "Saldo",
       "used": "Utilizado",
-      "balanceUnavailable": "Saldo indisponível",
+      "balanceUnavailable": "Saldo indisponível — {{error}}",
       "loadingBalance": "A carregar saldo…",
       "manageCredits": "Gerir créditos ↗",
       "apiKey": "Chave de API",
@@ -90,40 +91,41 @@
       "removed": "Foto removida",
       "includeByDefault": "Incluir foto nos novos CVs por predefinição",
       "adjustTitle": "Ajustar foto",
-      "adjustHelp": "Arraste a foto para a reposicionar e utilize o cursor (ou a roda do rato) para ampliar. O seu ficheiro original nunca é alterado.",
+      "adjustHelp": "Arraste a foto (ou use as teclas de seta) para repositioná-la, e use o slide, rolagem ou + / − para zoom. A sua versão original não é alterada.",
       "zoom": "Ampliação",
-      "resetCrop": "Repor recorte"
+      "resetCrop": "Repor recorte",
+      "alt": "Sua foto de perfil",
+      "frameLabel": "Ajuste da foto — arraste ou use as teclas de seta para repositionar"
     },
     "visual": {
-      "title": "Preferências Visuais do CV",
-      "font": "Estilo de fonte",
-      "styleNotes": "Notas de estilo (para a IA)",
-      "stylePlaceholder": "ex.: Minimalista",
-      "save": "Guardar preferências"
+      "title": "Aparência do CV"
     },
     "backup": {
       "title": "Cópia de Segurança e Restauro",
       "help": "Mude para um novo computador ou guarde uma cópia segura do seu trabalho. <b>Exportar</b> descarrega um ficheiro <code>.zip</code> com o seu perfil e foto, definições, fontes e histórico de empregos, e todos os CVs gerados. No novo computador, instale o Job Coach e use <b>Restaurar</b> para carregar esse ficheiro.",
       "export": "Exportar cópia de segurança (.zip)",
       "restore": "Restaurar a partir de cópia de segurança…",
-      "confirmRestore": "Restaurar uma cópia de segurança substitui o seu perfil, definições, histórico de empregos e CVs gerados neste computador pelo conteúdo da cópia (a sua chave API é mantida). Esta ação não pode ser desfeita. Continuar?",
+      "confirmRestore": "Isso substitui seu perfil, configurações, histórico de empregos e CVs gerados neste computador pelos conteúdos do backup. Sua chave API é mantida. Isso não pode ser desfeito.",
       "restored": "Cópia de segurança restaurada — a recarregar…",
-      "note": "Restaurar <b>substitui</b> o seu perfil, histórico de empregos e CVs gerados pelo conteúdo da cópia de segurança — não faz fusão. A sua chave API do OpenRouter nunca é incluída na exportação e não é alterada no restauro."
+      "note": "Restaurar <b>substitui</b> o seu perfil, histórico de empregos e CVs gerados pelo conteúdo da cópia de segurança — não faz fusão. A sua chave API do OpenRouter nunca é incluída na exportação e não é alterada no restauro.",
+      "confirmTitle": "Restaurar a partir do backup?",
+      "confirmButton": "Substituir meus dados"
     },
     "language": {
       "title": "Idioma",
       "help": "O idioma da interface da aplicação. O inglês é o original; os outros idiomas são traduzidos pelo seu motor de IA.",
       "label": "Idioma da aplicação",
       "other": "Outro idioma…",
-      "otherHelp": "Escreva o nome de um idioma. Será traduzido no dispositivo pelo seu motor de IA — o resultado pode ter imperfeições.",
+      "otherHelp": "Digite o nome de uma língua (ou seu código de 2 letras). Será traduzido localmente pelo seu motor de IA — os resultados podem conter irregularidades.",
       "otherPlaceholder": "ex.: Sueco, Vietnamita, Grego",
       "generate": "Usar este idioma",
       "generating": "A traduzir a interface… {{pct}}%",
       "generated": "Interface traduzida para {{lang}}.",
       "experimental": "Traduzido por IA — pode conter imperfeições.",
       "needEngineFirst": "Configure um motor de IA acima antes de adicionar um novo idioma.",
-      "badCode": "Insira um código de idioma de 2 letras (ex.: sv, ja, ar).",
-      "genFailed": "Tradução falhou — por favor, tente novamente."
+      "badCode": "Nossa linguagem não é reconhecida. Tente o nome em inglês, ou um código de 2 letras como sv, ja ou ar.",
+      "genFailed": "Tradução falhou — por favor, tente novamente.",
+      "otherLabel": "Língua"
     },
     "prompts": {
       "title": "Avançado — Prompts de IA",
@@ -166,7 +168,10 @@
         "help": "As cores da paleta — altere qualquer uma delas para torná-la sua.",
         "accent": "Cor de destaque",
         "text": "Cor do texto",
-        "background": "Cor de fundo"
+        "background": "Cor de fundo",
+        "pickerLabel": "{{slot}} — seleção de cor",
+        "hexLabel": "{{slot}} — valor hexadecimal",
+        "badHex": "Isso não é um código de cor. Use seis caracteres após o #, como #2F6B66."
       }
     }
   },
@@ -643,7 +648,10 @@
       "downloadFailed": "Falha na transferência: {{error}}",
       "deleted": "Modelo excluído",
       "confirmDelete": "Excluir o modelo transferido? Pode voltar a transferi-lo mais tarde.",
-      "confirmForce": "{{msg}}\n\nTransferir mesmo assim?"
+      "confirmForce": "{{msg}}",
+      "progressLabel": "Progresso do download do modelo",
+      "forceTitle": "Memória insuficiente?",
+      "downloadAnyway": "Baixar de qualquer forma"
     },
     "openrouter": {
       "title": "OpenRouter",

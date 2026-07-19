@@ -62,7 +62,9 @@
     "removeNamed": "Remove {{name}}",
     "tagLengthHint": "Keep entries short ({{max}} characters max).",
     "removedNamed": "Removed {{name}}",
-    "tagLimit": "That's the {{max}}-entry limit — {{dropped}} more weren't added."
+    "tagLimit": "That's the {{max}}-entry limit — {{dropped}} more weren't added.",
+    "saved": "Saved",
+    "saving": "Saving…"
   },
   "onboarding": {
     "welcome": "Welcome to Job Coach",
@@ -99,11 +101,10 @@
     "title": "Settings",
     "loadError": "Couldn't load settings: {{error}}",
     "openrouter": {
-      "title": "OpenRouter Connection",
       "help": "OpenRouter routes requests to Claude, GPT-4, and other models via one API key. Get yours at <link>openrouter.ai/keys</link>.",
       "balance": "Balance",
       "used": "Used",
-      "balanceUnavailable": "Balance unavailable",
+      "balanceUnavailable": "Balance unavailable — {{error}}",
       "loadingBalance": "Loading balance…",
       "manageCredits": "Manage credits ↗",
       "apiKey": "API key",
@@ -125,40 +126,41 @@
       "removed": "Photo removed",
       "includeByDefault": "Include photo on new CVs by default",
       "adjustTitle": "Adjust photo",
-      "adjustHelp": "Drag the photo to reposition it, and use the slider (or scroll) to zoom. Your original upload is never changed.",
+      "adjustHelp": "Drag the photo (or use the arrow keys) to reposition it, and use the slider, scroll, or + / − to zoom. Your original upload is never changed.",
       "zoom": "Zoom",
-      "resetCrop": "Reset framing"
+      "resetCrop": "Reset framing",
+      "alt": "Your profile photo",
+      "frameLabel": "Photo framing — drag or use the arrow keys to reposition"
     },
     "visual": {
-      "title": "CV Visual Preferences",
-      "font": "Font style",
-      "styleNotes": "Style notes (for the AI)",
-      "stylePlaceholder": "e.g. Minimalist",
-      "save": "Save preferences"
+      "title": "CV Appearance"
     },
     "backup": {
       "title": "Backup & Restore",
       "help": "Move to a new computer or keep a safe copy of your work. <b>Export</b> downloads a single <code>.zip</code> containing your profile & photo, settings, job sources & history, and every generated CV. On the new machine, install Job Coach and use <b>Restore</b> to load that file.",
       "export": "Export backup (.zip)",
       "restore": "Restore from backup…",
-      "confirmRestore": "Restoring a backup replaces your profile, settings, job history and generated CVs on this computer with the contents of the backup (your API key is kept). This cannot be undone. Continue?",
+      "confirmRestore": "This replaces your profile, settings, job history and generated CVs on this computer with the contents of the backup. Your API key is kept. This cannot be undone.",
       "restored": "Backup restored — reloading…",
-      "note": "Restoring <b>replaces</b> your profile, job history and generated CVs with the backup's contents — it does not merge. Your OpenRouter API key is never included in the export and is left untouched on restore."
+      "note": "Restoring <b>replaces</b> your profile, job history and generated CVs with the backup's contents — it does not merge. Your OpenRouter API key is never included in the export and is left untouched on restore.",
+      "confirmTitle": "Restore from backup?",
+      "confirmButton": "Replace my data"
     },
     "language": {
       "title": "Language",
       "help": "The language of the app's interface. English is the original; other languages are translated by your AI engine.",
       "label": "App language",
       "other": "Other language…",
-      "otherHelp": "Type a language name. It will be translated on-device by your AI engine — results may contain rough edges.",
+      "otherHelp": "Type a language name (or its 2-letter code). It will be translated on-device by your AI engine — results may contain rough edges.",
       "otherPlaceholder": "e.g. Swedish, Vietnamese, Greek",
       "generate": "Use this language",
       "generating": "Translating the interface… {{pct}}%",
       "generated": "Interface translated to {{lang}}.",
       "experimental": "AI-translated — may contain rough edges.",
       "needEngineFirst": "Set up an AI engine above before adding a new language.",
-      "badCode": "Enter a 2-letter language code (e.g. sv, ja, ar).",
-      "genFailed": "Translation failed — please try again."
+      "badCode": "We don't recognise that language. Try its English name, or a 2-letter code like sv, ja or ar.",
+      "genFailed": "Translation failed — please try again.",
+      "otherLabel": "Language"
     },
     "prompts": {
       "title": "Advanced — AI prompts",
@@ -201,7 +203,10 @@
         "help": "The palette's colours — change any of them to make it your own.",
         "accent": "Accent colour",
         "text": "Text colour",
-        "background": "Background colour"
+        "background": "Background colour",
+        "pickerLabel": "{{slot}} — colour picker",
+        "hexLabel": "{{slot}} — hex value",
+        "badHex": "That isn't a colour code. Use six characters after the #, like #2F6B66."
       }
     }
   },
@@ -678,7 +683,10 @@
       "downloadFailed": "Download failed: {{error}}",
       "deleted": "Model deleted",
       "confirmDelete": "Delete the downloaded model? You can download it again later.",
-      "confirmForce": "{{msg}}\n\nDownload anyway?"
+      "confirmForce": "{{msg}}",
+      "progressLabel": "Model download progress",
+      "forceTitle": "Not enough memory?",
+      "downloadAnyway": "Download anyway"
     },
     "openrouter": {
       "title": "OpenRouter",

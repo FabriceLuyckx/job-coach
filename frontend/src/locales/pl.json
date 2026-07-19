@@ -27,7 +27,9 @@
     "removeNamed": "Usuń {{name}}",
     "tagLengthHint": "Trzymaj wpisy krótkie (maks. {{max}} znaków).",
     "removedNamed": "Usunięto {{name}}",
-    "tagLimit": "To jest limit {{max}} wpisów — {{dropped}} więcej nie zostały dodane."
+    "tagLimit": "To jest limit {{max}} wpisów — {{dropped}} więcej nie zostały dodane.",
+    "saved": "Zapisano",
+    "saving": "Zapisywanie…"
   },
   "onboarding": {
     "welcome": "Witaj w Job Coach",
@@ -64,11 +66,10 @@
     "title": "Ustawienia",
     "loadError": "Nie udało się załadować ustawień: {{error}}",
     "openrouter": {
-      "title": "Połączenie z OpenRouter",
       "help": "OpenRouter kieruje zapytania do Claude, GPT-4 i innych modeli za pomocą jednego klucza API. Uzyskaj swój na <link>openrouter.ai/keys</link>.",
       "balance": "Saldo",
       "used": "Wykorzystano",
-      "balanceUnavailable": "Saldo niedostępne",
+      "balanceUnavailable": "Błąd równowagi — {{error}}",
       "loadingBalance": "Ładowanie salda…",
       "manageCredits": "Zarządzaj kredytami ↗",
       "apiKey": "Klucz API",
@@ -90,40 +91,41 @@
       "removed": "Zdjęcie usunięte",
       "includeByDefault": "Włącz zdjęcie w nowych CVach domyślnie",
       "adjustTitle": "Przygotuj zdjęcie",
-      "adjustHelp": "Przeciągnij zdjęcie, aby zmienić jego pozycję, i użyj suwaka (lub przewiń kółkiem myszy), aby powiększyć. Oryginalny plik nigdy nie jest zmieniany.",
+      "adjustHelp": "Przesuń zdjęcie (lub użyj klawiszy strzałek) do przesunięcia, a następnie użyj slajdera, przewijania lub + / − do powiększenia. Oryginalne zdjęcie nie jest zmieniane.",
       "zoom": "Powiększenie",
-      "resetCrop": "Przywróć domyślne kadrowanie"
+      "resetCrop": "Przywróć domyślne kadrowanie",
+      "alt": "Twoje zdjęcie profilowe",
+      "frameLabel": "Ramowanie zdjęcia — przesuń lub użyj klawiszy strzałek do przesunięcia"
     },
     "visual": {
-      "title": "Preferencje wizualne CV",
-      "font": "Styl czcionki",
-      "styleNotes": "Uwagi dotyczące stylu (dla AI)",
-      "stylePlaceholder": "np. Minimalistyczny",
-      "save": "Zapisz preferencje"
+      "title": "Wygląd CV"
     },
     "backup": {
       "title": "Kopia zapasowa i przywracanie",
       "help": "Przenieś dane na nowy komputer lub zachowaj bezpieczną kopię swojej pracy. <b>Eksport</b> pobiera pojedynczy plik <code>.zip</code> zawierający profil i zdjęcie, ustawienia, źródła ofert i historię oraz wszystkie wygenerowane CV. Na nowym komputerze zainstaluj Job Coach i użyj opcji <b>Przywróć</b>, aby wczytać ten plik.",
       "export": "Eksportuj kopię zapasową (.zip)",
       "restore": "Przywróć z kopii zapasowej…",
-      "confirmRestore": "Przywrócenie kopii zapasowej zastąpi Twój profil, ustawienia, historię ofert i wygenerowane CV na tym komputerze zawartością kopii (klucz API pozostanie niezmieniony). Tej operacji nie można cofnąć. Kontynuować?",
+      "confirmRestore": "To zastępuje Twój profil, ustawienia, historię zlecenia i wygenerowane CV na tym komputerze zawartością zapisu zabezpieczającego. Klucz API zostaje zachowany. To nie może być odwrócone.",
       "restored": "Kopia zapasowa przywrócona — ponowne ładowanie…",
-      "note": "Przywracanie <b>zastępuje</b> Twój profil, historię ofert i wygenerowane CV zawartością kopii zapasowej — nie scala danych. Klucz API OpenRouter nigdy nie jest uwzględniany w eksporcie i pozostaje niezmieniony podczas przywracania."
+      "note": "Przywracanie <b>zastępuje</b> Twój profil, historię ofert i wygenerowane CV zawartością kopii zapasowej — nie scala danych. Klucz API OpenRouter nigdy nie jest uwzględniany w eksporcie i pozostaje niezmieniony podczas przywracania.",
+      "confirmTitle": "Przywróć z zapisu zabezpieczającego?",
+      "confirmButton": "Zastąp moje dane"
     },
     "language": {
       "title": "Język",
       "help": "Język interfejsu aplikacji. Angielski jest oryginalny; pozostałe języki są tłumaczone przez Twój silnik AI.",
       "label": "Język aplikacji",
       "other": "Inny język…",
-      "otherHelp": "Wpisz nazwę języka. Zostanie przetłumaczony lokalnie przez Twój silnik AI — wyniki mogą zawierać niedoskonałości.",
+      "otherHelp": "Wpisz nazwę języka (lub jego kod 2-literowy). Będzie on tłumaczone lokalnie przez Twoją maszynę AI — wyniki mogą zawierać nieprecyzyjne elementy.",
       "otherPlaceholder": "np. Szwedzki, Wietnamski, Grecki",
       "generate": "Użyj tego języka",
       "generating": "Tłumaczenie interfejsu… {{pct}}%",
       "generated": "Interfejs przetłumaczony na {{lang}}.",
       "experimental": "Przetłumaczone przez AI — może zawierać niedoskonałości.",
       "needEngineFirst": "Najpierw skonfiguruj silnik AI powyżej, aby dodać nowy język.",
-      "badCode": "Wprowadź 2-literowy kod języka (np. sv, ja, ar).",
-      "genFailed": "Tłumaczenie nie powiodło się — spróbuj ponownie."
+      "badCode": "Nie rozpoznajemy tego języka. Spróbuj nazwy w języku angielskim lub kodu 2-literowym, np. sv, ja lub ar.",
+      "genFailed": "Tłumaczenie nie powiodło się — spróbuj ponownie.",
+      "otherLabel": "Język"
     },
     "prompts": {
       "title": "Zaawansowane — prompty AI",
@@ -166,7 +168,10 @@
         "help": "Kolory palety — możesz zmienić dowolny z nich, aby to było Twoje.",
         "accent": "Akcentowy kolor",
         "text": "Kolor tekstu",
-        "background": "Kolor tła"
+        "background": "Kolor tła",
+        "pickerLabel": "{{slot}} — wybór koloru",
+        "hexLabel": "{{slot}} — wartość heksadecymalna",
+        "badHex": "To nie jest kod koloru. Użyj sześciu znaków po znaku #, np. #2F6B66."
       }
     }
   },
@@ -643,7 +648,10 @@
       "downloadFailed": "Pobieranie nie powiodło się: {{error}}",
       "deleted": "Model usunięty",
       "confirmDelete": "Usunąć pobrany model? Możesz go pobrać ponownie później.",
-      "confirmForce": "{{msg}}\n\nPobrać mimo to?"
+      "confirmForce": "{{msg}}",
+      "progressLabel": "Postęp pobierania modelu",
+      "forceTitle": "Brak pamięci?",
+      "downloadAnyway": "Pobierz w każdym razie"
     },
     "openrouter": {
       "title": "OpenRouter",

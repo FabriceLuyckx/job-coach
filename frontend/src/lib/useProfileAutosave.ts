@@ -83,13 +83,22 @@ export function useProfileAutosave() {
     return () => window.removeEventListener('beforeunload', warn)
   }, [])
 
+  // The unmount flush outlives this component's state, so it can't use
+  // setSaveError — but the toast host is app-level and survives the page
+  // change. Held in a ref so the reporter isn't frozen at first render with a
+  // stale translator.
+  const reportFlushFail = useRef<(e: unknown) => void>(() => {})
+  reportFlushFail.current = (e) => toast.error(t('profile.saveFailedToast', { error: errMsg(e) }))
+
   useEffect(() => () => {
     if (saveTimer.current) clearTimeout(saveTimer.current)
     // Same condition as the unload guard: flush whatever the server hasn't
     // taken, not merely whatever the timer happened to be holding.
     if (dirty.current) {
       const cur = latestProfile.current
-      if (cur) api.putProfile(cur).catch(() => {})
+      // Swallowing this was the one path that could lose an edit in total
+      // silence: navigate away mid-failure and nothing ever said so.
+      if (cur) api.putProfile(cur).catch(e => reportFlushFail.current(e))
     }
   }, [])
 

@@ -381,6 +381,30 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   background: var(--ink); color: var(--paper); font-weight: 600;
 }
 
+/* ── Engine chooser (Settings) ──────────────────────────────────────────── */
+/* Two options today; auto-fit so a third never needs a breakpoint, and so the
+   pair stacks instead of squeezing on a narrow window. */
+.engine-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+.engine-card {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  padding: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--ink);
+  color: var(--ink);
+}
+.engine-card-desc { font-size: var(--fs-sm); color: var(--muted); }
+/* Same signal as .seg: ink fill = chosen. Not a border tint — colour alone
+   can't carry the state of the app's most consequential setting. */
+.engine-card[data-selected] { background: var(--ink); color: var(--paper); }
+.engine-card[data-selected] .engine-card-desc { color: var(--paper); opacity: 0.82; }
+.engine-card:not([data-selected]):hover { background: var(--surface-dim); }
+
 /* One-tap example chips that append to a textarea. */
 .suggest-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-2); }
 .suggest-row button {

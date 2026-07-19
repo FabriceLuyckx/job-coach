@@ -66,6 +66,22 @@ export default function PhotoCropModal({ src, initial, paper, onCancel, onSave }
     drag.current = null
   }
 
+  /** Pointer drag has no keyboard equivalent otherwise — arrows pan, +/- zoom. */
+  function onKeyDown(e: React.KeyboardEvent) {
+    const pan: Record<string, [number, number]> = {
+      ArrowLeft: [-2, 0], ArrowRight: [2, 0], ArrowUp: [0, -2], ArrowDown: [0, 2],
+    }
+    const step = pan[e.key]
+    if (step) {
+      e.preventDefault()
+      setCrop(c => ({ ...c, x: clamp(c.x + step[0], 0, 100), y: clamp(c.y + step[1], 0, 100) }))
+    } else if (e.key === '+' || e.key === '=' || e.key === '-') {
+      e.preventDefault()
+      const d = e.key === '-' ? -0.1 : 0.1
+      setCrop(c => ({ ...c, zoom: clamp(+(c.zoom + d).toFixed(2), ZOOM_MIN, ZOOM_MAX) }))
+    }
+  }
+
   function onWheel(e: React.WheelEvent) {
     setCrop(c => ({ ...c, zoom: clamp(+(c.zoom - e.deltaY * 0.002).toFixed(2), ZOOM_MIN, ZOOM_MAX) }))
   }
@@ -80,6 +96,10 @@ export default function PhotoCropModal({ src, initial, paper, onCancel, onSave }
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onWheel={onWheel}
+        onKeyDown={onKeyDown}
+        tabIndex={0}
+        role="group"
+        aria-label={t('settings.photo.frameLabel')}
         style={{
           width: 220,
           height: 220,

@@ -12,7 +12,7 @@ interface Palette { accent: string; ink: string; paper: string }
 
 /** One text line. `w` is a percentage of its container. */
 function Line({ w, color, h = 2 }: { w: number; color: string; h?: number }) {
-  return <div style={{ width: `${w}%`, height: h, background: color, opacity: 0.55, borderRadius: 1 }} />
+  return <div style={{ width: `${w}%`, height: h, background: color, opacity: 0.55 }} />
 }
 
 function Lines({ widths, color }: { widths: number[]; color: string }) {

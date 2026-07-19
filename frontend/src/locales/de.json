@@ -27,7 +27,9 @@
     "removeNamed": "Entfernen {{name}}",
     "tagLengthHint": "Halte Einträge kurz (max. {{max}} Zeichen).",
     "removedNamed": "{{name}} entfernt",
-    "tagLimit": "Das ist die {{max}}-Eintragsbegrenzung — {{dropped}} weitere wurden nicht hinzugefügt."
+    "tagLimit": "Das ist die {{max}}-Eintragsbegrenzung — {{dropped}} weitere wurden nicht hinzugefügt.",
+    "saved": "Gespeichert",
+    "saving": "Speicherung..."
   },
   "onboarding": {
     "welcome": "Willkommen bei Job Coach",
@@ -64,11 +66,10 @@
     "title": "Einstellungen",
     "loadError": "Einstellungen konnten nicht geladen werden: {{error}}",
     "openrouter": {
-      "title": "OpenRouter-Verbindung",
       "help": "OpenRouter leitet Anfragen über einen einzigen API-Schlüssel an Claude, GPT-4 und andere Modelle weiter. Ihren Schlüssel erhalten Sie unter <link>openrouter.ai/keys</link>.",
       "balance": "Guthaben",
       "used": "Verbraucht",
-      "balanceUnavailable": "Guthaben nicht verfügbar",
+      "balanceUnavailable": "Guthaben nicht verfügbar — {{error}}",
       "loadingBalance": "Guthaben wird geladen…",
       "manageCredits": "Guthaben verwalten ↗",
       "apiKey": "API-Schlüssel",
@@ -90,40 +91,41 @@
       "removed": "Foto entfernt",
       "includeByDefault": "Foto bei neuen Lebenslaufversionen standardmäßig einbeziehen",
       "adjustTitle": "Foto anpassen",
-      "adjustHelp": "Ziehen Sie das Foto, um es neu zu positionieren, und verwenden Sie den Slider (oder scrollen Sie), um es zu vergrößern. Ihr ursprüngliches Hochladen wird nie geändert.",
+      "adjustHelp": "Ziehen Sie das Foto (oder verwenden Sie die Pfeiltasten), um es neu zu positionieren, und verwenden Sie den Slider, die Scrollleiste oder + / −, um es zu vergrößern oder zu verkleinern. Ihr ursprüngliches Hochladen wird nie verändert.",
       "zoom": "Vergrößern",
-      "resetCrop": "Framing zurücksetzen"
+      "resetCrop": "Framing zurücksetzen",
+      "alt": "Ihre Profilfoto",
+      "frameLabel": "Fotorahmen — ziehen Sie es oder verwenden Sie die Pfeiltasten, um es neu zu positionieren"
     },
     "visual": {
-      "title": "Visuelle Einstellungen",
-      "font": "Schriftstil",
-      "styleNotes": "Stilhinweise (für die KI)",
-      "stylePlaceholder": "z. B. Minimalistisch",
-      "save": "Einstellungen speichern"
+      "title": "CV-Aussehen"
     },
     "backup": {
       "title": "Sicherung & Wiederherstellung",
       "help": "Wechseln Sie den Computer, oder erstellen Sie eine sichere Kopie Ihrer Daten. <b>Exportieren</b> lädt eine <code>.zip</code>-Datei herunter, die Ihr Profil & Foto, Einstellungen, Jobquellen & -verlauf sowie alle generierten Lebensläufe enthält. Installieren Sie auf dem neuen Gerät Job Coach und nutzen Sie <b>Wiederherstellen</b>, um die Datei zu laden.",
       "export": "Sicherung exportieren (.zip)",
       "restore": "Aus Sicherung wiederherstellen…",
-      "confirmRestore": "Durch das Wiederherstellen einer Sicherung werden Profil, Einstellungen, Jobverlauf und generierte Lebensläufe auf diesem Computer durch den Inhalt der Sicherung ersetzt (Ihr API-Schlüssel bleibt erhalten). Dies kann nicht rückgängig gemacht werden. Fortfahren?",
+      "confirmRestore": "Dies ersetzt Ihr Profil, Einstellungen, Arbeitsgeschichte und generierte CVs auf diesem Computer durch den Inhalt der Sicherung. Ihr API-Schlüssel bleibt erhalten. Dies kann nicht rückgängig gemacht werden.",
       "restored": "Sicherung wiederhergestellt – wird neu geladen…",
-      "note": "Das Wiederherstellen <b>ersetzt</b> Ihr Profil, den Jobverlauf und die generierten Lebensläufe durch den Inhalt der Sicherung – es findet keine Zusammenführung statt. Ihr OpenRouter-API-Schlüssel wird nie in den Export einbezogen und beim Wiederherstellen nicht verändert."
+      "note": "Das Wiederherstellen <b>ersetzt</b> Ihr Profil, den Jobverlauf und die generierten Lebensläufe durch den Inhalt der Sicherung – es findet keine Zusammenführung statt. Ihr OpenRouter-API-Schlüssel wird nie in den Export einbezogen und beim Wiederherstellen nicht verändert.",
+      "confirmTitle": "Von Sicherung wiederherstellen?",
+      "confirmButton": "Meine Daten ersetzen"
     },
     "language": {
       "title": "Sprache",
       "help": "Die Sprache der App-Oberfläche. Englisch ist die Originalsprache; andere Sprachen werden von Ihrer KI-Engine übersetzt.",
       "label": "App-Sprache",
       "other": "Andere Sprache…",
-      "otherHelp": "Geben Sie einen Sprachnamen ein. Die Übersetzung erfolgt auf dem Gerät durch Ihre KI-Engine – das Ergebnis kann vereinzelte Fehler enthalten.",
+      "otherHelp": "Geben Sie einen Sprachnamen (oder seine 2-stellige Abkürzung) ein. Es wird auf dem Gerät durch Ihr KI-System übersetzt — die Ergebnisse können unvollständig sein.",
       "otherPlaceholder": "z. B. Schwedisch, Vietnamesisch, Griechisch",
       "generate": "Diese Sprache verwenden",
       "generating": "Oberfläche wird übersetzt… {{pct}}%",
       "generated": "Oberfläche wurde in {{lang}} übersetzt.",
       "experimental": "KI-übersetzt – kann vereinzelte Fehler enthalten.",
       "needEngineFirst": "Richten Sie zuerst eine KI-Engine ein, bevor Sie eine neue Sprache hinzufügen.",
-      "badCode": "Gib einen 2-buchstabigen Sprachcode ein (z. B. sv, ja, ar).",
-      "genFailed": "Übersetzung fehlgeschlagen – bitte versuche es erneut."
+      "badCode": "Wir erkennen diese Sprache nicht. Probieren Sie den englischen Namen oder eine 2-stellige Abkürzung wie sv, ja oder ar.",
+      "genFailed": "Übersetzung fehlgeschlagen – bitte versuche es erneut.",
+      "otherLabel": "Sprache"
     },
     "prompts": {
       "title": "Erweitert – KI-Prompts",
@@ -166,7 +168,10 @@
         "help": "Die Farben der Palette – ändern Sie beliebig, um sie zu Ihrem eigenen zu machen.",
         "accent": "Akzentfarbe",
         "text": "Textfarbe",
-        "background": "Hintergrundfarbe"
+        "background": "Hintergrundfarbe",
+        "pickerLabel": "{{slot}} — Farbpicker",
+        "hexLabel": "{{slot}} — Hex-Wert",
+        "badHex": "Das ist kein Farbcode. Verwenden Sie sechs Zeichen nach dem #, wie z. B. #2F6B66."
       }
     }
   },
@@ -643,7 +648,10 @@
       "downloadFailed": "Download fehlgeschlagen: {{error}}",
       "deleted": "Modell gelöscht",
       "confirmDelete": "Das heruntergeladene Modell löschen? Du kannst es später erneut herunterladen.",
-      "confirmForce": "{{msg}}\n\nTrotzdem herunterladen?"
+      "confirmForce": "{{msg}}",
+      "progressLabel": "Fortschritt der Modell-Download",
+      "forceTitle": "Nicht genügend Speicher?",
+      "downloadAnyway": "Dennoch herunterladen"
     },
     "openrouter": {
       "title": "OpenRouter",

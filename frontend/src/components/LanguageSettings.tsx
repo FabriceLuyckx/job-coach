@@ -45,8 +45,25 @@ export default function LanguageSettings({ current }: { current: string }) {
     if (value !== '__other__') void apply(value)
   }
 
+  /** The field asks for a language *name* ("Swedish"), so accept one: match the
+   *  endonyms we offer, then the English names, before falling back to a raw
+   *  ISO code. Demanding a 2-letter code from a non-technical user was a first-
+   *  run dead end — the placeholder itself suggests "Swedish". */
+  function toCode(input: string): string {
+    const s = input.trim().toLowerCase()
+    if (/^[a-z]{2}$/.test(s)) return s
+    const named = Object.entries({ ...OTHER_CODES, ...LANGUAGE_NAMES })
+      .find(([, name]) => name.toLowerCase() === s)
+    if (named) return named[0]
+    // "Swedish" / "Japonais" — whatever the browser calls each language in the
+    // UI's own locale, which is what someone actually types.
+    const dn = new Intl.DisplayNames([navigator.language, 'en'], { type: 'language' })
+    return Object.keys(OTHER_CODES).concat(Object.keys(LANGUAGE_NAMES))
+      .find(c => dn.of(c)?.toLowerCase() === s) ?? s
+  }
+
   async function generateOther() {
-    const code = otherCode.trim().toLowerCase()
+    const code = toCode(otherCode)
     if (!/^[a-z]{2}$/.test(code)) { toast.error(t('settings.language.badCode')); return }
     if (!keySet) { toast.error(t('settings.language.needEngineFirst')); return }
     try {
@@ -76,7 +93,7 @@ export default function LanguageSettings({ current }: { current: string }) {
 
   return (
     <div className="card">
-      <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>{t('settings.language.title')}</div>
+      <h2 className="section-title" style={{ margin: '0 0 var(--space-4)' }}>{t('settings.language.title')}</h2>
       <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{t('settings.language.help')}</p>
       <div className="field" style={{ marginBottom: 0 }}>
         <label>{t('settings.language.label')}</label>
@@ -91,8 +108,10 @@ export default function LanguageSettings({ current }: { current: string }) {
       {lang === '__other__' && (
         <div style={{ marginTop: 'var(--space-3)' }}>
           <p className="muted-sm" style={{ marginBottom: 'var(--space-2)' }}>{t('settings.language.otherHelp')}</p>
+          <label htmlFor="other-lang-code">{t('settings.language.otherLabel')}</label>
           <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center', flexWrap: 'wrap' }}>
             <input
+              id="other-lang-code"
               list="other-langs"
               value={otherCode}
               onChange={e => setOtherCode(e.target.value)}

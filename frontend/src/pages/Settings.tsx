@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Fabrice Luyckx
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Pencil, SlidersHorizontal } from 'lucide-react'
 import { api } from '../api'
 import type { Profile } from '../types'
 import Button from '../components/Button'
 import SaveButton from '../components/SaveButton'
+import SaveStatus from '../components/SaveStatus'
 import Collapsible from '../components/Collapsible'
+import ConfirmModal from '../components/ConfirmModal'
 import EngineSettings from '../components/EngineSettings'
 import TemplateThumb from '../components/TemplateThumb'
 import PhotoCropModal, { DEFAULT_CROP } from '../components/PhotoCropModal'
@@ -17,6 +19,8 @@ import { useKeyStatus } from '../components/KeyStatus'
 import LanguageSettings from '../components/LanguageSettings'
 import type { CVTemplateRegistry, EngineProvider } from '../api'
 import { errMsg } from '../lib/errors'
+import { radioGroup } from '../lib/radiogroup'
+import { useProfileAutosave } from '../lib/useProfileAutosave'
 
 const HEX_RE = /^#[0-9a-fA-F]{6}$/
 
@@ -32,17 +36,9 @@ const OPENROUTER_MODELS = [
 
 const fmtUsd = (n: number | null | undefined) => (n == null ? '—' : `$${n.toFixed(2)}`)
 
-/** The design-prefs keys the Visual-preferences SaveButton owns. include_photo
- *  is excluded on purpose: it saves itself on toggle (see togglePhoto), so it
- *  must never arm this card's button. */
-const prefsSnapshot = (p: Profile) => {
-  const { include_photo: _ignored, ...rest } = p.cv_design_preferences
-  return JSON.stringify(rest)
-}
-
 interface Usage { balance: number | null; usage: number | null; remaining: number | null }
 
-/** One editable AI-prompt block (textarea + save + reset), used ×3 under Advanced. */
+/** One editable AI-prompt block (textarea + save + reset), used ×4 under Advanced. */
 function PromptEditor({ title, help, value, saved, defaultValue, rows = 8, onChange, onSave }: {
   title: string
   help: React.ReactNode
@@ -54,11 +50,13 @@ function PromptEditor({ title, help, value, saved, defaultValue, rows = 8, onCha
   onSave: () => Promise<void>
 }) {
   const { t } = useTranslation()
+  const id = useId()
   return (
     <div style={{ marginBottom: 'var(--space-6)' }}>
-      <div style={{ fontWeight: 600, marginBottom: 'var(--space-2)' }}>{title}</div>
+      <h3 id={id} style={{ fontSize: 'var(--fs-base)', margin: '0 0 var(--space-2)' }}>{title}</h3>
       <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{help}</p>
       <textarea
+        aria-labelledby={id}
         value={value}
         onChange={e => onChange(e.target.value)}
         rows={rows}
@@ -74,10 +72,62 @@ function PromptEditor({ title, help, value, saved, defaultValue, rows = 8, onCha
   )
 }
 
+/** One editable palette slot: swatch + hex field.
+ *
+ * The hex field keeps its own draft so a half-typed value stays on screen, and
+ * only commits when it parses. Writing every keystroke through meant "nope" was
+ * autosaved to the profile while the picker beside it displayed #000000 — the
+ * control showing a colour the app had not stored. */
+function ColorRow({ name, value, onChange }: {
+  name: string
+  value: string
+  onChange: (v: string) => void
+}) {
+  const { t } = useTranslation()
+  const [draft, setDraft] = useState(value)
+  const [bad, setBad] = useState(false)
+  // A swatch click (or any outside change) re-seeds the field.
+  useEffect(() => { setDraft(value); setBad(false) }, [value])
+
+  return (
+    <div style={{ marginBottom: 'var(--space-2)' }}>
+      {/* wraps, like every other multi-child row on this page — these three
+          children are ~308px and were the one row that could clip at 200% zoom */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+        <span style={{ width: 140, fontSize: 'var(--fs-sm)' }}>{name}</span>
+        <input
+          type="color"
+          value={HEX_RE.test(value) ? value : '#000000'}
+          onChange={e => onChange(e.target.value)}
+          aria-label={t('settings.template.colors.pickerLabel', { slot: name })}
+          style={{ width: 34, height: 26, padding: 0, border: '1px solid var(--border)', cursor: 'pointer', background: 'none' }}
+        />
+        <input
+          type="text"
+          value={draft}
+          aria-label={t('settings.template.colors.hexLabel', { slot: name })}
+          aria-invalid={bad || undefined}
+          onChange={e => {
+            setDraft(e.target.value)
+            if (HEX_RE.test(e.target.value)) { setBad(false); onChange(e.target.value) }
+          }}
+          onBlur={() => setBad(!HEX_RE.test(draft))}
+          style={{ width: 110, fontFamily: 'monospace' }}
+        />
+      </div>
+      {bad && <p className="error-msg">{t('settings.template.colors.badHex')}</p>}
+    </div>
+  )
+}
+
 export default function SettingsPage() {
   const toast = useToast()
   const { t } = useTranslation()
   const { refresh: refreshKeyStatus } = useKeyStatus()
+  // The design prefs live in profile.json, so they save the way every other
+  // profile field does — debounced, no button. This card used to be the one
+  // place in the app that still asked you to press Save.
+  const { profile, error: profileError, saveState, saveError, runSave, set } = useProfileAutosave()
   const [settings, setSettings] = useState<{
     openrouter_api_key_set: boolean
     openrouter_api_key_preview: string
@@ -96,10 +146,9 @@ export default function SettingsPage() {
     onboarding_done: boolean
   } | null>(null)
   const [provider, setProvider] = useState<EngineProvider>('openrouter')
-  const [profile, setProfile] = useState<Profile | null>(null)
   const [photo, setPhoto] = useState<{ exists: boolean; data_uri: string | null } | null>(null)
   const [usage, setUsage] = useState<Usage | null>(null)
-  const [usageErr, setUsageErr] = useState(false)
+  const [usageErr, setUsageErr] = useState('')
   const [loadError, setLoadError] = useState('')
 
   const [apiKey, setApiKey] = useState('')
@@ -109,7 +158,6 @@ export default function SettingsPage() {
   const [letterPrompt, setLetterPrompt] = useState('')
   const [scanExtract, setScanExtract] = useState('')
   const [scanFilter, setScanFilter] = useState('')
-  const [savedPrefs, setSavedPrefs] = useState('')  // JSON snapshot of cv_design_preferences
 
   const [registry, setRegistry] = useState<CVTemplateRegistry | null>(null)
   const [cropping, setCropping] = useState(false)
@@ -117,18 +165,18 @@ export default function SettingsPage() {
   const [photoUploading, setPhotoUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const [importing, setImporting] = useState(false)
+  const [restoreFile, setRestoreFile] = useState<File | null>(null)
   const backupRef = useRef<HTMLInputElement>(null)
 
   function loadUsage() {
     api.getOpenrouterUsage()
-      .then(u => { setUsage(u); setUsageErr(false) })
-      .catch(() => { setUsage(null); setUsageErr(true) })
+      .then(u => { setUsage(u); setUsageErr('') })
+      .catch(e => { setUsage(null); setUsageErr(errMsg(e)) })
   }
 
   useEffect(() => {
-    Promise.all([api.getSettings(), api.getProfile(), api.getPhoto(), api.getTemplates()]).then(([s, p, ph, tpl]) => {
+    Promise.all([api.getSettings(), api.getPhoto(), api.getTemplates()]).then(([s, ph, tpl]) => {
       setSettings(s)
-      setProfile(p)
       setPhoto(ph)
       setRegistry(tpl)
       setProvider(s.llm_provider)
@@ -137,7 +185,6 @@ export default function SettingsPage() {
       setLetterPrompt(s.letter_prompt)
       setScanExtract(s.scan_extract_prompt)
       setScanFilter(s.scan_filter_prompt)
-      setSavedPrefs(prefsSnapshot(p))
       if (!OPENROUTER_MODELS.includes(s.openrouter_model)) setCustomModel(s.openrouter_model)
       if (s.openrouter_api_key_set) loadUsage()
     }).catch(e => setLoadError(errMsg(e)))
@@ -145,12 +192,18 @@ export default function SettingsPage() {
 
   // Switching engine takes effect immediately (next AI request uses it).
   async function changeProvider(p: EngineProvider) {
+    const previous = provider
     setProvider(p)
     try {
       await api.putSettings({ llm_provider: p })
       setSettings(await api.getSettings())
       refreshKeyStatus()
-    } catch (e) { toast.error(errMsg(e)) }
+    } catch (e) {
+      // Optimistic, so a failure has to roll back: leaving the new engine's
+      // fields on screen meant the card claimed a switch the server refused.
+      setProvider(previous)
+      toast.error(errMsg(e))
+    }
   }
 
   // Save handlers throw on error so the SaveButton surfaces it.
@@ -175,39 +228,10 @@ export default function SettingsPage() {
     setSettings(await api.getSettings())
   }
 
-  async function saveVisualPrefs() {
-    if (!profile) return
-    await api.putProfile(profile)
-    setSavedPrefs(prefsSnapshot(profile))
-  }
-
-  /** Patch design prefs in local state — the SaveButton persists them. */
+  /** Patch design prefs — autosaved like any other profile edit. */
   function setDesign(patch: Partial<Profile['cv_design_preferences']>) {
-    setProfile(p => p && { ...p, cv_design_preferences: { ...p.cv_design_preferences, ...patch } })
-  }
-
-  /** The include-photo default persists on its own (it's a switch, not a form
-   *  field): optimistic, reverting with an error toast if the save fails. */
-  async function togglePhoto(include: boolean) {
     if (!profile) return
-    const next = { ...profile, cv_design_preferences: { ...profile.cv_design_preferences, include_photo: include } }
-    setProfile(next)
-    try {
-      await api.putProfile(next)
-    } catch (e) {
-      setProfile(profile)
-      toast.error(errMsg(e))
-    }
-  }
-
-  /** Crop is saved on confirm — the modal is the commit point, not the card. */
-  async function savePhotoCrop(photo_crop: NonNullable<Profile['cv_design_preferences']['photo_crop']>) {
-    if (!profile) return
-    const next = { ...profile, cv_design_preferences: { ...profile.cv_design_preferences, photo_crop } }
-    await api.putProfile(next)
-    setProfile(next)
-    setSavedPrefs(prefsSnapshot(next))
-    setCropping(false)
+    set('cv_design_preferences', { ...profile.cv_design_preferences, ...patch })
   }
 
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -235,11 +259,7 @@ export default function SettingsPage() {
     } finally { setPhotoUploading(false) }
   }
 
-  async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (backupRef.current) backupRef.current.value = ''
-    if (!file) return
-    if (!window.confirm(t('settings.backup.confirmRestore'))) return
+  async function runImport(file: File) {
     setImporting(true)
     try {
       await api.importBackup(file)
@@ -251,12 +271,12 @@ export default function SettingsPage() {
     }
   }
 
-  if (loadError) {
+  if (loadError || (profileError && !profile)) {
     return (
       <div>
         <h1 className="page-title">{t('settings.title')}</h1>
         <div className="load-error">
-          <span style={{ flex: 1 }}>{t('settings.loadError', { error: loadError })}</span>
+          <span style={{ flex: 1 }}>{t('settings.loadError', { error: loadError || profileError })}</span>
           <Button variant="secondary" onClick={() => window.location.reload()}>{t('common.retry')}</Button>
         </div>
       </div>
@@ -267,190 +287,149 @@ export default function SettingsPage() {
   const isCustomModel = !OPENROUTER_MODELS.includes(settings.openrouter_model)
   const pendingModel = model !== '__custom__' ? model : customModel
   const connectionDirty = !!apiKey || pendingModel !== settings.openrouter_model
-  const prefsDirty = prefsSnapshot(profile) !== savedPrefs
 
   const design = profile.cv_design_preferences
   // An unknown/legacy template id renders as 'default', mirroring the server.
-  const activeTemplate = registry?.templates.includes(design.template) ? design.template : 'default'
+  const templates = registry?.templates ?? []
+  const activeTemplate = templates.includes(design.template) ? design.template : 'default'
   const crop = design.photo_crop ?? DEFAULT_CROP
-  // Thumbnails preview the live (unsaved) choice, so tapping a swatch or editing
-  // a colour recolours them immediately.
+  // Thumbnails preview the live choice, so tapping a swatch or editing a colour
+  // recolours them immediately.
   const inkColor = design.colors?.ink ?? '#1E1E1E'
   const paperColor = design.colors?.paper ?? '#FFFFFF'
   const thumbPalette = { accent: design.accent_color, ink: inkColor, paper: paperColor }
   const hex = (s?: string) => (s ?? '').toLowerCase()
 
+  const palettes = registry?.palettes ?? []
+  const paletteIds = palettes.map(p => p.id)
+  // '' when the colours have been hand-edited away from every preset — a real
+  // state (custom palette), so no swatch may claim to be checked.
+  const activePalette = palettes.find(pal =>
+    hex(design.accent_color) === hex(pal.accent_color)
+    && hex(design.colors?.ink) === hex(pal.colors.ink)
+    && hex(design.colors?.paper) === hex(pal.colors.paper))?.id ?? ''
+
+  const templateRadio = radioGroup(templates, activeTemplate, id => setDesign({ template: id }))
+  const paletteRadio = radioGroup(paletteIds, activePalette, id => {
+    const pal = palettes.find(p => p.id === id)
+    if (pal) setDesign({ accent_color: pal.accent_color, colors: pal.colors })
+  })
+
   return (
     <div>
+      {/* Plain, non-sticky: unlike Profile and Preferences, most of this page
+          saves on a button. A page-level autosave status here reported on one
+          card out of five and contradicted the four beneath it. */}
       <h1 className="page-title">{t('settings.title')}</h1>
 
-      {/* UI language */}
-      <LanguageSettings current={settings.app_language} />
-
-      {/* AI engine chooser (local vs OpenRouter) */}
-      <EngineSettings provider={provider} onProviderChange={changeProvider} />
-
-      {/* OpenRouter — key + model; shown when OpenRouter is the active engine */}
-      {provider === 'openrouter' && (
-      <div className="card">
-        <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>{t('settings.openrouter.title')}</div>
-        <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>
-          <Trans i18nKey="settings.openrouter.help"
-            components={{ link: <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer" /> }} />
-        </p>
-        {settings.openrouter_api_key_set && (
-          <div className="credit-line">
-            {usage ? (
-              <>
-                <span>{t('settings.openrouter.balance')}: <strong>{fmtUsd(usage.balance ?? usage.remaining)}</strong></span>
-                {usage.usage != null && <span>· {t('settings.openrouter.used')}: <strong>{fmtUsd(usage.usage)}</strong></span>}
-              </>
-            ) : usageErr ? <span>{t('settings.openrouter.balanceUnavailable')}</span> : <span>{t('settings.openrouter.loadingBalance')}</span>}
-            <a href="https://openrouter.ai/settings/credits" target="_blank" rel="noreferrer">{t('settings.openrouter.manageCredits')}</a>
-          </div>
-        )}
-        <div className="field">
-          <label>{t('settings.openrouter.apiKey')}</label>
-          {settings.openrouter_api_key_set && (
-            <p className="muted-sm" style={{ marginBottom: 6 }}>
-              {t('settings.openrouter.currentlySet', { preview: settings.openrouter_api_key_preview })}
+      {/* AI engine — first, because nothing else in the app works without it.
+          The OpenRouter key/model live inside it: one decision, one card. */}
+      <EngineSettings provider={provider} onProviderChange={changeProvider}>
+        {provider === 'openrouter' && (
+          <div className="field" style={{ marginTop: 'var(--space-4)', marginBottom: 0 }}>
+            <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>
+              <Trans i18nKey="settings.openrouter.help"
+                components={{ link: <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer" /> }} />
             </p>
-          )}
-          <input
-            type="password"
-            value={apiKey}
-            onChange={e => setApiKey(e.target.value)}
-            placeholder={settings.openrouter_api_key_set ? t('settings.openrouter.newKeyPlaceholder') : t('settings.openrouter.keyPlaceholder')}
-          />
-        </div>
-        <div className="field">
-          <label>{t('settings.openrouter.model')}</label>
-          <select
-            value={model === '__custom__' || isCustomModel ? '__custom__' : model}
-            onChange={e => setModel(e.target.value)}
-          >
-            {OPENROUTER_MODELS.map(m => <option key={m} value={m}>{m}</option>)}
-            <option value="__custom__">{t('settings.openrouter.customModel')}</option>
-          </select>
-          <p className="field-hint">
-            {t('settings.openrouter.active')}: <strong>{settings.openrouter_model}</strong>
-            {connectionDirty && <span style={{ color: 'var(--highlight)', marginLeft: 8 }}>● {t('common.unsavedChange')}</span>}
-          </p>
-        </div>
-        {(model === '__custom__' || isCustomModel) && (
-          <div className="field">
-            <label>{t('settings.openrouter.customModelLabel')}</label>
-            <input
-              type="text"
-              value={isCustomModel ? settings.openrouter_model : customModel}
-              onChange={e => setCustomModel(e.target.value)}
-              placeholder="provider/model-name"
-            />
-          </div>
-        )}
-        <SaveButton dirty={connectionDirty} onSave={saveOpenRouter} idleLabel={t('settings.openrouter.saveConnection')} />
-      </div>
-      )}
-
-      {/* Photo */}
-      <div className="card">
-        <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>{t('settings.photo.title')}</div>
-        {photo?.exists && photo.data_uri && (
-          <div style={{ position: 'relative', width: 120, height: 120, marginBottom: 'var(--space-3)' }}>
-            {/* Same circle + crop CSS the templates use, so this preview is
-                exactly what lands on the CV. */}
-            <div style={{
-              width: '100%', height: '100%', overflow: 'hidden', borderRadius: '50%',
-              border: '2px solid var(--border)', background: paperColor,
-            }}>
-              <img
-                src={photo.data_uri}
-                alt="Profile"
-                style={{
-                  display: 'block', width: '100%', height: '100%', objectFit: 'contain',
-                  transform: `translate(${crop.x - 50}%, ${crop.y - 50}%) scale(${crop.zoom})`,
-                }}
+            {settings.openrouter_api_key_set && (
+              <div className="credit-line">
+                {usage ? (
+                  <>
+                    <span>{t('settings.openrouter.balance')}: <strong>{fmtUsd(usage.balance ?? usage.remaining)}</strong></span>
+                    {usage.usage != null && <span>· {t('settings.openrouter.used')}: <strong>{fmtUsd(usage.usage)}</strong></span>}
+                  </>
+                ) : usageErr
+                  ? <span>{t('settings.openrouter.balanceUnavailable', { error: usageErr })}</span>
+                  : <span>{t('settings.openrouter.loadingBalance')}</span>}
+                <a href="https://openrouter.ai/settings/credits" target="_blank" rel="noreferrer">{t('settings.openrouter.manageCredits')}</a>
+              </div>
+            )}
+            <div className="field">
+              <label htmlFor="or-key">{t('settings.openrouter.apiKey')}</label>
+              {settings.openrouter_api_key_set && (
+                <p className="muted-sm" style={{ marginBottom: 6 }}>
+                  {t('settings.openrouter.currentlySet', { preview: settings.openrouter_api_key_preview })}
+                </p>
+              )}
+              <input
+                id="or-key"
+                type="password"
+                value={apiKey}
+                onChange={e => setApiKey(e.target.value)}
+                placeholder={settings.openrouter_api_key_set ? t('settings.openrouter.newKeyPlaceholder') : t('settings.openrouter.keyPlaceholder')}
               />
             </div>
-            <button
-              type="button"
-              onClick={() => setCropping(true)}
-              disabled={photoUploading}
-              title={t('settings.photo.adjustTitle')}
-              aria-label={t('settings.photo.adjustTitle')}
-              style={{
-                position: 'absolute', top: 0, right: 0, width: 28, height: 28,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'var(--paper)', border: '1px solid var(--ink)',
-                cursor: 'pointer', padding: 0,
-              }}
-            >
-              <Pencil size={14} aria-hidden />
-            </button>
+            <div className="field">
+              <label htmlFor="or-model">{t('settings.openrouter.model')}</label>
+              <select
+                id="or-model"
+                value={model === '__custom__' || isCustomModel ? '__custom__' : model}
+                onChange={e => setModel(e.target.value)}
+              >
+                {OPENROUTER_MODELS.map(m => <option key={m} value={m}>{m}</option>)}
+                <option value="__custom__">{t('settings.openrouter.customModel')}</option>
+              </select>
+              <p className="field-hint">
+                {t('settings.openrouter.active')}: <strong>{settings.openrouter_model}</strong>
+                {connectionDirty && <span style={{ color: 'var(--highlight)', marginLeft: 8 }}>● {t('common.unsavedChange')}</span>}
+              </p>
+            </div>
+            {(model === '__custom__' || isCustomModel) && (
+              <div className="field">
+                <label htmlFor="or-custom">{t('settings.openrouter.customModelLabel')}</label>
+                <input
+                  id="or-custom"
+                  type="text"
+                  // Bound to the draft, not the saved value: reading from
+                  // settings made the field ignore every keystroke once a
+                  // custom model was already active.
+                  value={customModel}
+                  onChange={e => setCustomModel(e.target.value)}
+                  placeholder={t('settings.openrouter.customModelPlaceholder')}
+                />
+              </div>
+            )}
+            <SaveButton dirty={connectionDirty} onSave={saveOpenRouter} idleLabel={t('settings.openrouter.saveConnection')} />
           </div>
         )}
-        <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', flexWrap: 'wrap' }}>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            style={{ display: 'none' }}
-            onChange={handlePhotoUpload}
-          />
-          <Button variant="secondary" busy={photoUploading} onClick={() => fileRef.current?.click()}>
-            {photo?.exists ? t('settings.photo.replace') : t('settings.photo.upload')}
-          </Button>
-          {photo?.exists && (
-            <Button variant="ghost" className="btn-icon-danger" onClick={handlePhotoDelete} disabled={photoUploading}>{t('common.remove')}</Button>
-          )}
-        </div>
-        <div className="field" style={{ marginTop: 'var(--space-4)' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontWeight: 400, color: 'var(--ink)' }}>
-            <input
-              type="checkbox"
-              checked={profile.cv_design_preferences.include_photo}
-              onChange={e => togglePhoto(e.target.checked)}
-            />
-            {t('settings.photo.includeByDefault')}
-          </label>
-        </div>
-      </div>
+      </EngineSettings>
 
-      {cropping && photo?.data_uri && (
-        <PhotoCropModal
-          src={photo.data_uri}
-          initial={profile.cv_design_preferences.photo_crop ?? DEFAULT_CROP}
-          paper={paperColor}
-          onCancel={() => setCropping(false)}
-          onSave={savePhotoCrop}
-        />
-      )}
-
-      {/* Visual preferences — template, palette, custom accent. One self-contained
-          block so a future Settings-tabs split can move it wholesale. */}
+      {/* How CVs look — template, colours and photo are one concern. */}
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>{t('settings.visual.title')}</div>
+        {/* The status sits on the one card it actually describes. */}
+        <div className="section-header">
+          <h2 className="section-title" style={{ margin: 0 }}>{t('settings.visual.title')}</h2>
+          <SaveStatus state={saveState} error={saveError} onRetry={runSave} />
+        </div>
+        <p className="help-text">{t('profile.autoSaveNote')}</p>
 
         <div className="field">
-          <label>{t('settings.template.label')}</label>
+          <label id="tpl-label">{t('settings.template.label')}</label>
           <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{t('settings.template.help')}</p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}>
-            {registry?.templates.map(id => {
+          <div
+            {...templateRadio.group}
+            aria-labelledby="tpl-label"
+            style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}
+          >
+            {templates.map((id, i) => {
               const isSel = activeTemplate === id
               return (
                 <button
                   key={id}
                   type="button"
-                  aria-pressed={isSel}
+                  {...templateRadio.item(i)}
                   onClick={() => setDesign({ template: id })}
                   style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-2)',
                     background: 'none', padding: 'var(--space-2)', cursor: 'pointer',
-                    border: `2px solid ${isSel ? 'var(--accent)' : 'transparent'}`,
+                    // Ink, not vermilion: the engine cards and .seg already say
+                    // ink = chosen, and one page must not hold two selection
+                    // vocabularies. Vermilion stays for actions.
+                    border: `2px solid ${isSel ? 'var(--ink)' : 'transparent'}`,
                   }}
                 >
                   <TemplateThumb layout={id} palette={thumbPalette} selected={isSel} />
-                  <span style={{ fontSize: 'var(--fs-xs)', fontWeight: isSel ? 600 : 400 }}>
+                  <span style={{ fontSize: 'var(--fs-xs)', fontWeight: isSel ? 700 : 400 }}>
                     {t(`settings.template.names.${id}`)}
                   </span>
                 </button>
@@ -460,77 +439,138 @@ export default function SettingsPage() {
         </div>
 
         <div className="field">
-          <label>{t('settings.template.palette')}</label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
-            {registry?.palettes.map(pal => {
-              const isSel = hex(design.accent_color) === hex(pal.accent_color)
-                && hex(design.colors?.ink) === hex(pal.colors.ink)
-                && hex(design.colors?.paper) === hex(pal.colors.paper)
-              return (
-                <button
-                  key={pal.id}
-                  type="button"
-                  aria-pressed={isSel}
-                  title={t(`settings.template.palettes.${pal.id}`)}
-                  aria-label={t(`settings.template.palettes.${pal.id}`)}
-                  onClick={() => setDesign({ accent_color: pal.accent_color, colors: pal.colors })}
-                  style={{
-                    display: 'flex', width: 44, height: 26, padding: 0, cursor: 'pointer',
-                    border: `2px solid ${isSel ? 'var(--ink)' : 'var(--border)'}`,
-                  }}
-                >
-                  {/* the palette's slots, in the proportion the CV uses them */}
-                  <span style={{ flex: 2, background: pal.accent_color }} />
-                  <span style={{ flex: 1, background: pal.colors.ink }} />
-                  <span style={{ flex: 1, background: pal.colors.paper }} />
-                </button>
-              )
-            })}
+          <label id="pal-label">{t('settings.template.palette')}</label>
+          <div
+            {...paletteRadio.group}
+            aria-labelledby="pal-label"
+            style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}
+          >
+            {palettes.map((pal, i) => (
+              <button
+                key={pal.id}
+                type="button"
+                {...paletteRadio.item(i)}
+                title={t(`settings.template.palettes.${pal.id}`)}
+                aria-label={t(`settings.template.palettes.${pal.id}`)}
+                onClick={() => setDesign({ accent_color: pal.accent_color, colors: pal.colors })}
+                style={{
+                  display: 'flex', width: 44, height: 26, padding: 0, cursor: 'pointer',
+                  border: `2px solid ${activePalette === pal.id ? 'var(--ink)' : 'var(--border)'}`,
+                }}
+              >
+                {/* the palette's slots, in the proportion the CV uses them */}
+                <span style={{ flex: 2, background: pal.accent_color }} />
+                <span style={{ flex: 1, background: pal.colors.ink }} />
+                <span style={{ flex: 1, background: pal.colors.paper }} />
+              </button>
+            ))}
           </div>
         </div>
 
         {/* The selected palette's colours, each editable — overwrite any of them
             to make your own palette. */}
         <div className="field">
-          <label>{t('settings.template.colors.title')}</label>
+          <div className="field-label">{t('settings.template.colors.title')}</div>
           <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{t('settings.template.colors.help')}</p>
           {([
             { slot: 'accent', value: design.accent_color, write: (v: string) => setDesign({ accent_color: v }) },
             { slot: 'text', value: inkColor, write: (v: string) => setDesign({ colors: { ...design.colors, ink: v } }) },
             { slot: 'background', value: paperColor, write: (v: string) => setDesign({ colors: { ...design.colors, paper: v } }) },
           ]).map(({ slot, value, write }) => (
-            <div key={slot} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
-              <span style={{ width: 140, fontSize: 'var(--fs-sm)' }}>{t(`settings.template.colors.${slot}`)}</span>
-              <input
-                type="color"
-                value={HEX_RE.test(value) ? value : '#000000'}
-                onChange={e => write(e.target.value)}
-                aria-label={t(`settings.template.colors.${slot}`)}
-                style={{ width: 34, height: 26, padding: 0, border: '1px solid var(--border)', cursor: 'pointer', background: 'none' }}
-              />
-              <input
-                type="text"
-                value={value}
-                onChange={e => write(e.target.value)}
-                style={{ width: 110, fontFamily: 'monospace' }}
-              />
-            </div>
+            <ColorRow key={slot} name={t(`settings.template.colors.${slot}`)} value={value} onChange={write} />
           ))}
         </div>
-        <SaveButton dirty={prefsDirty} onSave={saveVisualPrefs} idleLabel={t('settings.visual.save')} />
-        <p className="help-text" style={{ marginTop: 'var(--space-3)', marginBottom: 0 }}>
+
+        {/* Photo — part of how the CV looks, so it lives with the rest of it. */}
+        <div className="field">
+          <div className="field-label">{t('settings.photo.title')}</div>
+          {photo?.exists && photo.data_uri && (
+            <div style={{ position: 'relative', width: 120, height: 120, margin: 'var(--space-2) 0 var(--space-3)' }}>
+              {/* Same circle + crop CSS the templates use, so this preview is
+                  exactly what lands on the CV. */}
+              <div style={{
+                width: '100%', height: '100%', overflow: 'hidden', borderRadius: '50%',
+                border: '2px solid var(--border)', background: paperColor,
+              }}>
+                <img
+                  src={photo.data_uri}
+                  alt={t('settings.photo.alt')}
+                  style={{
+                    display: 'block', width: '100%', height: '100%', objectFit: 'contain',
+                    transform: `translate(${crop.x - 50}%, ${crop.y - 50}%) scale(${crop.zoom})`,
+                  }}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setCropping(true)}
+                disabled={photoUploading}
+                title={t('settings.photo.adjustTitle')}
+                aria-label={t('settings.photo.adjustTitle')}
+                style={{
+                  position: 'absolute', top: 0, right: 0, width: 28, height: 28,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'var(--paper)', border: '1px solid var(--ink)',
+                  cursor: 'pointer', padding: 0,
+                }}
+              >
+                <Pencil size={14} aria-hidden />
+              </button>
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', flexWrap: 'wrap' }}>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              style={{ display: 'none' }}
+              onChange={handlePhotoUpload}
+            />
+            <Button variant="secondary" busy={photoUploading} onClick={() => fileRef.current?.click()}>
+              {photo?.exists ? t('settings.photo.replace') : t('settings.photo.upload')}
+            </Button>
+            {photo?.exists && (
+              <Button variant="ghost" className="btn-icon-danger" onClick={handlePhotoDelete} disabled={photoUploading}>{t('common.remove')}</Button>
+            )}
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontWeight: 400, color: 'var(--ink)', marginTop: 'var(--space-3)' }}>
+            <input
+              type="checkbox"
+              checked={design.include_photo}
+              onChange={e => setDesign({ include_photo: e.target.checked })}
+            />
+            {t('settings.photo.includeByDefault')}
+          </label>
+        </div>
+
+        <p className="help-text" style={{ marginTop: 'var(--space-4)', marginBottom: 0 }}>
           {t('settings.template.appliesToAll')}
         </p>
       </div>
 
+      {cropping && photo?.data_uri && (
+        <PhotoCropModal
+          src={photo.data_uri}
+          initial={crop}
+          paper={paperColor}
+          onCancel={() => setCropping(false)}
+          onSave={async c => { setDesign({ photo_crop: c }); setCropping(false) }}
+        />
+      )}
+
+      {/* UI language */}
+      <LanguageSettings current={settings.app_language} />
+
       {/* Backup & restore */}
       <div className="card">
-        <div className="section-title" style={{ marginBottom: 'var(--space-4)' }}>{t('settings.backup.title')}</div>
+        <h2 className="section-title" style={{ margin: '0 0 var(--space-4)' }}>{t('settings.backup.title')}</h2>
         <p className="help-text">
           <Trans i18nKey="settings.backup.help" components={{ b: <strong />, code: <code /> }} />
         </p>
         <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', flexWrap: 'wrap' }}>
-          <Button onClick={() => { window.location.href = api.backupExportUrl }}>
+          {/* Both secondary: neither is the page's primary action, and Restore
+              is destructive enough that it must not read as the happy path. */}
+          <Button variant="secondary" onClick={() => { window.location.href = api.backupExportUrl }}>
             {t('settings.backup.export')}
           </Button>
           <input
@@ -538,10 +578,14 @@ export default function SettingsPage() {
             type="file"
             accept=".zip,application/zip"
             style={{ display: 'none' }}
-            onChange={handleImport}
+            onChange={e => {
+              const file = e.target.files?.[0] ?? null
+              if (backupRef.current) backupRef.current.value = ''
+              setRestoreFile(file)
+            }}
           />
           <Button variant="secondary" busy={importing} onClick={() => backupRef.current?.click()}>
-            Restore from backup…
+            {t('settings.backup.restore')}
           </Button>
         </div>
         <p className="help-text" style={{ marginTop: 'var(--space-3)', marginBottom: 0, fontSize: 'var(--fs-xs)' }}>
@@ -549,8 +593,20 @@ export default function SettingsPage() {
         </p>
       </div>
 
+      {restoreFile && (
+        <ConfirmModal
+          title={t('settings.backup.confirmTitle')}
+          body={t('settings.backup.confirmRestore')}
+          confirmLabel={t('settings.backup.confirmButton')}
+          danger
+          onConfirm={() => { const f = restoreFile; setRestoreFile(null); void runImport(f) }}
+          onCancel={() => setRestoreFile(null)}
+        />
+      )}
+
       {/* Advanced — AI prompts, collapsed by default so they can't be broken casually */}
       <Collapsible
+        headingLevel={2}
         title={
           <span className="collapsible-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
             <SlidersHorizontal size={16} aria-hidden />

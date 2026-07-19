@@ -27,7 +27,9 @@
     "removeNamed": "Rimuovi {{name}}",
     "tagLengthHint": "Mantieni i testi brevi (massimo {{max}} caratteri).",
     "removedNamed": "Rimosso {{name}}",
-    "tagLimit": "È il limite di {{max}} voci — {{dropped}} altre non sono state aggiunte."
+    "tagLimit": "È il limite di {{max}} voci — {{dropped}} altre non sono state aggiunte.",
+    "saved": "Salvato",
+    "saving": "Salvataggio in corso…"
   },
   "onboarding": {
     "welcome": "Benvenuto in Job Coach",
@@ -64,11 +66,10 @@
     "title": "Impostazioni",
     "loadError": "Impossibile caricare le impostazioni: {{error}}",
     "openrouter": {
-      "title": "Connessione OpenRouter",
       "help": "OpenRouter instrada le richieste a Claude, GPT-4 e altri modelli tramite un'unica chiave API. Ottieni la tua su <link>openrouter.ai/keys</link>.",
       "balance": "Saldo",
       "used": "Utilizzato",
-      "balanceUnavailable": "Saldo non disponibile",
+      "balanceUnavailable": "Saldo non disponibile — {{error}}",
       "loadingBalance": "Caricamento saldo…",
       "manageCredits": "Gestisci crediti ↗",
       "apiKey": "Chiave API",
@@ -90,40 +91,41 @@
       "removed": "Foto rimossa",
       "includeByDefault": "Includi la foto nei nuovi CV per impostazione predefinita",
       "adjustTitle": "Regola la foto",
-      "adjustHelp": "Trascina la foto per riposizionarla e usa il cursore (o la rotella del mouse) per ingrandirla. Il tuo upload originale non viene mai modificato.",
+      "adjustHelp": "Trascina l'immagine (o usa le frecce) per riposizionarla, e usa lo slider, il scroll o + / − per ingrandire o ridurre. L'originale caricato non viene mai modificato.",
       "zoom": "Ingrandisci",
-      "resetCrop": "Ripristina inquadratura"
+      "resetCrop": "Ripristina inquadratura",
+      "alt": "La tua foto di profilo",
+      "frameLabel": "Riquadro foto — trascina o usa le frecce per riposizionare"
     },
     "visual": {
-      "title": "Preferenze visive del CV",
-      "font": "Stile carattere",
-      "styleNotes": "Note di stile (per l'IA)",
-      "stylePlaceholder": "es. Minimalista",
-      "save": "Salva preferenze"
+      "title": "Aspetto del CV"
     },
     "backup": {
       "title": "Backup e ripristino",
       "help": "Passa a un nuovo computer o conserva una copia sicura del tuo lavoro. <b>Esporta</b> scarica un singolo file <code>.zip</code> contenente profilo e foto, impostazioni, fonti e cronologia offerte e tutti i CV generati. Sul nuovo computer, installa Job Coach e usa <b>Ripristina</b> per caricare il file.",
       "export": "Esporta backup (.zip)",
       "restore": "Ripristina da backup…",
-      "confirmRestore": "Il ripristino di un backup sostituisce profilo, impostazioni, cronologia offerte e CV generati su questo computer con il contenuto del backup (la chiave API viene mantenuta). L'operazione non può essere annullata. Continuare?",
+      "confirmRestore": "Questo sostituirà il tuo profilo, le impostazioni, la storia dei lavori e i CV generati su questo computer con il contenuto del backup. La tua chiave API rimarrà invariata. Questa operazione non può essere annullata.",
       "restored": "Backup ripristinato — ricaricamento in corso…",
-      "note": "Il ripristino <b>sostituisce</b> profilo, cronologia offerte e CV generati con il contenuto del backup — non esegue un'unione. La chiave API di OpenRouter non viene mai inclusa nell'esportazione e non viene modificata durante il ripristino."
+      "note": "Il ripristino <b>sostituisce</b> profilo, cronologia offerte e CV generati con il contenuto del backup — non esegue un'unione. La chiave API di OpenRouter non viene mai inclusa nell'esportazione e non viene modificata durante il ripristino.",
+      "confirmTitle": "Ripristinare dal backup?",
+      "confirmButton": "Sostituire i miei dati"
     },
     "language": {
       "title": "Lingua",
       "help": "La lingua dell'interfaccia dell'app. L'inglese è l'originale; le altre lingue vengono tradotte dal tuo motore IA.",
       "label": "Lingua dell'app",
       "other": "Altra lingua…",
-      "otherHelp": "Digita il nome di una lingua. Verrà tradotta sul dispositivo dal tuo motore IA — il risultato potrebbe contenere imperfezioni.",
+      "otherHelp": "Inserisci il nome di un linguaggio (o il suo codice a due lettere). Sarà tradotto direttamente sul dispositivo dal tuo motore AI — i risultati potrebbero contenere imperfezioni.",
       "otherPlaceholder": "es. Svedese, Vietnamita, Greco",
       "generate": "Usa questa lingua",
       "generating": "Traduzione dell'interfaccia in corso… {{pct}}%",
       "generated": "Interfaccia tradotta in {{lang}}.",
       "experimental": "Tradotta dall'IA — potrebbe contenere imperfezioni.",
       "needEngineFirst": "Configura un motore IA prima di aggiungere una nuova lingua.",
-      "badCode": "Inserisci un codice lingua di 2 lettere (es. sv, ja, ar).",
-      "genFailed": "Traduzione non riuscita — riprova."
+      "badCode": "Non riconosciamo quel linguaggio. Prova il nome in inglese o un codice a due lettere come sv, ja o ar.",
+      "genFailed": "Traduzione non riuscita — riprova.",
+      "otherLabel": "Lingua"
     },
     "prompts": {
       "title": "Avanzate — prompt IA",
@@ -166,7 +168,10 @@
         "help": "I colori della tavolozza — modificane uno qualsiasi per renderla tua.",
         "accent": "Colore d'accento",
         "text": "Colore del testo",
-        "background": "Colore di sfondo"
+        "background": "Colore di sfondo",
+        "pickerLabel": "{{slot}} — selezione colore",
+        "hexLabel": "{{slot}} — valore esadecimale",
+        "badHex": "Quello non è un codice colore. Usa sei caratteri dopo il #, come #2F6B66."
       }
     }
   },
@@ -643,7 +648,10 @@
       "downloadFailed": "Download fallito: {{error}}",
       "deleted": "Modello eliminato",
       "confirmDelete": "Eliminare il modello scaricato? Potrai scaricarlo di nuovo in seguito.",
-      "confirmForce": "{{msg}}\n\nScaricare comunque?"
+      "confirmForce": "{{msg}}",
+      "progressLabel": "Progresso del download del modello",
+      "forceTitle": "Memoria insufficiente?",
+      "downloadAnyway": "Scarica comunque"
     },
     "openrouter": {
       "title": "OpenRouter",

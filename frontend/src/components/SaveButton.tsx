@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Fabrice Luyckx
 
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Check } from 'lucide-react'
 import Button from './Button'
 
@@ -19,7 +20,8 @@ interface Props {
 
 /** Shared save control: idle → saving (spinner) → ✓ Saved → idle, with inline
     error. Disabled unless `dirty`. */
-export default function SaveButton({ onSave, dirty, idleLabel = 'Save', savedLabel = 'Saved', className }: Props) {
+export default function SaveButton({ onSave, dirty, idleLabel, savedLabel, className }: Props) {
+  const { t } = useTranslation()
   const [state, setState] = useState<State>('idle')
   const [error, setError] = useState('')
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -48,13 +50,18 @@ export default function SaveButton({ onSave, dirty, idleLabel = 'Save', savedLab
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
       {state === 'error' && <span className="error-msg" style={{ marginTop: 0 }}>{error}</span>}
       <Button
-        variant="primary"
+        // Vermilion only while this button IS the next action. A disabled
+        // primary still reads as accent, and a settings page full of dormant
+        // save buttons was spending the rationed colour on nothing.
+        variant={dirty ? 'primary' : 'secondary'}
         busy={saving}
         disabled={!dirty}
         onClick={handle}
         className={(saved ? 'btn-saved' : '') + (className ? ' ' + className : '')}
       >
-        {saved ? <><Check size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />{savedLabel}</> : saving ? 'Saving…' : idleLabel}
+        {saved
+          ? <><Check size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />{savedLabel ?? t('common.saved')}</>
+          : saving ? t('common.saving') : idleLabel ?? t('common.save')}
       </Button>
     </span>
   )

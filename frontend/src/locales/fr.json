@@ -27,7 +27,9 @@
     "removeNamed": "Supprimer {{name}}",
     "tagLengthHint": "Gardez les entrées courtes ({{max}} caractères maximum).",
     "removedNamed": "Supprimé {{name}}",
-    "tagLimit": "C'est la limite de {{max}} entrées — {{dropped}} autres n'ont pas été ajoutés."
+    "tagLimit": "C'est la limite de {{max}} entrées — {{dropped}} autres n'ont pas été ajoutés.",
+    "saved": "Enregistré",
+    "saving": "Enregistrement…"
   },
   "onboarding": {
     "welcome": "Bienvenue sur Job Coach",
@@ -64,11 +66,10 @@
     "title": "Paramètres",
     "loadError": "Impossible de charger les paramètres : {{error}}",
     "openrouter": {
-      "title": "Connexion OpenRouter",
       "help": "OpenRouter achemine les requêtes vers Claude, GPT-4 et d'autres modèles via une seule clé API. Obtenez la vôtre sur <link>openrouter.ai/keys</link>.",
       "balance": "Solde",
       "used": "Utilisé",
-      "balanceUnavailable": "Solde indisponible",
+      "balanceUnavailable": "Solde indisponible — {{error}}",
       "loadingBalance": "Chargement du solde…",
       "manageCredits": "Gérer les crédits ↗",
       "apiKey": "Clé API",
@@ -90,40 +91,41 @@
       "removed": "Photo supprimée",
       "includeByDefault": "Inclure la photo dans les nouveaux CV par défaut",
       "adjustTitle": "Ajuster la photo",
-      "adjustHelp": "Faites glisser la photo pour la repositionner, et utilisez le curseur (ou la molette) pour zoomer. Votre fichier d'origine n'est jamais modifié.",
+      "adjustHelp": "Déplacez la photo (ou utilisez les flèches) pour la répositionner, et utilisez le curseur, le scroll ou + / − pour zoomer. Votre fichier d'origine n'est jamais modifié.",
       "zoom": "Zoom",
-      "resetCrop": "Réinitialiser le cadre"
+      "resetCrop": "Réinitialiser le cadre",
+      "alt": "Votre photo de profil",
+      "frameLabel": "Encadrement de la photo — déplacez-la ou utilisez les flèches pour la répositionner"
     },
     "visual": {
-      "title": "Préférences visuelles du CV",
-      "font": "Style de police",
-      "styleNotes": "Notes de style (pour l'IA)",
-      "stylePlaceholder": "ex. Minimaliste",
-      "save": "Enregistrer les préférences"
+      "title": "Apparence du CV"
     },
     "backup": {
       "title": "Sauvegarde & Restauration",
       "help": "Migrez vers un nouvel ordinateur ou conservez une copie sécurisée de votre travail. <b>Exporter</b> télécharge un fichier <code>.zip</code> unique contenant votre profil & photo, vos paramètres, vos sources d'offres & historique, et tous vos CV générés. Sur le nouvel ordinateur, installez Job Coach et utilisez <b>Restaurer</b> pour charger ce fichier.",
       "export": "Exporter la sauvegarde (.zip)",
       "restore": "Restaurer depuis une sauvegarde…",
-      "confirmRestore": "La restauration remplace votre profil, vos paramètres, votre historique d'offres et vos CV générés sur cet ordinateur par le contenu de la sauvegarde (votre clé API est conservée). Cette action est irréversible. Continuer ?",
+      "confirmRestore": "Cela remplace votre profil, vos paramètres, votre historique de poste et vos CV générés sur cet ordinateur par le contenu du sauvegarde. Votre clé API est conservée. Cette action ne peut pas être annulée.",
       "restored": "Sauvegarde restaurée — rechargement…",
-      "note": "La restauration <b>remplace</b> votre profil, votre historique d'offres et vos CV générés par le contenu de la sauvegarde — sans fusion. Votre clé API OpenRouter n'est jamais incluse dans l'export et reste intacte lors de la restauration."
+      "note": "La restauration <b>remplace</b> votre profil, votre historique d'offres et vos CV générés par le contenu de la sauvegarde — sans fusion. Votre clé API OpenRouter n'est jamais incluse dans l'export et reste intacte lors de la restauration.",
+      "confirmTitle": "Restaurer à partir d'un sauvegarde ?",
+      "confirmButton": "Remplacer mes données"
     },
     "language": {
       "title": "Langue",
       "help": "La langue de l'interface de l'application. L'anglais est la langue d'origine ; les autres langues sont traduites par votre moteur IA.",
       "label": "Langue de l'application",
       "other": "Autre langue…",
-      "otherHelp": "Saisissez un nom de langue. Elle sera traduite sur l'appareil par votre moteur IA — le résultat peut comporter des imperfections.",
+      "otherHelp": "Saisissez le nom d'une langue (ou son code à deux lettres). Elle sera traduite sur appareil par votre moteur IA — les résultats peuvent contenir des imperfections.",
       "otherPlaceholder": "ex. suédois, vietnamien, grec",
       "generate": "Utiliser cette langue",
       "generating": "Traduction de l'interface… {{pct}}%",
       "generated": "Interface traduite en {{lang}}.",
       "experimental": "Traduit par IA — peut contenir des imperfections.",
       "needEngineFirst": "Configurez d'abord un moteur IA ci-dessus avant d'ajouter une nouvelle langue.",
-      "badCode": "Entrez un code de langue à 2 lettres (ex. sv, ja, ar).",
-      "genFailed": "La traduction a échoué — veuillez réessayer."
+      "badCode": "Nous ne reconnaissons pas cette langue. Essayez son nom en anglais, ou un code à deux lettres comme sv, ja ou ar.",
+      "genFailed": "La traduction a échoué — veuillez réessayer.",
+      "otherLabel": "Langue"
     },
     "prompts": {
       "title": "Avancé — Prompts IA",
@@ -166,7 +168,10 @@
         "help": "Les couleurs de la palette — modifiez-en n'importe laquelle pour les rendre les vôtres.",
         "accent": "Couleur d'accent",
         "text": "Couleur du texte",
-        "background": "Couleur de fond"
+        "background": "Couleur de fond",
+        "pickerLabel": "{{slot}} — sélectionneur de couleur",
+        "hexLabel": "{{slot}} — valeur hexadécimale",
+        "badHex": "Ce n'est pas un code de couleur. Utilisez six caractères après le #, comme #2F6B66."
       }
     }
   },
@@ -643,7 +648,10 @@
       "downloadFailed": "Échec du téléchargement : {{error}}",
       "deleted": "Modèle supprimé",
       "confirmDelete": "Supprimer le modèle téléchargé ? Vous pourrez le télécharger à nouveau plus tard.",
-      "confirmForce": "{{msg}}\n\nTélécharger quand même ?"
+      "confirmForce": "{{msg}}",
+      "progressLabel": "Progression du téléchargement du modèle",
+      "forceTitle": "Pas assez de mémoire ?",
+      "downloadAnyway": "Télécharger quand même"
     },
     "openrouter": {
       "title": "OpenRouter",

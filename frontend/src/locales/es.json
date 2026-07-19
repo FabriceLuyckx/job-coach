@@ -27,7 +27,9 @@
     "removeNamed": "Eliminar {{name}}",
     "tagLengthHint": "Mantén los elementos cortos (máximo {{max}} caracteres).",
     "removedNamed": "Eliminado {{name}}",
-    "tagLimit": "Ese es el límite de {{max}} elementos — {{dropped}} más no fueron añadidos."
+    "tagLimit": "Ese es el límite de {{max}} elementos — {{dropped}} más no fueron añadidos.",
+    "saved": "Guardado",
+    "saving": "Guardando…"
   },
   "onboarding": {
     "welcome": "Bienvenido a Job Coach",
@@ -64,11 +66,10 @@
     "title": "Configuración",
     "loadError": "No se pudo cargar la configuración: {{error}}",
     "openrouter": {
-      "title": "Conexión con OpenRouter",
       "help": "OpenRouter enruta solicitudes a Claude, GPT-4 y otros modelos mediante una sola clave API. Consigue la tuya en <link>openrouter.ai/keys</link>.",
       "balance": "Saldo",
       "used": "Usado",
-      "balanceUnavailable": "Saldo no disponible",
+      "balanceUnavailable": "Saldo no disponible — {{error}}",
       "loadingBalance": "Cargando saldo…",
       "manageCredits": "Gestionar créditos ↗",
       "apiKey": "Clave API",
@@ -90,40 +91,41 @@
       "removed": "Foto eliminada",
       "includeByDefault": "Incluir foto en nuevos CVs por defecto",
       "adjustTitle": "Ajustar foto",
-      "adjustHelp": "Arrastra la foto para reubicarla, y usa el control deslizante (o la rueda del ratón) para acercar o alejar. Tu archivo original nunca se modifica.",
+      "adjustHelp": "Arrastre la imagen (o use las teclas de flecha) para reubicarla, y utilice el deslizador, el desplazamiento o + / − para acercar o alejar. Su archivo original nunca se modifica.",
       "zoom": "Zoom",
-      "resetCrop": "Restablecer encuadre"
+      "resetCrop": "Restablecer encuadre",
+      "alt": "Tu foto de perfil",
+      "frameLabel": "Enmarcar foto — arrastre o use las teclas de flecha para reubicar"
     },
     "visual": {
-      "title": "Preferencias visuales del CV",
-      "font": "Estilo de fuente",
-      "styleNotes": "Notas de estilo (para la IA)",
-      "stylePlaceholder": "p. ej. Minimalista",
-      "save": "Guardar preferencias"
+      "title": "Apariencia del CV"
     },
     "backup": {
       "title": "Copia de seguridad y restauración",
       "help": "Cambia de ordenador o guarda una copia segura de tu trabajo. <b>Exportar</b> descarga un archivo <code>.zip</code> con tu perfil y foto, ajustes, fuentes e historial de empleo, y todos los CVs generados. En el nuevo equipo, instala Job Coach y usa <b>Restaurar</b> para cargar ese archivo.",
       "export": "Exportar copia de seguridad (.zip)",
       "restore": "Restaurar desde copia de seguridad…",
-      "confirmRestore": "Restaurar una copia de seguridad reemplaza tu perfil, ajustes, historial de empleo y CVs generados en este equipo con el contenido de la copia (tu clave API se conserva). Esta acción no se puede deshacer. ¿Continuar?",
+      "confirmRestore": "Este reemplaza su perfil, configuraciones, historial de empleos y CVs generados en este ordenador con el contenido del respaldo. Su clave API se mantiene. Esto no se puede deshacer.",
       "restored": "Copia restaurada — recargando…",
-      "note": "Restaurar <b>reemplaza</b> tu perfil, historial de empleo y CVs generados con el contenido de la copia — no realiza una fusión. Tu clave API de OpenRouter nunca se incluye en la exportación y no se modifica al restaurar."
+      "note": "Restaurar <b>reemplaza</b> tu perfil, historial de empleo y CVs generados con el contenido de la copia — no realiza una fusión. Tu clave API de OpenRouter nunca se incluye en la exportación y no se modifica al restaurar.",
+      "confirmTitle": "Restaurar desde respaldo?",
+      "confirmButton": "Reemplazar mis datos"
     },
     "language": {
       "title": "Idioma",
       "help": "El idioma de la interfaz de la aplicación. El inglés es el original; otros idiomas son traducidos por tu motor de IA.",
       "label": "Idioma de la aplicación",
       "other": "Otro idioma…",
-      "otherHelp": "Escribe el nombre de un idioma. Será traducido en el dispositivo por tu motor de IA — el resultado puede tener imperfecciones.",
+      "otherHelp": "Escriba el nombre de un idioma (o su código de 2 letras). Se traducirá en dispositivo por su motor de IA — los resultados podrían tener bordes irregulares.",
       "otherPlaceholder": "p. ej. Sueco, Vietnamita, Griego",
       "generate": "Usar este idioma",
       "generating": "Traduciendo la interfaz… {{pct}}%",
       "generated": "Interfaz traducida a {{lang}}.",
       "experimental": "Traducido por IA — puede contener imperfecciones.",
       "needEngineFirst": "Configura un motor de IA antes de añadir un nuevo idioma.",
-      "badCode": "Ingresa un código de idioma de 2 letras (p. ej. sv, ja, ar).",
-      "genFailed": "La traducción falló — por favor, inténtalo de nuevo."
+      "badCode": "No reconocemos ese idioma. Inténtelo con su nombre en inglés, o un código de 2 letras como sv, ja o ar.",
+      "genFailed": "La traducción falló — por favor, inténtalo de nuevo.",
+      "otherLabel": "Idioma"
     },
     "prompts": {
       "title": "Avanzado — instrucciones de IA",
@@ -166,7 +168,10 @@
         "help": "Los colores de la paleta — cambie cualquiera de ellos para personalizarla.",
         "accent": "Color de acento",
         "text": "Color del texto",
-        "background": "Color de fondo"
+        "background": "Color de fondo",
+        "pickerLabel": "{{slot}} — selector de color",
+        "hexLabel": "{{slot}} — valor hexadecimal",
+        "badHex": "Eso no es un código de color. Use seis caracteres después del #, como #2F6B66."
       }
     }
   },
@@ -643,7 +648,10 @@
       "downloadFailed": "Error en la descarga: {{error}}",
       "deleted": "Modelo eliminado",
       "confirmDelete": "¿Eliminar el modelo descargado? Puedes volver a descargarlo más adelante.",
-      "confirmForce": "{{msg}}\n\n¿Descargar de todas formas?"
+      "confirmForce": "{{msg}}",
+      "progressLabel": "Progreso de descarga del modelo",
+      "forceTitle": "No hay suficiente memoria?",
+      "downloadAnyway": "Descargar de todos modos"
     },
     "openrouter": {
       "title": "OpenRouter",

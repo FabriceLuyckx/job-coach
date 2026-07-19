@@ -27,7 +27,9 @@
     "removeNamed": "Verwijder {{name}}",
     "tagLengthHint": "Houd entries kort (max {{max}} tekens).",
     "removedNamed": "Verwijderd {{name}}",
-    "tagLimit": "Dat is de {{max}}-item limiet — {{dropped}} meer zijn niet toegevoegd."
+    "tagLimit": "Dat is de {{max}}-item limiet — {{dropped}} meer zijn niet toegevoegd.",
+    "saved": "Gesaved",
+    "saving": "Bewaar…"
   },
   "onboarding": {
     "welcome": "Welkom bij Job Coach",
@@ -64,11 +66,10 @@
     "title": "Instellingen",
     "loadError": "Instellingen konden niet worden geladen: {{error}}",
     "openrouter": {
-      "title": "OpenRouter-verbinding",
       "help": "OpenRouter stuurt verzoeken door naar Claude, GPT-4 en andere modellen via één API-sleutel. Haal de jouwe op via <link>openrouter.ai/keys</link>.",
       "balance": "Saldo",
       "used": "Gebruikt",
-      "balanceUnavailable": "Saldo niet beschikbaar",
+      "balanceUnavailable": "Saldo niet beschikbaar — {{error}}",
       "loadingBalance": "Saldo laden…",
       "manageCredits": "Tegoed beheren ↗",
       "apiKey": "API-sleutel",
@@ -90,40 +91,41 @@
       "removed": "Foto verwijderd",
       "includeByDefault": "Foto inclusief in nieuwe CV's standaard",
       "adjustTitle": "Foto aanpassen",
-      "adjustHelp": "Sleep de foto om hem te verplaatsen, en gebruik de schuifregelaar (of scroll) om te zoomen. Je oorspronkelijke upload wordt nooit gewijzigd.",
+      "adjustHelp": "Sleep de foto (of gebruik de pijltoetsen) om haar positie te veranderen, en gebruik de schuifbalk, scrollen of + / − om te vergroten. De oorspronkelijke upload wordt nooit gewijzigd.",
       "zoom": "Vergroten",
-      "resetCrop": "Kadrering herstellen"
+      "resetCrop": "Kadrering herstellen",
+      "alt": "Uw profielfoto",
+      "frameLabel": "Foto bevelen — sleep of gebruik de pijltoetsen om de positie te veranderen"
     },
     "visual": {
-      "title": "Visuele voorkeuren cv",
-      "font": "Lettertype",
-      "styleNotes": "Stijlnotities (voor de AI)",
-      "stylePlaceholder": "bijv. Minimalistisch",
-      "save": "Voorkeuren opslaan"
+      "title": "CV Uiterlijk"
     },
     "backup": {
       "title": "Back-up en herstel",
       "help": "Verhuis naar een nieuwe computer of bewaar een veilige kopie van je werk. <b>Exporteren</b> downloadt een enkel <code>.zip</code>-bestand met je profiel & foto, instellingen, vacaturebronnen & geschiedenis en alle gegenereerde cv's. Installeer Job Coach op de nieuwe computer en gebruik <b>Herstellen</b> om het bestand te laden.",
       "export": "Back-up exporteren (.zip)",
       "restore": "Herstellen vanuit back-up…",
-      "confirmRestore": "Bij het herstellen van een back-up worden je profiel, instellingen, vacaturegeschiedenis en gegenereerde cv's op deze computer vervangen door de inhoud van de back-up (je API-sleutel blijft behouden). Dit kan niet ongedaan worden gemaakt. Doorgaan?",
+      "confirmRestore": "Dit vervangt uw profiel, instellingen, baanhistorie en gegenereerde CV's op dit apparaat met de inhoud van de backup. Uw API-sleutel wordt behouden. Dit kan niet ongedaan gemaakt worden.",
       "restored": "Back-up hersteld — opnieuw laden…",
-      "note": "Herstellen <b>vervangt</b> je profiel, vacaturegeschiedenis en gegenereerde cv's door de inhoud van de back-up — er wordt niet samengevoegd. Je OpenRouter API-sleutel wordt nooit meegenomen in de export en blijft bij herstel onaangeroerd."
+      "note": "Herstellen <b>vervangt</b> je profiel, vacaturegeschiedenis en gegenereerde cv's door de inhoud van de back-up — er wordt niet samengevoegd. Je OpenRouter API-sleutel wordt nooit meegenomen in de export en blijft bij herstel onaangeroerd.",
+      "confirmTitle": "Herstellen uit backup?",
+      "confirmButton": "Mijn gegevens vervangen"
     },
     "language": {
       "title": "Taal",
       "help": "De taal van de app-interface. Engels is de oorspronkelijke taal; andere talen worden vertaald door je AI-engine.",
       "label": "App-taal",
       "other": "Andere taal…",
-      "otherHelp": "Typ een taalnaam. Deze wordt op het apparaat vertaald door je AI-engine — resultaten kunnen onvolkomenheden bevatten.",
+      "otherHelp": "Typ een taalnaam (of haar 2-lettercode). Het wordt op locatie vertaald door uw AI-engine — resultaten kunnen onvolkomen zijn.",
       "otherPlaceholder": "bijv. Zweeds, Vietnamees, Grieks",
       "generate": "Deze taal gebruiken",
       "generating": "Interface vertalen… {{pct}}%",
       "generated": "Interface vertaald naar {{lang}}.",
       "experimental": "AI-vertaald — kan onvolkomenheden bevatten.",
       "needEngineFirst": "Stel eerst een AI-engine in voordat je een nieuwe taal toevoegt.",
-      "badCode": "Voer een taalcode van 2 letters in (bijv. sv, ja, ar).",
-      "genFailed": "Vertaling mislukt — probeer het opnieuw."
+      "badCode": "Wij herkennen die taal niet. Probeer de Engelse naam of een 2-lettercode zoals sv, ja of ar.",
+      "genFailed": "Vertaling mislukt — probeer het opnieuw.",
+      "otherLabel": "Taal"
     },
     "prompts": {
       "title": "Geavanceerd — AI-prompts",
@@ -166,7 +168,10 @@
         "help": "De kleuren uit het palet — verander er een om het jouw eigen te maken.",
         "accent": "Accentkleur",
         "text": "Tekstkleur",
-        "background": "Achtergrondkleur"
+        "background": "Achtergrondkleur",
+        "pickerLabel": "{{slot}} — kleurkeuze",
+        "hexLabel": "{{slot}} — hex waarde",
+        "badHex": "Dat is geen kleurcode. Gebruik zes tekens na het #, zoals #2F6B66."
       }
     }
   },
@@ -643,7 +648,10 @@
       "downloadFailed": "Downloaden mislukt: {{error}}",
       "deleted": "Model verwijderd",
       "confirmDelete": "Het gedownloade model verwijderen? Je kunt het later opnieuw downloaden.",
-      "confirmForce": "{{msg}}\n\nToch downloaden?"
+      "confirmForce": "{{msg}}",
+      "progressLabel": "Voortgang modeldownload",
+      "forceTitle": "Te weinig geheugen?",
+      "downloadAnyway": "Download toch"
     },
     "openrouter": {
       "title": "OpenRouter",
