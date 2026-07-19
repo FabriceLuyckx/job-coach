@@ -39,6 +39,12 @@ user's edits, and an existing cover-letter guide SHALL be regenerated in the
 new language with the prior-language guide removed. Artifacts that do not yet
 exist SHALL adopt the new language when they are later created.
 
+The language control SHALL be available for the generic application as well.
+For the generic application the re-generation SHALL use a role brief
+synthesized from the current profile instead of a fetched job posting; in
+every other respect (edit preservation, letter replacement, confirmation,
+progress, cancellation, failure handling) it SHALL behave identically.
+
 If the application already has a cover-letter guide, the system SHALL first
 ask the user to confirm the change — naming that the existing letter will be
 regenerated and replaced, and that the CV will be re-tailored with edits
@@ -65,6 +71,13 @@ succeeded.
 - **THEN** the CV is re-generated in the new language immediately, with no
   confirmation step
 - **AND** the letter, when later created, is generated in the new language
+
+#### Scenario: Generic application changes language without a posting
+
+- **WHEN** the user changes the language of the generic application
+- **THEN** its CV and letter are re-generated in the new language from a role
+  brief built from the current profile
+- **AND** no job posting is fetched
 
 #### Scenario: Confirmation is required before an existing letter is replaced
 
