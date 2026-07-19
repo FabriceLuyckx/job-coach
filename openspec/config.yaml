@@ -17,9 +17,12 @@ context: |
   Conventions:
   - Profile source of truth: profile/profile.json (schema career-profile-v5,
     normalize_profile migrates older versions on load)
-  - UI style: Bauhaus/Swiss poster (cream/ink/vermilion/teal, Inter only, zero
-    border-radius, no emoji); shared primitives (Button, Toast, Modal, Collapsible,
-    EmptyState, Badge) — never reimplement them inline
+  - UI/visual system of record: DESIGN.md (palette, type, components) and
+    PRODUCT.md (register, principles) at the repo root — both maintained by the
+    impeccable skill. Read them for any UI-affecting proposal instead of
+    restating token values here, they drift otherwise. Shared primitives
+    (Button, Toast, Modal, Collapsible, EmptyState, Badge) — never reimplement
+    them inline
   - NEVER run scripts/translate_locales.py — a pre-commit hook owns locale
     translation; only edit en.json. The i18n parity test failing after an en.json
     edit is expected, not a regression.

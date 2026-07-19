@@ -122,7 +122,10 @@ job-coach/
 ├── config.json                   # API keys & model — never commit (gitignored)
 ├── pyproject.toml                # uv-managed dependencies
 ├── CLAUDE.md                     # This file
-└── README.md
+├── README.md
+├── PRODUCT.md                    # impeccable: register, users, principles — "who/what/why"
+├── DESIGN.md                     # impeccable: palette, type, components — "how it looks"
+└── .impeccable/                  # impeccable skill state: design.json, critique/ snapshots
 ```
 
 ---
@@ -763,6 +766,19 @@ scanner reads the page directly.
   `scripts/add_license_headers.py` on staged source files — don't add headers
   by hand or write a second hook for this. The app footer's link to the GitHub
   repo satisfies AGPL §13 (network use → offer source); don't remove it.
+- **OpenSpec plans *what* changes, impeccable governs *how UI looks*** — the two
+  don't overlap, they compose. `PRODUCT.md`/`DESIGN.md` (repo root, both
+  tracked) are impeccable's source of truth for register/principles and the
+  visual system; `openspec/config.yaml`'s context block points at them rather
+  than restating token values, so a UI-affecting OpenSpec proposal reads them
+  instead of re-deriving colors/spacing. The design-detector hook (fires on
+  every `.tsx`/`.css`/etc. edit) runs regardless of whether the edit came from
+  an OpenSpec-planned change or an ad hoc fix — it's wired in the
+  gitignored, per-machine `.claude/settings.local.json`, so re-run
+  `/impeccable hooks on` after a fresh clone. Impeccable's own review commands
+  (`/impeccable critique`, `/impeccable audit`, `/impeccable polish`) are
+  separate from `/opsx:*` and aren't OpenSpec tasks — run them ad hoc on UI
+  work, don't add them to tasks.md checklists.
 
 ---
 
