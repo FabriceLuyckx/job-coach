@@ -192,7 +192,7 @@ function EngineStep({ onBack, onNext }: { onBack: () => void; onNext: () => void
       {choice === 'local' && (
         <div style={{ marginBottom: 'var(--space-3)' }}>
           {ready ? (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--accent)' }}><Check size={16} aria-hidden /> {t('onboarding.engineLocalReady')}</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--accent-text)' }}><Check size={16} aria-hidden /> {t('onboarding.engineLocalReady')}</span>
           ) : pct !== null ? (
             <div>
               <div style={{ height: 8, background: 'var(--surface-dim)', borderRadius: 4, overflow: 'hidden' }}>
@@ -211,7 +211,7 @@ function EngineStep({ onBack, onNext }: { onBack: () => void; onNext: () => void
       {choice === 'openrouter' && (
         <div style={{ marginBottom: 'var(--space-3)' }}>
           {keySaved ? (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--accent)' }}><Check size={16} aria-hidden /> {t('onboarding.engineKeySaved')}</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--accent-text)' }}><Check size={16} aria-hidden /> {t('onboarding.engineKeySaved')}</span>
           ) : (
             <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
               <input type="password" value={key} onChange={e => setKey(e.target.value)} placeholder={t('onboarding.engineKeyPlaceholder')} style={{ flex: 1, minWidth: 220 }} />

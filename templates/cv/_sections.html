@@ -98,7 +98,8 @@
       <div class="edu-field">{{ edu.field }}</div>
       <div class="edu-institution">{{ edu.institution }}</div>
       <div class="edu-year">
-        {{ edu.start_year }}–{{ edu.end_year }}{% if edu.distinction %} · {{ edu.distinction }}{% endif %}
+        {#- a cleared year is 0/None; never print "0–" on a CV -#}
+        {% if edu.start_year %}{{ edu.start_year }}{% endif %}{% if edu.start_year and edu.end_year %}–{% endif %}{% if edu.end_year %}{{ edu.end_year }}{% endif %}{% if edu.distinction %} · {{ edu.distinction }}{% endif %}
       </div>
       {% if edu.description %}<div class="edu-description">{{ edu.description }}</div>{% endif %}
     </div>

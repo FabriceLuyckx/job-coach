@@ -27,15 +27,15 @@ import { useToast } from '../components/Toast'
 import { useKeyStatus } from '../components/KeyStatus'
 import { errMsg } from '../lib/errors'
 import { useProfileAutosave } from '../lib/useProfileAutosave'
-import {
-  OPTIONAL_SECTIONS, OPTIONAL_BY_KEY,
-  BADGE_LABELS,
-} from '../lib/profileSections'
+import { OPTIONAL_SECTIONS, OPTIONAL_BY_KEY } from '../lib/profileSections'
 
-// Proficiency scale shown beneath the language stars (CEFR).
-const CEFR_LABELS: Record<number, string> = {
-  1: 'A1 Beginner', 2: 'A2 Elementary', 3: 'B1 Intermediate',
-  4: 'B2/C1 Advanced', 5: 'C2 Native / Fluent',
+// CEFR levels. The CODE is what gets stored on the profile — it's an
+// international standard, so it reads correctly on a CV in any language. The
+// English descriptor that used to be written here ("B2/C1 Advanced") is profile
+// *data* printed on the CV, so it leaked English onto Dutch CVs; the descriptor
+// is now UI-only and translated (`profile.skills.cefr.<n>`).
+const CEFR_CODES: Record<number, string> = {
+  1: 'A1', 2: 'A2', 3: 'B1', 4: 'B2/C1', 5: 'C2',
 }
 
 const LINK_SUGGESTIONS = ['LinkedIn', 'GitHub', 'Portfolio', 'Website', 'Google Scholar', 'Behance', 'Dribbble', 'ORCID']
@@ -87,7 +87,12 @@ function ExperienceCard({
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const set = (k: keyof Experience, v: unknown) => onChange({ ...exp, [k]: v })
-  const [current, setCurrent] = useState(!exp.end_date)
+  // Derived, not seeded state: `end_date === null` IS "currently here" per the
+  // schema. Held in useState it desynced from the row on reorder (index-keyed
+  // lists reuse instances by position), locking a finished role's End date.
+  // Note `''` is deliberately NOT current — that's "not finished typing yet",
+  // which is what unchecking the box writes.
+  const current = exp.end_date === null
 
   return (
     <ItemCard summary={`${exp.title || t('profile.untitled')} — ${exp.employer || '…'}`} open={open} setOpen={setOpen} onRemove={onRemove} handle={handle}>
@@ -104,7 +109,7 @@ function ExperienceCard({
         </Field>
       </div>
       <label className="checkbox-row">
-        <input type="checkbox" checked={current} onChange={e => { setCurrent(e.target.checked); set('end_date', e.target.checked ? null : '') }} />
+        <input type="checkbox" checked={current} onChange={e => set('end_date', e.target.checked ? null : '')} />
         {t('profile.currentlyWorkHere')}
       </label>
       <Field label={t('profile.fields.whatYouDid')}>
@@ -119,6 +124,7 @@ function ExperienceCard({
         }>
           <p className="section-help" style={{ margin: '0 0 var(--space-2)' }}>{t('profile.notesForAiHelp')}</p>
           <textarea value={exp.ai_notes} onChange={e => set('ai_notes', e.target.value)}
+            aria-label={t('profile.notesForAi')}
             placeholder={t('profile.aiNotesPlaceholder')} />
         </Collapsible>
       </div>
@@ -143,8 +149,10 @@ function EducationCard({ edu, onChange, onRemove, handle }: { edu: Education; on
         <Field label={t('profile.fields.location')}><input type="text" value={edu.location} onChange={e => set('location', e.target.value)} /></Field>
       </div>
       <div className="row">
-        <Field label={t('profile.fields.startYear')}><input type="number" value={edu.start_year} onChange={e => set('start_year', +e.target.value)} /></Field>
-        <Field label={t('profile.fields.endYear')}><input type="number" value={edu.end_year ?? ''} onChange={e => set('end_year', e.target.value ? +e.target.value : null)} /></Field>
+        <Field label={t('profile.fields.startYear')}>{/* `|| ''` so a cleared field shows blank, not the 0 that `+''` yields */}
+          <input type="number" min={1900} max={2100} value={edu.start_year ?? ''}
+            onChange={e => set('start_year', e.target.value ? +e.target.value : null)} /></Field>
+        <Field label={t('profile.fields.endYear')}><input type="number" min={1900} max={2100} value={edu.end_year ?? ''} onChange={e => set('end_year', e.target.value ? +e.target.value : null)} /></Field>
       </div>
       <Field label={t('profile.fields.distinctionOptional')}><input type="text" value={edu.distinction ?? ''} onChange={e => set('distinction', e.target.value || null)} /></Field>
       <Field label={t('profile.fields.educationDescriptionOptional')}>
@@ -201,7 +209,12 @@ function VolunteeringCard({ vol, onChange, onRemove, handle }: { vol: Volunteeri
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const set = (k: keyof Volunteering, v: unknown) => onChange({ ...vol, [k]: v })
-  const [current, setCurrent] = useState(!vol.end_date)
+  // Derived, not seeded state: `end_date === null` IS "currently here" per the
+  // schema. Held in useState it desynced from the row on reorder (index-keyed
+  // lists reuse instances by position), locking a finished role's End date.
+  // Note `''` is deliberately NOT current — that's "not finished typing yet",
+  // which is what unchecking the box writes.
+  const current = vol.end_date === null
   return (
     <ItemCard summary={`${vol.role || t('profile.fields.role')} — ${vol.organisation || '…'}`} open={open} setOpen={setOpen} onRemove={onRemove} handle={handle}>
       <div className="row">
@@ -213,7 +226,7 @@ function VolunteeringCard({ vol, onChange, onRemove, handle }: { vol: Volunteeri
         <Field label={t('profile.fields.endDate')}><input type="month" value={vol.end_date ?? ''} disabled={current} onChange={e => set('end_date', e.target.value || null)} /></Field>
       </div>
       <label className="checkbox-row">
-        <input type="checkbox" checked={current} onChange={e => { setCurrent(e.target.checked); set('end_date', e.target.checked ? null : '') }} />
+        <input type="checkbox" checked={current} onChange={e => set('end_date', e.target.checked ? null : '')} />
         {t('profile.currentlyVolunteering')}
       </label>
       <Field label={t('profile.fields.description')}><textarea value={vol.description} onChange={e => set('description', e.target.value)} /></Field>
@@ -315,12 +328,12 @@ function ImportCVModal({ hasContent, localEngine, onClose, onImported }: {
         </p>
       )}
       <div className="field">
-        <label>{t('profile.import.uploadPdf')}</label>
-        <input type="file" accept="application/pdf,.pdf" onChange={e => setFile(e.target.files?.[0] ?? null)} />
+        <label htmlFor="cv-import-file">{t('profile.import.uploadPdf')}</label>
+        <input id="cv-import-file" type="file" accept="application/pdf,.pdf" onChange={e => setFile(e.target.files?.[0] ?? null)} />
       </div>
       <div className="field">
-        <label>{t('profile.import.pasteText')}</label>
-        <textarea value={text} onChange={e => setText(e.target.value)} disabled={!!file}
+        <label htmlFor="cv-import-text">{t('profile.import.pasteText')}</label>
+        <textarea id="cv-import-text" value={text} onChange={e => setText(e.target.value)} disabled={!!file}
           style={{ minHeight: 160 }} placeholder={t('profile.import.pastePlaceholder')} />
       </div>
       {err && <p className="error-msg">{err}</p>}
@@ -370,7 +383,18 @@ export default function ProfilePage() {
   const pf: Profile = profile
   const enabled = new Set(pf.meta.enabled_sections ?? [])
   const hidden = OPTIONAL_SECTIONS.filter(s => !enabled.has(s.key))
-  const pristine = !pf.personal.name.trim() && pf.experience.length === 0
+  // "Pristine" must mean the profile is genuinely untouched, not just missing a
+  // name and a job. Judging it on those two alone sent anyone who started with
+  // Education/Skills/Languages back to the empty-state wall on reload, with the
+  // work they'd already done rendered nowhere — indistinguishable from data loss.
+  const pristine = !pf.personal.name.trim()
+    && !pf.personal.email?.trim()
+    && !pf.summary.trim()
+    && pf.experience.length === 0
+    && pf.education.length === 0
+    && pf.skills.languages.length === 0
+    && pf.skills.groups.every(g => g.items.length === 0)
+    && (pf.meta?.enabled_sections?.length ?? 0) === 0
   const showForm = !pristine || manualStart
 
   function onImported(p: Profile) {
@@ -420,7 +444,7 @@ export default function ProfilePage() {
     switch (key) {
       case 'projects':
         return (
-          <Section key={key} title={t(def.label)} badge="cv" count={projects.length} help={t('profile.help.projects')} {...hideProps}>
+          <Section key={key} title={t(def.label)} count={projects.length} help={t('profile.help.projects')} {...hideProps}>
             <ReorderableList items={projects} keyOf={(_, i) => i} onReorder={v => set('projects', v)}
               renderItem={(p, i, handle) => (
                 <ProjectCard proj={p} handle={handle}
@@ -432,7 +456,7 @@ export default function ProfilePage() {
         )
       case 'volunteering':
         return (
-          <Section key={key} title={t(def.label)} badge="cv" count={volunteering.length} help={t('profile.help.volunteering')} {...hideProps}>
+          <Section key={key} title={t(def.label)} count={volunteering.length} help={t('profile.help.volunteering')} {...hideProps}>
             <ReorderableList items={volunteering} keyOf={(_, i) => i} onReorder={v => set('volunteering', v)}
               renderItem={(v, i, handle) => (
                 <VolunteeringCard vol={v} handle={handle}
@@ -444,7 +468,7 @@ export default function ProfilePage() {
         )
       case 'certifications':
         return (
-          <Section key={key} title={t(def.label)} badge="cv" count={certifications.length} help={t('profile.help.certifications')} {...hideProps}>
+          <Section key={key} title={t(def.label)} count={certifications.length} help={t('profile.help.certifications')} {...hideProps}>
             {certifications.map((c, i) => (
               <div key={i} className="row" style={{ marginBottom: 'var(--space-2)', alignItems: 'flex-end' }}>
                 <Field label={t('profile.fields.name')}><input type="text" value={c.name} onChange={e => { const next = [...certifications]; next[i] = { ...c, name: e.target.value }; set('certifications', next) }} /></Field>
@@ -458,7 +482,7 @@ export default function ProfilePage() {
         )
       case 'courses':
         return (
-          <Section key={key} title={t(def.label)} badge="cv" count={courses.length} help={t('profile.help.courses')} {...hideProps}>
+          <Section key={key} title={t(def.label)} count={courses.length} help={t('profile.help.courses')} {...hideProps}>
             {courses.map((c, i) => (
               <div key={i} className="row" style={{ marginBottom: 'var(--space-2)', alignItems: 'flex-end' }}>
                 <Field label={t('profile.fields.courseTraining')}><input type="text" value={c.name} onChange={e => { const next = [...courses]; next[i] = { ...c, name: e.target.value }; set('courses', next) }} /></Field>
@@ -472,7 +496,7 @@ export default function ProfilePage() {
         )
       case 'awards':
         return (
-          <Section key={key} title={t(def.label)} badge="cv" count={awards.length} help={t('profile.help.awards')} {...hideProps}>
+          <Section key={key} title={t(def.label)} count={awards.length} help={t('profile.help.awards')} {...hideProps}>
             {awards.map((a, i) => (
               <div key={i} className="card" style={{ marginBottom: 'var(--space-2)', padding: '12px 18px' }}>
                 <div className="row" style={{ alignItems: 'flex-end' }}>
@@ -488,7 +512,7 @@ export default function ProfilePage() {
         )
       case 'memberships':
         return (
-          <Section key={key} title={t(def.label)} badge="cv" count={memberships.length} help={t('profile.help.memberships')} {...hideProps}>
+          <Section key={key} title={t(def.label)} count={memberships.length} help={t('profile.help.memberships')} {...hideProps}>
             {memberships.map((m, i) => (
               <div key={i} className="row" style={{ marginBottom: 'var(--space-2)', alignItems: 'flex-end' }}>
                 <Field label={t('profile.fields.organisation')}><input type="text" value={m.name} onChange={e => { const next = [...memberships]; next[i] = { ...m, name: e.target.value }; set('memberships', next) }} /></Field>
@@ -502,7 +526,7 @@ export default function ProfilePage() {
         )
       case 'publications':
         return (
-          <Section key={key} title={t(def.label)} badge="cv" count={pf.publications.length} help={t('profile.help.publications')} {...hideProps}>
+          <Section key={key} title={t(def.label)} count={pf.publications.length} help={t('profile.help.publications')} {...hideProps}>
             <ReorderableList items={pf.publications} keyOf={(_, i) => i} onReorder={v => set('publications', v)}
               renderItem={(pub, i, handle) => (
                 <PublicationCard pub={pub} handle={handle}
@@ -514,7 +538,7 @@ export default function ProfilePage() {
         )
       case 'grants':
         return (
-          <Section key={key} title={t(def.label)} badge="cv" count={pf.grants.length} help={t('profile.help.grants')} {...hideProps}>
+          <Section key={key} title={t(def.label)} count={pf.grants.length} help={t('profile.help.grants')} {...hideProps}>
             {pf.grants.map((g, i) => (
               <GrantCard key={i} grant={g}
                 onChange={u => { const next = [...pf.grants]; next[i] = u; set('grants', next) }}
@@ -526,7 +550,7 @@ export default function ProfilePage() {
       case 'teaching': {
         const entries = pf.teaching.entries
         return (
-          <Section key={key} title={t(def.label)} badge="cv" help={t('profile.help.teaching')} {...hideProps}>
+          <Section key={key} title={t(def.label)} help={t('profile.help.teaching')} {...hideProps}>
             {entries.map((te, i) => (
               <div key={i} className="card" style={{ marginBottom: 'var(--space-2)', position: 'relative', paddingRight: 'var(--space-8)' }}>
                 <div style={{ position: 'absolute', top: 'var(--space-2)', right: 'var(--space-2)' }}>
@@ -559,7 +583,7 @@ export default function ProfilePage() {
       }
       case 'custom_sections':
         return (
-          <Section key={key} title={t(def.label)} badge="cv" count={customSections.length} help={t('profile.help.customSections')} {...hideProps}>
+          <Section key={key} title={t(def.label)} count={customSections.length} help={t('profile.help.customSections')} {...hideProps}>
             {customSections.map((s, i) => (
               <CustomSectionCard key={i} sec={s}
                 onChange={u => { const next = [...customSections]; next[i] = u; set('custom_sections', next) }}
@@ -578,7 +602,7 @@ export default function ProfilePage() {
 
   return (
     <div>
-      <div className="page-head">
+      <div className="page-head page-head-sticky">
         <h1 className="page-title">{t('profile.title')}</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
           {showForm && (
@@ -629,7 +653,7 @@ export default function ProfilePage() {
       {showForm && (<>
       {/* ── CORE ── */}
 
-      <Section title={t('sections.personal.label')} badge="cv" help={t('profile.help.personal')} defaultOpen>
+      <Section title={t('sections.personal.label')} help={t('profile.help.personal')} defaultOpen>
         <div className="row">
           <Field label={t('profile.fields.fullName')}><input type="text" value={pf.personal.name} onChange={e => set('personal.name', e.target.value)} /></Field>
           <Field label={t('profile.fields.professionalTitle')}><input type="text" value={pf.personal.professional_title} onChange={e => set('personal.professional_title', e.target.value)} /></Field>
@@ -647,8 +671,12 @@ export default function ProfilePage() {
           <datalist id="link-labels">{LINK_SUGGESTIONS.map(s => <option key={s} value={s} />)}</datalist>
           {links.map((l, i) => (
             <div key={i} className="row" style={{ marginBottom: 'var(--space-2)', alignItems: 'center' }}>
-              <input type="text" list="link-labels" value={l.label} placeholder="LinkedIn" style={{ maxWidth: 200 }} onChange={e => setLink(i, { label: e.target.value })} />
-              <input type="url" value={l.url} placeholder="https://…" onChange={e => setLink(i, { url: e.target.value })} />
+              {/* Placeholders aren't accessible names, and the group label
+                  ("Links") can't disambiguate two fields per row × N rows. */}
+              <input type="text" list="link-labels" value={l.label} placeholder="LinkedIn" style={{ maxWidth: 200 }}
+                aria-label={t('profile.fields.linkLabel', { n: i + 1 })} onChange={e => setLink(i, { label: e.target.value })} />
+              <input type="url" value={l.url} placeholder="https://…"
+                aria-label={t('profile.fields.linkUrl', { n: i + 1 })} onChange={e => setLink(i, { url: e.target.value })} />
               <RemoveButton onClick={() => removeItem(l.label || t('profile.fields.links'), 'personal.links', links, i)} />
             </div>
           ))}
@@ -656,29 +684,34 @@ export default function ProfilePage() {
         </Field>
       </Section>
 
-      <Section title={t('sections.summary.label')} badge="cv" help={t('profile.help.summary')} defaultOpen>
+      <Section title={t('sections.summary.label')} help={t('profile.help.summary')} defaultOpen>
         <Field label={t('profile.fields.summary')}><textarea value={pf.summary} placeholder={t('profile.fields.summaryPlaceholder')} onChange={e => set('summary', e.target.value)} style={{ minHeight: 100 }} /></Field>
       </Section>
 
-      <Section title={t('sections.experience.label')} badge="cv" count={pf.experience.length} help={t('profile.help.experience')}>
+      <Section title={t('sections.experience.label')} count={pf.experience.length} help={t('profile.help.experience')}>
         <ReorderableList items={pf.experience} keyOf={(e, i) => e.id || i} onReorder={v => set('experience', v)}
           renderItem={(exp, i, handle) => (
             <ExperienceCard exp={exp} handle={handle}
               onChange={updated => { const next = [...pf.experience]; next[i] = updated; set('experience', next) }}
               onRemove={() => removeItem(exp.title || t('profile.fields.jobTitle'), 'experience', pf.experience, i)} />
           )} />
-        <Button variant="secondary" onClick={() => set('experience', [...pf.experience, {
+        {/* The one accent-weight action on the form: with no roles yet, this is
+            the single thing the user most needs to do next. Once there's at
+            least one, it steps back down to secondary. */}
+        <Button variant={pf.experience.length === 0 ? 'primary' : 'secondary'}
+          onClick={() => set('experience', [...pf.experience, {
           id: `job-${Date.now()}`, title: '', employer: '', location: '', start_date: '',
           end_date: null, responsibilities: [], technologies: [], ai_notes: '',
         }])}>{t('profile.add.job')}</Button>
       </Section>
 
-      <Section title={t('sections.skills.label')} badge="cv" help={t('profile.help.skills')}>
+      <Section title={t('sections.skills.label')} help={t('profile.help.skills')}>
         {pf.skills.groups.map((g, i) => (
           <div key={i} className="card" style={{ marginBottom: 'var(--space-3)', padding: '12px 18px' }}>
             <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
               <datalist id="skill-group-labels">{SKILL_GROUP_SUGGESTIONS.map(s => <option key={s} value={s} />)}</datalist>
-              <input type="text" list="skill-group-labels" value={g.label} placeholder={t('profile.skills.groupNamePlaceholder')} style={{ fontWeight: 600 }}
+              <input type="text" list="skill-group-labels" value={g.label} placeholder={t('profile.skills.groupNamePlaceholder')}
+                aria-label={t('profile.skills.groupNamePlaceholder')} style={{ fontWeight: 600 }}
                 onChange={e => { const next = [...pf.skills.groups]; next[i] = { ...g, label: e.target.value }; set('skills.groups', next) }} />
               <RemoveButton title={t('profile.skills.removeGroup')} onClick={() => removeItem(g.label || t('sections.skills.label'), 'skills.groups', pf.skills.groups, i)} />
             </div>
@@ -688,19 +721,23 @@ export default function ProfilePage() {
         <Button variant="secondary" onClick={() => set('skills.groups', [...pf.skills.groups, { label: '', items: [] }])}>{t('profile.add.skillGroup')}</Button>
       </Section>
 
-      <Section title={t('sections.languages.label')} badge="cv" count={pf.skills.languages.length} help={t('profile.help.languages')}>
+      <Section title={t('sections.languages.label')} count={pf.skills.languages.length} help={t('profile.help.languages')}>
         {pf.skills.languages.map((l, i) => (
           <div key={i} className="row" style={{ marginBottom: 'var(--space-2)', alignItems: 'center' }}>
-            <input type="text" value={l.language} placeholder={t('profile.skills.languagePlaceholder')} onChange={e => { const next = [...pf.skills.languages]; next[i] = { ...l, language: e.target.value }; set('skills.languages', next) }} />
-            <StarRating value={l.level} onChange={n => { const next = [...pf.skills.languages]; next[i] = { ...l, level: n, label: CEFR_LABELS[n] ?? '' }; set('skills.languages', next) }} />
+            <input type="text" value={l.language} placeholder={t('profile.skills.languagePlaceholder')}
+              aria-label={t('profile.skills.languagePlaceholder')} onChange={e => { const next = [...pf.skills.languages]; next[i] = { ...l, language: e.target.value }; set('skills.languages', next) }} />
+            <StarRating value={l.level}
+              groupLabel={t('profile.skills.proficiencyIn', { language: l.language || t('sections.languages.label') })}
+              labelFor={n => `${CEFR_CODES[n]} ${t(`profile.skills.cefr.${n}`)}`}
+              onChange={n => { const next = [...pf.skills.languages]; next[i] = { ...l, level: n, label: CEFR_CODES[n] ?? '' }; set('skills.languages', next) }} />
             <RemoveButton onClick={() => removeItem(l.language || t('sections.languages.label'), 'skills.languages', pf.skills.languages, i)} />
           </div>
         ))}
         <div className="skill-scale-legend">{t('profile.skills.scaleLegend')}</div>
-        <Button variant="secondary" onClick={() => set('skills.languages', [...pf.skills.languages, { language: '', level: 3, label: CEFR_LABELS[3] }])}>{t('profile.add.language')}</Button>
+        <Button variant="secondary" onClick={() => set('skills.languages', [...pf.skills.languages, { language: '', level: 3, label: CEFR_CODES[3] }])}>{t('profile.add.language')}</Button>
       </Section>
 
-      <Section title={t('sections.education.label')} badge="cv" count={pf.education.length} help={t('profile.help.education')}>
+      <Section title={t('sections.education.label')} count={pf.education.length} help={t('profile.help.education')}>
         <ReorderableList items={pf.education} keyOf={(_, i) => i} onReorder={v => set('education', v)}
           renderItem={(edu, i, handle) => (
             <EducationCard edu={edu} handle={handle}
@@ -727,7 +764,11 @@ export default function ProfilePage() {
                 <button key={s.key} type="button" onClick={() => showSection(s.key)}>
                   <span className="add-section-menu-head">
                     <span className="add-section-menu-label">{t(s.label)}</span>
-                    <Badge variant={s.badge}>{t(BADGE_LABELS[s.badge])}</Badge>
+                    {/* No CV badge here: every one of these ten rows carried an
+                        identical vermilion chip, which is decoration, not
+                        information — and ten accent blocks in a floating panel
+                        outrank the page's single primary action. The row's real
+                        differentiator is its description, below. */}
                     {hasData(s.key) && <span className="add-section-menu-hint">{t('profile.hasContent')}</span>}
                   </span>
                   <span className="add-section-menu-desc">{t(s.description)}</span>

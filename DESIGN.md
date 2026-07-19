@@ -10,6 +10,7 @@ colors:
   accent: "#C8401F"
   accent-hover: "#A83415"
   accent-soft: "#F5DFD5"
+  accent-text: "#AD3618"
   teal: "#2F6B66"
   teal-soft: "#DDEAE7"
   wall-teal: "#6B8F91"
@@ -120,10 +121,13 @@ A cream-and-ink print base, one warm accent, one cool counterpoint, and two narr
 semantic colors (mustard, deep red) that never get confused with the accent.
 
 ### Primary
-- **Vermilion** (`#C8401F`, hover `#A83415`, tint `#F5DFD5`): primary actions,
+- **Vermilion** (`#C8401F`, hover `#A83415`, tint `#F5DFD5`, text `#AD3618`): primary actions,
   the active nav tab's underline, star-rating fill, deadline chips, the numbered
   question blocks on Preferences. The one color allowed to feel urgent — used at low
-  frequency on purpose.
+  frequency on purpose. The base value is tuned as a **fill** (white on it is
+  4.99:1); as small text it fails AA on the cream grounds, so text uses of the
+  accent — links, the deadline chip, star fills — take `--accent-text`
+  (`#AD3618`, worst case 4.94:1). Fills keep `--accent`.
 
 ### Secondary
 - **Teal** (`#2F6B66`, tint `#DDEAE7`): the AI/success counterpoint — "AI" badges,

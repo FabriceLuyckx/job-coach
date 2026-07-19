@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Fabrice Luyckx
 
 import { useState, KeyboardEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   value: string[]
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function TagInput({ value, onChange, placeholder = 'Add and press Enter', maxLength }: Props) {
+  const { t } = useTranslation()
   const [draft, setDraft] = useState('')
 
   function add() {
@@ -37,7 +39,9 @@ export default function TagInput({ value, onChange, placeholder = 'Add and press
         {value.map((v) => (
           <span key={v} className="tag">
             {v}
-            <button type="button" onClick={() => onChange(value.filter(x => x !== v))}>×</button>
+            <button type="button" aria-label={t('common.removeNamed', { name: v })}
+              title={t('common.removeNamed', { name: v })}
+              onClick={() => onChange(value.filter(x => x !== v))}>×</button>
           </span>
         ))}
       </div>
@@ -51,7 +55,7 @@ export default function TagInput({ value, onChange, placeholder = 'Add and press
         maxLength={maxLength}
       />
       {maxLength && draft.length >= maxLength && (
-        <div className="field-hint">Keep skills short ({maxLength} characters max) so they fit the CV sidebar.</div>
+        <div className="field-hint">{t('common.tagLengthHint', { max: maxLength })}</div>
       )}
     </div>
   )

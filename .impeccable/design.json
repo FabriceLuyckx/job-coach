@@ -147,6 +147,12 @@
         "displayName": "Deep Red",
         "canonical": "oklch(35.6% 0.135 28)",
         "tonalRamp": []
+      },
+      "accent-text": {
+        "role": "primary",
+        "displayName": "Vermilion (text)",
+        "canonical": "oklch(47.8% 0.163 33)",
+        "tonalRamp": []
       }
     },
     "typographyMeta": {

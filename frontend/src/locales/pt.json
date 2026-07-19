@@ -18,7 +18,14 @@
     "close": "Fechar",
     "edit": "Editar",
     "download": "Transferir",
-    "unsavedChange": "alteração não guardada"
+    "unsavedChange": "alteração não guardada",
+    "proficiency": "Proficiência",
+    "nOfM": "{{n}} de {{max}}",
+    "reorderHint": "Arraste ou foque e use ↑ / ↓ para reorganizar",
+    "reorderItem": "Reorganizar o item {{n}} de {{total}}",
+    "add": "+ Adicionar",
+    "removeNamed": "Remover {{name}}",
+    "tagLengthHint": "Mantenha as habilidades curtas ({{max}} caracteres máximo) para que sejam compatíveis com a barra lateral do CV."
   },
   "onboarding": {
     "welcome": "Bem-vindo ao Job Coach",
@@ -245,7 +252,9 @@
       "educationDescriptionPlaceholder": "Tema de tese, especialização ou curso relevante para os cargos que pretende",
       "years": "Anos",
       "funderOptional": "Financiador (opcional)",
-      "amountOptional": "Valor (opcional)"
+      "amountOptional": "Valor (opcional)",
+      "linkLabel": "Link {{n}} nome",
+      "linkUrl": "Link {{n}} endereço"
     },
     "help": {
       "personal": "O seu nome, contactos e links — exibidos no topo de cada CV.",
@@ -288,7 +297,15 @@
       "removeGroup": "Remover grupo",
       "addSkillPlaceholder": "Adicione uma competência e pressione Enter",
       "languagePlaceholder": "Idioma",
-      "scaleLegend": "★ A1 Iniciante · ★★ A2 Básico · ★★★ B1 Intermediário · ★★★★ B2/C1 Avançado · ★★★★★ C2 Nativo/Fluente"
+      "scaleLegend": "★ A1 Iniciante · ★★ A2 Básico · ★★★ B1 Intermediário · ★★★★ B2/C1 Avançado · ★★★★★ C2 Nativo/Fluente",
+      "proficiencyIn": "Proficiência em {{language}}",
+      "cefr": {
+        "1": "Iniciante",
+        "2": "Elementar",
+        "3": "Intermediário",
+        "4": "Avançado",
+        "5": "Nativo / Fluente"
+      }
     },
     "work": {
       "remoteHybrid": "Remoto / híbrido / presencial",
@@ -324,7 +341,8 @@
         "supervision": "Supervisão",
         "other": "Outro"
       }
-    }
+    },
+    "saveFailedToast": "Não foi possível salvar seu perfil: {{error}}"
   },
   "preferences": {
     "title": "Preferências",

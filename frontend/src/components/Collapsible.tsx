@@ -15,6 +15,7 @@ import { ChevronRight } from 'lucide-react'
  */
 export default function Collapsible({
   title, extras, children, defaultOpen = false, open: controlledOpen, onToggle, flat = false,
+  headingLevel,
 }: {
   title: ReactNode
   extras?: ReactNode
@@ -25,6 +26,10 @@ export default function Collapsible({
   onToggle?: (open: boolean) => void
   /** Flat: no card chrome of its own (parent provides it). */
   flat?: boolean
+  /** Wrap the toggle in a heading so the page has a navigable outline. A heading
+   * can't go *inside* the button (invalid HTML), so it wraps it instead — the
+   * pattern screen readers expect for a disclosure that titles a region. */
+  headingLevel?: 2 | 3
 }) {
   const [innerOpen, setInnerOpen] = useState(defaultOpen)
   const open = controlledOpen ?? innerOpen
@@ -33,13 +38,20 @@ export default function Collapsible({
     if (controlledOpen === undefined) setInnerOpen(o => !o)
   }
 
+  const toggleBtn = (
+    <button type="button" className="collapsible-toggle" aria-expanded={open} onClick={toggle}>
+      <ChevronRight size={16} className={`collapsible-chevron${open ? ' open' : ''}`} aria-hidden />
+      {title}
+    </button>
+  )
+  const Heading = headingLevel === 3 ? 'h3' : 'h2'
+
   return (
     <div className={flat ? 'collapsible' : 'collapsible card'}>
       <div className="collapsible-header">
-        <button type="button" className="collapsible-toggle" aria-expanded={open} onClick={toggle}>
-          <ChevronRight size={16} className={`collapsible-chevron${open ? ' open' : ''}`} aria-hidden />
-          {title}
-        </button>
+        {headingLevel
+          ? <Heading className="collapsible-heading">{toggleBtn}</Heading>
+          : toggleBtn}
         {extras && <div className="collapsible-extras">{extras}</div>}
       </div>
       {open && <div className="collapsible-body">{children}</div>}

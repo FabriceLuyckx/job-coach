@@ -18,7 +18,14 @@
     "close": "Zamknij",
     "edit": "Edytuj",
     "download": "Pobierz",
-    "unsavedChange": "niezapisana zmiana"
+    "unsavedChange": "niezapisana zmiana",
+    "proficiency": "Poziom zaawansowania",
+    "nOfM": "{{n}} z {{max}}",
+    "reorderHint": "Przesuń, albo skup się i użyj ↑ / ↓ aby zmienić kolejność",
+    "reorderItem": "Przesuń element {{n}} z {{total}}",
+    "add": "+ Dodaj",
+    "removeNamed": "Usuń {{name}}",
+    "tagLengthHint": "Zachowuj umiejętności krótkie (maks. {{max}} znaków), aby pasowały do boku CV."
   },
   "onboarding": {
     "welcome": "Witaj w Job Coach",
@@ -245,7 +252,9 @@
       "educationDescriptionPlaceholder": "Temat pracy dyplomowej, specjalizacja lub program studiów istotny dla stanowisk, o które się ubiegasz",
       "years": "Lata",
       "funderOptional": "Fundator (opcjonalnie)",
-      "amountOptional": "Wartość (opcjonalnie)"
+      "amountOptional": "Wartość (opcjonalnie)",
+      "linkLabel": "Link {{n}} nazwy",
+      "linkUrl": "Link {{n}} adresu"
     },
     "help": {
       "personal": "Twoje imię i nazwisko, dane kontaktowe i linki — widoczne na górze każdego CV.",
@@ -288,7 +297,15 @@
       "removeGroup": "Usuń grupę",
       "addSkillPlaceholder": "Dodaj umiejętność i naciśnij Enter",
       "languagePlaceholder": "Język",
-      "scaleLegend": "★ A1 Początkujący · ★★ A2 Podstawowy · ★★★ B1 Średniozaawansowany · ★★★★ B2/C1 Zaawansowany · ★★★★★ C2 Ojczysty/Biegły"
+      "scaleLegend": "★ A1 Początkujący · ★★ A2 Podstawowy · ★★★ B1 Średniozaawansowany · ★★★★ B2/C1 Zaawansowany · ★★★★★ C2 Ojczysty/Biegły",
+      "proficiencyIn": "Poziom zaawansowania w {{language}}",
+      "cefr": {
+        "1": "Nowicjusz",
+        "2": "Elementarny",
+        "3": "Średnio zaawansowany",
+        "4": "Zaawansowany",
+        "5": "Najwyższy poziom / płynny"
+      }
     },
     "work": {
       "remoteHybrid": "Zdalnie / hybrydowo / stacjonarnie",
@@ -324,7 +341,8 @@
         "supervision": "Promotorstwo",
         "other": "Inne"
       }
-    }
+    },
+    "saveFailedToast": "Nie udało się zapisać profilu: {{error}}"
   },
   "preferences": {
     "title": "Preferencje",

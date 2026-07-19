@@ -26,6 +26,11 @@
   --accent:       #C8401F;   /* vermilion — primary actions, active nav */
   --accent-hover: #A83415;
   --accent-soft:  #F5DFD5;   /* accent tint backgrounds */
+  /* The accent as *text*. The brand vermilion is tuned as a fill (white on it
+     is 4.99:1), but as 13-14px text it fails AA on every cream ground it sits
+     on (--paper 4.33, --surface-dim 4.07). This darker cast clears all of them
+     (worst 4.94:1) while reading as the same colour. Fills keep --accent. */
+  --accent-text:  #AD3618;
   --teal:         #2F6B66;   /* the iris — secondary hue, AI/success family */
   --teal-soft:    #DDEAE7;
   --frame:        #6B8F91;   /* muted teal — the wall the poster hangs on (app shell) */
@@ -88,7 +93,7 @@ h1, h2, h3, .section-title, .page-title,
   letter-spacing: 0.02em;
 }
 
-a { color: var(--accent); text-decoration: none; }
+a { color: var(--accent-text); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 /* ── Buttons ────────────────────────────────────────────────────────────── */
@@ -183,6 +188,18 @@ input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--accent);
 }
+
+/* A 1px border colour change is a colour-only cue — too thin to find on a form
+   with sixty inputs, and invisible to anyone who can't distinguish it. Keyboard
+   focus gets a real ring everywhere (`:focus-visible` keeps it off mouse
+   clicks), sized so it reads against the cream grounds. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline-offset: 1px;  /* these already have a border; hug it */
+}
 textarea { resize: vertical; min-height: 80px; }
 
 label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display: block; margin-bottom: var(--space-1); }
@@ -242,7 +259,23 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   font-size: inherit;
   color: inherit;
 }
-.collapsible-toggle:hover { color: var(--accent); }
+.collapsible-toggle:hover { color: var(--accent-text); }
+/* Heading wrapper around a toggle: takes over the button's flex sizing and
+   contributes no typography of its own — `.collapsible-title` inside already
+   carries the uppercase/weight, so the heading must not double it. */
+/* Expanding a section near the top must not tuck its header under the sticky
+   save band. */
+.collapsible { scroll-margin-top: 100px; }
+
+.collapsible-heading {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  text-transform: none;
+}
+.collapsible-heading .collapsible-toggle { width: 100%; }
 .collapsible-chevron {
   color: var(--muted);
   flex-shrink: 0;
@@ -274,7 +307,7 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 .badge-jobs    { background: var(--ink); color: var(--paper); }
 .badge-lang    { background: transparent; color: var(--ink); border: 1px solid var(--border); }
 .badge-neutral { background: transparent; color: var(--muted); border: 1px solid color-mix(in srgb, var(--ink) 45%, transparent); }
-.badge-deadline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.badge-deadline { background: transparent; color: var(--accent-text); border: 1px solid var(--accent-text); }
 
 /* ── Preferences questionnaire ──────────────────────────────────────────── */
 /* Numbered question card: ink number block + bold question, poster-style. */
@@ -389,7 +422,7 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   opacity: 0.45;
   transition: color 0.1s, opacity 0.1s;
 }
-.star.on { color: var(--accent); opacity: 1; }
+.star.on { color: var(--accent-text); opacity: 1; }
 .star:hover { color: var(--accent-hover); opacity: 1; }
 
 .skill-scale-legend { font-size: var(--fs-sm); color: var(--muted); margin: 2px 0 var(--space-3); }

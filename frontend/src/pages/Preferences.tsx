@@ -77,7 +77,7 @@ export default function PreferencesPage() {
 
   return (
     <div>
-      <div className="page-head">
+      <div className="page-head page-head-sticky">
         <h1 className="page-title">{t('preferences.title')}</h1>
         <span className="muted-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }} role="status">
           {(saveState === 'pending' || saveState === 'saving') && <><span className="spinner" style={{ width: 13, height: 13 }} />{t('profile.saving')}</>}

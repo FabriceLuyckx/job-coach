@@ -18,7 +18,14 @@
     "close": "Schließen",
     "edit": "Bearbeiten",
     "download": "Herunterladen",
-    "unsavedChange": "nicht gespeicherte Änderung"
+    "unsavedChange": "nicht gespeicherte Änderung",
+    "proficiency": "Proficiency",
+    "nOfM": "{{n}} von {{max}}",
+    "reorderHint": "Ziehen oder Fokus setzen und ↑ / ↓ verwenden, um zu reorden",
+    "reorderItem": "Element {{n}} von {{total}} verschieben",
+    "add": "+ Hinzufügen",
+    "removeNamed": "Entfernen {{name}}",
+    "tagLengthHint": "Halte Fähigkeiten kurz (max. {{max}} Zeichen), damit sie in der CV-Seite passen."
   },
   "onboarding": {
     "welcome": "Willkommen bei Job Coach",
@@ -245,7 +252,9 @@
       "educationDescriptionPlaceholder": "Thesen-Thema, Spezialisierung oder Kursinhalte, die relevant sind für die Jobs, die Sie suchen",
       "years": "Jahre",
       "funderOptional": "Finanzierer (optional)",
-      "amountOptional": "Betrag (optional)"
+      "amountOptional": "Betrag (optional)",
+      "linkLabel": "Link {{n}} Name",
+      "linkUrl": "Link {{n}} Adresse"
     },
     "help": {
       "personal": "Ihr Name, Kontaktdaten und Links – erscheinen oben auf jedem Lebenslauf.",
@@ -288,7 +297,15 @@
       "removeGroup": "Gruppe entfernen",
       "addSkillPlaceholder": "Fähigkeit eingeben und Enter drücken",
       "languagePlaceholder": "Sprache",
-      "scaleLegend": "★ A1 Anfänger · ★★ A2 Grundkenntnisse · ★★★ B1 Mittelstufe · ★★★★ B2/C1 Fortgeschritten · ★★★★★ C2 Muttersprache/Fließend"
+      "scaleLegend": "★ A1 Anfänger · ★★ A2 Grundkenntnisse · ★★★ B1 Mittelstufe · ★★★★ B2/C1 Fortgeschritten · ★★★★★ C2 Muttersprache/Fließend",
+      "proficiencyIn": "Proficiency in {{language}}",
+      "cefr": {
+        "1": "Anfänger",
+        "2": "Elementar",
+        "3": "Fortgeschritten",
+        "4": "Fortgeschritten",
+        "5": "Heimisch / Fließend"
+      }
     },
     "work": {
       "remoteHybrid": "Remote / Hybrid / Vor Ort",
@@ -324,7 +341,8 @@
         "supervision": "Betreuung",
         "other": "Andere"
       }
-    }
+    },
+    "saveFailedToast": "Dein Profil konnte nicht gespeichert werden: {{error}}"
   },
   "preferences": {
     "title": "Präferenzen",

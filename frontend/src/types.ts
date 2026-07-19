@@ -41,7 +41,9 @@ export interface Education {
   field: string
   institution: string
   location: string
-  start_year: number
+  /** null = not filled in. Mirrors end_year; writing 0 for "cleared"
+   * put a year that predates the calendar into the profile and the AI prompt. */
+  start_year: number | null
   end_year: number | null
   distinction: string | null
   /** Optional — thesis topic, specialisation, or relevant coursework. */

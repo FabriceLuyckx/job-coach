@@ -101,4 +101,18 @@
   margin-bottom: var(--space-6);
 }
 .page-head .page-title { margin-bottom: 0; }
+
+/* For pages that autosave with no Save button (Profile, Preferences): the save
+   status has to stay legible while editing, not scroll away with the title on a
+   page thousands of pixels tall.
+   `top: var(--space-4)` rather than 0, matching `.scan-status` — pinning to 0
+   puts the band flush against the browser chrome with the teal wall either
+   side of it, which reads as breaking out of the cream sheet. */
+.page-head-sticky {
+  position: sticky;
+  top: var(--space-4);
+  z-index: 5;
+  background: var(--paper);
+  padding-bottom: var(--space-3);
+}
 .page-head-actions { display: flex; align-items: center; gap: var(--space-3); }

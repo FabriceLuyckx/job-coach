@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Fabrice Luyckx
 
 import { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { GripVertical } from 'lucide-react'
 import Button from './Button'
 import RemoveButton from './RemoveButton'
@@ -17,6 +18,7 @@ interface Props {
 
 export default function BulletListEditor({ value, onChange, placeholder = 'Add item…', reorder = false, format = false, max }: Props) {
   const inputs = useRef<(HTMLInputElement | null)[]>([])
+  const { t } = useTranslation()
   const [dragIdx, setDragIdx] = useState<number | null>(null)
   const [dropAt, setDropAt] = useState<number | null>(null)  // insertion index 0..length
 
@@ -67,7 +69,7 @@ export default function BulletListEditor({ value, onChange, placeholder = 'Add i
   const line = '2px solid var(--accent)'
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <div data-bullet-root style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       {value.map((item, i) => (
         <div
           key={i}
@@ -81,14 +83,35 @@ export default function BulletListEditor({ value, onChange, placeholder = 'Add i
           }}
         >
           {reorder && (
-            <span
+            /* A button, not a draggable span: these bullets are the CV's
+               actual content, so their order must be reachable by keyboard. */
+            <button
+              type="button"
               draggable
               onDragStart={e => { setDragIdx(i); e.dataTransfer.effectAllowed = 'move' }}
               onDragEnd={() => { setDragIdx(null); setDropAt(null) }}
-              title="Drag to reorder"
-              aria-label="Drag to reorder"
-              style={{ cursor: 'grab', color: 'var(--muted)', flexShrink: 0, padding: '0 2px', userSelect: 'none', display: 'inline-flex' }}
-            ><GripVertical size={15} aria-hidden /></span>
+              onKeyDown={e => {
+                const dir = e.key === 'ArrowUp' ? -1 : e.key === 'ArrowDown' ? 1 : 0
+                if (!dir) return
+                e.preventDefault()
+                const to = i + dir
+                if (to < 0 || to >= value.length) return
+                moveTo(i, dir < 0 ? to : to + 1)
+                // Focus has to travel with the bullet. These rows are keyed by
+                // index, so without this the ring stays on position `i` — which
+                // now holds the item that was just swapped past — and the next
+                // press moves that one back: the two ping-pong and the item the
+                // user meant to move never goes anywhere.
+                const root = e.currentTarget.closest('[data-bullet-root]')
+                requestAnimationFrame(() => {
+                  root?.querySelectorAll<HTMLButtonElement>(':scope > div > [data-bullet-handle]')[to]?.focus()
+                })
+              }}
+              data-bullet-handle
+              title={t('common.reorderHint')}
+              aria-label={t('common.reorderItem', { n: i + 1, total: value.length })}
+              style={{ cursor: 'grab', color: 'var(--muted)', flexShrink: 0, padding: '0 2px', userSelect: 'none', display: 'inline-flex', background: 'none', border: 'none' }}
+            ><GripVertical size={15} aria-hidden /></button>
           )}
           <input
             ref={el => { inputs.current[i] = el }}
@@ -102,7 +125,7 @@ export default function BulletListEditor({ value, onChange, placeholder = 'Add i
         </div>
       ))}
       {(max === undefined || value.length < max) && (
-        <Button variant="secondary" style={{ alignSelf: 'flex-start' }} onClick={add}>+ Add</Button>
+        <Button variant="secondary" style={{ alignSelf: 'flex-start' }} onClick={add}>{t('common.add')}</Button>
       )}
     </div>
   )

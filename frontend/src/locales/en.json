@@ -53,7 +53,14 @@
     "close": "Close",
     "edit": "Edit",
     "download": "Download",
-    "unsavedChange": "unsaved change"
+    "unsavedChange": "unsaved change",
+    "proficiency": "Proficiency",
+    "nOfM": "{{n}} of {{max}}",
+    "reorderHint": "Drag, or focus and use ↑ / ↓ to reorder",
+    "reorderItem": "Reorder item {{n}} of {{total}}",
+    "add": "+ Add",
+    "removeNamed": "Remove {{name}}",
+    "tagLengthHint": "Keep skills short ({{max}} characters max) so they fit the CV sidebar."
   },
   "onboarding": {
     "welcome": "Welcome to Job Coach",
@@ -280,7 +287,9 @@
       "sectionTitle": "Section title",
       "heading": "Heading",
       "subheading": "Subheading (optional)",
-      "dateOptional": "Date (optional)"
+      "dateOptional": "Date (optional)",
+      "linkLabel": "Link {{n}} name",
+      "linkUrl": "Link {{n}} address"
     },
     "help": {
       "personal": "Your name, contact details and links — shown at the top of every CV.",
@@ -323,7 +332,15 @@
       "removeGroup": "Remove group",
       "addSkillPlaceholder": "Add a skill and press Enter",
       "languagePlaceholder": "Language",
-      "scaleLegend": "★ A1 Beginner · ★★ A2 Elementary · ★★★ B1 Intermediate · ★★★★ B2/C1 Advanced · ★★★★★ C2 Native/Fluent"
+      "scaleLegend": "★ A1 Beginner · ★★ A2 Elementary · ★★★ B1 Intermediate · ★★★★ B2/C1 Advanced · ★★★★★ C2 Native/Fluent",
+      "proficiencyIn": "Proficiency in {{language}}",
+      "cefr": {
+        "1": "Beginner",
+        "2": "Elementary",
+        "3": "Intermediate",
+        "4": "Advanced",
+        "5": "Native / Fluent"
+      }
     },
     "teaching": {
       "type": "Type",
@@ -359,7 +376,8 @@
       "chooseError": "Paste your CV text or choose a PDF.",
       "importing": "Importing…",
       "importBtn": "Import"
-    }
+    },
+    "saveFailedToast": "Couldn't save your profile: {{error}}"
   },
   "preferences": {
     "title": "Preferences",

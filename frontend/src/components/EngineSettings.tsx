@@ -120,7 +120,7 @@ export default function EngineSettings({ provider, onProviderChange }: {
 
           {model?.downloaded && !busy ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--accent)' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--accent-text)' }}>
                 <CheckCircle2 size={16} aria-hidden /> {t('engine.local.ready')}
               </span>
               <Button variant="ghost" className="btn-icon-danger" onClick={remove}>

@@ -3,6 +3,7 @@
 
 import { useState } from 'react'
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { GripVertical } from 'lucide-react'
 
 /**
@@ -19,6 +20,7 @@ export default function ReorderableList<T>({
   /** Render the item; place `handle` wherever the drag grip should appear. */
   renderItem: (item: T, index: number, handle: ReactNode) => ReactNode
 }) {
+  const { t } = useTranslation()
   const [dragIdx, setDragIdx] = useState<number | null>(null)
   const [dropAt, setDropAt] = useState<number | null>(null) // insertion index 0..length
 
@@ -43,17 +45,41 @@ export default function ReorderableList<T>({
   const line = '2px solid var(--accent)'
 
   return (
-    <>
+    <div data-reorder-root>
       {items.map((item, i) => {
+        // A real <button>, not a draggable <span>: dragging is mouse-only, and
+        // this list orders CV content (roles, bullets, education), so a keyboard
+        // user could otherwise never change it. Arrow keys move the item and
+        // focus follows it.
         const handle = (
-          <span
+          <button
+            type="button"
             draggable
             onDragStart={e => { setDragIdx(i); e.dataTransfer.effectAllowed = 'move' }}
             onDragEnd={() => { setDragIdx(null); setDropAt(null) }}
-            title="Drag to reorder"
-            aria-label="Drag to reorder"
-            style={{ cursor: 'grab', color: 'var(--muted)', flexShrink: 0, display: 'inline-flex', userSelect: 'none' }}
-          ><GripVertical size={15} aria-hidden /></span>
+            onKeyDown={e => {
+              const dir = e.key === 'ArrowUp' ? -1 : e.key === 'ArrowDown' ? 1 : 0
+              if (!dir) return
+              e.preventDefault()
+              const to = i + dir
+              if (to < 0 || to >= items.length) return
+              moveTo(i, dir < 0 ? to : to + 1)
+              // Keep focus on the handle of the item we just moved.
+              const el = e.currentTarget
+              requestAnimationFrame(() => {
+                // `:scope >` — a plain descendant query would also match the
+                // handles of any nested list (a BulletListEditor inside an
+                // ExperienceCard inside this list) and focus the wrong item.
+                const all = el.closest('[data-reorder-root]')?.querySelectorAll<HTMLButtonElement>(':scope > div [data-reorder-handle]')
+                all?.[to]?.focus()
+              })
+            }}
+            data-reorder-handle
+            title={t('common.reorderHint')}
+            aria-label={t('common.reorderItem', { n: i + 1, total: items.length })}
+            style={{ cursor: 'grab', color: 'var(--muted)', flexShrink: 0, display: 'inline-flex',
+              userSelect: 'none', background: 'none', border: 'none', padding: 2 }}
+          ><GripVertical size={15} aria-hidden /></button>
         )
         return (
           <div
@@ -70,6 +96,6 @@ export default function ReorderableList<T>({
           </div>
         )
       })}
-    </>
+    </div>
   )
 }

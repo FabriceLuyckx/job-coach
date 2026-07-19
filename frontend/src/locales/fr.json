@@ -18,7 +18,14 @@
     "close": "Fermer",
     "edit": "Modifier",
     "download": "Télécharger",
-    "unsavedChange": "modification non enregistrée"
+    "unsavedChange": "modification non enregistrée",
+    "proficiency": "Compétence",
+    "nOfM": "{{n}} de {{max}}",
+    "reorderHint": "Glisser, ou focuser et utiliser ↑ / ↓ pour réorganiser",
+    "reorderItem": "Réorganiser l'élément {{n}} sur {{total}}",
+    "add": "+ Ajouter",
+    "removeNamed": "Supprimer {{name}}",
+    "tagLengthHint": "Faites rester vos compétences courtes ({{max}} caractères maximum) pour qu'elles s'adaptent à la barre latérale du CV."
   },
   "onboarding": {
     "welcome": "Bienvenue sur Job Coach",
@@ -245,7 +252,9 @@
       "educationDescriptionPlaceholder": "Sujet de mémoire, spécialisation ou cours pertinent pour les postes que vous souhaitez",
       "years": "Années",
       "funderOptional": "Financier (optionnel)",
-      "amountOptional": "Montant (optionnel)"
+      "amountOptional": "Montant (optionnel)",
+      "linkLabel": "Lier le nom {{n}}",
+      "linkUrl": "Lier l'adresse {{n}}"
     },
     "help": {
       "personal": "Votre nom, coordonnées et liens — affichés en haut de chaque CV.",
@@ -288,7 +297,15 @@
       "removeGroup": "Supprimer le groupe",
       "addSkillPlaceholder": "Ajoutez une compétence et appuyez sur Entrée",
       "languagePlaceholder": "Langue",
-      "scaleLegend": "★ A1 Débutant · ★★ A2 Élémentaire · ★★★ B1 Intermédiaire · ★★★★ B2/C1 Avancé · ★★★★★ C2 Natif/Courant"
+      "scaleLegend": "★ A1 Débutant · ★★ A2 Élémentaire · ★★★ B1 Intermédiaire · ★★★★ B2/C1 Avancé · ★★★★★ C2 Natif/Courant",
+      "proficiencyIn": "Compétence en {{language}}",
+      "cefr": {
+        "1": "Débutant",
+        "2": "Élémentaire",
+        "3": "Intermédiaire",
+        "4": "Avancé",
+        "5": "Natif / Fluent"
+      }
     },
     "work": {
       "remoteHybrid": "Télétravail / hybride / présentiel",
@@ -324,7 +341,8 @@
         "supervision": "Encadrement",
         "other": "Autre"
       }
-    }
+    },
+    "saveFailedToast": "Impossible de sauvegarder votre profil : {{error}}"
   },
   "preferences": {
     "title": "Préférences",

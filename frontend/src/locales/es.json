@@ -18,7 +18,14 @@
     "close": "Cerrar",
     "edit": "Editar",
     "download": "Descargar",
-    "unsavedChange": "cambio sin guardar"
+    "unsavedChange": "cambio sin guardar",
+    "proficiency": "Proficiencia",
+    "nOfM": "{{n}} de {{max}}",
+    "reorderHint": "Arrastrar, o enfocar y usar ↑ / ↓ para reordenar",
+    "reorderItem": "Reordenar el elemento {{n}} de {{total}}",
+    "add": "+ Añadir",
+    "removeNamed": "Eliminar {{name}}",
+    "tagLengthHint": "Mantén las habilidades cortas ({{max}} caracteres máximo) para que encajen en el panel lateral del CV."
   },
   "onboarding": {
     "welcome": "Bienvenido a Job Coach",
@@ -245,7 +252,9 @@
       "educationDescriptionPlaceholder": "Tema de tesis, especialización o asignatura relevante para los empleos que buscas",
       "years": "Años",
       "funderOptional": "Financiador (opcional)",
-      "amountOptional": "Importe (opcional)"
+      "amountOptional": "Importe (opcional)",
+      "linkLabel": "Enlazar el nombre {{n}}",
+      "linkUrl": "Enlazar la dirección {{n}}"
     },
     "help": {
       "personal": "Tu nombre, datos de contacto y enlaces — se muestran en la parte superior de cada CV.",
@@ -288,7 +297,15 @@
       "removeGroup": "Eliminar grupo",
       "addSkillPlaceholder": "Añade una habilidad y pulsa Intro",
       "languagePlaceholder": "Idioma",
-      "scaleLegend": "★ A1 Principiante · ★★ A2 Elemental · ★★★ B1 Intermedio · ★★★★ B2/C1 Avanzado · ★★★★★ C2 Nativo/Fluido"
+      "scaleLegend": "★ A1 Principiante · ★★ A2 Elemental · ★★★ B1 Intermedio · ★★★★ B2/C1 Avanzado · ★★★★★ C2 Nativo/Fluido",
+      "proficiencyIn": "Proficiencia en {{language}}",
+      "cefr": {
+        "1": "Principiante",
+        "2": "Elemental",
+        "3": "Intermedio",
+        "4": "Avanzado",
+        "5": "Nativo / Fluent"
+      }
     },
     "work": {
       "remoteHybrid": "Remoto / híbrido / presencial",
@@ -324,7 +341,8 @@
         "supervision": "Supervisión",
         "other": "Otro"
       }
-    }
+    },
+    "saveFailedToast": "No se pudo guardar tu perfil: {{error}}"
   },
   "preferences": {
     "title": "Preferencias",

@@ -18,7 +18,14 @@
     "close": "Sluiten",
     "edit": "Bewerken",
     "download": "Downloaden",
-    "unsavedChange": "niet-opgeslagen wijziging"
+    "unsavedChange": "niet-opgeslagen wijziging",
+    "proficiency": "Vaardigheid",
+    "nOfM": "{{n}} van {{max}}",
+    "reorderHint": "Sleep, of focus en gebruik ↑ / ↓ om te herordenen",
+    "reorderItem": "Herordenen item {{n}} van {{total}}",
+    "add": "+ Voeg toe",
+    "removeNamed": "Verwijder {{name}}",
+    "tagLengthHint": "Houd vaardigheden kort (max {{max}} tekens) zodat ze passen in de CV sidebar."
   },
   "onboarding": {
     "welcome": "Welkom bij Job Coach",
@@ -245,7 +252,9 @@
       "educationDescriptionPlaceholder": "Thesisonderwerp, specialisatie of cursus die relevant zijn voor de functies die je wilt",
       "years": "Periode",
       "funderOptional": "Financier (optioneel)",
-      "amountOptional": "Bedrag (optioneel)"
+      "amountOptional": "Bedrag (optioneel)",
+      "linkLabel": "Koppel {{n}} naam",
+      "linkUrl": "Koppel {{n}} adres"
     },
     "help": {
       "personal": "Je naam, contactgegevens en links — weergegeven bovenaan elk cv.",
@@ -288,7 +297,15 @@
       "removeGroup": "Groep verwijderen",
       "addSkillPlaceholder": "Voeg een vaardigheid toe en druk op Enter",
       "languagePlaceholder": "Taal",
-      "scaleLegend": "★ A1 Beginner · ★★ A2 Elementair · ★★★ B1 Gemiddeld · ★★★★ B2/C1 Gevorderd · ★★★★★ C2 Moedertaal/Vloeiend"
+      "scaleLegend": "★ A1 Beginner · ★★ A2 Elementair · ★★★ B1 Gemiddeld · ★★★★ B2/C1 Gevorderd · ★★★★★ C2 Moedertaal/Vloeiend",
+      "proficiencyIn": "Vaardigheid in {{language}}",
+      "cefr": {
+        "1": "Beginner",
+        "2": "Elementair",
+        "3": "Gemiddeld",
+        "4": "Geavanceerd",
+        "5": "Natuurlijk / Gevoelig"
+      }
     },
     "work": {
       "remoteHybrid": "Op afstand / hybride / op locatie",
@@ -324,7 +341,8 @@
         "supervision": "Begeleiding",
         "other": "Anders"
       }
-    }
+    },
+    "saveFailedToast": "Profiel kon niet opgeslagen worden: {{error}}"
   },
   "preferences": {
     "title": "Voorkeuren",
