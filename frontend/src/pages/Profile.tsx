@@ -603,7 +603,7 @@ export default function ProfilePage() {
 
   return (
     <div>
-      <div className="page-head page-head-sticky">
+      <div className="page-head">
         <h1 className="page-title">{t('profile.title')}</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
           {showForm && (
@@ -617,9 +617,8 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Kept directly after the sticky head so `.page-head-sticky + .help-text`
-          still matches; the modal renders as an overlay, so its DOM position
-          below is immaterial. */}
+      {/* Directly under the head; the modal renders as an overlay, so its DOM
+          position below is immaterial. */}
       <p className="help-text">{t('profile.autoSaveNote')}</p>
       {showImport && <ImportCVModal hasContent={!pristine} localEngine={provider === 'local'} onClose={() => setShowImport(false)} onImported={onImported} />}
 

@@ -127,7 +127,7 @@ export default function PreferencesPage() {
 
   return (
     <div>
-      <div className="page-head page-head-sticky">
+      <div className="page-head">
         <h1 className="page-title">{t('preferences.title')}</h1>
         <SaveStatus state={saveState} error={saveError} onRetry={runSave} />
       </div>
