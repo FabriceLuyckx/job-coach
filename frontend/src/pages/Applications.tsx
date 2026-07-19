@@ -2,10 +2,11 @@
 // Copyright (C) 2026 Fabrice Luyckx
 
 import { useState, useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { Trans, useTranslation } from 'react-i18next'
 import { Check, ExternalLink, FileText, Minus, Plus, X } from 'lucide-react'
 import { api, pollCVJob, PollAbortedError, type CvHistoryEntry, type CVResult, type CVMutation } from '../api'
-import type { LetterHistoryEntry } from '../types'
+import type { LetterHistoryEntry, Profile } from '../types'
 import Button from '../components/Button'
 import Collapsible from '../components/Collapsible'
 import Modal from '../components/Modal'
@@ -19,6 +20,7 @@ import RemoveButton from '../components/RemoveButton'
 import { useToast } from '../components/Toast'
 import { useKeyStatus } from '../components/KeyStatus'
 import { handoff } from '../lib/handoff'
+import { GENERIC_URL, genericMissing } from '../lib/generic'
 import { errMsg } from '../lib/errors'
 import { formatDate } from '../lib/format'
 
@@ -34,6 +36,9 @@ interface Application {
   createdAt: string
   cv: CvHistoryEntry | null
   letter: LetterHistoryEntry | null
+  /** The untargeted application: no posting, generated from the profile's
+   *  preferences. Pinned above the list and never filtered out. */
+  generic?: boolean
 }
 
 const urlKey = (url: string | null) => (url && url.trim() ? `url:${url}` : null)
@@ -72,6 +77,14 @@ function mergeApplications(cvs: CvHistoryEntry[], letters: LetterHistoryEntry[])
   return apps.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 }
 
+/** Split the generic application out of the merged list: it's pinned, so it
+ *  takes part in neither the date sort nor the search filter. */
+function splitGeneric(apps: Application[]): { generic: Application | null; rest: Application[] } {
+  const generic = apps.find(a => a.jobUrl === GENERIC_URL) ?? null
+  if (generic) generic.generic = true
+  return { generic, rest: apps.filter(a => a !== generic) }
+}
+
 // ─── Generation helpers (start a job, poll to a history entry) ────────────────
 
 async function pollCvToEntry(jobId: string, onStage: (s: string) => void, signal?: AbortSignal): Promise<CvHistoryEntry> {
@@ -82,13 +95,15 @@ async function pollCvToEntry(jobId: string, onStage: (s: string) => void, signal
     summary: res.summary, has_plan: res.has_plan, created_at: new Date().toISOString(),
   }
 }
-async function runCV(url: string, lang: string, onStage: (s: string) => void, signal?: AbortSignal, onJobId?: (id: string) => void): Promise<CvHistoryEntry> {
-  const { job_id } = await api.startGenerateCV(url, lang)
+// The generic application has no URL to send: the server builds its brief from
+// the profile, so it gets its own start call — everything after is identical.
+async function runCV(url: string, lang: string | undefined, onStage: (s: string) => void, signal?: AbortSignal, onJobId?: (id: string) => void): Promise<CvHistoryEntry> {
+  const { job_id } = url === GENERIC_URL ? await api.generateGenericCV(lang) : await api.startGenerateCV(url, lang ?? 'en')
   onJobId?.(job_id)
   return pollCvToEntry(job_id, onStage, signal)
 }
-async function runLetter(url: string, lang: string, onStage: (s: string) => void, signal?: AbortSignal, onJobId?: (id: string) => void): Promise<LetterHistoryEntry> {
-  const { job_id } = await api.generateLetter(url, lang)
+async function runLetter(url: string, lang: string | undefined, onStage: (s: string) => void, signal?: AbortSignal, onJobId?: (id: string) => void): Promise<LetterHistoryEntry> {
+  const { job_id } = url === GENERIC_URL ? await api.generateGenericLetter(lang) : await api.generateLetter(url, lang ?? 'en')
   onJobId?.(job_id)
   return pollCVJob<LetterHistoryEntry>(job_id, s => onStage(s), signal)
 }
@@ -282,6 +297,8 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
   initialExpanded: boolean
 }) {
   const { t } = useTranslation()
+  // The generic application has no posting to name, so it borrows a fixed label.
+  const title = app.generic ? t('applications.generic.title') : app.jobTitle
   const [expanded, setExpanded] = useState(initialExpanded || expandedRows.has(app.key))
   const [cv, setCv] = useState(app.cv)
   const [letter, setLetter] = useState(app.letter)
@@ -305,7 +322,11 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
   const [pendingLang, setPendingLang] = useState<string | null>(null)
 
   const cvResult: CVResult | null = cv && {
-    history_id: cv.id, slug: cv.slug, job_title: cv.job_title, employer: cv.employer,
+    history_id: cv.id, slug: cv.slug,
+    // The generic application has no real job title — the AI's guess ("Data
+    // Scientist / …") must not leak into the editor header either.
+    job_title: app.generic ? title : cv.job_title,
+    employer: app.generic ? '' : cv.employer,
     tailoring_notes: cv.tailoring_notes ?? '', summary: cv.summary ?? '',
     preview_url: `/api/cv/preview/${cv.slug}/${cv.lang}`, job_url: cv.job_url ?? '',
     lang: cv.lang, has_plan: cv.has_plan,
@@ -449,19 +470,22 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
           flat open={expanded} onToggle={toggleExpanded}
           title={
             <span className="collapsible-title-sm" style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {app.jobTitle}
-              <span style={{ color: 'var(--muted)', marginLeft: 6, fontWeight: 400 }}>@ {app.employer}</span>
+              {title}
+              {app.generic
+                // No employer to name — say what it's aimed at instead.
+                ? <span style={{ color: 'var(--muted)', marginLeft: 6, fontWeight: 400 }}>{t('applications.generic.subtitle')}</span>
+                : <span style={{ color: 'var(--muted)', marginLeft: 6, fontWeight: 400 }}>@ {app.employer}</span>}
             </span>
           }
           extras={
             <>
               <span className="muted-sm" style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{formatDate(app.createdAt)}</span>
-              {app.jobUrl && (
+              {app.jobUrl && !app.generic && (
                 <a href={app.jobUrl} target="_blank" rel="noreferrer" style={{ fontSize: 'var(--fs-sm)', whiteSpace: 'nowrap' }}>
                   {t('cv.listing')} <ExternalLink size={11} aria-hidden />
                 </a>
               )}
-              <Button variant="ghost" icon className="btn-icon-danger" aria-label={t('applications.deleteApp', { title: app.jobTitle })} title={t('common.delete')}
+              <Button variant="ghost" icon className="btn-icon-danger" aria-label={t('applications.deleteApp', { title })} title={t('common.delete')}
                 onClick={() => onDeleteApp(app)}><X size={16} aria-hidden /></Button>
             </>
           }
@@ -516,6 +540,104 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
   )
 }
 
+// ─── Generic application (pinned, user-triggered) ─────────────────────────────
+
+/** Shown in place of the pinned row until a generic application exists: what it
+ *  is + the trigger, or what's still missing from the profile. */
+function GenericCreateCard({ profile, onCvGenerated, onLetterGenerated, onRunningChange }: {
+  profile: Profile | null
+  onCvGenerated: (e: CvHistoryEntry) => void
+  onLetterGenerated: (e: LetterHistoryEntry) => void
+  /** Keeps this card mounted until BOTH artifacts land: the CV finishes first,
+   *  and swapping to the finished row here would erase the letter's progress. */
+  onRunningChange: (running: boolean) => void
+}) {
+  const { t } = useTranslation()
+  const [running, setRunning] = useState(false)
+  // One click builds both artifacts, so each reports its own progress — a single
+  // shared stage line hid the fact that a letter was being generated at all.
+  const [cvStage, setCvStage] = useState('')
+  const [letterStage, setLetterStage] = useState('')
+  const [cvDone, setCvDone] = useState(false)
+  const [letterDone, setLetterDone] = useState(false)
+  const [error, setError] = useState('')
+  const cancelRef = useRef<(() => void) | null>(null)
+
+  const missing = genericMissing(profile)
+
+  async function create() {
+    const c = makeCanceller()
+    cancelRef.current = c.cancel
+    setRunning(true); onRunningChange(true); setError('')
+    setCvStage(''); setLetterStage(''); setCvDone(false); setLetterDone(false)
+    const stage = (s: string) => t(`cv.stage.${s}`, s)
+    // Both artifacts in parallel — the pair IS the generic application.
+    const results = await Promise.allSettled([
+      runCV(GENERIC_URL, undefined, s => setCvStage(stage(s)), c.signal, c.track)
+        .then(e => { onCvGenerated(e); setCvDone(true) }),
+      runLetter(GENERIC_URL, undefined, s => setLetterStage(stage(s)), c.signal, c.track)
+        .then(e => { onLetterGenerated(e); setLetterDone(true) }),
+    ])
+    const failed = results.find(r => r.status === 'rejected'
+      && !(r.reason instanceof PollAbortedError)) as PromiseRejectedResult | undefined
+    if (failed) setError(errMsg(failed.reason))
+    setRunning(false); onRunningChange(false); cancelRef.current = null
+  }
+
+  function progressLine(label: string, stage: string, done: boolean) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--fs-sm)' }}>
+        {done ? <Check size={15} aria-hidden /> : <span className="spinner" />}
+        <strong>{label}</strong>
+        <span className="muted-sm">{done ? t('applications.artifactDone') : (stage || t('cv.starting'))}</span>
+      </div>
+    )
+  }
+
+  return (
+    <div className="card" style={{ marginBottom: 'var(--space-2)' }}>
+      <h2 className="section-title" style={{ margin: '0 0 var(--space-2)' }}>{t('applications.generic.title')}</h2>
+      <p className="help-text">{t('applications.generic.explainer')}</p>
+
+      {missing.length > 0 ? (
+        /* --highlight (mustard), DESIGN.md's nudge role: this is "not ready yet",
+           not an error. */
+        <p className="muted-sm" style={{ margin: 0, color: 'var(--highlight)', fontWeight: 500 }}>
+          {t('applications.generic.needs')}{' '}
+          {missing.map((m, i) => (
+            <span key={m}>
+              {i > 0 && t('applications.generic.and')}
+              <Link to={m === 'target_roles' ? '/preferences' : '/profile'}>
+                {t(`applications.generic.missing.${m}`)}
+              </Link>
+            </span>
+          ))}
+        </p>
+      ) : (
+        <div>
+          <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center', flexWrap: 'wrap' }}>
+            <Button variant="secondary" onClick={create} busy={running}>
+              {t('applications.generic.create')}
+            </Button>
+            {running && (
+              <Button variant="ghost" onClick={() => cancelRef.current?.()}>{t('common.cancel')}</Button>
+            )}
+          </div>
+          {running && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 'var(--space-3)' }}
+              role="status" aria-live="polite">
+              {progressLine(t('applications.cvTab'), cvStage, cvDone)}
+              {progressLine(t('applications.letterTab'), letterStage, letterDone)}
+              <span className="muted-sm">{t('applications.slowLocalHint')}</span>
+            </div>
+          )}
+        </div>
+      )}
+      {error && <p className="error-msg" style={{ marginBottom: 0 }}>{error}</p>}
+    </div>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ApplicationsPage() {
@@ -524,6 +646,8 @@ export default function ApplicationsPage() {
   const [cvHistory, setCvHistory] = useState<CvHistoryEntry[]>([])
   const [letterHistory, setLetterHistory] = useState<LetterHistoryEntry[]>([])
   const [hasPhoto, setHasPhoto] = useState(false)
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [genericRunning, setGenericRunning] = useState(false)
   const [showNew, setShowNew] = useState(false)
   const [pending, setPending] = useState<Pending | null>(null)
   const [openKey, setOpenKey] = useState<string | null>(null)
@@ -533,6 +657,8 @@ export default function ApplicationsPage() {
   function load() {
     setLoadError('')
     api.getPhoto().then(r => setHasPhoto(r.exists)).catch(() => {})
+    // Only for the generic application's readiness gate; the server re-checks.
+    api.getProfile().then(setProfile).catch(() => {})
     const openUrl = handoff.takeOpenUrl()
     if (openUrl) setOpenKey(urlKey(openUrl))
     Promise.all([api.getCVHistory(), api.getLetterHistory()])
@@ -598,7 +724,9 @@ export default function ApplicationsPage() {
     const cv = app.cv, letter = app.letter
     if (cv) { setCvHistory(h => h.filter(e => e.id !== cv.id)); scheduleDelete('cv', cv.id) }
     if (letter) { setLetterHistory(h => h.filter(e => e.id !== letter.id)); scheduleDelete('letter', letter.id) }
-    toast.info(t('applications.deletedToast', { title: app.jobTitle }), {
+    // The generic row is labelled by the fixed i18n title everywhere; the stored
+    // job_title is only the model's guess and must not resurface in the toast.
+    toast.info(t('applications.deletedToast', { title: app.generic ? t('applications.generic.title') : app.jobTitle }), {
       duration: 5000,
       action: {
         label: t('cv.undo'),
@@ -613,7 +741,7 @@ export default function ApplicationsPage() {
   function deleteLetter(letter: LetterHistoryEntry) {
     setLetterHistory(h => h.filter(e => e.id !== letter.id))
     scheduleDelete('letter', letter.id)
-    toast.info(t('letters.deletedToast', { title: letter.job_title }), {
+    toast.info(t('letters.deletedToast', { title: letter.job_url === GENERIC_URL ? t('applications.generic.title') : letter.job_title }), {
       duration: 5000,
       action: {
         label: t('cv.undo'),
@@ -622,7 +750,7 @@ export default function ApplicationsPage() {
     })
   }
 
-  const apps = mergeApplications(cvHistory, letterHistory)
+  const { generic, rest: apps } = splitGeneric(mergeApplications(cvHistory, letterHistory))
   const q = query.trim().toLowerCase()
   const visible = q ? apps.filter(a => `${a.jobTitle} ${a.employer}`.toLowerCase().includes(q)) : apps
   const slotOpen = showNew || pending !== null
@@ -658,7 +786,24 @@ export default function ApplicationsPage() {
         />
       )}
 
-      {!slotOpen && visible.length === 0 && !loadError && (
+      {generic && !genericRunning ? (
+        <div style={{ marginBottom: 'var(--space-2)' }}>
+          <ApplicationRow
+            app={generic}
+            hasPhoto={hasPhoto}
+            onDeleteApp={deleteApp}
+            onDeleteLetter={deleteLetter}
+            onCvGenerated={addCv}
+            onLetterGenerated={addLetter}
+            initialExpanded={generic.key === openKey}
+          />
+        </div>
+      ) : (
+        <GenericCreateCard profile={profile} onCvGenerated={addCv} onLetterGenerated={addLetter}
+          onRunningChange={setGenericRunning} />
+      )}
+
+      {!slotOpen && !generic && visible.length === 0 && !loadError && (
         <EmptyState
           icon={FileText}
           title={t('applications.emptyTitle')}

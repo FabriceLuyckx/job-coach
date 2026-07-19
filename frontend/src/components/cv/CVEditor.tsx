@@ -264,7 +264,9 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-4)', flexWrap: 'wrap', marginBottom: 'var(--space-4)' }}>
         <span style={{ fontWeight: 700, fontSize: 'var(--fs-lg)' }}>{result.job_title}</span>
         <span style={{ color: 'var(--muted)', fontSize: 'var(--fs-md)' }}>{result.employer}</span>
-        {result.job_url && (
+        {/* Only web URLs are worth linking — the generic application's sentinel
+            job_url (generic:profile) would render as a dead link. */}
+        {result.job_url.startsWith('http') && (
           <a href={result.job_url} target="_blank" rel="noreferrer" style={{ fontSize: 'var(--fs-sm)' }}>
             {t('cveditor.viewListing')} <ExternalLink size={11} aria-hidden />
           </a>

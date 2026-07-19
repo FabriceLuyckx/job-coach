@@ -624,7 +624,7 @@
     "sectionsTitle": "Seções",
     "aiLeftOut": "Omitido pela IA",
     "restoreTip": "Coloque esta secção de volta no CV",
-    "emphasisedSkills": "Habilidades destacadas",
+    "emphasisedSkills": "Habilidades destacadas pelo IA",
     "saving": "A guardar…",
     "saved": "Guardado",
     "saveError": "Não foi possível guardar",
@@ -691,7 +691,19 @@
     "tabMissing": "{{name}} — ainda não criado",
     "changeLangTitle": "Mudar o idioma?",
     "changeLangBody": "Isso regenera o guia de carta de apresentação em <b>{{lang}}</b> e substitui o atual, e reajusta seu CV (suas edições são mantidas).",
-    "changeLangConfirm": "Mudar o idioma"
+    "changeLangConfirm": "Mudar o idioma",
+    "generic": {
+      "title": "Aplicação Geral",
+      "subtitle": "sem lista específica",
+      "explainer": "Um guia para currículo e carta de apresentação voltado para as funções que você está buscando, quando não tiver um anúncio específico — abordagem de rede, especulativa ou algo para distribuir. Um clique gera ambos.",
+      "create": "Criar aplicação geral",
+      "needs": "Para criar isso, primeiro adicione ",
+      "and": " e ",
+      "missing": {
+        "target_roles": "as funções que você está almejando",
+        "experience": "pelo menos uma função em sua experiência profissional"
+      }
+    }
   },
   "letters": {
     "title": "Carta de apresentação",

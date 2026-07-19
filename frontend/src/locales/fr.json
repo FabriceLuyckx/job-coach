@@ -624,7 +624,7 @@
     "sectionsTitle": "Sections",
     "aiLeftOut": "Omis par l'IA",
     "restoreTip": "Remettre cette section sur le CV",
-    "emphasisedSkills": "Compétences soulignées",
+    "emphasisedSkills": "Compétences soulignées par l'IA",
     "saving": "Enregistrement en cours…",
     "saved": "Enregistré",
     "saveError": "Impossible d'enregistrer",
@@ -691,7 +691,19 @@
     "tabMissing": "{{name}} — pas encore créé",
     "changeLangTitle": "Changer la langue ?",
     "changeLangBody": "Cela régénère le guide de lettre de motivation en <b>{{lang}}</b> et remplace le fichier actuel, et réadapte votre CV (vos modifications sont conservées).",
-    "changeLangConfirm": "Changer la langue"
+    "changeLangConfirm": "Changer la langue",
+    "generic": {
+      "title": "Application générique",
+      "subtitle": "pas de listing spécifique",
+      "explainer": "Un guide de CV et de lettre de motivation ciblé selon les postes que vous visez, dans le cas où vous n'avez pas de listing précis — approche réseau, démarche spéculative ou document à distribuer. Un clic suffit à créer les deux documents.",
+      "create": "Créer une application générique",
+      "needs": "Pour créer cela, ajoutez d'abord ",
+      "and": " et ",
+      "missing": {
+        "target_roles": "les postes que vous ciblez",
+        "experience": "au moins un poste dans votre parcours professionnel"
+      }
+    }
   },
   "letters": {
     "title": "Lettre de motivation",

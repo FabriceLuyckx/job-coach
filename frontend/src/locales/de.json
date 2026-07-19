@@ -624,7 +624,7 @@
     "sectionsTitle": "Abschnitte",
     "aiLeftOut": "Von der KI ausgelassen",
     "restoreTip": "Diesen Abschnitt wieder im Lebenslauf anzeigen",
-    "emphasisedSkills": "Hervorgehobene Fähigkeiten",
+    "emphasisedSkills": "Fähigkeiten, die vom AI hervorgehoben wurden",
     "saving": "Speichere…",
     "saved": "Gespeichert",
     "saveError": "Speichern fehlgeschlagen",
@@ -691,7 +691,19 @@
     "tabMissing": "{{name}} — noch nicht erstellt",
     "changeLangTitle": "Sprache ändern?",
     "changeLangBody": "Dies regeneriert die Lebenslaufanleitung in <b>{{lang}}</b> und ersetzt die aktuelle, und passt Ihren Lebenslauf neu an (Ihre Änderungen werden beibehalten).",
-    "changeLangConfirm": "Sprache ändern"
+    "changeLangConfirm": "Sprache ändern",
+    "generic": {
+      "title": "Allgemeine Bewerbung",
+      "subtitle": "keine spezifische Aufstellung",
+      "explainer": "Ein Leitfaden für Lebenslauf und Zusage, der auf die Stellen abgestimmt ist, für die Sie keine konkrete Stellenausschreibung haben — zum Netzwerken, spekulativen Ansatz oder zum Ausgeben. Ein Klick erstellt beide.",
+      "create": "Allgemeine Bewerbung erstellen",
+      "needs": "Um dies zu erstellen, fügen Sie zuerst ",
+      "and": " und ",
+      "missing": {
+        "target_roles": "die Stellen, die Sie ansprechen möchten",
+        "experience": "mindestens eine Rolle aus Ihrer Berufsgeschichte"
+      }
+    }
   },
   "letters": {
     "title": "Brief",

@@ -201,6 +201,17 @@ export const api = {
       body: JSON.stringify({ url }),
     }),
 
+  // Generic (untargeted) application — no URL: the server builds a role brief
+  // from the profile's preferences. 400s when the profile isn't ready. Omitting
+  // lang lets the server use the app's own language (there's no posting to
+  // detect one from); JSON.stringify drops the undefined key.
+  generateGenericCV: (lang?: string) =>
+    request<{ job_id: string }>('/cv/generic', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lang }),
+    }),
+
   getCVHistory: () => request<CvHistoryEntry[]>('/cv/history'),
 
   deleteCVHistory: (id: string) =>
@@ -248,6 +259,12 @@ export const api = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url, lang }),
+    }),
+  generateGenericLetter: (lang?: string) =>
+    request<{ job_id: string }>('/letters/generic', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lang }),
     }),
   getLetterHistory: () => request<LetterHistoryEntry[]>('/letters/history'),
   deleteLetter: (id: string) =>

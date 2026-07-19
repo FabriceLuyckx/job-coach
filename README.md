@@ -381,6 +381,16 @@ time without either editor getting cluttered; if a row has only one of the two, 
 other tab offers to create it. Accepting a job on the **Job Suggestions** page drops a
 fully-built application here in the posting's detected language.
 
+**No listing yet? Use the general application.** Pinned at the top of the page is a
+**general application** — a CV and cover-letter guide aimed at the roles you're
+targeting rather than at one posting, for networking, speculative approaches, or just
+having something to hand out. It is only built when you click **Create general
+application**, and only once your profile can aim it: you need at least one target role
+(**Preferences**) and one role in your work history (**Profile**). Until then the card
+tells you what's missing and links you there. Once created it behaves like any other
+application — same editor, language selector, PDF, and delete. Regenerating it picks up
+your latest preferences.
+
 **Language is one setting for the whole application.** A single **Language** selector
 sits above the tabs — change it and both the CV and the letter are re-generated in the
 new language (your CV edits are preserved). There is no separate language control inside

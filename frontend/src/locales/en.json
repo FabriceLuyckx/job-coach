@@ -41,7 +41,19 @@
     "emptyBody": "Paste a job listing URL and the AI builds a tailored CV and a cover-letter writing guide for it — ready to preview, edit, and download.",
     "searchPlaceholder": "Search your applications…",
     "noMatches": "No applications match your search.",
-    "loadError": "Couldn't load your applications: {{error}}"
+    "loadError": "Couldn't load your applications: {{error}}",
+    "generic": {
+      "title": "Generic Application",
+      "subtitle": "no specific listing",
+      "explainer": "A CV and cover-letter guide aimed at the roles you're after, for when you have no particular listing in hand — networking, a speculative approach, or something to hand out. One click builds both.",
+      "create": "Create generic application",
+      "needs": "To build this, first add ",
+      "and": " and ",
+      "missing": {
+        "target_roles": "the roles you're targeting",
+        "experience": "at least one role in your work history"
+      }
+    }
   },
   "common": {
     "loading": "Loading…",
@@ -649,7 +661,7 @@
     "sectionsShownCount": "{{shown}} of {{total}} shown",
     "aiLeftOut": "AI left out",
     "restoreTip": "Put this section back on the CV",
-    "emphasisedSkills": "Emphasised skills",
+    "emphasisedSkills": "Skills the AI emphasised",
     "photoDisabled": "The <b>Photo</b> section is disabled because no photo is on file. ",
     "addPhotoLink": "Add a photo in Settings",
     "addPhotoSuffix": "to enable it.",

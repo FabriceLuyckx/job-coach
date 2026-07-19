@@ -624,7 +624,7 @@
     "sectionsTitle": "Secties",
     "aiLeftOut": "Door AI weggelaten",
     "restoreTip": "Plaats deze sectie terug op het CV",
-    "emphasisedSkills": "Gewaardeerde vaardigheden",
+    "emphasisedSkills": "Vaardigheden die de AI benadrukt",
     "saving": "Bewaren…",
     "saved": "Opgeslagen",
     "saveError": "Kan niet opslaan",
@@ -691,7 +691,19 @@
     "tabMissing": "{{name}} — nog niet gemaakt",
     "changeLangTitle": "Taal wijzigen?",
     "changeLangBody": "Dit hermaakt de handleiding voor het sollicitatiebrief in <b>{{lang}}</b> en vervangt de huidige, en herpast je CV (je bewerkingen worden behouden).",
-    "changeLangConfirm": "Taal wijzigen"
+    "changeLangConfirm": "Taal wijzigen",
+    "generic": {
+      "title": "Algemene aanvraag",
+      "subtitle": "geen specifieke opgave",
+      "explainer": "Een handleiding voor CV en brief gericht op de functies die je zoekt, wanneer je geen specifieke opgave hebt — netwerken, een speculatieve aanpak of iets om uit te handelen. Één klik maakt zowel CV als brief.",
+      "create": "Algemene aanvraag aanmaken",
+      "needs": "Om dit te bouwen, voeg eerst toe ",
+      "and": " en ",
+      "missing": {
+        "target_roles": "de functies die je doelstelling hebt",
+        "experience": "minstens één functie uit je werkgeschiedenis"
+      }
+    }
   },
   "letters": {
     "title": "Brief",

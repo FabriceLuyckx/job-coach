@@ -292,7 +292,9 @@ POST /api/cv/detect-lang       Detect a posting's language (ISO 639-1) from its 
 GET  /api/cv/history           Return all generated CVs, newest first
 GET  /api/cv/preview/{slug}    Return CV HTML for browser preview
 GET  /api/cv/pdf/{slug}/{lang} Render CV to a real PDF (headless Chromium) for download
+POST /api/cv/generic           Async: untargeted CV from the profile's role brief (no fetch); 400 if the profile isn't ready
 POST /api/letters/generate     Async: posting URL → cover-letter writing guide (poll via /api/cv/status/{job_id})
+POST /api/letters/generic      Async: untargeted cover-letter guide from the same role brief
 GET  /api/letters/history      Generated guides, newest first (guide JSON parsed)
 DELETE /api/letters/history/{id} Delete a guide
 GET  /api/backup/export        Download a .zip of user data (config sans secrets, profile, photo, jobs.db, output)
@@ -339,7 +341,35 @@ URL is language-detected (`POST /api/cv/detect-lang` → `detect_language()` in
 jobs already carry their server-detected language. The **New** slot generates CV and/or
 letter (checkboxes, both default on), polled independently. Handoff from Jobs lands here
 via the `application_pending` localStorage key. Old `/cv` and `/letters` routes redirect
-here. Every long generation (create, New slot, language change) shows a **Cancel** that
+here.
+
+The **generic application** is pinned above every listing row: an untargeted CV +
+cover-letter guide for when there is no posting in hand. It is **user-triggered**,
+never auto-created, and gated on profile readiness — `profile_ready()` requires at
+least one `preferences.target_roles` entry and one `experience` entry (enforced
+server-side; the client mirrors it in `frontend/src/lib/generic.ts` only to avoid
+offering a button that would 400). It reuses the entire pipeline by swapping the
+fetched posting for `role_brief(profile)` (`cv_renderer.py`) — a posting-shaped
+plain-text brief synthesized from the preferences — passed as the `job_text` that
+`tailor()` and `build_guide()` already accept. Its rows are stored under the
+reserved `job_url` sentinel `GENERIC_URL = "generic:profile"` (not an http(s) URL,
+so no scanned listing can collide and a stray fetch fails loudly), which keeps the
+URL join, history, editor, relang, PDF and delete paths completely unchanged.
+`_retailor` and `letters._cached_posting_text` each carry one guard: for the
+sentinel they rebuild the brief from the **current** profile instead of fetching,
+so a regenerate picks up preference edits. Its language defaults to the app's own
+`app_language` (there is no posting to detect one from) — the client omits `lang`
+and `generic_lang()` resolves it server-side; after creation the row's normal
+language control takes over. One click builds **both** artifacts in parallel, and
+the create card stays mounted with a per-artifact progress line until both land —
+the CV finishes first, and swapping to the finished row at that moment erased the
+letter's progress entirely (fixed 2026-07-19). Its stored `job_title` is whatever
+the model guessed from the brief, so the UI overrides it with the i18n label
+`applications.generic.title` in both the row header and the CV editor. Only one
+generic application exists at a time; it is excluded from the search filter and the
+date sort.
+
+Every long generation (create, New slot, language change) shows a **Cancel** that
 both aborts the client poll and calls `POST /api/cv/cancel/{job_id}` to **interrupt the
 engine** — the local provider serializes all AI behind one lock, so a runaway generation
 would otherwise block every feature. Cancellation plumbing: a per-job `threading.Event`

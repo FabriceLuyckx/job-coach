@@ -624,7 +624,7 @@
     "sectionsTitle": "Sezioni",
     "aiLeftOut": "Escluso dall'IA",
     "restoreTip": "Ripristina questa sezione sul CV",
-    "emphasisedSkills": "Competenze evidenziate",
+    "emphasisedSkills": "Competenze evidenziate dall'AI",
     "saving": "Salvataggio in corso…",
     "saved": "Salvato",
     "saveError": "Impossibile salvare",
@@ -691,7 +691,19 @@
     "tabMissing": "{{name}} — non creato ancora",
     "changeLangTitle": "Cambiare lingua?",
     "changeLangBody": "Questo ricrea il modello della lettera di presentazione in <b>{{lang}}</b> e sostituisce quello attuale, e riadatta il tuo CV (le tue modifiche vengono conservate).",
-    "changeLangConfirm": "Cambiare lingua"
+    "changeLangConfirm": "Cambiare lingua",
+    "generic": {
+      "title": "Applicazione generica",
+      "subtitle": "nessun elenco specifico",
+      "explainer": "Una guida per CV e lettera di presentazione mirata alle posizioni che stai cercando, in caso di assenza di un elenco specifico — approccio speculativo, networking o semplicemente qualcosa da distribuire. Basta un clic per creare entrambi.",
+      "create": "Crea applicazione generica",
+      "needs": "Per creare questo, aggiungi prima ",
+      "and": " e ",
+      "missing": {
+        "target_roles": "le posizioni che stai mirando",
+        "experience": "almeno un'esperienza nel tuo percorso professionale"
+      }
+    }
   },
   "letters": {
     "title": "Lettera di presentazione",

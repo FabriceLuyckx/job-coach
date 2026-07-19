@@ -624,7 +624,7 @@
     "sectionsTitle": "Sekcje",
     "aiLeftOut": "AI pominął",
     "restoreTip": "Wstaw tę sekcję do CV",
-    "emphasisedSkills": "Wyróżnione umiejętności",
+    "emphasisedSkills": "Umiejętności, które podkreślił AI",
     "saving": "Zapisywanie…",
     "saved": "Zapisane",
     "saveError": "Nie można zapisać",
@@ -691,7 +691,19 @@
     "tabMissing": "{{name}} — jeszcze nie utworzony",
     "changeLangTitle": "Zmienić język?",
     "changeLangBody": "To regeneruje przewodnik do listy zatrudnienia w <b>{{lang}}</b> i zastępuje obecny, a Twoje edycje zostają zachowane.",
-    "changeLangConfirm": "Zmienić język"
+    "changeLangConfirm": "Zmienić język",
+    "generic": {
+      "title": "Zastosowanie ogólnego",
+      "subtitle": "brak konkretnego wpisu",
+      "explainer": "Przewodnik po CV i listach zatrudnienia skierowanych do stanowisk, które interesują Cię, gdy nie masz konkretnego wpisu — networking, podejście speculacyjne, lub coś, co możesz rozdać. Jedno kliknięcie tworzy oba dokumenty.",
+      "create": "Utwórz zastosowanie ogólną",
+      "needs": "Aby stworzyć to, najpierw dodaj ",
+      "and": " i ",
+      "missing": {
+        "target_roles": "role, które chcesz osiągnąć",
+        "experience": "przynajmniej jedno stanowisko w historii zawodowej"
+      }
+    }
   },
   "letters": {
     "title": "List motywacyjny",

@@ -16,9 +16,9 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from app import config, db
-from app.api.cv import _clean_lang, run_async
+from app.api.cv import _clean_lang, generic_lang, require_ready_profile, run_async
 from app.i18n.languages import is_valid_code
-from app.services.cv_renderer import load_profile
+from app.services.cv_renderer import GENERIC_URL, load_profile, role_brief
 from app.services.letter_guide import DEFAULT_LETTER_PROMPT, build_guide
 
 router = APIRouter(prefix="/api/letters", tags=["letters"])
@@ -33,8 +33,12 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _cached_posting_text(url: str) -> str | None:
-    """Reuse a scan's cached posting text so a URL from a scan isn't re-scraped."""
+def _cached_posting_text(url: str, profile: dict) -> str | None:
+    """The posting text to reuse instead of fetching: the generic application's
+    synthesized role brief (never fetchable), else a scan's cached posting so a
+    URL from a scan isn't re-scraped."""
+    if url == GENERIC_URL:
+        return role_brief(profile)
     with db.get_db() as conn:
         row = conn.execute(
             "SELECT posting_text FROM job_openings WHERE url = ? AND posting_text IS NOT NULL",
@@ -56,7 +60,7 @@ def start_letter_generation(url: str, lang: str) -> str:
 
     def work(set_stage):
         profile = load_profile()
-        job_text = _cached_posting_text(url)
+        job_text = _cached_posting_text(url, profile)
         if job_text is None:
             set_stage("fetching")
         set_stage("thinking")
@@ -83,6 +87,18 @@ def start_letter_generation(url: str, lang: str) -> str:
 @router.post("/generate")
 def generate_letter(body: GenerateRequest):
     return {"job_id": start_letter_generation(body.url, body.lang)}
+
+
+class GenericRequest(BaseModel):
+    lang: str | None = None  # omitted ⇒ the app's own language (see cv.generic_lang)
+
+
+@router.post("/generic")
+def generate_generic_letter(body: GenericRequest):
+    """Guide for the untargeted application — built from the profile's role
+    brief instead of a posting (no employer to name, no fetch)."""
+    require_ready_profile()
+    return {"job_id": start_letter_generation(GENERIC_URL, generic_lang(body.lang))}
 
 
 @router.get("/history")

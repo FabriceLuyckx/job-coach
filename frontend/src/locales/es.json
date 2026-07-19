@@ -624,7 +624,7 @@
     "sectionsTitle": "Secciones",
     "aiLeftOut": "La IA omitió",
     "restoreTip": "Colocar esta sección de nuevo en el CV",
-    "emphasisedSkills": "Habilidades destacadas",
+    "emphasisedSkills": "Habilidades destacadas por la IA",
     "saving": "Guardando…",
     "saved": "Guardado",
     "saveError": "No se pudo guardar",
@@ -691,7 +691,19 @@
     "tabMissing": "{{name}} — aún no creado",
     "changeLangTitle": "Cambiar el idioma?",
     "changeLangBody": "Esto regenera la guía de carta de presentación en <b>{{lang}}</b> y reemplaza la actual, y reajusta tu CV (sus ediciones se mantienen).",
-    "changeLangConfirm": "Cambiar el idioma"
+    "changeLangConfirm": "Cambiar el idioma",
+    "generic": {
+      "title": "Solicitud genérica",
+      "subtitle": "sin lista específica",
+      "explainer": "Una guía de CV y carta de presentación dirigida a los puestos que estás buscando, cuando no tienes una lista específica en mano — para redes, un enfoque especulativo o algo que poder entregar. Un clic crea ambos.",
+      "create": "Crear solicitud genérica",
+      "needs": "Para crear esto, primero añade ",
+      "and": " y ",
+      "missing": {
+        "target_roles": "los puestos que estás buscando",
+        "experience": "al menos un puesto en tu historial laboral"
+      }
+    }
   },
   "letters": {
     "title": "Carta de presentación",

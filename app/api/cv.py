@@ -23,8 +23,8 @@ from app.services.cv_generator import (
 from app.api.i18n import ensure_cv_labels
 from app.i18n.languages import is_valid_code, lang_name
 from app.services.cv_renderer import (
-    OUTPUT_DIR, PROFILE_PATH, build_env, cv_labels, list_templates, load_photo, load_profile,
-    profile_for_tailoring,
+    GENERIC_URL, OUTPUT_DIR, PROFILE_PATH, build_env, cv_labels, list_templates, load_photo,
+    load_profile, profile_for_tailoring, profile_ready, role_brief,
 )
 from app.services.llm import AIResponseError, GenerationCancelled, complete, current_cancel, message_text
 
@@ -346,6 +346,39 @@ def generate_cv(body: GenerateRequest):
     return {"job_id": start_generation(body.url, body.lang)}
 
 
+class GenericRequest(BaseModel):
+    # Omitted ⇒ the app's own language: there's no posting to detect one from,
+    # so the language the user reads the app in is the best default.
+    lang: str | None = None
+
+
+def generic_lang(lang: str | None) -> str:
+    return lang or config.load().get("app_language") or "en"
+
+
+def require_ready_profile() -> dict:
+    """The generic application's gate: a profile with nothing to aim at can't
+    produce a useful untargeted CV or letter. Server-side so the UI's copy of
+    this check is only a convenience. Shared with app/api/letters.py."""
+    try:
+        profile = load_profile()
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    missing = profile_ready(profile)
+    if missing:
+        raise HTTPException(400, "Add these to your profile first: " + ", ".join(missing))
+    return profile
+
+
+@router.post("/generic")
+def generate_generic_cv(body: GenericRequest):
+    """Generate the untargeted CV: same pipeline, with a brief built from the
+    profile's preferences standing in for a job posting (no fetch)."""
+    profile = require_ready_profile()
+    return {"job_id": start_generation(GENERIC_URL, generic_lang(body.lang),
+                                       job_text=role_brief(profile))}
+
+
 class DetectLangRequest(BaseModel):
     url: str
 
@@ -441,6 +474,7 @@ def _retailor(history_id: str, row: dict, lang: str, keep_edits: bool = False,
     only pulling in the freshly generated bits (e.g. sidebar translations,
     tailoring notes) — so a regenerate can add new content without losing edits.
     on_stage: optional progress callback for the async job pattern."""
+    generic = row.get("job_url") == GENERIC_URL
     if not row.get("job_url"):
         raise HTTPException(400, "No job URL stored for this CV, so it can't be regenerated.")
 
@@ -451,12 +485,17 @@ def _retailor(history_id: str, row: dict, lang: str, keep_edits: bool = False,
     except ValueError as e:
         raise HTTPException(400, str(e))
     prompt = cfg.get("cv_prompt") or DEFAULT_CV_PROMPT
-    if on_stage:
-        on_stage("fetching")
-    try:
-        job_text = fetch_job_description(row["job_url"])
-    except httpx.HTTPError as e:
-        raise HTTPException(502, f"Couldn't fetch the job page: {e}")
+    if generic:
+        # No posting to fetch: rebuild the brief from the CURRENT profile, so a
+        # regenerate picks up preference edits.
+        job_text = role_brief(profile)
+    else:
+        if on_stage:
+            on_stage("fetching")
+        try:
+            job_text = fetch_job_description(row["job_url"])
+        except httpx.HTTPError as e:
+            raise HTTPException(502, f"Couldn't fetch the job page: {e}")
     if on_stage:
         on_stage("thinking")
     plan = _tailor_or_502(profile, row["job_url"], cfg, lang, prompt, job_text=job_text)

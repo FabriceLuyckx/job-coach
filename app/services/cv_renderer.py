@@ -768,6 +768,50 @@ def profile_for_tailoring(profile: dict) -> dict:
             if k not in ("preferences", "cv_design_preferences", "meta")}
 
 
+# The generic application's stored job_url. Not an http(s) URL by construction,
+# so no scanned or pasted listing can collide with it and any code path that
+# mistakenly tries to fetch it fails loudly instead of hitting the network.
+GENERIC_URL = "generic:profile"
+
+
+def profile_ready(profile: dict) -> list[str]:
+    """Missing requirements for a generic (untargeted) application, as keys the
+    UI turns into 'add this' prompts. Empty list = ready."""
+    prefs = profile.get("preferences") or {}
+    missing = []
+    if not (prefs.get("target_roles") or []):
+        missing.append("target_roles")
+    if not (profile.get("experience") or []):
+        missing.append("experience")
+    return missing
+
+
+def role_brief(profile: dict) -> str:
+    """A posting-shaped plain-text brief built from the profile's preferences,
+    used as the `job_text` for the generic application so tailor()/build_guide()
+    run their normal path without fetching anything."""
+    prefs = profile.get("preferences") or {}
+    title = (profile.get("personal") or {}).get("professional_title", "")
+    roles = prefs.get("target_roles") or []
+    header = (
+        "GENERIC APPLICATION — there is no specific job posting or employer.\n"
+        "Write for the target roles below; keep it broadly applicable rather than "
+        "aimed at one company. Never name or invent an employer — where one would "
+        "normally go, tell the writer to adapt it to the employer they send it to.\n"
+    )
+    parts = [
+        f"Target roles: {', '.join(roles)}" if roles else "",
+        f"Current title: {title}" if title else "",
+        f"Looking for: {prefs['looking_for']}" if prefs.get("looking_for") else "",
+        f"Avoiding: {prefs['avoid']}" if prefs.get("avoid") else "",
+        f"Locations: {', '.join(prefs['locations'])}" if prefs.get("locations") else "",
+        f"Working style: {prefs['remote']}" if prefs.get("remote") else "",
+        f"Working languages: {', '.join(prefs['languages'])}" if prefs.get("languages") else "",
+        f"Other notes: {prefs['notes']}" if prefs.get("notes") else "",
+    ]
+    return header + "\n".join(p for p in parts if p)
+
+
 def blank_profile() -> dict:
     """A pristine, career-neutral v5 profile — seeded for a brand-new user instead
     of an example person's data. normalize_profile fills in the rest of the shape."""
