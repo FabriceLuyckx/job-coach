@@ -501,7 +501,11 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 .add-section-menu-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .add-section-menu-label { font-weight: 600; }
 .add-section-menu-hint {
-  font-size: 11px; color: var(--muted); border: 1px solid var(--border);
+  /* Mustard, not muted gray: a hidden section that still holds data is a real
+     notice ("you might be missing this"), the same role DESIGN.md assigns
+     --highlight elsewhere (low-credit chip, profile-changed nudge) — not a
+     decorative label. */
+  font-size: 11px; color: var(--highlight); border: 1px solid var(--highlight);
   border-radius: var(--chip-radius); padding: 1px 7px;
 }
 .add-section-menu-desc { display: block; font-size: var(--fs-sm); color: var(--muted); margin-top: 3px; line-height: 1.4; }
@@ -633,9 +637,12 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   animation: toast-in 0.18s ease-out;
 }
 @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
-.toast-success { border-left: 3px solid var(--success); }
-.toast-error   { border-left: 3px solid var(--danger); }
-.toast-info    { border-left: 3px solid var(--highlight); }
+/* Full perimeter, not a left stripe — the stripe is the single most
+   recognizable AI-slop tell (impeccable's side-tab ban). A full 1px border
+   keeps the same per-kind color signal without reading as a template. */
+.toast-success { border: 1px solid var(--success); }
+.toast-error   { border: 1px solid var(--danger); }
+.toast-info    { border: 1px solid var(--highlight); }
 .toast-message { flex: 1; }
 .toast-action {
   background: none;
