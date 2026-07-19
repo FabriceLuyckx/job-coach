@@ -789,7 +789,16 @@ scanner reads the page directly.
   `/impeccable hooks on` after a fresh clone. Impeccable's own review commands
   (`/impeccable critique`, `/impeccable audit`, `/impeccable polish`) are
   separate from `/opsx:*` and aren't OpenSpec tasks — run them ad hoc on UI
-  work, don't add them to tasks.md checklists.
+  work, don't add them to tasks.md checklists. **The boundary is "how it
+  looks", not "whatever the fix touches"**: if applying a critique/audit/polish
+  finding changes what a surface *does* rather than how it presents (a save
+  model switching between manual and autosave, a field's validation behavior,
+  what data a request sends) rather than a purely presentational fix
+  (headings, contrast, spacing, ARIA wiring, color, motion), stop and run
+  `/opsx:propose` for that part before implementing it — same as any other
+  non-trivial change. Don't retrofit a proposal after the fact for work
+  already shipped this way; an honest commit message beats a tasks.md written
+  to match code that already exists.
 
 ---
 
