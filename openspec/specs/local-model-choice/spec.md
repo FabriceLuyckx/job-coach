@@ -6,10 +6,12 @@ TBD - created by archiving change expand-local-model-choice. Update Purpose afte
 ### Requirement: A curated set of local models is offered
 
 The app SHALL offer more than one downloadable local model, each presented by the
-purpose it serves (light, balanced/multilingual, stronger reasoning and writing)
-together with its download size and recommended RAM. One model SHALL be marked as
-the recommended default, and that default SHALL be Qwen3 8B. The set SHALL always
-include at least one option runnable on an 8 GB machine.
+purpose it serves together with its download size and recommended RAM. Every
+curated model SHALL be runnable on a 16 GB laptop with no dedicated GPU — the
+machine the app targets — so the set SHALL NOT include a model needing more than
+16 GB. One model SHALL be marked as the recommended default, and that default
+SHALL be Qwen3 4B Instruct. The set SHALL always include at least one option
+runnable on an 8 GB machine.
 
 #### Scenario: Listing the curated models
 
@@ -22,12 +24,13 @@ include at least one option runnable on an 8 GB machine.
 #### Scenario: A fresh install has a default selected
 
 - **WHEN** an install has never set `local_model_id`
-- **THEN** the resolved local model is `qwen3-8b`
+- **THEN** the resolved local model is `qwen3-4b-instruct`
 
 #### Scenario: A modest machine has a usable option
 
 - **WHEN** the offered models are listed
 - **THEN** at least one has a `min_ram_gb` of 8 or lower
+- **AND** none has a `min_ram_gb` above 16
 
 #### Scenario: An existing install keeps working
 

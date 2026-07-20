@@ -26,10 +26,12 @@ def test_engine_status_local_not_downloaded(monkeypatch):
     assert s["model"]["id"] == "qwen3-4b-instruct"
 
 
-def test_a_curated_model_fits_a_modest_machine():
-    """The set must keep an option an 8 GB laptop can actually run."""
+def test_curated_models_fit_a_modest_machine():
+    """The target machine is a 16 GB laptop with no GPU: one option must run on
+    8 GB, and nothing may need more than 16."""
     from app.services.engines.registry import LOCAL_MODELS
     assert any(e["min_ram_gb"] <= 8 for e in LOCAL_MODELS.values())
+    assert all(e["min_ram_gb"] <= 16 for e in LOCAL_MODELS.values())
 
 
 def test_models_list_merges_customs_with_flags(monkeypatch):

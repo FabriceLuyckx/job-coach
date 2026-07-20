@@ -688,19 +688,15 @@
     "models": {
       "qwen3-4b-instruct": {
         "name": "Qwen3 4B",
-        "desc": "Leicht — die schnellste Option und die zu wählen, wenn Sie eine 8 GB Maschine haben. Mehrsprachig."
+        "desc": "Der empfohlene Standard – läuft problemlos auf einem normalen Laptop, einschließlich Geräten mit 8 GB Speicher und ohne Grafikkarte. Multilingual."
       },
       "qwen3-8b": {
         "name": "Qwen3 8B",
-        "desc": "Ausgewogen — die empfohlene Standardoption. Mehrsprachig, deutlich bessere Schreibweise als die leichte Option."
+        "desc": "Bessere Schreibqualität, aber etwa doppelt so viel Speicher und etwa die Hälfte der Geschwindigkeit. Wertvoll ab 16 GB Speicher; langsam auf älteren Laptops."
       },
-      "gemma-3-12b-it": {
-        "name": "Gemma 3 12B",
-        "desc": "Eine Alternative zum Schreiber aus einer anderen Modellfamilie. Starke Prosa."
-      },
-      "qwen3-14b": {
-        "name": "Qwen3 14B",
-        "desc": "Stärkeres Denken und Schreiben — die besten Lebensläufe und Briefe, wenn Ihre Maschine genügend RAM hat."
+      "gemma-3-4b-it": {
+        "name": "Gemma 3 4B",
+        "desc": "Gleiche Größe und Geschwindigkeit wie der Standard, aus einer anderen Modellfamilie. Probieren Sie es aus, wenn Sie ihren Schreibstil bevorzugen."
       }
     }
   },

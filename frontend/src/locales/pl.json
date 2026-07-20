@@ -688,19 +688,15 @@
     "models": {
       "qwen3-4b-instruct": {
         "name": "Qwen3 4B",
-        "desc": "Lekki — najszybszy wybór i ten do wyboru na maszynie z 8 GB pamięci. Multynarodowy."
+        "desc": "Rekomendowana domyślna opcja — działa płynnie na zwykłym komputerze, w tym na maszynach z 8 GB pamięci bez karty graficznej. Multy językowa."
       },
       "qwen3-8b": {
         "name": "Qwen3 8B",
-        "desc": "Zrównoważony — zalecaną domyślną opcję. Multynarodowy, znacznie lepszy w pisaniu niż opcja lekkiej."
+        "desc": "Lepsze pisanie, ale ok. dwa razy większa pamięć i około połowa szybkości. Wartość na komputerach z 16 GB pamięci lub więcej; wolne na starszych komputerach."
       },
-      "gemma-3-12b-it": {
-        "name": "Gemma 3 12B",
-        "desc": "Alternatywny autor z innej rodziny modeli. Silne prose."
-      },
-      "qwen3-14b": {
-        "name": "Qwen3 14B",
-        "desc": "Silniejsze rozumowanie i pisanie — najlepsze CV i listy, jeśli masz pamięć."
+      "gemma-3-4b-it": {
+        "name": "Gemma 3 4B",
+        "desc": "Takie same wymiary i szybkość jak domyślna, ale z innego rodzaju modelu. Spróbuj, jeśli preferujesz jego styl pisania."
       }
     }
   },

@@ -117,14 +117,17 @@ buttons that spend it.
 
 #### Choosing a local model
 
-Four models are offered, all Q4_K_M quantised. Bigger writes better and runs slower:
+Three models are offered, all Q4_K_M quantised and all sized to run on an ordinary
+laptop without a dedicated graphics card. Bigger writes better and runs slower:
 
 | Model | Download | Recommended RAM | Good for |
 |-------|----------|-----------------|----------|
-| Qwen3 4B | ~2.5 GB | 8 GB | The light option — pick this on an 8 GB machine. Multilingual, quickest. |
-| **Qwen3 8B** (default) | ~5.0 GB | 16 GB | Balanced. Multilingual, clearly better writing than the 4B. |
-| Gemma 3 12B | ~7.3 GB | 16 GB | A different model family; strong prose. |
-| Qwen3 14B | ~9.0 GB | 24 GB | Best CVs and letters, if you have the memory. |
+| **Qwen3 4B** (default) | ~2.5 GB | 8 GB | The one to start with. Multilingual, and quick enough on CPU. |
+| Gemma 3 4B | ~2.5 GB | 8 GB | Same size and speed, different model family — try it if you prefer its writing. |
+| Qwen3 8B | ~5.0 GB | 16 GB | Better writing, but ~twice the memory and about half the speed. |
+
+Larger models (12B+) are deliberately not offered: without a GPU they swap and crawl.
+If you have the hardware for one, add it yourself by URL (see below) — or use OpenRouter.
 
 In **Settings → AI Engine**, pick a model to make it active; if it isn't downloaded yet,
 the button below the list downloads it (resumable, with progress). Several models can sit

@@ -14,8 +14,10 @@ custom model needs no special case in download, delete, status or engine load.
 
 Retiring a curated model: keep serving its entry while it is downloaded or
 active, or an install would read "not ready" for a model sitting on its own
-disk. Nothing is retired today — ``qwen3-4b-instruct``, the original default,
-stays listed as the light option.
+disk. ``gemma-3-12b-it`` and ``qwen3-14b`` were dropped on 2026-07-20 (same day
+they shipped, so no install can have them): the target machine is a 16 GB
+non-Apple-Silicon laptop doing CPU inference, where a 12–14B model swaps and
+crawls. The curated set now tops out at 8B, and the default is the 4B.
 """
 
 from pathlib import Path
@@ -36,28 +38,20 @@ LOCAL_MODELS: dict[str, dict] = {
         "min_ram_gb": 8,
         "n_ctx": 16384,
     },
+    "gemma-3-4b-it": {
+        "label": "Gemma 3 4B",
+        "repo": "bartowski/google_gemma-3-4b-it-GGUF",
+        "filename": "google_gemma-3-4b-it-Q4_K_M.gguf",
+        "size_bytes": 2_489_758_112,
+        "min_ram_gb": 8,
+        "n_ctx": 16384,
+    },
     "qwen3-8b": {
         "label": "Qwen3 8B",
         "repo": "bartowski/Qwen_Qwen3-8B-GGUF",
         "filename": "Qwen_Qwen3-8B-Q4_K_M.gguf",
         "size_bytes": 5_027_784_224,
         "min_ram_gb": 16,
-        "n_ctx": 16384,
-    },
-    "gemma-3-12b-it": {
-        "label": "Gemma 3 12B",
-        "repo": "bartowski/google_gemma-3-12b-it-GGUF",
-        "filename": "google_gemma-3-12b-it-Q4_K_M.gguf",
-        "size_bytes": 7_300_575_264,
-        "min_ram_gb": 16,
-        "n_ctx": 16384,
-    },
-    "qwen3-14b": {
-        "label": "Qwen3 14B",
-        "repo": "bartowski/Qwen_Qwen3-14B-GGUF",
-        "filename": "Qwen_Qwen3-14B-Q4_K_M.gguf",
-        "size_bytes": 9_001_753_632,
-        "min_ram_gb": 24,
         "n_ctx": 16384,
     },
 }

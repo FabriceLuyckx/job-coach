@@ -688,19 +688,15 @@
     "models": {
       "qwen3-4b-instruct": {
         "name": "Qwen3 4B",
-        "desc": "Ligero — la opción más rápida y la que debes elegir en una máquina de 8 GB. Multilingüe."
+        "desc": "La recomendación por defecto — funciona cómodamente en un portátil normal, incluso en máquinas con 8 GB sin tarjeta gráfica dedicada. Multilingüe."
       },
       "qwen3-8b": {
         "name": "Qwen3 8B",
-        "desc": "Equilibrado — la opción recomendada por defecto. Multilingüe, con escritura considerablemente mejor que la opción ligera."
+        "desc": "Mejor redacción, pero consume aproximadamente el doble de memoria y tiene la mitad de la velocidad. Vale la pena en máquinas con 16 GB o más; lenta en portátiles más antiguos."
       },
-      "gemma-3-12b-it": {
-        "name": "Gemma 3 12B",
-        "desc": "Una alternativa escritora de una familia de modelos diferente. Prosa sólida."
-      },
-      "qwen3-14b": {
-        "name": "Qwen3 14B",
-        "desc": "Razonamiento y escritura más fuertes — las mejores currículos y cartas, si tu máquina tiene la memoria."
+      "gemma-3-4b-it": {
+        "name": "Gemma 3 4B",
+        "desc": "Tamaño y velocidad iguales que el modelo predeterminado, pero de una familia de modelos diferente. Pruébalo si prefieres su redacción."
       }
     }
   },

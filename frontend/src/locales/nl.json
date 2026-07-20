@@ -688,19 +688,15 @@
     "models": {
       "qwen3-4b-instruct": {
         "name": "Qwen3 4B",
-        "desc": "Licht — het snelste optie en de keuze voor een 8 GB machine. Multilinguaal."
+        "desc": "De aanbevolen standaard — draait comfortabel op een normale laptop, inclusief laptops met 8 GB geheugen en geen grafische kaart. Multilinguale."
       },
       "qwen3-8b": {
         "name": "Qwen3 8B",
-        "desc": "Balans — de aanbevolen standaard. Multilinguaal, aanzienlijk betere schrijfvaardigheid dan de lichte optie."
+        "desc": "Beter schrijven, maar ongeveer tweemaal meer geheugen en ongeveer de helft van de snelheid. Winst op 16 GB of meer; langzaam op een oude laptop."
       },
-      "gemma-3-12b-it": {
-        "name": "Gemma 3 12B",
-        "desc": "Een alternatief schrijver uit een andere modelfamilie. Sterke proza."
-      },
-      "qwen3-14b": {
-        "name": "Qwen3 14B",
-        "desc": "Sterkere redenering en schrijfvaardigheid — de beste CV's en briefjes, als je machine de geheugenruimte heeft."
+      "gemma-3-4b-it": {
+        "name": "Gemma 3 4B",
+        "desc": "Identieke grootte en snelheid als de standaard, maar uit een andere modelfamilie. Probeer het als je liever zijn schrijfstijl wilt."
       }
     }
   },

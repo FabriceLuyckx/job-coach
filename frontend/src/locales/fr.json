@@ -688,19 +688,15 @@
     "models": {
       "qwen3-4b-instruct": {
         "name": "Qwen3 4B",
-        "desc": "Léger — l'option la plus rapide et celle à choisir sur un ordinateur de 8 GB. Multilingue."
+        "desc": "Le modèle recommandé par défaut — fonctionne sans problème sur un ordinateur normal, y compris sur des machines à 8 Go sans carte graphique dédiée. Multilingue."
       },
       "qwen3-8b": {
         "name": "Qwen3 8B",
-        "desc": "Équilibré — la recommandation par défaut. Multilingue, écriture nettement meilleure que l'option légère."
+        "desc": "Écriture améliorée, mais environ deux fois plus de mémoire et environ la moitié de la vitesse. À prendre en compte sur des machines de 16 Go ou plus ; lente sur des ordinateurs anciens."
       },
-      "gemma-3-12b-it": {
-        "name": "Gemma 3 12B",
-        "desc": "Un autre rédacteur d'une famille de modèle différente. Prose solide."
-      },
-      "qwen3-14b": {
-        "name": "Qwen3 14B",
-        "desc": "Raisonnement et écriture plus forts — les meilleurs CV et lettres, si votre ordinateur dispose de la mémoire."
+      "gemma-3-4b-it": {
+        "name": "Gemma 3 4B",
+        "desc": "Même taille et vitesse que le modèle par défaut, mais issu d'une famille de modèles différente. Essayez-le si vous préférez son style d'écriture."
       }
     }
   },

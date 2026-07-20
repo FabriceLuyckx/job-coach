@@ -735,19 +735,15 @@
     "models": {
       "qwen3-4b-instruct": {
         "name": "Qwen3 4B",
-        "desc": "Light — the quickest option and the one to pick on an 8 GB machine. Multilingual."
+        "desc": "The recommended default — runs comfortably on a normal laptop, including 8 GB machines without a dedicated graphics card. Multilingual."
+      },
+      "gemma-3-4b-it": {
+        "name": "Gemma 3 4B",
+        "desc": "Same size and speed as the default, from a different model family. Try it if you prefer its writing."
       },
       "qwen3-8b": {
         "name": "Qwen3 8B",
-        "desc": "Balanced — the recommended default. Multilingual, noticeably better writing than the light option."
-      },
-      "gemma-3-12b-it": {
-        "name": "Gemma 3 12B",
-        "desc": "An alternative writer from a different model family. Strong prose."
-      },
-      "qwen3-14b": {
-        "name": "Qwen3 14B",
-        "desc": "Stronger reasoning and writing — the best CVs and letters, if your machine has the memory."
+        "desc": "Better writing, but roughly twice the memory and about half the speed. Worth it on 16 GB or more; slow on an older laptop."
       }
     }
   },

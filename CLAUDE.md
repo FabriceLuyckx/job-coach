@@ -662,10 +662,12 @@ wizard):
 * **Free local model** — download a GGUF that runs in-process via llama-cpp-python. No
   account, no cost, fully offline. Requires the `local` extra: `uv sync --extra local`
   (the packaged app bundles it). Uses schema-constrained JSON so even a small model
-  returns valid tool output. Four curated models are offered (`engines/registry.py`),
-  chosen by purpose rather than parameter count: `qwen3-4b-instruct` (~2.5 GB, the light
-  option for 8 GB machines), **`qwen3-8b` (~5.0 GB, the default)**, `gemma-3-12b-it`
-  (~7.3 GB) and `qwen3-14b` (~9.0 GB). A user can also add any `.gguf` by HTTPS URL;
+  returns valid tool output. Three curated models are offered (`engines/registry.py`),
+  sized for the real target machine — a 16 GB laptop with no dedicated GPU, doing CPU
+  inference: **`qwen3-4b-instruct` (~2.5 GB, the default)**, `gemma-3-4b-it` (~2.5 GB,
+  same weight class, different family) and `qwen3-8b` (~5.0 GB, better writing, ~half
+  the speed). The 12B/14B entries were dropped on 2026-07-20 — they swap and crawl on
+  that machine. A user can also add any `.gguf` by HTTPS URL;
   `register_custom_model()` (`app/api/engine.py`) validates it, HEADs it for its size and
   stores the entry under `local_custom_models` — `registry.all_models()` merges those over
   the curated set, so download, delete, status and engine load need no custom-model case.
@@ -713,7 +715,7 @@ language is generated on-device by the engine (Phase D).
 | `llm_provider` | AI engine: `openrouter` or `local` (free, downloaded GGUF via llama.cpp) | `openrouter` |
 | `openrouter_api_key` | OpenRouter API key (get one at openrouter.ai) | Required when provider is `openrouter` |
 | `openrouter_model` | Model string passed to OpenRouter | `anthropic/claude-sonnet-4-6` |
-| `local_model_id` | Registry key of the local model (see `engines/registry.py`) | `qwen3-8b` |
+| `local_model_id` | Registry key of the local model (see `engines/registry.py`) | `qwen3-4b-instruct` |
 | `local_custom_models` | User-added local models by URL, `{id: registry entry}` — merged over the curated set by `registry.all_models()` | `{}` |
 | `app_language` | UI language (ISO 639-1); `en` is the native source language | `en` |
 | `onboarding_done` | First-run wizard completion marker | `false` |

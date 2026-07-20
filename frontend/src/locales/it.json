@@ -688,19 +688,15 @@
     "models": {
       "qwen3-4b-instruct": {
         "name": "Qwen3 4B",
-        "desc": "Leggero — l'opzione più veloce e quella da scegliere su una macchina con 8 GB di RAM. Multilingua."
+        "desc": "L'opzione predefinita consigliata — funziona agevolmente su un laptop normale, anche su quelli con 8 GB di memoria e senza scheda grafica dedicata. Multilingue."
       },
       "qwen3-8b": {
         "name": "Qwen3 8B",
-        "desc": "Equilibrato — il consigliato di default. Multilingua, scrittura notevolmente migliore rispetto all'opzione leggera."
+        "desc": "Scrittura migliore, ma con circa il doppio della memoria e circa la metà della velocità. Consigliata su dispositivi con 16 GB o più; lenta su laptop più vecchi."
       },
-      "gemma-3-12b-it": {
-        "name": "Gemma 3 12B",
-        "desc": "Un alternativa scrittore da una famiglia di modelli diversa. Prose forti."
-      },
-      "qwen3-14b": {
-        "name": "Qwen3 14B",
-        "desc": "Ragionamento e scrittura più forti — i migliori CV e lettere, se la tua macchina ha la memoria."
+      "gemma-3-4b-it": {
+        "name": "Gemma 3 4B",
+        "desc": "Stessa dimensione e velocità della versione predefinita, ma appartenente a una famiglia di modelli diversa. Provala se preferisci il suo stile di scrittura."
       }
     }
   },

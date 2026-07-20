@@ -14,7 +14,7 @@ from app.paths import CONFIG_PATH
 DEFAULT_MODEL = "anthropic/claude-sonnet-4-6"
 
 # Default local model registry key (see app/services/engines/registry.py).
-DEFAULT_LOCAL_MODEL = "qwen3-8b"
+DEFAULT_LOCAL_MODEL = "qwen3-4b-instruct"
 
 _DEFAULTS = {
     "openrouter_api_key": "",
