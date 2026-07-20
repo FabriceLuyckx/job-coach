@@ -47,6 +47,17 @@ def _cached_posting_text(url: str, profile: dict) -> str | None:
     return row["posting_text"] if row else None
 
 
+def _added_at(conn, url: str) -> str:
+    """When this application was added, not when it was last touched.
+    Regenerating a letter (a language change) inserts a new row and deletes the
+    old one, so inherit the first row's date. CVs get this for free —
+    _persist_plans updates in place and never rewrites created_at."""
+    row = conn.execute(
+        "SELECT MIN(created_at) AS c FROM letter_history WHERE job_url = ?", (url,)
+    ).fetchone()
+    return (row and row["c"]) or _now()
+
+
 def start_letter_generation(url: str, lang: str) -> str:
     """Kick off async cover-letter-guide generation; returns the poll job_id.
     Shared by POST /generate and the Jobs 'accept' flow. Reuses a scan's cached
@@ -67,8 +78,8 @@ def start_letter_generation(url: str, lang: str) -> str:
         guide = build_guide(profile, url, cfg, lang, prompt, job_text=job_text)
         guide_dict = asdict(guide)
         row_id = str(uuid.uuid4())
-        created = _now()
         with db.get_db() as conn:
+            created = _added_at(conn, url)
             conn.execute(
                 """INSERT INTO letter_history
                    (id, job_title, employer, job_url, lang, guide_json, created_at)

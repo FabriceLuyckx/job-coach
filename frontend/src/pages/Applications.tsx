@@ -64,7 +64,9 @@ function mergeApplications(cvs: CvHistoryEntry[], letters: LetterHistoryEntry[])
       const app = byUrl.get(k)!
       if (app.letter) continue
       app.letter = lt
-      if (lt.created_at > app.createdAt) app.createdAt = lt.created_at
+      // Earliest artifact wins: the header date is when this application was
+      // added, not when it was last regenerated.
+      if (lt.created_at < app.createdAt) app.createdAt = lt.created_at
       continue
     }
     const app: Application = {
