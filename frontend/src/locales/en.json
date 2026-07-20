@@ -3,13 +3,13 @@
     "brand": "Job",
     "brandEm": "Coach",
     "profile": "Profile",
-    "preferences": "Preferences",
+    "preferences": "Job Preferences",
     "applications": "Applications",
     "jobs": "Job Suggestions",
     "settings": "Settings"
   },
   "footer": {
-    "credit": "Created for you by <a>Fabrice Luyckx</a> under GPLv3"
+    "credit": "Created for you by <a>Fabrice Luyckx</a> — free software under the <lic>GNU AGPL v3</lic>"
   },
   "applications": {
     "title": "Applications",
@@ -398,7 +398,7 @@
     "saveFailedToast": "Couldn't save your profile: {{error}}"
   },
   "preferences": {
-    "title": "Preferences",
+    "title": "Job Preferences",
     "help": "Answer what you can — the Job Coach reads every new job posting against these. Nothing here ever appears on your CV; it is sent to your AI engine each time it reads a posting.",
     "q": {
       "roles": "Which job titles should we watch for?",
@@ -561,10 +561,10 @@
     "couldntReadSource": "Couldn't read <b>{{name}}</b> — {{err}}",
     "recheck": "Re-check filtered jobs",
     "rechecking": "Re-checking…",
-    "recheckTitle": "Re-judge the jobs you filtered out against your current Preferences",
+    "recheckTitle": "Re-judge the jobs you filtered out against your current Job Preferences",
     "recheckFound_one": "{{count}} filtered job now matches",
     "recheckFound_other": "{{count}} filtered jobs now match",
-    "recheckNone": "No filtered jobs match your current Preferences",
+    "recheckNone": "No filtered jobs match your current Job Preferences",
     "profileChanged": "Your profile changed since the last scan — re-check filtered jobs to apply it.",
     "checkTitle": "Check a specific job",
     "checkHelp": "Found a posting elsewhere? Paste its URL to judge it against your profile — the same way a scan would.",
@@ -584,13 +584,14 @@
     "filteredOut_one": "Filtered out ({{count}})",
     "filteredOut_other": "Filtered out ({{count}})",
     "filteredOutHelp": "Openings the filter judged off-target, with its reason. If it got one wrong, suggest it anyway.",
-    "editPreferences": "Adjust your Preferences →",
+    "editPreferences": "Adjust your Job Preferences →",
     "suggestAnyway": "Suggest anyway",
     "suggestAnywayTitle": "Move this back into your suggestions",
     "showMore": "Show {{count}} more",
     "acceptTitle": "Generates a tailored CV and cover-letter guide for this job",
     "acceptGenerate": "Accept",
     "acceptHint": "Accepting builds a tailored CV and a cover-letter guide for that job — this uses AI credit.",
+    "aiCaveat": "Written by AI from the posting — read the original before you decide.",
     "filteredOutLabel": "Filtered out",
     "filteredOutNone": "Nothing has been filtered out yet.",
     "acceptedToast": "Accepted “{{title}}” — building your CV and cover-letter guide",
@@ -619,6 +620,7 @@
     }
   },
   "cveditor": {
+    "aiCaveat": "AI wrote this from your profile. Check every line before you send it — it can overstate or invent things.",
     "sections": {
       "summary": "Summary",
       "experience": "Experience",

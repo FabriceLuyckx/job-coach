@@ -2,6 +2,8 @@
 
 AI-powered career assistant — generate tailored CVs and (in future phases) discover and filter job openings.
 
+Free software under the [GNU AGPL v3 or later](LICENSE) — see [License](#license).
+
 ---
 
 ## Download & run (no setup)

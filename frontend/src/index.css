@@ -697,7 +697,8 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   border-color: color-mix(in srgb, var(--highlight) 50%, transparent);
   color: var(--ink);
 }
-.callout-highlight .callout-icon { color: var(--highlight); flex-shrink: 0; margin-top: 1px; }
+.callout-icon { flex-shrink: 0; margin-top: 1px; color: var(--muted); }
+.callout-highlight .callout-icon { color: var(--highlight); }
 .callout-highlight a { color: var(--highlight); font-weight: 500; text-decoration: underline; }
 .callout-warn {
   background: color-mix(in srgb, var(--danger) 8%, var(--surface));

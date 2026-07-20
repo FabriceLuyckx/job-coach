@@ -75,7 +75,10 @@ export default function App() {
                   <Trans
                     i18nKey="footer.credit"
                     components={{
+                      // The repo link is what satisfies AGPL §13 (network use →
+                      // offer source). Don't remove it.
                       a: <a href="https://github.com/FabriceLuyckx/job-coach" target="_blank" rel="noreferrer" />,
+                      lic: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer" />,
                     }}
                   />
                 </footer>

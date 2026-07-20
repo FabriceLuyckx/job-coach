@@ -480,7 +480,9 @@ export default function JobsPage() {
       {/* Accepting spends real AI credit — say so where the decision is made,
           not only in a hover title a first-timer will never trigger. */}
       {suggested.length > 0 && (
-        <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{t('jobs.acceptHint')}</p>
+        <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>
+          {t('jobs.acceptHint')} {t('jobs.aiCaveat')}
+        </p>
       )}
       {showFilters && (
         <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-3)', flexWrap: 'wrap' }}>

@@ -3,7 +3,7 @@
     "brand": "Job",
     "brandEm": "Coach",
     "profile": "Profil",
-    "preferences": "Präferenzen",
+    "preferences": "Job Präferenzen",
     "jobs": "Jobvorschläge",
     "settings": "Einstellungen",
     "applications": "Bewerbungen"
@@ -351,7 +351,7 @@
     "saveFailedToast": "Dein Profil konnte nicht gespeichert werden: {{error}}"
   },
   "preferences": {
-    "title": "Präferenzen",
+    "title": "Job Präferenzen",
     "help": "Antworte auf das, was du kannst — der Job-Coach vergleicht jede neue Stellenanzeige mit diesen Angaben. Dinge hier erscheinen nie auf deinem Lebenslauf; sie werden jedes Mal, wenn der Job-Coach eine Anzeige liest, an deine KI-Engine gesendet.",
     "q": {
       "roles": "Welche Berufsbezeichnungen sollen wir beobachten?",
@@ -528,10 +528,10 @@
     "readingPosting": "Lesen der Stellenausschreibung {{current}} von {{total}}…",
     "recheck": "Filterte Stellen erneut überprüfen",
     "rechecking": "Wird überprüft…",
-    "recheckTitle": "Die von Ihnen abgefilterten Stellen gegen Ihre aktuellen Präferenzen neu beurteilen",
+    "recheckTitle": "Re-Beurteilen Sie die Jobs, die Sie herausgefiltert haben, anhand Ihrer aktuellen Job Präferenzen",
     "recheckFound_one": "{{count}} gefilterte Stelle passt nun",
     "recheckFound_other": "{{count}} gefilterte Stellen passen nun",
-    "recheckNone": "Keine gefilterten Stellen passen Ihren aktuellen Präferenzen",
+    "recheckNone": "Keine gefilterten Jobs passen zu Ihren aktuellen Job Präferenzen",
     "profileChanged": "Ihre Profildaten wurden seit der letzten Suche geändert — die gefilterten Stellen erneut überprüfen, um die Änderung anzuwenden.",
     "checkTitle": "Eine bestimmte Stelle überprüfen",
     "checkHelp": "Ein Posting gefunden? Fügen Sie die URL ein, um es gegen Ihr Profil zu beurteilen — genauso wie ein Scan es tun würde.",
@@ -552,7 +552,7 @@
     "sourceLastScanned": "Zuletzt gescannt um {{time}}",
     "cancelScan": "Scan abbrechen",
     "clearFilters": "Filter entfernen",
-    "editPreferences": "Präferenzen anpassen →",
+    "editPreferences": "Anpassen Sie Ihre Job Präferenzen →",
     "acceptHint": "Die Annahme erstellt ein maßgeschneidertes CV und einen Briefvorschlag für diese Stelle – dies verbraucht AI-Kredit.",
     "filteredOutLabel": "Gefiltert",
     "filteredOutNone": "Noch nichts wurde gefiltert.",
@@ -569,7 +569,8 @@
       "contract": "Vertrag",
       "salary": "Gehalt",
       "deadline": "Frist"
-    }
+    },
+    "aiCaveat": "Von AI geschrieben — lesen Sie das Original, bevor Sie eine Entscheidung treffen."
   },
   "cveditor": {
     "sections": {
@@ -628,7 +629,8 @@
     "saved": "Gespeichert",
     "saveError": "Speichern fehlgeschlagen",
     "aiNeedsUrl": "Keine Job-URL gespeichert, daher kann die KI den Job-Auszug nicht erneut lesen",
-    "sectionsShownCount": "{{shown}} von {{total}} angezeigt"
+    "sectionsShownCount": "{{shown}} von {{total}} angezeigt",
+    "aiCaveat": "Dies wurde von AI aus Ihrem Profil erstellt. Prüfen Sie jede Zeile, bevor Sie es senden — es kann Dinge überbewerten oder erfunden haben."
   },
   "engine": {
     "title": "KI-Engine",
@@ -686,7 +688,7 @@
     }
   },
   "footer": {
-    "credit": "Für Sie erstellt von <a>Fabrice Luyckx</a> unter GPLv3"
+    "credit": "Erstellt von <a>Fabrice Luyckx</a> — Freie Software unter der <lic>GNU AGPL v3</lic>"
   },
   "applications": {
     "title": "Bewerbungen",

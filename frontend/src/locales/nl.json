@@ -3,7 +3,7 @@
     "brand": "Job",
     "brandEm": "Coach",
     "profile": "Profiel",
-    "preferences": "Voorkeuren",
+    "preferences": "Werkvoorstel voorkeuren",
     "jobs": "Vacaturesuggesties",
     "settings": "Instellingen",
     "applications": "Sollicitaties"
@@ -351,7 +351,7 @@
     "saveFailedToast": "Profiel kon niet opgeslagen worden: {{error}}"
   },
   "preferences": {
-    "title": "Voorkeuren",
+    "title": "Werkvoorstel voorkeuren",
     "help": "Antwoord op wat je kunt — de Job Coach vergelijkt elke nieuwe functieaanbod tegen deze instellingen. Niets hier verschijnt op je CV; het wordt elke keer dat een aanbod wordt gelezen, gestuurd naar je AI-engine.",
     "q": {
       "roles": "Welke functietitels moeten we volgen?",
@@ -528,10 +528,10 @@
     "readingPosting": "Leest functieaanbieding {{current}} van {{total}}…",
     "recheck": "Filterde vacatures opnieuw controleren",
     "rechecking": "Bezig met opnieuw controleren…",
-    "recheckTitle": "Herbeoordeel de vacatures die je eerder hebt gefilterd, op basis van je huidige voorkeuren",
+    "recheckTitle": "Heroverweeg de jobs die je hebt gefilterd tegen je huidige Werkvoorstel voorkeuren",
     "recheckFound_one": "{{count}} gefilterde vacature past nu",
     "recheckFound_other": "{{count}} gefilterde vacatures passen nu",
-    "recheckNone": "Geen gefilterde vacatures passen bij je huidige voorkeuren",
+    "recheckNone": "Geen gefilterde jobs matchen met je huidige Werkvoorstel voorkeuren",
     "profileChanged": "Je profiel is gewijzigd sinds de laatste scan — controleer opnieuw gefilterde vacatures om het toe te passen.",
     "checkTitle": "Een specifieke vacature beoordelen",
     "checkHelp": "Een vacature elders gevonden? Plak de URL hieronder om hem te beoordelen aan de hand van je profiel — net zoals bij een scan.",
@@ -552,7 +552,7 @@
     "sourceLastScanned": "Laatste scan {{time}}",
     "cancelScan": "Scan annuleren",
     "clearFilters": "Filteren wissen",
-    "editPreferences": "Je voorkeuren aanpassen →",
+    "editPreferences": "Pas je Werkvoorstel voorkeuren aan →",
     "acceptHint": "Accepteren bouwt een aangepaste CV en briefgids voor deze functie — dit gebruikt AI-credits",
     "filteredOutLabel": "Gefilterd",
     "filteredOutNone": "Niets is nog gefilterd.",
@@ -569,7 +569,8 @@
       "contract": "Contract",
       "salary": "Salaris",
       "deadline": "Deadline"
-    }
+    },
+    "aiCaveat": "Geschreven door AI uit de post — lees het origineel voordat je beslist."
   },
   "cveditor": {
     "sections": {
@@ -628,7 +629,8 @@
     "saved": "Opgeslagen",
     "saveError": "Kan niet opslaan",
     "aiNeedsUrl": "Geen functie-URL opgeslagen, dus kan de AI de functie niet opnieuw lezen voor dit CV",
-    "sectionsShownCount": "{{shown}} van {{total}} getoond"
+    "sectionsShownCount": "{{shown}} van {{total}} getoond",
+    "aiCaveat": "AI heeft dit vanuit je profiel geschreven. Controleer elke regel voordat je het stuurt — het kan te veel zeggen of dingen uitvinden."
   },
   "engine": {
     "title": "AI-engine",
@@ -686,7 +688,7 @@
     }
   },
   "footer": {
-    "credit": "Gemaakt voor jou door <a>Fabrice Luyckx</a> onder GPLv3"
+    "credit": "Gemaakt voor u door <a>Fabrice Luyckx</a> — gratis software onder de <lic>GNU AGPL v3</lic>"
   },
   "applications": {
     "title": "Sollicitaties",

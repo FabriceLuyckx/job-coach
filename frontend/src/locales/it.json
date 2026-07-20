@@ -3,7 +3,7 @@
     "brand": "Job",
     "brandEm": "Coach",
     "profile": "Profilo",
-    "preferences": "Preferenze",
+    "preferences": "Preferenze lavoro",
     "jobs": "Suggerimenti di lavoro",
     "settings": "Impostazioni",
     "applications": "Applicazioni"
@@ -351,7 +351,7 @@
     "saveFailedToast": "Impossibile salvare il profilo: {{error}}"
   },
   "preferences": {
-    "title": "Preferenze",
+    "title": "Preferenze lavoro",
     "help": "Rispondi alle domande che ti sono possibili — il Job Coach analizza ogni nuovo annuncio in base a queste informazioni. Niente di ciò che hai inserito appare sul tuo CV; viene inviato al tuo motore AI ogni volta che viene letto un annuncio.",
     "q": {
       "roles": "Quali titoli di lavoro dovremmo monitorare?",
@@ -528,10 +528,10 @@
     "readingPosting": "Sto leggendo l'annuncio {{current}} di {{total}}…",
     "recheck": "Ricontrolla i lavori filtrati",
     "rechecking": "Sto ricontrollando…",
-    "recheckTitle": "Rivaluta i lavori filtrati in base alle tue preferenze attuali",
+    "recheckTitle": "Rigiudica i lavori filtrati in base alle tue Preferenze di Lavoro attuali",
     "recheckFound_one": "{{count}} lavoro filtrato ora corrisponde",
     "recheckFound_other": "{{count}} lavori filtrati ora corrispondono",
-    "recheckNone": "Nessun lavoro filtrato corrisponde alle tue preferenze attuali",
+    "recheckNone": "Nessun lavoro filtrato corrisponde alle tue Preferenze di Lavoro attuali",
     "profileChanged": "Il tuo profilo è cambiato dall'ultima scansione — ricontrolla i lavori filtrati per applicare le modifiche.",
     "checkTitle": "Verifica un lavoro specifico",
     "checkHelp": "Hai trovato un annuncio altrove? Incolla l'URL per valutarlo secondo il tuo profilo — come farebbe una scansione.",
@@ -552,7 +552,7 @@
     "sourceLastScanned": "Ultima scansione {{time}}",
     "cancelScan": "Annulla la scansione",
     "clearFilters": "Pulisci ricerca e filtri",
-    "editPreferences": "Modifica le tue preferenze →",
+    "editPreferences": "Modifica le Preferenze di Lavoro →",
     "acceptHint": "Accettare genera un CV personalizzato e una guida per la lettera di presentazione per questo lavoro — utilizza crediti AI.",
     "filteredOutLabel": "Filtrato",
     "filteredOutNone": "Niente è stato ancora filtrato.",
@@ -569,7 +569,8 @@
       "contract": "Contratto",
       "salary": "Stipendio",
       "deadline": "Scadenza"
-    }
+    },
+    "aiCaveat": "Scritto da AI dal messaggio — leggi l'originale prima di decidere."
   },
   "cveditor": {
     "sections": {
@@ -628,7 +629,8 @@
     "saved": "Salvato",
     "saveError": "Impossibile salvare",
     "aiNeedsUrl": "Nessun URL del lavoro salvato, quindi l'IA non può rileggere l'annuncio per questo CV",
-    "sectionsShownCount": "{{shown}} di {{total}} mostrati"
+    "sectionsShownCount": "{{shown}} di {{total}} mostrati",
+    "aiCaveat": "Questo è stato scritto da AI in base al tuo profilo. Controlla ogni riga prima di inviarlo — può esagerare o inventare cose."
   },
   "engine": {
     "title": "Motore IA",
@@ -686,7 +688,7 @@
     }
   },
   "footer": {
-    "credit": "Creato per te da <a>Fabrice Luyckx</a> con licenza GPLv3"
+    "credit": "Creato per te da <a>Fabrice Luyckx</a> — software libero sotto la <lic>GNU AGPL v3</lic>"
   },
   "applications": {
     "title": "Applicazioni",

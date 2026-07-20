@@ -3,7 +3,7 @@
     "brand": "Job",
     "brandEm": "Coach",
     "profile": "Profil",
-    "preferences": "Preferencje",
+    "preferences": "Preferencje pracy",
     "jobs": "Propozycje pracy",
     "settings": "Ustawienia",
     "applications": "Aplikacje"
@@ -351,7 +351,7 @@
     "saveFailedToast": "Nie udało się zapisać profilu: {{error}}"
   },
   "preferences": {
-    "title": "Preferencje",
+    "title": "Preferencje pracy",
     "help": "Odpowiedz na to, co możesz — Job Coach porównuje nowe ogłoszenia z tymi odpowiedziami. Nic z tego nie pojawia się na Twoim CV; dane są przesyłane do Twojego silnika AI podczas analizy ogłoszeń.",
     "q": {
       "roles": "Które tytuły stanowisk powinny być śledzone?",
@@ -528,10 +528,10 @@
     "readingPosting": "Odczytuję ofertę {{current}} z {{total}}…",
     "recheck": "Ponownie sprawdź odfiltrowane oferty",
     "rechecking": "Sprawdzanie…",
-    "recheckTitle": "Ponownie ocenij stanowiska, które zostały wyfiltrowane, w oparciu o Twoje aktualne preferencje",
+    "recheckTitle": "Przeanalizuj ponownie pracę, którą wyfiltrowałeś, w świetle Twoich aktualnych Preferencji pracy",
     "recheckFound_one": "{{count}} filtrowane stanowisko teraz pasuje",
     "recheckFound_other": "{{count}} filtrowane stanowiska teraz pasuje",
-    "recheckNone": "Brak filtrowanych stanowisk, które pasują do Twoich aktualnych preferencji",
+    "recheckNone": "Brak zgodnych z Twoimi aktualnymi Preferencjami pracy",
     "profileChanged": "Twój profil zmienił się od ostatniego skanowania — ponownie sprawdź odfiltrowane oferty, aby to uwzględnić.",
     "checkTitle": "Sprawdź konkretne stanowisko",
     "checkHelp": "Znalazłeś ogłoszenie w innym miejscu? Wklej jego URL, aby ocenić je w oparciu o Twój profil — tak samo jak w przypadku skanowania.",
@@ -552,7 +552,7 @@
     "sourceLastScanned": "Ostatnio skanowano {{time}}",
     "cancelScan": "Anuluj skanowanie",
     "clearFilters": "Wyczyść wyszukiwanie i filtry",
-    "editPreferences": "Dostosuj swoje preferencje →",
+    "editPreferences": "Zmień swoje Preferencje pracy →",
     "acceptHint": "Akceptowanie tworzy dostosowaną wersję CV i kierunek listy do tego stanowiska — wykorzystuje to kredyt AI.",
     "filteredOutLabel": "Odrzucone",
     "filteredOutNone": "Nic jeszcze nie zostało odrzuconych.",
@@ -569,7 +569,8 @@
       "contract": "Umowa",
       "salary": "Płaca",
       "deadline": "Limit terminu"
-    }
+    },
+    "aiCaveat": "Napisane przez AI z ogłoszeniem — przeczytaj oryginał przed decyzją."
   },
   "cveditor": {
     "sections": {
@@ -628,7 +629,8 @@
     "saved": "Zapisane",
     "saveError": "Nie można zapisać",
     "aiNeedsUrl": "Brak URL stanowiska, dlatego AI nie może ponownie przeczytać ogłoszenia dla tego CV",
-    "sectionsShownCount": "{{shown}} z {{total}} pokazanych"
+    "sectionsShownCount": "{{shown}} z {{total}} pokazanych",
+    "aiCaveat": "AI napisano to z Twojego profilu. Sprawdź każdą linię przed wysłaniem — może przesadzać lub inwestować w rzeczy."
   },
   "engine": {
     "title": "Silnik AI",
@@ -686,7 +688,7 @@
     }
   },
   "footer": {
-    "credit": "Stworzone dla Ciebie przez <a>Fabrice Luyckx</a> pod licencją GPLv3"
+    "credit": "Stworzone dla Ciebie przez <a>Fabrice Luyckx</a> — oprogramowanie wolne pod licencją <lic>GNU AGPL v3</lic>"
   },
   "applications": {
     "title": "Aplikacje",

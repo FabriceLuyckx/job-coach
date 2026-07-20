@@ -345,6 +345,13 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
         </Button>
       </div>
 
+      {/* Every line below this point was written by a model against the user's
+          own profile, and it is about to go to an employer over their name. */}
+      <div className="callout" style={{ marginBottom: 'var(--space-4)' }}>
+        <Sparkles size={16} className="callout-icon" aria-hidden />
+        <span>{t('cveditor.aiCaveat')}</span>
+      </div>
+
       {/* Photo nudge — a one-time state hint (not a control), so it stays
           visible rather than hiding behind the section disclosure below. */}
       {!hasPhoto && (

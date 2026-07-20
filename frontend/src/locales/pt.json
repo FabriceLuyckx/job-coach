@@ -3,7 +3,7 @@
     "brand": "Job",
     "brandEm": "Coach",
     "profile": "Perfil",
-    "preferences": "Preferências",
+    "preferences": "Preferências de Emprego",
     "jobs": "Sugestões de Emprego",
     "settings": "Configurações",
     "applications": "Candidaturas"
@@ -351,7 +351,7 @@
     "saveFailedToast": "Não foi possível salvar seu perfil: {{error}}"
   },
   "preferences": {
-    "title": "Preferências",
+    "title": "Preferências de Emprego",
     "help": "Responda o que puder — o Job Coach analisa cada novo anúncio com base nisso. Nada aqui aparece em seu currículo; é enviado ao seu motor de IA sempre que um anúncio for lido.",
     "q": {
       "roles": "Que títulos de cargo devemos monitorizar?",
@@ -528,10 +528,10 @@
     "readingPosting": "A ler o anúncio {{current}} de {{total}}…",
     "recheck": "Reverificar empregos filtrados",
     "rechecking": "A reverificar…",
-    "recheckTitle": "Reavaliar os empregos filtrados contra as suas preferências atuais",
+    "recheckTitle": "Reavalie os empregos filtrados contra suas Preferências Atuais de Emprego",
     "recheckFound_one": "{{count}} emprego filtrado agora corresponde",
     "recheckFound_other": "{{count}} empregos filtrados agora correspondem",
-    "recheckNone": "Nenhum emprego filtrado corresponde às suas preferências atuais",
+    "recheckNone": "Nenhum emprego filtrado corresponde às suas Preferências Atuais de Emprego",
     "profileChanged": "O seu perfil foi alterado desde a última verificação — reveja os empregos filtrados para aplicar a alteração.",
     "checkTitle": "Verificar um emprego específico",
     "checkHelp": "Encontrou um anúncio noutro sítio? Cole o URL para o avaliar contra o seu perfil — da mesma forma que uma verificação faria.",
@@ -552,7 +552,7 @@
     "sourceLastScanned": "Última verificação {{time}}",
     "cancelScan": "Cancelar verificação",
     "clearFilters": "Limpar busca e filtros",
-    "editPreferences": "Ajustar suas preferências →",
+    "editPreferences": "Ajuste suas Preferências de Emprego →",
     "acceptHint": "Aceitar cria um CV personalizado e um guia de carta de apresentação para esse emprego — isso utiliza créditos de IA.",
     "filteredOutLabel": "Filtrado",
     "filteredOutNone": "Nada foi filtrado até agora.",
@@ -569,7 +569,8 @@
       "contract": "Contrato",
       "salary": "Salário",
       "deadline": "Prazo"
-    }
+    },
+    "aiCaveat": "Escrito por IA a partir do anúncio — leia o original antes de decidir."
   },
   "cveditor": {
     "sections": {
@@ -628,7 +629,8 @@
     "saved": "Guardado",
     "saveError": "Não foi possível guardar",
     "aiNeedsUrl": "Nenhum URL de emprego armazenado, portanto a IA não pode reler o anúncio para este CV",
-    "sectionsShownCount": "{{shown}} de {{total}} exibidos"
+    "sectionsShownCount": "{{shown}} de {{total}} exibidos",
+    "aiCaveat": "Esta IA escreveu isso a partir do seu perfil. Verifique cada linha antes de enviar — pode exagerar ou inventar coisas."
   },
   "engine": {
     "title": "Motor de IA",
@@ -686,7 +688,7 @@
     }
   },
   "footer": {
-    "credit": "Criado para si por <a>Fabrice Luyckx</a> sob a GPLv3"
+    "credit": "Criado para você por <a>Fabrice Luyckx</a> — software livre sob a <lic>GNU AGPL v3</lic>"
   },
   "applications": {
     "title": "Candidaturas",
