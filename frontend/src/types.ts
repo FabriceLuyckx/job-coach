@@ -165,7 +165,7 @@ export interface Preferences {
   avoid: string
   locations: string[]
   remote: string
-  languages: string[]
+  /** Working languages live on the profile (skills.languages) — not here. */
   notes: string
 }
 

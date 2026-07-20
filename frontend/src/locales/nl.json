@@ -348,7 +348,8 @@
         "other": "Anders"
       }
     },
-    "saveFailedToast": "Profiel kon niet opgeslagen worden: {{error}}"
+    "saveFailedToast": "Profiel kon niet opgeslagen worden: {{error}}",
+    "needsAnswer": "Een antwoord nodig"
   },
   "preferences": {
     "title": "Jobvoorkeuren",
@@ -363,7 +364,6 @@
       "locationsPlaceholder": "bijv. Gent — druk Enter om toe te voegen",
       "workingStyle": "Werkstijl",
       "languages": "Talen waarin je kunt werken",
-      "languagesPlaceholder": "bijv. Nederlands — druk Enter om toe te voegen",
       "great": "Wat maakt een functie een geweldige match?",
       "greatSub": "Het werk, de sector, de missie — alles wat je echt zou willen aanvragen. Volledige zinnen zijn prima; de AI leest dit alsof een collega het zou lezen.",
       "greatPlaceholder": "bijv. Onderzoeksgericht werk waarbij ik end-to-end dataproducten kan bouwen, idealiter met sociale impact",
@@ -372,7 +372,9 @@
       "dealbreakersPlaceholder": "bijv. Uitsluitend administratief werk, koude acquisitie, weekenddiensten",
       "practical": "Wat praktische dingen moeten we controleren?",
       "practicalSub": "Salariestelling, contracttype, uren, startdatum, reizen — de kleine details die vooraf moeten worden gecontroleerd voordat je een aanbod zelf leest.",
-      "practicalPlaceholder": "bijv. Fulltime vanaf september, minimaal €3.500 per maand, maximaal één dag reizen per week"
+      "practicalPlaceholder": "bijv. Fulltime vanaf september, minimaal €3.500 per maand, maximaal één dag reizen per week",
+      "languagesEmpty": "Geen talen op je profiel nog — voeg de talen toe waarin je werkt zodat functies in andere talen worden gefilterd.",
+      "languagesEdit": "Talen op je profiel bewerken"
     },
     "suggest": {
       "admin": "Uitsluitend administratief werk",
@@ -384,7 +386,22 @@
     "doneAction": "Voeg een pagina toe om te volgen",
     "suggestLabel": "Algemene afwijzingen — tik er één op om het toe te voegen",
     "doneSubReady": "Dat is voldoende om te beginnen met scannen. Volgende stap: vertel Job Coach waar te kijken — voeg een carrièrepagina toe om te volgen.",
-    "doneSubNoRoles": "Voeg ten minste één functietitel toe in de eerste vraag — dat is wat elk aanbod eerst wordt gecontroleerd, dus zonder het vindt de scan weinig."
+    "doneSubNoRoles": "Voeg ten minste één functietitel toe in de eerste vraag — dat is wat elk aanbod eerst wordt gecontroleerd, dus zonder het vindt de scan weinig.",
+    "great": {
+      "impact": "Werk met een duidelijke sociale of ecologische impact",
+      "autonomy": "Autonomie over hoe ik het werk uitvoer",
+      "building": "Een project van begin tot eind bouwen, niet alleen adviseren",
+      "learning": "Een team waar ik blijf leren van"
+    },
+    "greatLabel": "Algemene redenen waarom een baan aantrekkelijk is — tik er één op om toe te voegen",
+    "suggestTitles": {
+      "action": "Voorstel functietitels op basis van je profiel",
+      "groupLabel": "Aanbevolen functietitels — tik er één op om toe te voegen",
+      "arrived": "{{count}} aangeboden functietitel",
+      "arrived_other": "{{count}} aangeboden functietitels",
+      "none": "Kon geen functietitels bedenken — voeg meer detail toe aan je ervaring en probeer opnieuw.",
+      "needProfile": "Voeg eerst je functietitel of werkervaring op je profiel toe."
+    }
   },
   "badges": {
     "cv": "Op je cv",

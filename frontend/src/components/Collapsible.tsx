@@ -15,9 +15,12 @@ import { ChevronRight } from 'lucide-react'
  */
 export default function Collapsible({
   title, extras, children, defaultOpen = false, open: controlledOpen, onToggle, flat = false,
-  headingLevel,
+  headingLevel, id,
 }: {
   title: ReactNode
+  /** Anchor for deep links (`/profile#languages`). `.collapsible` already
+   * carries scroll-margin-top so the sticky save band can't cover it. */
+  id?: string
   extras?: ReactNode
   children: ReactNode
   defaultOpen?: boolean
@@ -47,7 +50,7 @@ export default function Collapsible({
   const Heading = headingLevel === 3 ? 'h3' : 'h2'
 
   return (
-    <div className={flat ? 'collapsible' : 'collapsible card'}>
+    <div id={id} className={flat ? 'collapsible' : 'collapsible card'}>
       <div className="collapsible-header">
         {headingLevel
           ? <Heading className="collapsible-heading">{toggleBtn}</Heading>

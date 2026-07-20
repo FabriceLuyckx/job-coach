@@ -348,7 +348,8 @@
         "other": "Inne"
       }
     },
-    "saveFailedToast": "Nie udało się zapisać profilu: {{error}}"
+    "saveFailedToast": "Nie udało się zapisać profilu: {{error}}",
+    "needsAnswer": "Wymaga odpowiedzi"
   },
   "preferences": {
     "title": "Preferencje pracy",
@@ -363,7 +364,6 @@
       "locationsPlaceholder": "np. Gent — naciśnij Enter, aby dodać",
       "workingStyle": "Styl pracy",
       "languages": "Języki, w których możesz pracować",
-      "languagesPlaceholder": "np. Holenderski — naciśnij Enter, aby dodać",
       "great": "Co sprawia, że oferta jest świetnie dopasowana?",
       "greatSub": "Praca, branża, misja — wszystko, co by Cię naprawdę skłoniło do zastosowania. Można podać pełne zdania; AI czyta to jak kolegę.",
       "greatPlaceholder": "np. Praca oparta na badaniach, w której mogę budować produkty danych od razu, najlepiej z wpływem społecznym",
@@ -372,7 +372,9 @@
       "dealbreakersPlaceholder": "np. Praca wyłącznie administracyjna, sprzedaż bez kontaktu, weekendowe zmiany",
       "practical": "Czy coś praktycznego powinno być sprawdzone?",
       "practicalSub": "Oczekiwane wynagrodzenie, typ umowy, godziny, data rozpoczęcia, podróż — szczegóły, które warto zauważyć przed tym, jak przeczytasz ofertę samodzielnie.",
-      "practicalPlaceholder": "np. Pełny etat od września, co najmniej €3500/miesiąc, maksymalnie jeden dzień podróży w tygodniu"
+      "practicalPlaceholder": "np. Pełny etat od września, co najmniej €3500/miesiąc, maksymalnie jeden dzień podróży w tygodniu",
+      "languagesEmpty": "Brak języków na profilu — dodaj języki, w których możesz pracować, aby filtry wyrzucały oferty w innych językach.",
+      "languagesEdit": "Edytuj języki na profilu"
     },
     "suggest": {
       "admin": "Praca wyłącznie administracyjna",
@@ -384,7 +386,22 @@
     "doneAction": "Dodaj stronę do obserwacji",
     "suggestLabel": "Powszechne kryteria wykluczenia — naciśnij jeden, aby dodać",
     "doneSubReady": "To wystarcza, aby rozpocząć analizę. Następnie powiedz Job Coach, gdzie szukać — dodaj stronę z karierą do obserwacji.",
-    "doneSubNoRoles": "Dodaj przynajmniej jedno stanowisko w pierwszym pytaniu — to jest to, na czym wszystkie ogłoszenia są sprawdzane, więc bez tego analiza nie znajduje nic."
+    "doneSubNoRoles": "Dodaj przynajmniej jedno stanowisko w pierwszym pytaniu — to jest to, na czym wszystkie ogłoszenia są sprawdzane, więc bez tego analiza nie znajduje nic.",
+    "great": {
+      "impact": "Praca z jasnym wpływem społecznym lub środowiskowym",
+      "autonomy": "Autonomia w sposobie wykonywania pracy",
+      "building": "Tworzenie czegoś zaczynającego się od zera, a nie tylko doradztwo",
+      "learning": "Zespół, z którym mogę się ciągle rozwijać"
+    },
+    "greatLabel": "Typowe powody, dla których oferta jest atrakcyjna — kliknij jeden, aby dodać",
+    "suggestTitles": {
+      "action": "Zaproponuj tytuły z profilu",
+      "groupLabel": "Zaproponowane tytuły pracy — kliknij jeden, aby dodać",
+      "arrived": "{{count}} zaproponowany tytuł pracy",
+      "arrived_other": "{{count}} zaproponowane tytuły pracy",
+      "none": "Nie mogłem wymyślić żadnych tytułów — dodaj więcej szczegółów o swoim doświadczeniu i spróbuj ponownie.",
+      "needProfile": "Dodaj tytuł pracy lub jakieś doświadczenie z pracy na profilu."
+    }
   },
   "badges": {
     "cv": "W Twoim CV",

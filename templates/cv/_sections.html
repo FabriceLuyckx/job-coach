@@ -72,10 +72,13 @@
 {% endmacro %}
 
 {% macro sec_languages() %}
-  {% if 'languages' not in hidden %}
+  {# Nameless rows are real: a new profile is seeded with one empty row and the
+     "add language" button creates more. Printing them gives blank rows of dots. #}
+  {% set named = skills.languages | selectattr('language') | list %}
+  {% if 'languages' not in hidden and named %}
   <div class="section" data-section="languages">
     <div class="section-title">{{ labels.languages }}</div>
-    {% for lang_item in skills.languages %}
+    {% for lang_item in named %}
     <div class="lang-row">
       <span>{{ lang_item.language }}</span>
       <div class="lang-dots">

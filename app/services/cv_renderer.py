@@ -749,6 +749,19 @@ def normalize_profile(profile: dict) -> dict:
             block = f"Research background: {themes}"
             p["preferences"]["notes"] = f"{notes}\n\n{block}".strip()
 
+    # Working languages have one source of truth: skills.languages (which carries a
+    # CEFR level). preferences.languages was a bare tag list saying the same thing
+    # less precisely; pop it unconditionally so the migration is idempotent, and
+    # seed skills.languages from it only when nothing is named there yet. Level 3 is
+    # a neutral guess — the old field had no proficiency and the Profile page is
+    # where the user corrects it.
+    old_langs = [str(x).strip() for x in (p["preferences"].pop("languages", None) or [])
+                 if str(x).strip()]
+    if old_langs and not any(l.get("language") for l in p["skills"]["languages"]):
+        p["skills"]["languages"] = [
+            {"language": name, "level": 3, "label": CEFR_LABELS[3]} for name in old_langs
+        ]
+
     meta = dict(p.get("meta") or {})
     meta["schema"] = "career-profile-v5"
     if "enabled_sections" not in meta:
@@ -793,6 +806,8 @@ def role_brief(profile: dict) -> str:
     prefs = profile.get("preferences") or {}
     title = (profile.get("personal") or {}).get("professional_title", "")
     roles = prefs.get("target_roles") or []
+    langs = [l["language"] for l in ((profile.get("skills") or {}).get("languages") or [])
+             if l.get("language")]
     header = (
         "GENERIC APPLICATION — there is no specific job posting or employer.\n"
         "Write for the target roles below; keep it broadly applicable rather than "
@@ -806,7 +821,7 @@ def role_brief(profile: dict) -> str:
         f"Avoiding: {prefs['avoid']}" if prefs.get("avoid") else "",
         f"Locations: {', '.join(prefs['locations'])}" if prefs.get("locations") else "",
         f"Working style: {prefs['remote']}" if prefs.get("remote") else "",
-        f"Working languages: {', '.join(prefs['languages'])}" if prefs.get("languages") else "",
+        f"Working languages: {', '.join(langs)}" if langs else "",
         f"Other notes: {prefs['notes']}" if prefs.get("notes") else "",
     ]
     return header + "\n".join(p for p in parts if p)
@@ -823,7 +838,12 @@ def blank_profile() -> dict:
         },
         "summary": "",
         "experience": [],
-        "skills": {"groups": [dict(g) for g in DEFAULT_SKILL_GROUPS], "languages": []},
+        # One empty language row: languages are required, and an empty section
+        # would render as a void with nothing to type into.
+        "skills": {
+            "groups": [dict(g) for g in DEFAULT_SKILL_GROUPS],
+            "languages": [{"language": "", "level": 3, "label": CEFR_LABELS[3]}],
+        },
         "cv_design_preferences": {
             "accent_color": "#1B3A6B", "include_photo": False,
         },

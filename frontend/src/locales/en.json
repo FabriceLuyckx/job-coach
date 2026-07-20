@@ -395,7 +395,8 @@
       "importing": "Importing…",
       "importBtn": "Import"
     },
-    "saveFailedToast": "Couldn't save your profile: {{error}}"
+    "saveFailedToast": "Couldn't save your profile: {{error}}",
+    "needsAnswer": "Needs an answer"
   },
   "preferences": {
     "title": "Job Preferences",
@@ -410,7 +411,6 @@
       "locationsPlaceholder": "e.g. Ghent — press Enter to add",
       "workingStyle": "Working style",
       "languages": "Languages you can work in",
-      "languagesPlaceholder": "e.g. Dutch — press Enter to add",
       "great": "What makes a job a great match?",
       "greatSub": "The work, the industry, the mission — whatever would make you genuinely want to apply. Full sentences are fine; the AI reads this like a colleague would.",
       "greatPlaceholder": "e.g. Research-driven work where I get to build data products end to end, ideally with social impact",
@@ -419,7 +419,9 @@
       "dealbreakersPlaceholder": "e.g. Purely administrative work, cold acquisition, weekend shifts",
       "practical": "Anything practical we should check?",
       "practicalSub": "Salary expectations, contract type, hours, start date, travel — the small print worth catching before you read a posting yourself.",
-      "practicalPlaceholder": "e.g. Full-time from September, at least €3,500/month, max one day of travel a week"
+      "practicalPlaceholder": "e.g. Full-time from September, at least €3,500/month, max one day of travel a week",
+      "languagesEmpty": "No languages on your profile yet — add the ones you can work in so postings in other languages get filtered out.",
+      "languagesEdit": "Edit languages on your Profile"
     },
     "suggest": {
       "admin": "Purely administrative work",
@@ -431,7 +433,22 @@
     "doneAction": "Add a page to watch",
     "suggestLabel": "Common dealbreakers — tap one to add it",
     "doneSubReady": "That's enough to start scanning. Next, tell Job Coach where to look — add a careers page to watch.",
-    "doneSubNoRoles": "Add at least one job title in the first question — it's what every listing gets checked against first, so scanning without it finds little."
+    "doneSubNoRoles": "Add at least one job title in the first question — it's what every listing gets checked against first, so scanning without it finds little.",
+    "great": {
+      "impact": "Work with a clear social or environmental impact",
+      "autonomy": "Autonomy over how I do the work",
+      "building": "Building something end to end, not just advising",
+      "learning": "A team I can keep learning from"
+    },
+    "greatLabel": "Common reasons a job appeals — tap one to add it",
+    "suggestTitles": {
+      "action": "Suggest titles from my profile",
+      "groupLabel": "Suggested job titles — tap one to add it",
+      "arrived": "{{count}} suggested job title",
+      "arrived_other": "{{count}} suggested job titles",
+      "none": "Couldn't think of any titles — add more detail to your experience and try again.",
+      "needProfile": "Add your job title or some work experience on your Profile first."
+    }
   },
   "badges": {
     "cv": "On your CV",

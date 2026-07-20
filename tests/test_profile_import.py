@@ -23,8 +23,10 @@ def test_blank_profile_is_valid_v5():
     assert b["meta"]["enabled_sections"] == []
     assert b["preferences"] == {
         "target_roles": [], "looking_for": "", "avoid": "", "locations": [],
-        "remote": "Hybrid", "languages": [], "notes": "",
+        "remote": "Hybrid", "notes": "",
     }
+    # Languages are profile-owned and required: one empty row to fill in.
+    assert b["skills"]["languages"] == [{"language": "", "level": 3, "label": "B1 Intermediate"}]
 
 
 def test_pdf_to_text_rejects_non_pdf():

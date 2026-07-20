@@ -11,13 +11,17 @@ from app.services.cv_renderer import GENERIC_URL, profile_ready, role_brief
 FULL = {
     "personal": {"professional_title": "Data Scientist"},
     "experience": [{"id": "a", "title": "Analyst"}],
+    "skills": {"languages": [
+        {"language": "Dutch", "level": 5},
+        {"language": "English", "level": 4},
+        {"language": "", "level": 3},  # an unfilled row must not reach the brief
+    ]},
     "preferences": {
         "target_roles": ["Data Scientist", "ML Engineer"],
         "looking_for": "Impact-driven research teams",
         "avoid": "Pure sales roles",
         "locations": ["Ghent", "Brussels"],
         "remote": "Hybrid",
-        "languages": ["Dutch", "English"],
         "notes": "Prefers 4/5ths.",
     },
 }

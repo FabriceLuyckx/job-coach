@@ -348,7 +348,8 @@
         "other": "Autre"
       }
     },
-    "saveFailedToast": "Impossible de sauvegarder votre profil : {{error}}"
+    "saveFailedToast": "Impossible de sauvegarder votre profil : {{error}}",
+    "needsAnswer": "A besoin d'une réponse"
   },
   "preferences": {
     "title": "Préférences d'emploi",
@@ -363,7 +364,6 @@
       "locationsPlaceholder": "ex. Gand — appuyez sur Entrée pour l'ajouter",
       "workingStyle": "Style de travail",
       "languages": "Langues que vous pouvez utiliser",
-      "languagesPlaceholder": "ex. néerlandais — appuyez sur Entrée pour l'ajouter",
       "great": "Qu'est-ce qui rend un emploi un bon match ?",
       "greatSub": "Le travail, l'industrie, la mission — tout ce qui vous ferait vraiment vouloir postuler. Des phrases complètes sont acceptées ; l'IA les lit comme un collègue.",
       "greatPlaceholder": "ex. Un travail centré sur la recherche où je peux construire des produits de données de bout en bout, idéalement avec un impact social",
@@ -372,7 +372,9 @@
       "dealbreakersPlaceholder": "ex. Travail purement administratif, acquisition froide, shifts le week-end",
       "practical": "N'oubliez pas les points pratiques à vérifier ?",
       "practicalSub": "Attentes salariales, type de contrat, horaires, date de début, déplacements — les détails importants à vérifier avant de lire une offre vous-même.",
-      "practicalPlaceholder": "ex. Temps plein à partir de septembre, au moins 3 500 €/mois, un maximum de 1 jour de déplacement par semaine"
+      "practicalPlaceholder": "ex. Temps plein à partir de septembre, au moins 3 500 €/mois, un maximum de 1 jour de déplacement par semaine",
+      "languagesEmpty": "Aucune langue sur votre profil encore — ajoutez les langues dans lesquelles vous pouvez travailler afin de filtrer les offres dans d'autres langues.",
+      "languagesEdit": "Modifier les langues de votre Profil"
     },
     "suggest": {
       "admin": "Travail purement administratif",
@@ -384,7 +386,22 @@
     "doneAction": "Ajouter une page à surveiller",
     "suggestLabel": "Critères fréquents — touchez-en un pour l'ajouter",
     "doneSubReady": "Cela suffit pour commencer à scanner. Ensuite, dites à Job Coach où il doit chercher — ajoutez une page de carrière à surveiller.",
-    "doneSubNoRoles": "Ajoutez au moins un titre de poste dans la première question — c'est ce que chaque annonce vérifie en premier, donc sans cela, le scan ne trouve presque rien."
+    "doneSubNoRoles": "Ajoutez au moins un titre de poste dans la première question — c'est ce que chaque annonce vérifie en premier, donc sans cela, le scan ne trouve presque rien.",
+    "great": {
+      "impact": "Travailler avec un impact social ou environnemental clair",
+      "autonomy": "Autonomie sur la manière de faire le travail",
+      "building": "Construire quelque chose de bout en bout, et non pas seulement conseiller",
+      "learning": "Un équipe dont je peux continuer à apprendre"
+    },
+    "greatLabel": "Raisons courantes pour lesquelles un poste attire — touchez-en une pour l'ajouter",
+    "suggestTitles": {
+      "action": "Proposer des titres à partir de mon profil",
+      "groupLabel": "Titres suggérés — touchez-en un pour l'ajouter",
+      "arrived": "{{count}} titre de poste suggéré",
+      "arrived_other": "{{count}} titres de poste suggérés",
+      "none": "Je n'ai pas pu penser à aucun titre — ajoutez plus de détails sur votre expérience et réessayez.",
+      "needProfile": "Ajoutez d'abord votre titre de poste ou une expérience professionnelle sur votre Profil."
+    }
   },
   "badges": {
     "cv": "Sur votre CV",

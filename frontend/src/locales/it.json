@@ -348,7 +348,8 @@
         "other": "Altro"
       }
     },
-    "saveFailedToast": "Impossibile salvare il profilo: {{error}}"
+    "saveFailedToast": "Impossibile salvare il profilo: {{error}}",
+    "needsAnswer": "Richiede una risposta"
   },
   "preferences": {
     "title": "Preferenze lavoro",
@@ -363,7 +364,6 @@
       "locationsPlaceholder": "es. Gand — premi Invio per aggiungere",
       "workingStyle": "Stile di lavoro",
       "languages": "Lingue in cui puoi lavorare",
-      "languagesPlaceholder": "es. Olandese — premi Invio per aggiungere",
       "great": "Quali caratteristiche rendono un lavoro un ottimo match?",
       "greatSub": "Il lavoro, il settore, la missione — qualsiasi cosa ti farebbe davvero venire voglia di candidarti. Frasi complete vanno benissimo; l'IA le legge come farebbe un collega.",
       "greatPlaceholder": "es. Lavoro orientato alla ricerca in cui costruisco prodotti dati dall'inizio alla fine, idealmente con impatto sociale",
@@ -372,7 +372,9 @@
       "dealbreakersPlaceholder": "es. Lavoro puramente amministrativo, vendite a freddo, turni nel weekend",
       "practical": "C'è qualcosa di pratico da verificare?",
       "practicalSub": "Aspettative salariali, tipo di contratto, orari, data di inizio, trasferte — i dettagli minori da notare prima ancora di leggere un annuncio.",
-      "practicalPlaceholder": "es. Tempo pieno da settembre, almeno 3.500 €/mese, massimo un giorno di trasferta a settimana"
+      "practicalPlaceholder": "es. Tempo pieno da settembre, almeno 3.500 €/mese, massimo un giorno di trasferta a settimana",
+      "languagesEmpty": "Nessuna lingua sul tuo profilo ancora — aggiungi quelle in cui sei in grado di lavorare in modo che i posti di lavoro in altre lingue vengano filtrati.",
+      "languagesEdit": "Modifica le lingue sul tuo Profilo"
     },
     "suggest": {
       "admin": "Lavoro puramente amministrativo",
@@ -384,7 +386,22 @@
     "doneAction": "Aggiungi una pagina da monitorare",
     "suggestLabel": "Dei criteri comuni di rifiuto — tocca uno per aggiungerlo",
     "doneSubReady": "È sufficiente per iniziare a scansare. Successivamente, indica al Job Coach dove cercare — aggiungi una pagina dei posti di lavoro da monitorare.",
-    "doneSubNoRoles": "Aggiungi almeno un titolo di lavoro nella prima domanda — è ciò su cui ogni annuncio viene verificato per primo, quindi senza di esso il sistema trova pochi risultati."
+    "doneSubNoRoles": "Aggiungi almeno un titolo di lavoro nella prima domanda — è ciò su cui ogni annuncio viene verificato per primo, quindi senza di esso il sistema trova pochi risultati.",
+    "great": {
+      "impact": "Lavorare con un impatto sociale o ambientale chiaro",
+      "autonomy": "Autonomia sull'approccio del lavoro",
+      "building": "Costruire qualcosa da zero a fine, non solo consigliare",
+      "learning": "Un team da cui imparare costantemente"
+    },
+    "greatLabel": "Motivi comuni per cui un lavoro è attraente — tocca uno per aggiungerlo",
+    "suggestTitles": {
+      "action": "Propone titoli dal mio profilo",
+      "groupLabel": "Titoli suggeriti — tocca uno per aggiungerlo",
+      "arrived": "{{count}} titolo suggerito",
+      "arrived_other": "{{count}} titoli suggeriti",
+      "none": "Non sono riuscito a pensare a nessun titolo — aggiungi più dettagli alla tua esperienza e riprova.",
+      "needProfile": "Aggiungi il tuo titolo o un'esperienza lavorativa sul tuo Profilo prima."
+    }
   },
   "badges": {
     "cv": "Nel tuo CV",

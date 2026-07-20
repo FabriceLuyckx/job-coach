@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FileUp, PencilLine, Upload } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { api } from '../api'
 import type {
   Profile, Experience, Education, Publication, Grant,
@@ -361,6 +361,16 @@ export default function ProfilePage() {
   const [showImport, setShowImport] = useState(false)
   const [manualStart, setManualStart] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  // Deep link into one section (`/profile#languages`). The browser can't do this
+  // itself: the sections don't exist until the profile has loaded, long after
+  // it gave up looking for the anchor.
+  const { hash } = useLocation()
+  const anchor = hash.slice(1)
+
+  useEffect(() => {
+    if (!anchor || !profile) return
+    document.getElementById(anchor)?.scrollIntoView({ block: 'start' })
+  }, [anchor, profile])
 
   useEffect(() => {
     if (!menuOpen) return
@@ -393,7 +403,9 @@ export default function ProfilePage() {
     && !pf.summary.trim()
     && pf.experience.length === 0
     && pf.education.length === 0
-    && pf.skills.languages.length === 0
+    // A blank profile is seeded with one *empty* language row, so presence of a
+    // row says nothing — only a filled-in name does.
+    && !pf.skills.languages.some(l => l.language.trim())
     && pf.skills.groups.every(g => g.items.length === 0)
     && (pf.meta?.enabled_sections?.length ?? 0) === 0
   const showForm = !pristine || manualStart
@@ -711,7 +723,9 @@ export default function ProfilePage() {
         <Button variant="secondary" onClick={() => set('skills.groups', [...pf.skills.groups, { label: '', items: [] }])}>{t('profile.add.skillGroup')}</Button>
       </Section>
 
-      <Section title={t('sections.languages.label')} count={pf.skills.languages.length} help={t('profile.help.languages')}>
+      <Section id="languages" title={t('sections.languages.label')} count={pf.skills.languages.length}
+        help={t('profile.help.languages')} defaultOpen={anchor === 'languages'}
+        required={!pf.skills.languages.some(l => l.language.trim())}>
         {pf.skills.languages.map((l, i) => (
           <div key={i} className="row" style={{ marginBottom: 'var(--space-2)', alignItems: 'center' }}>
             <input type="text" value={l.language} placeholder={t('profile.skills.languagePlaceholder')}

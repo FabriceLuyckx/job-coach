@@ -328,6 +328,10 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 .badge-lang    { background: transparent; color: var(--ink); border: 1px solid var(--border); }
 .badge-neutral { background: transparent; color: var(--muted); border: 1px solid color-mix(in srgb, var(--ink) 45%, transparent); }
 .badge-deadline { background: transparent; color: var(--accent-text); border: 1px solid var(--accent-text); }
+/* "Needs an answer" — mustard, matching the other --highlight nudges. Not the
+   accent (the section already carries a vermilion CV badge, and two in one row
+   breaks the rationing) and not --danger (unanswered is not an error). */
+.badge-required { background: transparent; color: var(--highlight); border: 1px solid var(--highlight); }
 
 /* ── Preferences questionnaire ──────────────────────────────────────────── */
 /* Unnumbered on purpose: ordinals imply a wizard with progress and an end, and
@@ -443,18 +447,21 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 .suggest-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-2); }
 .suggest-row button {
   font-size: var(--fs-sm);
-  padding: 3px 10px;
+  /* 6px, not 3px: at 13px text a 3px chip measures ~24px tall — exactly the
+     WCAG 2.5.8 floor, with no margin for error, on a control there are now
+     three rows of. */
+  padding: 6px 10px;
   background: transparent;
   border: 1px dashed color-mix(in srgb, var(--ink) 45%, transparent);
   border-radius: var(--chip-radius);
   color: var(--muted);
   cursor: pointer;
 }
-.suggest-row button:hover:not(:disabled) { border-color: var(--ink); color: var(--ink); border-style: solid; }
+.suggest-row button:hover:not([aria-disabled="true"]) { border-color: var(--ink); color: var(--ink); border-style: solid; }
 /* The "already added" state was opacity 0.35 — 1.65:1, unreadable, and the only
    signal that the item was present. Keep it at full contrast and let the solid
    border plus the ✓ glyph (not colour) carry the state. */
-.suggest-row button:disabled {
+.suggest-row button[aria-disabled="true"] {
   cursor: default;
   border-style: solid;
   border-color: color-mix(in srgb, var(--ink) 30%, transparent);

@@ -348,7 +348,8 @@
         "other": "Outro"
       }
     },
-    "saveFailedToast": "Não foi possível salvar seu perfil: {{error}}"
+    "saveFailedToast": "Não foi possível salvar seu perfil: {{error}}",
+    "needsAnswer": "Precisa de uma resposta"
   },
   "preferences": {
     "title": "Preferências de Emprego",
@@ -363,7 +364,6 @@
       "locationsPlaceholder": "ex.: Gante — prima Enter para adicionar",
       "workingStyle": "Estilo de trabalho",
       "languages": "Idiomas em que pode trabalhar",
-      "languagesPlaceholder": "ex.: Neerlandês — prima Enter para adicionar",
       "great": "O que torna um emprego um bom ajuste?",
       "greatSub": "O trabalho, a indústria, a missão — qualquer coisa que o fizesse realmente querer candidatar-se. Frases completas estão bem; a IA lê isto como um colega leria.",
       "greatPlaceholder": "ex.: Trabalho baseado em investigação onde consigo construir produtos de dados de ponta a ponta, idealmente com impacto social",
@@ -372,7 +372,9 @@
       "dealbreakersPlaceholder": "ex.: Trabalho puramente administrativo, prospeção a frio, turnos aos fins de semana",
       "practical": "Há algo prático que devêssemos verificar?",
       "practicalSub": "Expectativas salariais, tipo de contrato, horário, data de início, viagens — os pequenos detalhes que vale a pena notar antes de ler um anúncio por si próprio.",
-      "practicalPlaceholder": "ex.: A tempo inteiro a partir de setembro, pelo menos €3.500/mês, no máximo um dia de viagem por semana"
+      "practicalPlaceholder": "ex.: A tempo inteiro a partir de setembro, pelo menos €3.500/mês, no máximo um dia de viagem por semana",
+      "languagesEmpty": "Nenhuma língua no seu perfil ainda — adicione as que você pode trabalhar para filtrar ofertas em outras línguas.",
+      "languagesEdit": "Editar línguas no seu Perfil"
     },
     "suggest": {
       "admin": "Trabalho puramente administrativo",
@@ -384,7 +386,22 @@
     "doneAction": "Adicione uma página para monitorar",
     "suggestLabel": "Critérios comuns de rejeição — toque em um para adicioná-lo",
     "doneSubReady": "Isso é suficiente para começar a escanear. Agora, diga ao Job Coach onde procurar — adicione uma página de carreiras para monitorar.",
-    "doneSubNoRoles": "Adicione pelo menos um título de cargo na primeira pergunta — é o que cada anúncio é verificado primeiro, então sem ele, a busca não encontra muito."
+    "doneSubNoRoles": "Adicione pelo menos um título de cargo na primeira pergunta — é o que cada anúncio é verificado primeiro, então sem ele, a busca não encontra muito.",
+    "great": {
+      "impact": "Trabalhar com um impacto social ou ambiental claro",
+      "autonomy": "Autonomia sobre como faço o trabalho",
+      "building": "Construir algo de ponta a ponta, e não apenas dar orientações",
+      "learning": "Uma equipe com a qual eu posso continuar aprendendo"
+    },
+    "greatLabel": "Motivos comuns por que um emprego é atraente — toque um para adicioná-lo",
+    "suggestTitles": {
+      "action": "Sugerir títulos a partir do meu perfil",
+      "groupLabel": "Títulos sugeridos — toque um para adicioná-lo",
+      "arrived": "{{count}} título sugerido",
+      "arrived_other": "{{count}} títulos sugeridos",
+      "none": "Não consegui pensar em nenhum título — adicione mais detalhes sobre sua experiência e tente novamente.",
+      "needProfile": "Adicione seu título ou algum detalhe sobre sua experiência no Perfil primeiro."
+    }
   },
   "badges": {
     "cv": "No seu CV",

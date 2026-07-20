@@ -182,6 +182,9 @@ export const api = {
     if (input.text) form.append('text', input.text)
     return request<Profile>('/profile/import', { method: 'POST', body: form })
   },
+  // Candidate target-role titles derived from the profile. On demand only.
+  suggestTitles: () =>
+    request<{ titles: string[] }>('/profile/suggest-titles', { method: 'POST' }),
 
   // CV generation (async)
   startGenerateCV: (url: string, lang: string) =>

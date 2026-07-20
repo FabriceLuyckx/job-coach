@@ -201,11 +201,12 @@ def test_design_prefs_trimmed():
 def test_preferences_migrated():
     p = normalize_profile(copy.deepcopy(V1))
     prefs = p["preferences"]
-    assert set(prefs.keys()) == {"target_roles", "looking_for", "avoid", "locations", "remote", "languages", "notes"}
+    assert set(prefs.keys()) == {"target_roles", "looking_for", "avoid", "locations", "remote", "notes"}
     assert prefs["target_roles"] == []
     assert prefs["locations"] == ["Ghent"]
     assert prefs["remote"] == "Hybrid"
-    assert prefs["languages"] == ["English"]
+    # v1 language_preferences land on the profile, the one source of truth
+    assert [l["language"] for l in p["skills"]["languages"]] == ["English"]
     assert prefs["avoid"] == "Pure admin."
     assert "University" in prefs["notes"]  # organisation_preferences folded in
     assert "4500" in prefs["notes"]  # salary folded in
@@ -318,3 +319,34 @@ def test_professional_title_reaches_matcher(monkeypatch):
         js.review_posting({"title": "X", "url": "http://x"}, "posting text",
                           p, {"openrouter_api_key": "k"})
     assert "Data Scientist" in captured.get("system", "")
+
+
+# ── Working languages become profile-owned (preferences.languages → skills.languages) ──
+
+def _v4_with(prefs_langs, skills_langs):
+    return {
+        "meta": {"schema": "career-profile-v4"},
+        "personal": {"name": "X"},
+        "skills": {"groups": [], "languages": skills_langs},
+        "preferences": {"languages": prefs_langs},
+    }
+
+
+def test_preference_languages_seed_an_empty_profile_list():
+    p = normalize_profile(_v4_with(["Dutch", "English"], []))
+    assert [l["language"] for l in p["skills"]["languages"]] == ["Dutch", "English"]
+    assert all(l["level"] == 3 for l in p["skills"]["languages"])  # neutral guess
+    assert "languages" not in p["preferences"]
+
+
+def test_preference_languages_never_overwrite_profile_languages():
+    p = normalize_profile(_v4_with(
+        ["Dutch"], [{"language": "French", "level": 5, "label": "C2 Native / Fluent"}]))
+    assert [l["language"] for l in p["skills"]["languages"]] == ["French"]
+    assert "languages" not in p["preferences"]
+
+
+def test_language_migration_is_idempotent():
+    once = normalize_profile(_v4_with(["Dutch", "English"], []))
+    twice = normalize_profile(copy.deepcopy(once))
+    assert once == twice

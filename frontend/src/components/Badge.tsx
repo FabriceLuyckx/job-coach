@@ -3,7 +3,7 @@
 
 import type { ReactNode } from 'react'
 
-type Variant = 'cv' | 'ai' | 'jobs' | 'lang' | 'neutral'
+type Variant = 'cv' | 'ai' | 'jobs' | 'lang' | 'neutral' | 'required'
 
 /** Small pill — section badges, language tags, statuses. */
 export default function Badge({ variant = 'neutral', children }: {

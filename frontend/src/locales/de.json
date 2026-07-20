@@ -348,7 +348,8 @@
         "other": "Andere"
       }
     },
-    "saveFailedToast": "Dein Profil konnte nicht gespeichert werden: {{error}}"
+    "saveFailedToast": "Dein Profil konnte nicht gespeichert werden: {{error}}",
+    "needsAnswer": "Bedarf einer Antwort"
   },
   "preferences": {
     "title": "Job Präferenzen",
@@ -363,7 +364,6 @@
       "locationsPlaceholder": "z. B. Gent — drücken Sie Enter, um hinzuzufügen",
       "workingStyle": "Arbeitsweise",
       "languages": "Sprachen, in denen Sie arbeiten können",
-      "languagesPlaceholder": "z. B. Niederländisch — drücken Sie Enter, um hinzuzufügen",
       "great": "Was macht eine Stelle zu einem tollen Treffer?",
       "greatSub": "Die Arbeit, die Branche, die Mission — alles, was Sie wirklich zu einer Bewerbung bewegen würde. Vollständige Sätze sind in Ordnung; die KI liest das wie eine Kollegin oder ein Kollege.",
       "greatPlaceholder": "z. B. Forschungsorientierte Arbeit, bei der ich end-to-end Datenprodukte entwickeln kann, idealerweise mit sozialer Auswirkung",
@@ -372,7 +372,9 @@
       "dealbreakersPlaceholder": "z. B. Rein administrative Arbeit, Kaltakquise, Wochenendarbeit",
       "practical": "Ist noch etwas praktisches zu überprüfen?",
       "practicalSub": "Gehaltsvorstellungen, Vertragsart, Arbeitszeiten, Startdatum, Reisebereitschaft — die kleinen Details, die Sie am besten schon kennen, bevor Sie eine Stellenanzeige selbst lesen.",
-      "practicalPlaceholder": "z. B. Vollzeit ab September, mindestens €3.500/Monat, maximal ein Tag Reise pro Woche"
+      "practicalPlaceholder": "z. B. Vollzeit ab September, mindestens €3.500/Monat, maximal ein Tag Reise pro Woche",
+      "languagesEmpty": "Keine Sprachen auf deinem Profil noch vorhanden — füge die hinzu, in denen du arbeiten kannst, damit Stellen in anderen Sprachen ausgeschlossen werden.",
+      "languagesEdit": "Sprachen auf deinem Profil bearbeiten"
     },
     "suggest": {
       "admin": "Rein administrativer Arbeit",
@@ -384,7 +386,22 @@
     "doneAction": "Eine Seite hinzufügen, die überwacht wird",
     "suggestLabel": "Gängige Ausschlusskriterien — tippe eine aus, um sie hinzuzufügen",
     "doneSubReady": "Das ist genug, um zu scannen. Nächste Schritt: Erkläre Job Coach, wo er suchen soll — füge eine Karriere-Page hinzu, die überwacht wird.",
-    "doneSubNoRoles": "Füge mindestens einen Berufsbezeichnung in der ersten Frage hinzu — das ist das, was jede Stellenanzeige zuerst abgeglichen wird, daher findet ein Scan ohne es wenig heraus."
+    "doneSubNoRoles": "Füge mindestens einen Berufsbezeichnung in der ersten Frage hinzu — das ist das, was jede Stellenanzeige zuerst abgeglichen wird, daher findet ein Scan ohne es wenig heraus.",
+    "great": {
+      "impact": "Arbeit mit einem klaren sozialen oder ökologischen Einfluss",
+      "autonomy": "Autonomie bei der Durchführung der Arbeit",
+      "building": "Etwas von der Grundlage bis zum Ende bauen, nicht nur beraten",
+      "learning": "Ein Team, aus dem ich lernen kann"
+    },
+    "greatLabel": "Häufige Gründe, warum eine Stelle attraktiv ist — tippe darauf, um sie hinzuzufügen",
+    "suggestTitles": {
+      "action": "Jobtitel aus deinem Profil vorschlagen",
+      "groupLabel": "Vorgeschlagene Jobtitel — tippe darauf, um ihn hinzuzufügen",
+      "arrived": "{{count}} vorgeschlagener Jobtitel",
+      "arrived_other": "{{count}} vorgeschlagene Jobtitel",
+      "none": "Keine Titel eingefallen — füge mehr Details zu deinem Berufserfahrung hinzu und versuche es erneut.",
+      "needProfile": "Füge zuerst deinen Jobtitel oder einige Berufserfahrungen auf deinem Profil hinzu."
+    }
   },
   "badges": {
     "cv": "Im Lebenslauf",

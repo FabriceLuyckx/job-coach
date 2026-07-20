@@ -10,18 +10,23 @@ import { BADGE_LABELS, type SectionBadge } from '../lib/profileSections'
 
 /** A titled, collapsible block used by the Profile and Preferences pages, with an
  * optional CV/AI/jobs badge and an optional "hide this section" affordance. */
-export function Section({ title, badge, help, count, onHide, children, defaultOpen = false }: {
+export function Section({ title, badge, help, count, onHide, required, children, defaultOpen = false, id }: {
   title: string
+  /** Anchor for deep links into this section (see Collapsible). */
+  id?: string
   badge?: SectionBadge
   help?: string
   count?: number
   onHide?: () => void
+  /** Section still needs an answer — shows a mustard badge on the header. */
+  required?: boolean
   children: React.ReactNode
   defaultOpen?: boolean
 }) {
   const { t } = useTranslation()
   return (
     <Collapsible
+      id={id}
       defaultOpen={defaultOpen}
       headingLevel={2}
       extras={onHide && (
@@ -33,6 +38,10 @@ export function Section({ title, badge, help, count, onHide, children, defaultOp
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
           <span className="collapsible-title">{title}{typeof count === 'number' && count > 0 ? ` (${count})` : ''}</span>
           {badge && <Badge variant={badge}>{t(BADGE_LABELS[badge])}</Badge>}
+          {/* Inside the toggle's `title`, so it's part of the button's
+              accessible name — a collapsed section still announces that it
+              needs an answer, without a separate sr-only span. */}
+          {required && <Badge variant="required">{t('profile.needsAnswer')}</Badge>}
         </span>
       }
     >

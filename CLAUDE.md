@@ -247,9 +247,24 @@ uv run python scripts/tailor_cv.py --url https://... --lang nl
   step numbers — they promised a wizard with no progress or completion state,
   and spent the rationed vermilion five times on ordinals): target job titles,
   where/how to work (locations, a segmented working-style control, languages),
-  what makes a great match, dealbreakers (with one-tap example chips), and
+  what makes a great match, dealbreakers, and
   practical notes — the data that drives job matching, not the CV. Each question
-  is an `<h2>` labelling its control. An answered/blank marker per card was
+  is an `<h2>` labelling its control. **Working languages are read-only here**:
+  `skills.languages` on the Profile is the one source of truth (it carries CEFR
+  levels too), shown as `Badge variant="lang"` chips with a plain inline link to
+  `/profile`; the Profile's languages section is marked with a mustard
+  `Badge variant="required"` while no entry has a name. Three questions offer
+  **one-tap suggestion chips** via the shared `Suggestions` component
+  (`{items, added, onPick, label}` — the caller owns what "added" means, so the
+  same chips serve a tag list and a free-text box through `appendPhrase`): Q1's
+  titles come from `POST /api/profile/suggest-titles` on explicit request only
+  (then cached in `localStorage` under `preferences_suggested_titles` and restored
+  on mount — a return trip must not re-pay for the same call; the cache is
+  **never** auto-invalidated, so a profile edit leaves the old titles in place and
+  only the button regenerates), Q3 and Q4 are static i18n examples. Each row carries its **own** group label —
+  three identically-named groups would be useless to a screen reader — and the
+  added state is `aria-disabled`, not `disabled`, so activating a chip doesn't
+  drop focus to `<body>`. An answered/blank marker per card was
   tried and **removed**: on a five-card page the answer is already visible in
   the control right below it, and stamping "not answered" on four optional
   questions turned an explicitly calm page into a compliance checklist. The
@@ -273,6 +288,7 @@ uv run python scripts/tailor_cv.py --url https://... --lang nl
 GET  /api/profile              Return full profile JSON (blank skeleton if none yet)
 PUT  /api/profile              Save updated profile JSON
 POST /api/profile/import       Extract a profile from a CV (PDF/text) → returned for review, not saved
+POST /api/profile/suggest-titles  Candidate target-role titles from the profile (sync, one forced-tool call; 400 with no experience/title)
 GET  /api/settings             Return app settings (API key masked; incl. llm_provider, app_language)
 PUT  /api/settings             Update settings (key, model, llm_provider, app_language, onboarding_done)
 GET  /api/engine               AI-engine status {provider, ready, detail, model} — the app-wide "AI ready" check
@@ -740,10 +756,10 @@ generic/free-form section is (and remains) `custom_sections`, the escape hatch.
 | `meta` | `version`, `schema`, `last_updated`, and **`enabled_sections[]`** — the optional sections the user has turned on (survives reload; this is section presence, not derived from data) |
 | `personal` | Name, `professional_title`, contact details, and **`links[]`** — an ordered list of `{label, url}` (was a fixed LinkedIn/GitHub/Scholar dict in v1; `keywords[]` was dropped in v3, `headline` dropped in v4 — folds into `summary` on migration) |
 | `summary` | **Top-level** CV professional summary (was `narrative.target_roles_description` in v1/v2) |
-| `preferences` | **Preferences page.** `target_roles[]` (job titles the user would apply for — the cheapest job-filter signal, matchable from a listing title alone; additive v5 field, defaulted to `[]` in `normalize_profile`), `looking_for`, `avoid` (free text), `locations[]`, `remote` (Remote/Hybrid/On-site/No preference), `languages[]`, and one free-text `notes` catch-all (contract type, schedule, salary, travel, relocation, organisation fit — v3's `narrative` + `work_preferences`, including the salary widget, collapse into this on migration) |
+| `preferences` | **Preferences page.** `target_roles[]` (job titles the user would apply for — the cheapest job-filter signal, matchable from a listing title alone; additive v5 field, defaulted to `[]` in `normalize_profile`), `looking_for`, `avoid` (free text), `locations[]`, `remote` (Remote/Hybrid/On-site/No preference), and one free-text `notes` catch-all (contract type, schedule, salary, travel, relocation, organisation fit — v3's `narrative` + `work_preferences`, including the salary widget, collapse into this on migration). **Working languages are not here**: `preferences.languages` was dropped (2026-07-20) because `skills.languages` says the same thing with a proficiency level; `normalize_profile` pops the dead key and seeds `skills.languages` from it at level 3 when nothing is named there yet |
 | `experience[]` | `title`, `employer`, `location`, `start_date`, `end_date` (empty ⇒ current — the single source of truth), `responsibilities[]` (CV bullets), `technologies[]`, and one optional free-text `ai_notes` field (never printed — v3 merged the old `relevance_note` + `ai_context` pair) |
 | `education[]` | Degree, field, institution, years, distinction, optional `description` (thesis topic/specialisation/coursework — v4, for early-career users) |
-| `skills` | `groups[]` (user-named `{label, items[]}`, any field) + `languages[]` (`{language, level 1–5, label}`, CEFR star scale — its own always-visible Profile section). Legacy fixed categories auto-migrate to groups; v4's `academic.research_areas[]` migrate into a "Research areas" group on v5 load |
+| `skills` | `groups[]` (user-named `{label, items[]}`, any field) + `languages[]` (`{language, level 1–5, label}`, CEFR star scale — its own always-visible Profile section, and the **only** source of working languages: a blank profile seeds one empty row and the section is badged "needs an answer" until one is named; nameless rows never print on the CV). Legacy fixed categories auto-migrate to groups; v4's `academic.research_areas[]` migrate into a "Research areas" group on v5 load |
 | `publications[]` | (optional) Full APA `citation` string, optional `description`, optional `url` (DOI/link — v4) |
 | `grants[]` | (optional) `{name, years, funder?, amount?}` — `years` is free text ("2021" or "2019–2021"); `funder`/`amount` are optional and print only when set |
 | `teaching` | (optional) `entries[]` only — each `{type, type_other, subject, institution, years, description}`. `type` is an enum (`course_instructor`, `guest_lecture`, `tutorials_seminars`, `workshop_training`, `supervision`, `other` + free-text `type_other`); `subject` was `course` in v3. Prints on the CV as a real entry list (not an AI one-liner); the model can still drop the whole section via `excluded_sections`. v3's `subjects_to_teach[]` moved to `preferences.looking_for`, its `notes` moved (via the now-removed `academic.research_themes`) to `preferences.notes` — forward-looking/free-form data doesn't belong in a CV history section |
