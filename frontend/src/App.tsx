@@ -30,6 +30,10 @@ export default function App() {
     Promise.all([api.getSettings(), api.getEngine()])
       .then(([s, e]) => {
         if (s.app_language) void loadLanguage(s.app_language)
+        // Both conditions matter. `onboarding_done` is written only on
+        // completion, so an install that quit mid-setup gets the wizard back
+        // rather than a half-configured app; `ready` means a user who later
+        // deletes their model gets the Settings banner, not the wizard again.
         setShowOnboarding(!e.ready && !s.onboarding_done)
       })
       .catch(() => setShowOnboarding(false))

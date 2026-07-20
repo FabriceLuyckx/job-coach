@@ -105,6 +105,42 @@ def test_require_engine_local_not_downloaded_raises(monkeypatch):
         config.require_engine({"llm_provider": "local", "local_model_id": "qwen3-4b-instruct"})
 
 
+def test_gguf_url_requires_https():
+    from app.api.engine import validate_gguf_url
+    with pytest.raises(ValueError, match="https"):
+        validate_gguf_url("http://example.com/model.gguf")
+    with pytest.raises(ValueError, match="https"):
+        validate_gguf_url("file:///etc/passwd.gguf")
+
+
+def test_gguf_url_requires_gguf_suffix():
+    from app.api.engine import validate_gguf_url
+    with pytest.raises(ValueError, match=r"\.gguf"):
+        validate_gguf_url("https://example.com/model.bin")
+
+
+def test_gguf_url_sanitizes_hostile_basename():
+    from app.api.engine import validate_gguf_url
+    # Traversal lives in the path, so the basename is what matters — and it is
+    # stripped to a plain name that cannot escape MODELS_DIR.
+    _, name = validate_gguf_url("https://example.com/a/../../etc/we ird;rm -rf.gguf")
+    assert name == "weirdrm-rf.gguf"
+    assert "/" not in name and ".." not in name
+
+
+def test_gguf_url_rejects_empty_after_sanitize():
+    from app.api.engine import validate_gguf_url
+    with pytest.raises(ValueError, match="file name"):
+        validate_gguf_url("https://example.com/%20%2F.gguf")
+
+
+def test_gguf_url_rewrites_huggingface_blob():
+    from app.api.engine import validate_gguf_url
+    url, name = validate_gguf_url("https://huggingface.co/o/r/blob/main/m.gguf")
+    assert url == "https://huggingface.co/o/r/resolve/main/m.gguf"
+    assert name == "m.gguf"
+
+
 def test_clean_slug_strips_traversal():
     assert _clean_slug("../../etc") == "etc"
     assert _clean_slug("my-cv-slug") == "my-cv-slug"

@@ -34,7 +34,6 @@
   "onboarding": {
     "welcome": "Welkom bij Job Coach",
     "intro": "Twee snelle keuzes en je bent klaar. Je kunt beide later wijzigen via Instellingen.",
-    "skip": "Voorlopig overslaan",
     "back": "Terug",
     "next": "Volgende",
     "done": "Klaar",
@@ -637,25 +636,53 @@
     "local": {
       "title": "Gratis lokaal model",
       "desc": "Gratis & privé — draait op je computer. Goede resultaten; geen account nodig.",
-      "sizeNote": "Downloadgrootte ~{{size}} · aanbevolen {{ram}} GB RAM. Werkt volledig offline na downloaden.",
-      "recommended": "Aanbevolen model",
-      "ready": "Gedownload en klaar voor gebruik",
       "deleteModel": "Model verwijderen",
       "download": "Model downloaden",
       "downloading": "Downloaden… {{done}} / {{total}} ({{pct}}%)",
       "resuming": "Hervatten… {{done}} / {{total}} ({{pct}}%)",
       "downloaded": "Model gedownload — de gratis AI-engine is klaar.",
       "downloadFailed": "Downloaden mislukt: {{error}}",
-      "deleted": "Model verwijderd",
-      "confirmDelete": "Het gedownloade model verwijderen? Je kunt het later opnieuw downloaden.",
+      "deleted": "{{model}} is verwijderd van je computer.",
+      "confirmDelete": "Weet je zeker dat je {{model}} wilt verwijderen? Dit verwijdert het {{size}} bestand van je computer. Je kunt het later opnieuw downloaden.",
       "confirmForce": "{{msg}}",
-      "progressLabel": "Voortgang modeldownload",
       "forceTitle": "Te weinig geheugen?",
-      "downloadAnyway": "Download toch"
+      "downloadAnyway": "Download toch",
+      "pickModel": "Kies een model",
+      "inUse": "In gebruik",
+      "onDisk": "Geïnstalleerd",
+      "useModel": "Gebruik dit model",
+      "nowUsing": "Nu {{model}} gebruikt.",
+      "sizeRam": "{{size}} download · {{ram}} GB RAM",
+      "listFailed": "Kon de modellijst niet laden: {{error}}",
+      "progressLabelFor": "Downloadvoortgang voor {{model}}",
+      "customLabel": "Voeg een model toe via URL",
+      "customPlaceholder": "https://…/model.gguf",
+      "customAdd": "Model toevoegen",
+      "customDesc": "Toegevoegd door jou",
+      "customHelp": "Geavanceerd: plak een directe link naar een .gguf-bestand. Modellen die op deze manier worden toegevoegd worden niet getest met deze app, dus resultaten variëren.",
+      "customBrowse": "Blader door GGUF-modellen op Hugging Face"
     },
     "openrouter": {
       "title": "OpenRouter",
       "desc": "Beste kwaliteit — vereist een API-sleutel, betaal een paar cent per gebruik."
+    },
+    "models": {
+      "qwen3-4b-instruct": {
+        "name": "Qwen3 4B",
+        "desc": "Licht — het snelste optie en de keuze voor een 8 GB machine. Multilinguaal."
+      },
+      "qwen3-8b": {
+        "name": "Qwen3 8B",
+        "desc": "Balans — de aanbevolen standaard. Multilinguaal, aanzienlijk betere schrijfvaardigheid dan de lichte optie."
+      },
+      "gemma-3-12b-it": {
+        "name": "Gemma 3 12B",
+        "desc": "Een alternatief schrijver uit een andere modelfamilie. Sterke proza."
+      },
+      "qwen3-14b": {
+        "name": "Qwen3 14B",
+        "desc": "Sterkere redenering en schrijfvaardigheid — de beste CV's en briefjes, als je machine de geheugenruimte heeft."
+      }
     }
   },
   "footer": {

@@ -34,7 +34,6 @@
   "onboarding": {
     "welcome": "Willkommen bei Job Coach",
     "intro": "Zwei kurze Einstellungen, und schon sind Sie startklar. Beides können Sie später in den Einstellungen ändern.",
-    "skip": "Vorerst überspringen",
     "back": "Zurück",
     "next": "Weiter",
     "done": "Fertig",
@@ -637,25 +636,53 @@
     "local": {
       "title": "Kostenloses lokales Modell",
       "desc": "Kostenlos & privat – läuft auf Ihrem Computer. Gute Ergebnisse; kein Konto erforderlich.",
-      "sizeNote": "Download-Größe ~{{size}} · empfohlen {{ram}} GB RAM. Läuft nach dem Download vollständig offline.",
-      "recommended": "Empfohlenes Modell",
-      "ready": "Heruntergeladen und bereit",
       "deleteModel": "Modell löschen",
       "download": "Modell herunterladen",
       "downloading": "Wird heruntergeladen… {{done}} / {{total}} ({{pct}}%)",
       "resuming": "Wird fortgesetzt… {{done}} / {{total}} ({{pct}}%)",
       "downloaded": "Modell heruntergeladen – die kostenlose KI-Engine ist bereit.",
       "downloadFailed": "Download fehlgeschlagen: {{error}}",
-      "deleted": "Modell gelöscht",
-      "confirmDelete": "Das heruntergeladene Modell löschen? Du kannst es später erneut herunterladen.",
+      "deleted": "{{model}} von Ihrem Computer gelöscht.",
+      "confirmDelete": "{{model}} löschen? Dies entfernt die {{size}} Datei von Ihrem Computer. Sie können sie später erneut herunterladen.",
       "confirmForce": "{{msg}}",
-      "progressLabel": "Fortschritt der Modell-Download",
       "forceTitle": "Nicht genügend Speicher?",
-      "downloadAnyway": "Dennoch herunterladen"
+      "downloadAnyway": "Dennoch herunterladen",
+      "pickModel": "Modell auswählen",
+      "inUse": "In Verwendung",
+      "onDisk": "Heruntergeladen",
+      "useModel": "Dieses Modell verwenden",
+      "nowUsing": "Aktuell {{model}}.",
+      "sizeRam": "{{size}} Download · {{ram}} GB RAM",
+      "listFailed": "Die Modellliste konnte nicht geladen werden: {{error}}",
+      "progressLabelFor": "Downloadfortschritt für {{model}}",
+      "customLabel": "Modell über URL hinzufügen",
+      "customPlaceholder": "https://…/model.gguf",
+      "customAdd": "Modell hinzufügen",
+      "customDesc": "Von Ihnen hinzugefügt",
+      "customHelp": "Erweitert: Geben Sie einen direkten Link zu einer .gguf-Datei ein. Mit dieser Methode hinzugefügte Modelle werden nicht mit dieser Anwendung getestet, sodass die Ergebnisse variieren können.",
+      "customBrowse": "GGUF-Modelle auf Hugging Face durchsuchen"
     },
     "openrouter": {
       "title": "OpenRouter",
       "desc": "Beste Qualität – benötigt einen API-Schlüssel, kostet wenige Cent pro Nutzung."
+    },
+    "models": {
+      "qwen3-4b-instruct": {
+        "name": "Qwen3 4B",
+        "desc": "Leicht — die schnellste Option und die zu wählen, wenn Sie eine 8 GB Maschine haben. Mehrsprachig."
+      },
+      "qwen3-8b": {
+        "name": "Qwen3 8B",
+        "desc": "Ausgewogen — die empfohlene Standardoption. Mehrsprachig, deutlich bessere Schreibweise als die leichte Option."
+      },
+      "gemma-3-12b-it": {
+        "name": "Gemma 3 12B",
+        "desc": "Eine Alternative zum Schreiber aus einer anderen Modellfamilie. Starke Prosa."
+      },
+      "qwen3-14b": {
+        "name": "Qwen3 14B",
+        "desc": "Stärkeres Denken und Schreiben — die besten Lebensläufe und Briefe, wenn Ihre Maschine genügend RAM hat."
+      }
     }
   },
   "footer": {

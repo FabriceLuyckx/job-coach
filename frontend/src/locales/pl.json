@@ -34,7 +34,6 @@
   "onboarding": {
     "welcome": "Witaj w Job Coach",
     "intro": "Dwa szybkie wybory i gotowe. Oba możesz zmienić później w Ustawieniach.",
-    "skip": "Pomiń na razie",
     "back": "Wstecz",
     "next": "Dalej",
     "done": "Gotowe",
@@ -637,25 +636,53 @@
     "local": {
       "title": "Bezpłatny model lokalny",
       "desc": "Bezpłatny i prywatny — działa na Twoim komputerze. Dobre wyniki; nie wymaga konta.",
-      "sizeNote": "Rozmiar pobierania ~{{size}} · zalecane {{ram}} GB RAM. Działa całkowicie offline po pobraniu.",
-      "recommended": "Zalecany model",
-      "ready": "Pobrany i gotowy",
       "deleteModel": "Usuń model",
       "download": "Pobierz model",
       "downloading": "Pobieranie… {{done}} / {{total}} ({{pct}}%)",
       "resuming": "Wznawianie… {{done}} / {{total}} ({{pct}}%)",
       "downloaded": "Model pobrany — bezpłatny silnik AI jest gotowy.",
       "downloadFailed": "Pobieranie nie powiodło się: {{error}}",
-      "deleted": "Model usunięty",
-      "confirmDelete": "Usunąć pobrany model? Możesz go pobrać ponownie później.",
+      "deleted": "{{model}} usunięty z Twojego komputera.",
+      "confirmDelete": "Usunąć {{model}}? Usuwa plik {{size}} z Twojego komputera. Możesz pobrać go ponownie później.",
       "confirmForce": "{{msg}}",
-      "progressLabel": "Postęp pobierania modelu",
       "forceTitle": "Brak pamięci?",
-      "downloadAnyway": "Pobierz w każdym razie"
+      "downloadAnyway": "Pobierz w każdym razie",
+      "pickModel": "Wybierz model",
+      "inUse": "W użyciu",
+      "onDisk": "Pobrany",
+      "useModel": "Użyj tego modelu",
+      "nowUsing": "Teraz używany {{model}}.",
+      "sizeRam": "{{size}} pobranie · {{ram}} GB RAM",
+      "listFailed": "Nie można załadować listy modeli: {{error}}",
+      "progressLabelFor": "Postęp pobierania dla {{model}}",
+      "customLabel": "Dodaj model przez URL",
+      "customPlaceholder": "https://…/model.gguf",
+      "customAdd": "Dodaj model",
+      "customDesc": "Dodany przez Ciebie",
+      "customHelp": "Zaawansowane: wklej bezpośredni link do pliku .gguf. Modele dodane w ten sposób nie są testowane z tym oprogramowaniem, więc wyniki mogą się różnić.",
+      "customBrowse": "Przeglądaj modele GGUF na Hugging Face"
     },
     "openrouter": {
       "title": "OpenRouter",
       "desc": "Najlepsza jakość — wymaga klucza API, koszt kilku centów za użycie."
+    },
+    "models": {
+      "qwen3-4b-instruct": {
+        "name": "Qwen3 4B",
+        "desc": "Lekki — najszybszy wybór i ten do wyboru na maszynie z 8 GB pamięci. Multynarodowy."
+      },
+      "qwen3-8b": {
+        "name": "Qwen3 8B",
+        "desc": "Zrównoważony — zalecaną domyślną opcję. Multynarodowy, znacznie lepszy w pisaniu niż opcja lekkiej."
+      },
+      "gemma-3-12b-it": {
+        "name": "Gemma 3 12B",
+        "desc": "Alternatywny autor z innej rodziny modeli. Silne prose."
+      },
+      "qwen3-14b": {
+        "name": "Qwen3 14B",
+        "desc": "Silniejsze rozumowanie i pisanie — najlepsze CV i listy, jeśli masz pamięć."
+      }
     }
   },
   "footer": {

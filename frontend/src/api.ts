@@ -133,6 +133,11 @@ export interface LocalModel {
   size_bytes: number
   min_ram_gb: number
   downloaded: boolean
+  /** The model config currently points at. */
+  active: boolean
+  /** User-added by URL rather than shipped in the registry. */
+  custom: boolean
+  recommended: boolean
 }
 
 export interface DownloadStatus {
@@ -365,7 +370,7 @@ export const api = {
   // AI engine (OpenRouter key vs local model)
   getEngine: () => request<EngineStatus>('/engine'),
   listLocalModels: () => request<LocalModel[]>('/engine/models'),
-  startModelDownload: (opts?: { model_id?: string; force?: boolean }) =>
+  startModelDownload: (opts?: { model_id?: string; url?: string; force?: boolean }) =>
     request<{ download_id: string }>('/engine/download', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

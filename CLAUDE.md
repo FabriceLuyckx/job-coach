@@ -626,7 +626,10 @@ they are exploitable:
    `fetch_listing_links()` (`app/services/job_scanner.py`, incl. the Playwright
    fallback) fetch arbitrary URLs with redirects. Before fetching (and again after every redirect), resolve
    the host and reject private/loopback/link-local ranges and cloud metadata IPs
-   (`169.254.169.254`).
+   (`169.254.169.254`). The same applies to the custom-model URL —
+   `register_custom_model()` (`app/api/engine.py`) HEADs and then streams a
+   user-supplied HTTPS URL with redirects; it validates the scheme and sanitizes
+   the filename, but does **not** resolve the host.
 3. **Real CORS policy** — `app/main.py` currently allows only the Vite dev origin.
 4. **Untrusted-content note in LLM prompts** — scraped page text goes into model
    calls; keep tool schemas forced (`tool_choice`) and never let scraped content
@@ -640,10 +643,16 @@ they are exploitable:
 Two ways to power the AI features, chosen in **Settings → AI Engine** (or the first-run
 wizard):
 
-* **Free local model** — download a GGUF (default: Qwen3-4B-Instruct, ~2.5 GB) that runs
-  in-process via llama-cpp-python. No account, no cost, fully offline. Requires the `local`
-  extra: `uv sync --extra local` (the packaged app bundles it). Uses schema-constrained
-  JSON so even a small model returns valid tool output.
+* **Free local model** — download a GGUF that runs in-process via llama-cpp-python. No
+  account, no cost, fully offline. Requires the `local` extra: `uv sync --extra local`
+  (the packaged app bundles it). Uses schema-constrained JSON so even a small model
+  returns valid tool output. Four curated models are offered (`engines/registry.py`),
+  chosen by purpose rather than parameter count: `qwen3-4b-instruct` (~2.5 GB, the light
+  option for 8 GB machines), **`qwen3-8b` (~5.0 GB, the default)**, `gemma-3-12b-it`
+  (~7.3 GB) and `qwen3-14b` (~9.0 GB). A user can also add any `.gguf` by HTTPS URL;
+  `register_custom_model()` (`app/api/engine.py`) validates it, HEADs it for its size and
+  stores the entry under `local_custom_models` — `registry.all_models()` merges those over
+  the curated set, so download, delete, status and engine load need no custom-model case.
 * **OpenRouter** — best quality; paste an API key (saved to `config.json`, gitignored).
 
 For CLI use without the web UI, create `config.json` manually:
@@ -688,7 +697,8 @@ language is generated on-device by the engine (Phase D).
 | `llm_provider` | AI engine: `openrouter` or `local` (free, downloaded GGUF via llama.cpp) | `openrouter` |
 | `openrouter_api_key` | OpenRouter API key (get one at openrouter.ai) | Required when provider is `openrouter` |
 | `openrouter_model` | Model string passed to OpenRouter | `anthropic/claude-sonnet-4-6` |
-| `local_model_id` | Registry key of the local model (see `engines/registry.py`) | `qwen3-4b-instruct` |
+| `local_model_id` | Registry key of the local model (see `engines/registry.py`) | `qwen3-8b` |
+| `local_custom_models` | User-added local models by URL, `{id: registry entry}` — merged over the curated set by `registry.all_models()` | `{}` |
 | `app_language` | UI language (ISO 639-1); `en` is the native source language | `en` |
 | `onboarding_done` | First-run wizard completion marker | `false` |
 
@@ -749,9 +759,14 @@ generic/free-form section is (and remains) `custom_sections`, the escape hatch.
 **First-run onboarding** (`frontend/src/components/Onboarding.tsx`): a modal wizard
 shown when `GET /api/engine` reports not-ready **and** config `onboarding_done` is
 false. Three steps — pick a language, set up the AI engine (download the free local
-model or paste an OpenRouter key), done. Skippable on every step (sets
-`onboarding_done` so it never nags again); `SetupBanner`/`ApiKeyBanner` remain the
-fallback prompt for a still-missing engine.
+model or paste an OpenRouter key), done. **Not skippable** — every feature depends
+on an engine, so dismissing it would only hand over a broken install, and the engine
+step's Next stays disabled until one works. `onboarding_done` is written **only on
+completion** (`finish()`), which with no skip means "an engine is working": an
+install abandoned mid-setup gets the wizard back next launch rather than a
+half-configured app. The `ready` half of the condition is what stops it returning
+later — delete your model after finishing and you get `ApiKeyBanner` pointing at
+Settings, not the wizard again. Settings carries every choice the wizard offers.
 
 **Section presence** is driven by `meta.enabled_sections` and the frontend registry
 `frontend/src/lib/profileSections.ts` (core vs optional, labels, badges,

@@ -34,7 +34,6 @@
   "onboarding": {
     "welcome": "Benvenuto in Job Coach",
     "intro": "Due scelte rapide e sei pronto. Puoi modificarle entrambe in seguito nelle Impostazioni.",
-    "skip": "Salta per ora",
     "back": "Indietro",
     "next": "Avanti",
     "done": "Fine",
@@ -637,25 +636,53 @@
     "local": {
       "title": "Modello locale gratuito",
       "desc": "Gratuito e privato — funziona sul tuo computer. Buoni risultati; nessun account richiesto.",
-      "sizeNote": "Dimensione download ~{{size}} · consigliati {{ram}} GB di RAM. Funziona completamente offline una volta scaricato.",
-      "recommended": "Modello consigliato",
-      "ready": "Scaricato e pronto",
       "deleteModel": "Elimina modello",
       "download": "Scarica modello",
       "downloading": "Download… {{done}} / {{total}} ({{pct}}%)",
       "resuming": "Ripresa… {{done}} / {{total}} ({{pct}}%)",
       "downloaded": "Modello scaricato — il motore IA gratuito è pronto.",
       "downloadFailed": "Download fallito: {{error}}",
-      "deleted": "Modello eliminato",
-      "confirmDelete": "Eliminare il modello scaricato? Potrai scaricarlo di nuovo in seguito.",
+      "deleted": "{{model}} eliminato dal tuo computer.",
+      "confirmDelete": "Elimina {{model}}? Questo rimuove il file {{size}} dal tuo computer. Puoi scaricarlo nuovamente in seguito.",
       "confirmForce": "{{msg}}",
-      "progressLabel": "Progresso del download del modello",
       "forceTitle": "Memoria insufficiente?",
-      "downloadAnyway": "Scarica comunque"
+      "downloadAnyway": "Scarica comunque",
+      "pickModel": "Scegli un modello",
+      "inUse": "In uso",
+      "onDisk": "Scaricato",
+      "useModel": "Usa questo modello",
+      "nowUsing": "Ora stai usando {{model}}.",
+      "sizeRam": "{{size}} download · {{ram}} GB RAM",
+      "listFailed": "Non è stato possibile caricare l'elenco dei modelli: {{error}}",
+      "progressLabelFor": "Progresso del download per {{model}}",
+      "customLabel": "Aggiungi un modello tramite URL",
+      "customPlaceholder": "https://…/model.gguf",
+      "customAdd": "Aggiungi modello",
+      "customDesc": "Aggiunto da te",
+      "customHelp": "Avanzato: incolla un link diretto a un file .gguf. I modelli aggiunti in questo modo non sono testati con questa app, quindi i risultati variano.",
+      "customBrowse": "Esplora i modelli GGUF su Hugging Face"
     },
     "openrouter": {
       "title": "OpenRouter",
       "desc": "Qualità migliore — richiede una chiave API, a pochi centesimi per utilizzo."
+    },
+    "models": {
+      "qwen3-4b-instruct": {
+        "name": "Qwen3 4B",
+        "desc": "Leggero — l'opzione più veloce e quella da scegliere su una macchina con 8 GB di RAM. Multilingua."
+      },
+      "qwen3-8b": {
+        "name": "Qwen3 8B",
+        "desc": "Equilibrato — il consigliato di default. Multilingua, scrittura notevolmente migliore rispetto all'opzione leggera."
+      },
+      "gemma-3-12b-it": {
+        "name": "Gemma 3 12B",
+        "desc": "Un alternativa scrittore da una famiglia di modelli diversa. Prose forti."
+      },
+      "qwen3-14b": {
+        "name": "Qwen3 14B",
+        "desc": "Ragionamento e scrittura più forti — i migliori CV e lettere, se la tua macchina ha la memoria."
+      }
     }
   },
   "footer": {

@@ -14,7 +14,7 @@ from app.paths import CONFIG_PATH
 DEFAULT_MODEL = "anthropic/claude-sonnet-4-6"
 
 # Default local model registry key (see app/services/engines/registry.py).
-DEFAULT_LOCAL_MODEL = "qwen3-4b-instruct"
+DEFAULT_LOCAL_MODEL = "qwen3-8b"
 
 _DEFAULTS = {
     "openrouter_api_key": "",
@@ -23,6 +23,8 @@ _DEFAULTS = {
     # "local" runs a downloaded GGUF model via llama-cpp-python.
     "llm_provider": "openrouter",
     "local_model_id": DEFAULT_LOCAL_MODEL,
+    # User-added local models, {id: registry entry} — see engines/registry.py.
+    "local_custom_models": {},
     # UI language (ISO 639-1). "en" is the native, source language.
     "app_language": "en",
     # First-run onboarding wizard completion marker.

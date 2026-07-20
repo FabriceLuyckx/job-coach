@@ -81,7 +81,6 @@
   "onboarding": {
     "welcome": "Welcome to Job Coach",
     "intro": "Two quick choices and you're set. You can change both later in Settings.",
-    "skip": "Skip for now",
     "back": "Back",
     "next": "Next",
     "done": "Done",
@@ -684,25 +683,53 @@
     "local": {
       "title": "Free local model",
       "desc": "Free & private — runs on your computer. Good results; no account needed.",
-      "sizeNote": "Download size ~{{size}} · recommended {{ram}} GB RAM. Runs entirely offline once downloaded.",
-      "recommended": "Recommended model",
-      "ready": "Downloaded and ready",
       "deleteModel": "Delete model",
       "download": "Download model",
       "downloading": "Downloading… {{done}} / {{total}} ({{pct}}%)",
       "resuming": "Resuming… {{done}} / {{total}} ({{pct}}%)",
       "downloaded": "Model downloaded — the free AI engine is ready.",
       "downloadFailed": "Download failed: {{error}}",
-      "deleted": "Model deleted",
-      "confirmDelete": "Delete the downloaded model? You can download it again later.",
+      "deleted": "{{model}} deleted from your computer.",
+      "confirmDelete": "Delete {{model}}? This removes the {{size}} file from your computer. You can download it again later.",
       "confirmForce": "{{msg}}",
-      "progressLabel": "Model download progress",
       "forceTitle": "Not enough memory?",
-      "downloadAnyway": "Download anyway"
+      "downloadAnyway": "Download anyway",
+      "pickModel": "Choose a model",
+      "inUse": "In use",
+      "onDisk": "Downloaded",
+      "useModel": "Use this model",
+      "nowUsing": "Now using {{model}}.",
+      "sizeRam": "{{size}} download · {{ram}} GB RAM",
+      "listFailed": "Couldn't load the model list: {{error}}",
+      "progressLabelFor": "Download progress for {{model}}",
+      "customLabel": "Add a model by URL",
+      "customPlaceholder": "https://…/model.gguf",
+      "customAdd": "Add model",
+      "customDesc": "Added by you",
+      "customHelp": "Advanced: paste a direct link to a .gguf file. Models added this way aren't tested with this app, so results vary.",
+      "customBrowse": "Browse GGUF models on Hugging Face"
     },
     "openrouter": {
       "title": "OpenRouter",
       "desc": "Best quality — needs an API key, pay a few cents per use."
+    },
+    "models": {
+      "qwen3-4b-instruct": {
+        "name": "Qwen3 4B",
+        "desc": "Light — the quickest option and the one to pick on an 8 GB machine. Multilingual."
+      },
+      "qwen3-8b": {
+        "name": "Qwen3 8B",
+        "desc": "Balanced — the recommended default. Multilingual, noticeably better writing than the light option."
+      },
+      "gemma-3-12b-it": {
+        "name": "Gemma 3 12B",
+        "desc": "An alternative writer from a different model family. Strong prose."
+      },
+      "qwen3-14b": {
+        "name": "Qwen3 14B",
+        "desc": "Stronger reasoning and writing — the best CVs and letters, if your machine has the memory."
+      }
     }
   },
   "letters": {

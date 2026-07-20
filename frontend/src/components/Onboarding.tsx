@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Fabrice Luyckx
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Cpu, Cloud, Check } from 'lucide-react'
 import { api } from '../api'
@@ -11,11 +11,14 @@ import Button from './Button'
 import { usePoller } from '../lib/usePoller'
 import { useKeyStatus } from './KeyStatus'
 import { errMsg } from '../lib/errors'
+import { radioGroup } from '../lib/radiogroup'
+import { EngineCard, ModelRow } from './EngineSettings'
 
 /**
  * First-run wizard: pick a language, set up the AI engine (free local model or
- * OpenRouter key), done. Shown over the app until an engine is ready or the user
- * skips (which sets onboarding_done so it never nags again).
+ * OpenRouter key), done. Not dismissable — an app with no engine cannot do
+ * anything the user came for — and marked done only on completion, so an
+ * abandoned setup is offered again rather than silently left broken.
  */
 export default function Onboarding({ onDone }: { onDone: () => void }) {
   const { t } = useTranslation()
@@ -24,8 +27,12 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
   const [lang, setLang] = useState('en')
   const [otherCode, setOtherCode] = useState('')
 
-  async function finish(markDone = true) {
-    try { if (markDone) await api.putSettings({ onboarding_done: true }) } catch { /* non-fatal */ }
+  async function finish() {
+    // Only reaching the end marks the wizard done — and with no skip, the end is
+    // only reachable once an engine works. Quitting mid-setup leaves the flag
+    // false so the next launch offers the wizard again instead of an app that
+    // can't do anything.
+    try { await api.putSettings({ onboarding_done: true }) } catch { /* non-fatal */ }
     // If the user chose a Tier-2 language, kick off its translation now that an
     // engine may exist (fire-and-forget; Settings shows progress if they revisit).
     const code = otherCode.trim().toLowerCase()
@@ -49,11 +56,11 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-4)',
     }}>
       <div className="card" style={{ maxWidth: 560, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 'var(--space-2)' }}>
+        {/* No skip: without an AI engine every feature in the app fails, so
+            dismissing this would only hand the user a broken install. The engine
+            step's own Next stays disabled until one is actually working. */}
+        <div style={{ marginBottom: 'var(--space-2)' }}>
           <span className="muted-sm">{t('onboarding.step', { n: step + 1, total: 3 })}</span>
-          <button type="button" className="btn-ghost" style={{ fontSize: 'var(--fs-sm)' }} onClick={() => finish()}>
-            {t('onboarding.skip')}
-          </button>
         </div>
 
         {step === 0 && <LanguageStep lang={lang} otherCode={otherCode} setOtherCode={setOtherCode} onPick={pickLanguage} onNext={() => setStep(1)} />}
@@ -122,7 +129,8 @@ function EngineStep({ onBack, onNext }: { onBack: () => void; onNext: () => void
   const { refresh: refreshEngine } = useKeyStatus()
   const poller = usePoller(1000)
   const [choice, setChoice] = useState<'local' | 'openrouter' | null>(null)
-  const [model, setModel] = useState<LocalModel | null>(null)
+  const [models, setModels] = useState<LocalModel[]>([])
+  const [modelId, setModelId] = useState<string | null>(null)
   const [pct, setPct] = useState<number | null>(null)
   const [ready, setReady] = useState(false)
   const [key, setKey] = useState('')
@@ -131,14 +139,23 @@ function EngineStep({ onBack, onNext }: { onBack: () => void; onNext: () => void
   const [err, setErr] = useState('')
   const started = useRef(false)
 
-  useEffect(() => { api.listLocalModels().then(ms => setModel(ms[0] ?? null)).catch(() => {}) }, [])
+  const modelsId = useId()
+  const engineTitleId = useId()
+
+  useEffect(() => {
+    api.listLocalModels().then(ms => {
+      setModels(ms)
+      // Preselect the recommended default, so accepting it stays one click.
+      setModelId(ms.find(m => m.recommended)?.id ?? ms[0]?.id ?? null)
+    }).catch(() => {})
+  }, [])
 
   async function download(force = false) {
     setErr('')
     try {
       started.current = true
       await api.putSettings({ llm_provider: 'local' })
-      await api.startModelDownload({ force })
+      await api.startModelDownload({ model_id: modelId ?? undefined, force })
       setPct(0)
       poller.start(async () => {
         const s = await api.getDownloadStatus()
@@ -146,7 +163,11 @@ function EngineStep({ onBack, onNext }: { onBack: () => void; onNext: () => void
           setPct(s.bytes_total ? Math.round((s.bytes_done ?? 0) / s.bytes_total * 100) : 0)
           return false
         }
-        if (s.state === 'done') { setPct(null); setReady(true); refreshEngine(); return true }
+        if (s.state === 'done') {
+          // Make what was downloaded the active model, not whatever the default is.
+          if (s.model_id) { try { await api.putSettings({ local_model_id: s.model_id }) } catch { /* keeps the default */ } }
+          setPct(null); setReady(true); refreshEngine(); return true
+        }
         setPct(null); setErr(s.error ?? 'Download failed'); return true
       })
     } catch (e) {
@@ -168,25 +189,34 @@ function EngineStep({ onBack, onNext }: { onBack: () => void; onNext: () => void
   }
 
   const canContinue = ready || keySaved
+  const selectedModel = models.find(m => m.id === modelId) ?? null
+  const modelRadio = radioGroup(models.map(m => m.id), modelId, id => setModelId(id))
+  const providers: ('local' | 'openrouter')[] = ['local', 'openrouter']
+  const providerRadio = radioGroup(providers, choice, setChoice)
 
   return (
     <div>
-      <h2 style={{ fontFamily: 'var(--font-display)', marginBottom: 'var(--space-1)' }}>{t('onboarding.engineTitle')}</h2>
+      <h2 id={engineTitleId} style={{ fontFamily: 'var(--font-display)', marginBottom: 'var(--space-1)' }}>{t('onboarding.engineTitle')}</h2>
       <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{t('onboarding.engineHelp')}</p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)', marginBottom: 'var(--space-3)' }}>
-        <button type="button" onClick={() => setChoice('local')} aria-pressed={choice === 'local'}
-          style={{ textAlign: 'left', padding: 'var(--space-3)', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
-            border: `2px solid ${choice === 'local' ? 'var(--accent)' : 'var(--border)'}`, background: 'var(--surface)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600, marginBottom: 4 }}><Cpu size={18} aria-hidden /> {t('engine.local.title')}</div>
-          <div className="muted-sm">{t('engine.local.desc')}</div>
-        </button>
-        <button type="button" onClick={() => setChoice('openrouter')} aria-pressed={choice === 'openrouter'}
-          style={{ textAlign: 'left', padding: 'var(--space-3)', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
-            border: `2px solid ${choice === 'openrouter' ? 'var(--accent)' : 'var(--border)'}`, background: 'var(--surface)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600, marginBottom: 4 }}><Cloud size={18} aria-hidden /> {t('engine.openrouter.title')}</div>
-          <div className="muted-sm">{t('engine.openrouter.desc')}</div>
-        </button>
+      {/* Same cards and same ink-fill selection as Settings — and as the model
+          picker below, so this step speaks one selection language, not two. */}
+      <div {...providerRadio.group} aria-labelledby={engineTitleId} className="engine-grid"
+           style={{ marginBottom: 'var(--space-3)' }}>
+        <EngineCard
+          {...providerRadio.item(0)}
+          icon={<Cpu size={18} aria-hidden />}
+          title={t('engine.local.title')}
+          desc={t('engine.local.desc')}
+          onClick={() => setChoice('local')}
+        />
+        <EngineCard
+          {...providerRadio.item(1)}
+          icon={<Cloud size={18} aria-hidden />}
+          title={t('engine.openrouter.title')}
+          desc={t('engine.openrouter.desc')}
+          onClick={() => setChoice('openrouter')}
+        />
       </div>
 
       {choice === 'local' && (
@@ -195,15 +225,41 @@ function EngineStep({ onBack, onNext }: { onBack: () => void; onNext: () => void
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--accent-text)' }}><Check size={16} aria-hidden /> {t('onboarding.engineLocalReady')}</span>
           ) : pct !== null ? (
             <div>
-              <div style={{ height: 8, background: 'var(--surface-dim)', borderRadius: 4, overflow: 'hidden' }}>
-                <div style={{ width: `${pct}%`, height: '100%', background: 'var(--accent)', transition: 'width .3s' }} />
+              <div
+                role="progressbar"
+                aria-label={t('engine.local.progressLabelFor', { model: selectedModel?.label ?? '' })}
+                aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}
+                style={{ height: 8, background: 'var(--surface-dim)', overflow: 'hidden' }}
+              >
+                {/* scaleX rather than width: the bar ticks for minutes, and
+                    transform doesn't re-lay-out the step on every update. */}
+                <div style={{
+                  width: '100%', height: '100%', background: 'var(--accent)',
+                  transformOrigin: 'left', transform: `scaleX(${pct / 100})`, transition: 'transform .3s',
+                }} />
               </div>
               <p className="muted-sm" style={{ marginTop: 6 }}>{t('onboarding.engineDownloading', { pct })}</p>
             </div>
           ) : (
-            <Button onClick={() => download()}>
-              {t('onboarding.engineLocalCta')}{model ? ` (~${(model.size_bytes / 1e9).toFixed(1)} GB)` : ''}
-            </Button>
+            <>
+              <p className="muted-sm" id={modelsId} style={{ marginBottom: 'var(--space-2)' }}>
+                {t('engine.local.pickModel')}
+              </p>
+              <div {...modelRadio.group} aria-labelledby={modelsId} className="model-list"
+                   style={{ marginBottom: 'var(--space-3)' }}>
+                {models.map((m, i) => (
+                  <ModelRow
+                    key={m.id} {...modelRadio.item(i)}
+                    model={m}
+                    name={t(`engine.models.${m.id}.name`, { defaultValue: m.label })}
+                    onClick={() => setModelId(m.id)}
+                  />
+                ))}
+              </div>
+              <Button onClick={() => download()} disabled={!modelId}>
+                {t('onboarding.engineLocalCta')}
+              </Button>
+            </>
           )}
         </div>
       )}

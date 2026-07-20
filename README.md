@@ -20,9 +20,9 @@ PDF export works while it finishes.
 
 Then pick how the AI runs (Settings → **AI Engine**, or the first-run prompt):
 
-- **Free local model** — download a model (~2.5 GB) that runs on your own computer.
-  No account, no cost, fully private/offline. Good results; on a slower machine a CV
-  can take a few minutes.
+- **Free local model** — download a model (2.5–9 GB, your choice) that runs on your own
+  computer. No account, no cost, fully private/offline. Good results; on a slower machine
+  a CV can take a few minutes.
 - **OpenRouter** — paste an [OpenRouter](https://openrouter.ai) API key for the best
   quality (pay a few cents per CV).
 
@@ -112,6 +112,31 @@ buttons that spend it.
 > **Local engine (development):** the local model runs via `llama-cpp-python`, a heavy
 > platform-specific dependency kept out of the default install. Enable it with
 > `uv sync --extra local`. Without it, use the OpenRouter engine.
+
+#### Choosing a local model
+
+Four models are offered, all Q4_K_M quantised. Bigger writes better and runs slower:
+
+| Model | Download | Recommended RAM | Good for |
+|-------|----------|-----------------|----------|
+| Qwen3 4B | ~2.5 GB | 8 GB | The light option — pick this on an 8 GB machine. Multilingual, quickest. |
+| **Qwen3 8B** (default) | ~5.0 GB | 16 GB | Balanced. Multilingual, clearly better writing than the 4B. |
+| Gemma 3 12B | ~7.3 GB | 16 GB | A different model family; strong prose. |
+| Qwen3 14B | ~9.0 GB | 24 GB | Best CVs and letters, if you have the memory. |
+
+In **Settings → AI Engine**, pick a model to make it active; if it isn't downloaded yet,
+the button below the list downloads it (resumable, with progress). Several models can sit
+on disk at once — **Delete model** removes the selected one and frees its space. The
+download warns before starting if your machine has less RAM than recommended, and lets
+you proceed anyway.
+
+**Adding your own model (advanced).** The same panel takes a direct HTTPS link to a
+`.gguf` file — for example from
+[Hugging Face's GGUF catalogue](https://huggingface.co/models?library=gguf&sort=trending).
+Paste the link to the file itself (on Hugging Face use the download link, not the `blob`
+page — the app corrects that one for you). Models added this way are not tested with this
+app: some won't load, and some produce worse results. Delete removes both the file and
+the entry.
 
 ### Language
 

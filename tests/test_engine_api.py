@@ -5,6 +5,7 @@
 
 from collections import namedtuple
 
+from app import config
 from app.api import engine
 
 
@@ -23,6 +24,53 @@ def test_engine_status_local_not_downloaded(monkeypatch):
     s = engine._engine_status({"llm_provider": "local", "local_model_id": "qwen3-4b-instruct"})
     assert s["provider"] == "local" and s["ready"] is False
     assert s["model"]["id"] == "qwen3-4b-instruct"
+
+
+def test_a_curated_model_fits_a_modest_machine():
+    """The set must keep an option an 8 GB laptop can actually run."""
+    from app.services.engines.registry import LOCAL_MODELS
+    assert any(e["min_ram_gb"] <= 8 for e in LOCAL_MODELS.values())
+
+
+def test_models_list_merges_customs_with_flags(monkeypatch):
+    from fastapi.testclient import TestClient
+    from app.main import app
+
+    custom = {"custom-mine": {"label": "mine.gguf", "url": "https://x/mine.gguf",
+                              "filename": "mine.gguf", "size_bytes": 10, "min_ram_gb": 3,
+                              "n_ctx": 8192, "custom": True}}
+    # The registry reads config lazily, so patching app.config covers both it
+    # and the API module.
+    monkeypatch.setattr(config, "load",
+                        lambda: {"local_custom_models": custom, "local_model_id": "custom-mine"})
+    monkeypatch.setattr(engine, "local_model_path", lambda mid: None)
+
+    rows = {m["id"]: m for m in TestClient(app).get("/api/engine/models").json()}
+    assert rows["custom-mine"]["custom"] is True and rows["custom-mine"]["active"] is True
+    # Curated entries still listed, and exactly one is the recommended default.
+    assert rows["qwen3-8b"]["custom"] is False and rows["qwen3-8b"]["active"] is False
+    assert [m for m in rows.values() if m["recommended"]] == [rows[config.DEFAULT_LOCAL_MODEL]]
+
+
+def test_deleting_custom_model_removes_file_and_config_entry(monkeypatch, tmp_path):
+    from fastapi.testclient import TestClient
+    from app.main import app
+
+    gguf = tmp_path / "mine.gguf"
+    gguf.write_bytes(b"x")
+    custom = {"custom-mine": {"label": "mine.gguf", "url": "https://x/mine.gguf",
+                              "filename": "mine.gguf", "size_bytes": 1, "min_ram_gb": 3,
+                              "n_ctx": 8192, "custom": True}}
+    cfg = {"local_custom_models": custom, "local_model_id": "custom-mine"}
+    saved: dict = {}
+    monkeypatch.setattr(config, "load", lambda: cfg)
+    monkeypatch.setattr(config, "save", saved.update)
+    monkeypatch.setattr(engine, "local_model_path", lambda mid: gguf)
+
+    r = TestClient(app).delete("/api/engine/model?model_id=custom-mine")
+    assert r.status_code == 200
+    assert not gguf.exists()
+    assert saved["local_custom_models"] == {}
 
 
 def test_download_refuses_when_disk_full(monkeypatch):

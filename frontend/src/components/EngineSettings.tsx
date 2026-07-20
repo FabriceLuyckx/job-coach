@@ -9,6 +9,7 @@ import type { EngineProvider, LocalModel, DownloadStatus } from '../api'
 import Button from './Button'
 import ConfirmModal from './ConfirmModal'
 import { useToast } from './Toast'
+import { useKeyStatus } from './KeyStatus'
 import { usePoller } from '../lib/usePoller'
 import { errMsg } from '../lib/errors'
 import { radioGroup } from '../lib/radiogroup'
@@ -29,16 +30,36 @@ export default function EngineSettings({ provider, onProviderChange, children }:
 }) {
   const toast = useToast()
   const { t } = useTranslation()
-  const [model, setModel] = useState<LocalModel | null>(null)
+  const { refresh: refreshKeyStatus } = useKeyStatus()
+  const [models, setModels] = useState<LocalModel[]>([])
+  const [listErr, setListErr] = useState('')
+  const [selected, setSelected] = useState<string | null>(null)
+  const [url, setUrl] = useState('')
+  const [urlErr, setUrlErr] = useState('')
   const [dl, setDl] = useState<DownloadStatus>({ state: 'idle' })
   const poller = usePoller(1000)
   const busy = dl.state === 'downloading' || dl.state === 'resuming' || dl.state === 'pending'
   const startedRef = useRef(false)
+  // What the last download attempt asked for, so the RAM override retries the
+  // same model (or URL) rather than falling back to the selection.
+  const lastReq = useRef<{ model_id?: string; url?: string }>({})
   const [confirm, setConfirm] = useState<null | { kind: 'force'; msg: string } | { kind: 'delete' }>(null)
   const titleId = useId()
+  const modelsId = useId()
+  const urlId = useId()
 
   function refreshModel() {
-    api.listLocalModels().then(ms => setModel(ms[0] ?? null)).catch(() => {})
+    // Every path that can change engine readiness — activate, download, delete —
+    // ends here, so this is the one place the app-wide banner has to be told.
+    refreshKeyStatus()
+    api.listLocalModels()
+      .then(ms => {
+        setModels(ms)
+        setListErr('')
+        // Follow the active model until the user picks something else.
+        setSelected(s => (s && ms.some(m => m.id === s) ? s : ms.find(m => m.active)?.id ?? ms[0]?.id ?? null))
+      })
+      .catch(e => setListErr(errMsg(e)))
   }
 
   useEffect(() => {
@@ -56,6 +77,10 @@ export default function EngineSettings({ provider, onProviderChange, children }:
       const s = await api.getDownloadStatus()
       setDl(s)
       if (s.state === 'done') {
+        // A finished download becomes the active model — switching earlier would
+        // report "not ready" for the whole download while a working model sits
+        // on disk.
+        if (s.model_id) { try { await api.putSettings({ local_model_id: s.model_id }) } catch { /* keeps the old one */ } }
         if (startedRef.current) { toast.success(t('engine.local.downloaded')); startedRef.current = false }
         refreshModel()
         return true
@@ -68,33 +93,67 @@ export default function EngineSettings({ provider, onProviderChange, children }:
     })
   }
 
-  async function download(force = false) {
+  async function download(force = false, opts: { model_id?: string; url?: string } = {}) {
+    const req = opts.url ? { url: opts.url } : { model_id: opts.model_id ?? selected ?? undefined }
     try {
       startedRef.current = true
-      await api.startModelDownload({ force })
+      lastReq.current = opts
+      await api.startModelDownload({ ...req, force })
       setDl({ state: 'pending' })
+      if (opts.url) setUrl('')
       watch()
     } catch (e) {
       startedRef.current = false
       const msg = errMsg(e)
       // The RAM pre-check is overridable — offer to proceed.
       if (/RAM/i.test(msg)) { setConfirm({ kind: 'force', msg }); return }
+      // A rejected URL is a problem with the field, so it belongs at the field.
+      if (opts.url) { setUrlErr(msg); return }
       toast.error(msg)
     }
   }
 
-  async function remove() {
+  /** Make the selected model the one the app runs on. Deliberately an explicit
+   *  action rather than a side effect of selecting: selection also moves with
+   *  the arrow keys, which would otherwise re-point the engine at every model
+   *  the user passes over. */
+  async function activate() {
+    if (!sel) return
     try {
-      await api.deleteLocalModel()
+      await api.putSettings({ local_model_id: sel.id })
+      refreshModel()
+      toast.success(t('engine.local.nowUsing', { model: nameOf(sel) }))
+    } catch (e) { toast.error(errMsg(e)) }
+  }
+
+  async function addCustom() {
+    setUrlErr('')
+    if (!url.trim()) return
+    await download(false, { url: url.trim() })
+  }
+
+  async function remove() {
+    if (!sel) return
+    const name = nameOf(sel)  // the row is gone from `models` by the time we report
+    try {
+      await api.deleteLocalModel(sel.id)
       setDl({ state: 'idle' })
       refreshModel()
-      toast.success(t('engine.local.deleted'))
+      toast.success(t('engine.local.deleted', { model: name }))
     } catch (e) { toast.error(errMsg(e)) }
   }
 
   const pct = dl.bytes_total ? Math.min(100, Math.round((dl.bytes_done ?? 0) / dl.bytes_total * 100)) : 0
   const providers: EngineProvider[] = ['local', 'openrouter']
   const radio = radioGroup(providers, provider, onProviderChange)
+  const sel = models.find(m => m.id === selected) ?? null
+  const modelRadio = radioGroup(models.map(m => m.id), selected, id => { if (id) setSelected(id) })
+  // A custom model's label is the filename the user supplied — untranslatable.
+  const nameOf = (m: LocalModel) =>
+    m.custom ? m.label : t(`engine.models.${m.id}.name`, { defaultValue: m.label })
+  const selLabel = sel ? nameOf(sel) : ''
+  const downloading = models.find(m => m.id === dl.model_id)
+  const downloadingLabel = downloading ? nameOf(downloading) : selLabel
 
   return (
     <div className="card">
@@ -125,52 +184,102 @@ export default function EngineSettings({ provider, onProviderChange, children }:
 
       {provider === 'local' && (
         <div className="field" style={{ marginBottom: 0 }}>
-          <div style={{ fontWeight: 600 }}>{model?.label ?? t('engine.local.recommended')}</div>
-          <p className="muted-sm" style={{ margin: '4px 0 var(--space-3)' }}>
-            {t('engine.local.sizeNote', { size: fmtGb(model?.size_bytes), ram: model?.min_ram_gb ?? 8 })}
-          </p>
+          <h3 className="section-title" id={modelsId} style={{ margin: '0 0 var(--space-2)' }}>
+            {t('engine.local.pickModel')}
+          </h3>
 
-          {model?.downloaded && !busy ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
-              {/* Success state, not an action — teal, so the accent stays on the
-                  one thing that IS actionable here. */}
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--success)' }}>
-                <CheckCircle2 size={16} aria-hidden /> {t('engine.local.ready')}
-              </span>
-              <Button variant="ghost" className="btn-icon-danger" onClick={() => setConfirm({ kind: 'delete' })}>
-                <Trash2 size={15} aria-hidden /> {t('engine.local.deleteModel')}
-              </Button>
-            </div>
-          ) : busy ? (
+          {listErr ? (
             <div>
-              <div
-                role="progressbar"
-                aria-label={t('engine.local.progressLabel')}
-                aria-valuenow={pct}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                style={{ height: 8, background: 'var(--surface-dim)', border: '1px solid var(--border)', overflow: 'hidden' }}
-              >
-                {/* scaleX rather than width: the bar ticks once a second for
-                    minutes, and transform doesn't re-lay-out the card each time. */}
-                <div style={{
-                  width: '100%', height: '100%', background: 'var(--ink)',
-                  transformOrigin: 'left', transform: `scaleX(${pct / 100})`, transition: 'transform .3s',
-                }} />
-              </div>
-              {/* Deliberately NOT a live region: this text changes every second
-                  for several minutes, and `polite` queues rather than drops —
-                  it would read out a backlog of percentages. The progressbar
-                  above already exposes the value on demand. */}
-              <p className="muted-sm" style={{ marginTop: 6 }}>
-                {t(dl.state === 'resuming' ? 'engine.local.resuming' : 'engine.local.downloading',
-                   { done: fmtGb(dl.bytes_done), total: fmtGb(dl.bytes_total), pct })}
-              </p>
+              <p className="error-msg" style={{ marginTop: 0 }}>{t('engine.local.listFailed', { error: listErr })}</p>
+              <Button variant="ghost" onClick={refreshModel}>{t('common.retry')}</Button>
             </div>
           ) : (
-            <Button onClick={() => download()}>
-              <Download size={15} aria-hidden /> {t('engine.local.download')}
-            </Button>
+            <>
+              <div {...modelRadio.group} aria-labelledby={modelsId} className="model-list"
+                   style={{ marginBottom: 'var(--space-3)' }}>
+                {models.map((m, i) => (
+                  <ModelRow
+                    key={m.id}
+                    {...modelRadio.item(i)}
+                    model={m}
+                    name={nameOf(m)}
+                    onClick={() => setSelected(m.id)}
+                  />
+                ))}
+              </div>
+
+              {busy ? (
+                <div>
+                  <div
+                    role="progressbar"
+                    aria-label={t('engine.local.progressLabelFor', { model: downloadingLabel })}
+                    aria-valuenow={pct}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    style={{ height: 8, background: 'var(--surface-dim)', border: '1px solid var(--border)', overflow: 'hidden' }}
+                  >
+                    {/* scaleX rather than width: the bar ticks once a second for
+                        minutes, and transform doesn't re-lay-out the card each time. */}
+                    <div style={{
+                      width: '100%', height: '100%', background: 'var(--ink)',
+                      transformOrigin: 'left', transform: `scaleX(${pct / 100})`, transition: 'transform .3s',
+                    }} />
+                  </div>
+                  {/* Deliberately NOT a live region: this text changes every second
+                      for several minutes, and `polite` queues rather than drops —
+                      it would read out a backlog of percentages. The progressbar
+                      above already exposes the value on demand. */}
+                  <p className="muted-sm" style={{ marginTop: 6 }}>
+                    {t(dl.state === 'resuming' ? 'engine.local.resuming' : 'engine.local.downloading',
+                       { done: fmtGb(dl.bytes_done), total: fmtGb(dl.bytes_total), pct })}
+                  </p>
+                </div>
+              ) : sel ? (
+                /* One action row for the selected model. Its state decides what
+                   is offered, so there is never a button whose effect the reader
+                   has to work out from the row above. */
+                <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+                  {!sel.downloaded && (
+                    <Button onClick={() => void download()}>
+                      <Download size={15} aria-hidden /> {t('engine.local.download')}
+                    </Button>
+                  )}
+                  {sel.downloaded && !sel.active && (
+                    <Button onClick={() => void activate()}>{t('engine.local.useModel')}</Button>
+                  )}
+                  {sel.downloaded && (
+                    <Button variant="ghost" className="btn-icon-danger" onClick={() => setConfirm({ kind: 'delete' })}>
+                      <Trash2 size={15} aria-hidden /> {t('engine.local.deleteModel')}
+                    </Button>
+                  )}
+                </div>
+              ) : null}
+
+              <div className="field" style={{ marginTop: 'var(--space-4)', marginBottom: 0 }}>
+                <label htmlFor={urlId}>{t('engine.local.customLabel')}</label>
+                <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+                  <input
+                    id={urlId}
+                    type="url"
+                    spellCheck={false}
+                    value={url}
+                    onChange={e => { setUrl(e.target.value); setUrlErr('') }}
+                    placeholder={t('engine.local.customPlaceholder')}
+                    style={{ flex: 1, minWidth: 240 }}
+                  />
+                  <Button variant="ghost" onClick={() => void addCustom()} disabled={busy || !url.trim()}>
+                    {t('engine.local.customAdd')}
+                  </Button>
+                </div>
+                {urlErr && <p className="error-msg">{urlErr}</p>}
+                <p className="help-text">
+                  {t('engine.local.customHelp')}{' '}
+                  <a href="https://huggingface.co/models?library=gguf&sort=trending" target="_blank" rel="noreferrer">
+                    {t('engine.local.customBrowse')}
+                  </a>
+                </p>
+              </div>
+            </>
           )}
         </div>
       )}
@@ -182,14 +291,14 @@ export default function EngineSettings({ provider, onProviderChange, children }:
           title={t('engine.local.forceTitle')}
           body={t('engine.local.confirmForce', { msg: confirm.msg })}
           confirmLabel={t('engine.local.downloadAnyway')}
-          onConfirm={() => { setConfirm(null); void download(true) }}
+          onConfirm={() => { setConfirm(null); void download(true, lastReq.current) }}
           onCancel={() => setConfirm(null)}
         />
       )}
       {confirm?.kind === 'delete' && (
         <ConfirmModal
           title={t('engine.local.deleteModel')}
-          body={t('engine.local.confirmDelete')}
+          body={t('engine.local.confirmDelete', { model: selLabel, size: fmtGb(sel?.size_bytes) })}
           confirmLabel={t('common.delete')}
           danger
           onConfirm={() => { setConfirm(null); void remove() }}
@@ -200,9 +309,48 @@ export default function EngineSettings({ provider, onProviderChange, children }:
   )
 }
 
+/** One local model, as a row in a ruled list. Selecting a row is only selecting
+ *  it — "in use" is a separate state with its own column, because a highlighted
+ *  row that might or might not be the running engine is exactly the ambiguity
+ *  this list has to remove. Shared with onboarding. */
+export function ModelRow({ model, name, onClick, ...aria }: {
+  model: LocalModel; name: string; onClick: () => void
+} & React.HTMLAttributes<HTMLButtonElement>) {
+  const { t } = useTranslation()
+  const selected = aria['aria-checked'] === true
+  const desc = model.custom ? t('engine.local.customDesc')
+                            : t(`engine.models.${model.id}.desc`, { defaultValue: '' })
+  return (
+    <button type="button" onClick={onClick} {...aria} className="model-row" data-selected={selected || undefined}>
+      <span className="model-row-main">
+        <span style={{ display: 'block', fontWeight: 700 }}>{name}</span>
+        {desc && <span className="model-row-desc">{desc}</span>}
+        <span className="model-row-desc" style={{ marginTop: 2 }}>
+          {t('engine.local.sizeRam', { size: fmtGb(model.size_bytes), ram: model.min_ram_gb })}
+        </span>
+      </span>
+      {/* "In use" is claimed only by a model that is both pointed at AND on disk:
+          config can name a model that was never downloaded, and calling that one
+          in use would report a working engine where there is none. */}
+      {model.downloaded && (
+        /* Teal, not vermilion: this is a good state, not the one thing to act
+           on. Inherits the row's paper ink when selected, where teal on ink
+           would fail contrast. */
+        <span className="model-row-state" style={{
+          color: selected ? 'inherit' : model.active ? 'var(--success)' : 'var(--muted)',
+        }}>
+          {model.active && <CheckCircle2 size={15} aria-hidden />}
+          {t(model.active ? 'engine.local.inUse' : 'engine.local.onDisk')}
+        </span>
+      )}
+    </button>
+  )
+}
+
 /** One engine option. Selection is an ink fill, not a border tint: a 2px accent
- *  border alone is a colour-only cue on the app's most consequential setting. */
-function EngineCard({ icon, title, desc, onClick, ...aria }: {
+ *  border alone is a colour-only cue on the app's most consequential setting.
+ *  Exported so onboarding presents the same choice in the same vocabulary. */
+export function EngineCard({ icon, title, desc, onClick, ...aria }: {
   icon: React.ReactNode; title: string; desc: string; onClick: () => void
 } & React.HTMLAttributes<HTMLButtonElement>) {
   const selected = aria['aria-checked'] === true

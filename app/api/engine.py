@@ -8,10 +8,12 @@ frontend onboarding/banners drive off. The download endpoints fetch the selected
 GGUF from Hugging Face into MODELS_DIR with resumable, progress-tracked streaming.
 """
 
+import re
 import shutil
 import threading
 import time
 import uuid
+from urllib.parse import unquote, urlsplit
 
 import httpx
 import psutil
@@ -20,7 +22,7 @@ from pydantic import BaseModel
 
 from app import config
 from app.paths import MODELS_DIR
-from app.services.engines.registry import LOCAL_MODELS, get_model, local_model_path
+from app.services.engines.registry import all_models, get_model, local_model_path
 
 router = APIRouter(prefix="/api/engine", tags=["engine"])
 
@@ -70,23 +72,95 @@ def engine_status():
 @router.get("/models")
 def list_models():
     """The local-model registry (for the Settings/onboarding model picker)."""
+    cfg = config.load()
+    active = cfg.get("local_model_id") or config.DEFAULT_LOCAL_MODEL
+
     def downloaded(mid: str) -> bool:
         p = local_model_path(mid)
         return bool(p and p.exists())
 
-    return [
+    rows = [
         {"id": mid, "label": e["label"], "size_bytes": e["size_bytes"],
-         "min_ram_gb": e["min_ram_gb"], "downloaded": downloaded(mid)}
-        for mid, e in LOCAL_MODELS.items()
+         "min_ram_gb": e["min_ram_gb"], "downloaded": downloaded(mid),
+         "active": mid == active, "custom": bool(e.get("custom")),
+         "recommended": mid == config.DEFAULT_LOCAL_MODEL}
+        for mid, e in all_models().items()
     ]
+    # Recommended first — it's the choice most users should make, so it should be
+    # the one they read first. Sorted here rather than by reordering the registry
+    # so the order follows the default if the default ever changes. Stable, so the
+    # rest keep their curated (light → heavy) order and customs stay last.
+    rows.sort(key=lambda r: not r["recommended"])
+    return rows
+
+
+def validate_gguf_url(raw: str) -> tuple[str, str]:
+    """Check a user-supplied model URL → (url, safe filename). Raises ValueError.
+
+    Trust boundary: the URL decides a filename written into MODELS_DIR, so the
+    basename is sanitized to a plain name rather than merely checked.
+    """
+    url = (raw or "").strip()
+    # urlsplit, not urlparse: the latter peels a ";params" tail off the last path
+    # segment, which would hide the real filename behind a semicolon.
+    parsed = urlsplit(url)
+    if parsed.scheme != "https":
+        raise ValueError("The model URL must start with https://.")
+    # A Hugging Face /blob/ link serves an HTML page, not the file — the single
+    # most common mistake, and silently fatal (a .gguf-named web page).
+    if parsed.netloc.endswith("huggingface.co") and "/blob/" in parsed.path:
+        url = url.replace("/blob/", "/resolve/", 1)
+        parsed = urlsplit(url)
+    # Unquote first, then split: an encoded %2F is a path separator too.
+    name = unquote(parsed.path).rsplit("/", 1)[-1]
+    if not name.lower().endswith(".gguf"):
+        raise ValueError("The URL must point directly at a .gguf file.")
+    # Leading dots stripped so a hostile name can't land as a dotfile.
+    safe = re.sub(r"[^A-Za-z0-9._-]", "", name).lstrip(".")
+    if len(safe) <= len(".gguf") or not safe.lower().endswith(".gguf"):
+        raise ValueError("That URL has no usable file name.")
+    return url, safe
+
+
+def register_custom_model(raw_url: str) -> str:
+    """Validate a GGUF URL, HEAD it for its size, and save it to config → id."""
+    url, filename = validate_gguf_url(raw_url)
+    try:
+        r = httpx.head(url, follow_redirects=True, timeout=30)
+        r.raise_for_status()
+    except Exception as e:
+        raise ValueError(f"Could not reach that URL: {e}") from e
+
+    size = int(r.headers.get("content-length") or 0)
+    model_id = "custom-" + filename[: -len(".gguf")]
+    entry = {
+        "label": filename,
+        "url": url,
+        "filename": filename,
+        "size_bytes": size,
+        # The file must fit in RAM, plus room for context and the OS.
+        "min_ram_gb": round(size / 1e9) + 2,
+        # ponytail: conservative fixed context; make it a field if someone
+        # downloads a long-context model and wants the extra window.
+        "n_ctx": 8192,
+        "custom": True,
+    }
+    cfg = config.load()
+    customs = dict(cfg.get("local_custom_models") or {})
+    customs[model_id] = entry  # re-adding the same file replaces its entry
+    config.save({"local_custom_models": customs})
+    return model_id
 
 
 def _run_download(download_id: str, model_id: str) -> None:
     entry = get_model(model_id)
     target = local_model_path(model_id)
     try:
-        from huggingface_hub import hf_hub_url
-        url = hf_hub_url(repo_id=entry["repo"], filename=entry["filename"])
+        if entry.get("url"):
+            url = entry["url"]  # custom entry: a direct link the user supplied
+        else:
+            from huggingface_hub import hf_hub_url
+            url = hf_hub_url(repo_id=entry["repo"], filename=entry["filename"])
         MODELS_DIR.mkdir(parents=True, exist_ok=True)
         part = target.with_suffix(target.suffix + ".part")
 
@@ -136,13 +210,20 @@ def _run_download(download_id: str, model_id: str) -> None:
 
 class DownloadRequest(BaseModel):
     model_id: str | None = None
+    url: str | None = None  # a user-supplied .gguf link — registered, then downloaded
     force: bool = False  # override the RAM pre-check
 
 
 @router.post("/download")
 def start_download(body: DownloadRequest):
     cfg = config.load()
-    model_id = body.model_id or cfg.get("local_model_id") or config.DEFAULT_LOCAL_MODEL
+    if body.url:
+        try:
+            model_id = register_custom_model(body.url)
+        except ValueError as e:
+            raise HTTPException(400, str(e)) from e
+    else:
+        model_id = body.model_id or cfg.get("local_model_id") or config.DEFAULT_LOCAL_MODEL
     entry = get_model(model_id)
     if entry is None:
         raise HTTPException(404, "Unknown model.")
@@ -211,6 +292,7 @@ def delete_model(model_id: str | None = None):
             raise HTTPException(409, "A download is in progress — wait for it to finish first.")
     cfg = config.load()
     mid = model_id or cfg.get("local_model_id") or config.DEFAULT_LOCAL_MODEL
+    entry = get_model(mid)
     path = local_model_path(mid)
     if path and path.exists():
         path.unlink()
@@ -219,4 +301,10 @@ def delete_model(model_id: str | None = None):
         part = path.with_suffix(path.suffix + ".part")
         if part.exists():
             part.unlink()
+    # A custom model only exists because of its config entry — deleting the file
+    # without it would leave an un-downloadable ghost in the picker.
+    if entry and entry.get("custom"):
+        customs = dict(cfg.get("local_custom_models") or {})
+        customs.pop(mid, None)
+        config.save({"local_custom_models": customs})
     return {"ok": True}

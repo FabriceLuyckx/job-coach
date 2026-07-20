@@ -382,8 +382,8 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 }
 
 /* ── Engine chooser (Settings) ──────────────────────────────────────────── */
-/* Two options today; auto-fit so a third never needs a breakpoint, and so the
-   pair stacks instead of squeezing on a narrow window. */
+/* The engine pair: two genuinely different things, each needing a sentence to
+   explain it. Auto-fit so they stack instead of squeezing on a narrow window. */
 .engine-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -404,6 +404,40 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 .engine-card[data-selected] { background: var(--ink); color: var(--paper); }
 .engine-card[data-selected] .engine-card-desc { color: var(--paper); opacity: 0.82; }
 .engine-card:not([data-selected]):hover { background: var(--surface-dim); }
+
+/* Models are homogeneous: the same attributes (size, RAM, state) compared across
+   every option. A ruled list reads them in one vertical scan; the card grid made
+   the eye re-find each attribute inside every tile, and wrapped into ragged rows
+   as soon as a custom model was added. Same ink-fill selection as above. */
+.model-list { border: 1px solid var(--ink); background: var(--surface); }
+.model-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+  text-align: left;
+  padding: var(--space-3);
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--border);
+  color: var(--ink);
+}
+.model-row:first-child { border-top: 0; }
+.model-row[data-selected] { background: var(--ink); color: var(--paper); }
+.model-row[data-selected] .model-row-desc { color: var(--paper); opacity: 0.82; }
+.model-row:not([data-selected]):hover { background: var(--surface-dim); }
+.model-row-main { flex: 1; min-width: 0; }
+.model-row-desc { display: block; font-size: var(--fs-sm); color: var(--muted); }
+/* The state of a model is what the reader came for — it sits in its own column
+   so every row answers "is this the one running?" at the same x position. */
+.model-row-state {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
 
 /* One-tap example chips that append to a textarea. */
 .suggest-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-2); }
@@ -725,8 +759,12 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   color: var(--paper);
   border-radius: var(--radius);
   padding: 11px 14px;
-  font-size: var(--fs-sm);
-  box-shadow: var(--shadow-pop);
+  /* Body size, not caption size: this is the app's only channel for "did that
+     work?", and it is read once, in passing, from across the page. */
+  font-size: var(--fs-base);
+  /* No offset shadow. --shadow-pop lifts the page sheet and modals off the wall;
+     on a small ink block over cream the contrast already does that, and 6px of
+     hard offset on a strip this size read as a second, misaligned border. */
   animation: toast-in 0.18s ease-out;
 }
 @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
