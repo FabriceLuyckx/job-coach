@@ -451,6 +451,31 @@ export default function JobsPage() {
         )}
       </div>
 
+      {/* Sits beside the automated scan, not after History: both start the same
+          review, so the manual escape hatch belongs next to the thing it mirrors. */}
+      <div className="card" style={{ marginTop: 'var(--space-6)' }}>
+        <h2 className="section-title" style={{ marginBottom: 'var(--space-2)' }}>{t('jobs.checkTitle')}</h2>
+        <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{t('jobs.checkHelp')}</p>
+        <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'flex-end' }}>
+          <div className="field" style={{ flex: 1, marginBottom: 0 }}>
+            <label htmlFor="job-check-url">{t('jobs.checkAria')}</label>
+            <input
+              id="job-check-url"
+              type="url"
+              value={checkUrl}
+              onChange={e => setCheckUrl(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && !checking && checkJob()}
+              placeholder="https://example.com/jobs/data-scientist"
+            />
+          </div>
+          <Button variant="secondary" onClick={checkJob} busy={checking}
+            disabled={checking || keySet === false} title={keySet === false ? t('jobs.needEngine') : undefined}>
+            {!checking && <Link2 size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
+            {t('jobs.check')}
+          </Button>
+        </div>
+      </div>
+
       <h2 className="section-title" style={{ marginBottom: 'var(--space-2)' }}>{t('jobs.suggestions')}</h2>
       {/* Accepting spends real AI credit — say so where the decision is made,
           not only in a hover title a first-timer will never trigger. */}
@@ -639,29 +664,6 @@ export default function JobsPage() {
           )}
         </>
       )}
-      <div className="card" style={{ marginTop: 'var(--space-6)' }}>
-        <h2 className="section-title" style={{ marginBottom: 'var(--space-2)' }}>{t('jobs.checkTitle')}</h2>
-        <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>{t('jobs.checkHelp')}</p>
-        <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'flex-end' }}>
-          <div className="field" style={{ flex: 1, marginBottom: 0 }}>
-            <label htmlFor="job-check-url">{t('jobs.checkAria')}</label>
-            <input
-              id="job-check-url"
-              type="url"
-              value={checkUrl}
-              onChange={e => setCheckUrl(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && !checking && checkJob()}
-              placeholder="https://example.com/jobs/data-scientist"
-            />
-          </div>
-          <Button variant="secondary" onClick={checkJob} busy={checking}
-            disabled={checking || keySet === false} title={keySet === false ? t('jobs.needEngine') : undefined}>
-            {!checking && <Link2 size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
-            {t('jobs.check')}
-          </Button>
-        </div>
-      </div>
-
     </div>
   )
 }

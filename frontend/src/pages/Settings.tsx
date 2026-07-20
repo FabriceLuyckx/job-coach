@@ -616,6 +616,28 @@ export default function SettingsPage() {
       >
         <p className="help-text">{t('settings.prompts.help')}</p>
 
+        {/* Pipeline order: extract links → judge the posting → tailor the CV →
+            outline the letter. Same order as job_scanner → cv_generator → letter_guide. */}
+        <PromptEditor
+          title={t('settings.prompts.extractTitle')}
+          help={t('settings.prompts.extractHelp')}
+          value={scanExtract}
+          saved={settings.scan_extract_prompt}
+          defaultValue={settings.scan_extract_prompt_default}
+          onChange={setScanExtract}
+          onSave={() => savePrompt({ scan_extract_prompt: scanExtract })}
+        />
+
+        <PromptEditor
+          title={t('settings.prompts.filterTitle')}
+          help={t('settings.prompts.filterHelp')}
+          value={scanFilter}
+          saved={settings.scan_filter_prompt}
+          defaultValue={settings.scan_filter_prompt_default}
+          onChange={setScanFilter}
+          onSave={() => savePrompt({ scan_filter_prompt: scanFilter })}
+        />
+
         <PromptEditor
           title={t('settings.prompts.cvTitle')}
           help={<Trans i18nKey="settings.prompts.cvHelp" components={{ code: <code /> }} />}
@@ -636,26 +658,6 @@ export default function SettingsPage() {
           rows={14}
           onChange={setLetterPrompt}
           onSave={() => savePrompt({ letter_prompt: letterPrompt })}
-        />
-
-        <PromptEditor
-          title={t('settings.prompts.extractTitle')}
-          help={t('settings.prompts.extractHelp')}
-          value={scanExtract}
-          saved={settings.scan_extract_prompt}
-          defaultValue={settings.scan_extract_prompt_default}
-          onChange={setScanExtract}
-          onSave={() => savePrompt({ scan_extract_prompt: scanExtract })}
-        />
-
-        <PromptEditor
-          title={t('settings.prompts.filterTitle')}
-          help={t('settings.prompts.filterHelp')}
-          value={scanFilter}
-          saved={settings.scan_filter_prompt}
-          defaultValue={settings.scan_filter_prompt_default}
-          onChange={setScanFilter}
-          onSave={() => savePrompt({ scan_filter_prompt: scanFilter })}
         />
       </Collapsible>
     </div>
