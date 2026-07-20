@@ -22,10 +22,14 @@
   font-size: 19px;
   padding: 0 var(--space-5) var(--space-6);
 }
-.sidebar-nav .nav-logo { color: var(--paper); }
+/* "JOB COACH" separates its two words by value, not hue. The em was --ink,
+   which only worked on a light wall; --accent was considered and rejected —
+   vermilion on --frame is 2.45:1, the same ratio that disqualified the
+   active-tab stripe. Dim cream 5.48:1, bright cream 10.62:1. */
+.sidebar-nav .nav-logo { color: color-mix(in srgb, var(--paper) 65%, transparent); }
 .nav-logo em {
   font-style: normal;
-  color: var(--ink);
+  color: var(--paper);
 }
 
 .sidebar-nav a {
@@ -33,25 +37,23 @@
   align-items: center;
   gap: 10px;
   padding: 9px var(--space-5);
-  color: color-mix(in srgb, var(--paper) 82%, transparent);
+  color: color-mix(in srgb, var(--paper) 75%, transparent);
   font-size: var(--fs-base);
   font-weight: 500;
   text-decoration: none;
-  border-left: 3px solid transparent;
   transition: background 0.15s, color 0.15s;
 }
 .sidebar-nav a svg { flex-shrink: 0; }
 
 .sidebar-nav a:hover {
   color: var(--paper);
-  background: color-mix(in srgb, var(--ink) 14%, transparent);
+  background: color-mix(in srgb, var(--paper) 10%, transparent);
   text-decoration: none;
 }
 
 /* Active item reads as a cream tab cut from the poster sheet. */
 .sidebar-nav a.active {
   color: var(--ink);
-  border-left-color: var(--accent);
   background: var(--paper);
   font-weight: 600;
 }
@@ -70,7 +72,7 @@
   max-width: 880px;
   background: var(--paper);
   padding: var(--space-7) var(--space-8);
-  box-shadow: var(--shadow-pop);
+  box-shadow: var(--shadow-pop-wall);
   min-height: calc(100vh - 2 * var(--space-7));
 }
 
@@ -88,7 +90,7 @@
   padding: var(--space-3) var(--space-8);
   text-align: right;
   font-size: var(--fs-xs);
-  color: color-mix(in srgb, var(--paper) 70%, transparent);
+  color: color-mix(in srgb, var(--paper) 80%, transparent);
 }
 .app-footer a { color: var(--paper); text-decoration: underline; }
 

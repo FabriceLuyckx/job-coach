@@ -13,7 +13,7 @@ colors:
   accent-text: "#AD3618"
   teal: "#2F6B66"
   teal-soft: "#DDEAE7"
-  wall-teal: "#6B8F91"
+  teal-wall: "#1E3A38"
   deep-red: "#8F2410"
   deep-red-soft: "#F3DCD4"
   mustard: "#7C5C08"
@@ -91,7 +91,7 @@ components:
 Job Coach reads as something printed, not something rendered: ink-black hairline
 rules, flat color blocks instead of gradients, hard offset shadows instead of soft
 blurs, and squared corners everywhere (`--radius: 0px`). Each page is a cream poster
-sheet (`--paper`) laid on a muted teal gallery wall (`--frame`, the app shell behind
+sheet (`--paper`) laid on a deep teal gallery wall (`--frame`, the app shell behind
 the fixed sidebar) — the sheet gets a hard drop shadow, the wall doesn't. Headings are
 one grotesque family (Inter), always bold and uppercase; there is no second display
 font pretending to be more decorative than the first.
@@ -122,21 +122,31 @@ semantic colors (mustard, deep red) that never get confused with the accent.
 
 ### Primary
 - **Vermilion** (`#C8401F`, hover `#A83415`, tint `#F5DFD5`, text `#AD3618`): primary actions,
-  the active nav tab's underline, star-rating fill, deadline chips, the numbered
-  question blocks on Preferences. The one color allowed to feel urgent — used at low
+  star-rating fill, deadline chips. The one color allowed to feel urgent — used at low
   frequency on purpose. The base value is tuned as a **fill** (white on it is
   4.99:1); as small text it fails AA on the cream grounds, so text uses of the
   accent — links, the deadline chip, star fills — take `--accent-text`
   (`#AD3618`, worst case 4.94:1). Fills keep `--accent`.
 
 ### Secondary
-- **Teal** (`#2F6B66`, tint `#DDEAE7`): the AI/success counterpoint — "AI" badges,
-  success states, the `--success` alias. Reads as considered and cool against
-  vermilion's warmth, never competing for the same job.
-- **Wall Teal** (`#6B8F91`): a separate, more muted teal that is *not* used for
-  content — it's the app-shell background (`--frame`), the "wall" the cream page
-  hangs on, and the sidebar fill. Keep it out of in-page UI; its only job is the
-  shell.
+- **Teal** — one hue at three values, one job each. They are a ramp, not three
+  unrelated colors, so any of them can meet on screen without clashing:
+
+  | Value | Token | Job |
+  |---|---|---|
+  | `#1E3A38` | `--frame` | The wall: app-shell background and sidebar fill |
+  | `#2F6B66` | `--teal` | Content signals: "AI" badges, success states, the `--success` alias |
+  | `#DDEAE7` | `--teal-soft` | Soft tint backgrounds |
+
+  The content value reads as considered and cool against vermilion's warmth, never
+  competing for the same job. The wall was `#6B8F91` until 2026-07 — a mid-tone at
+  L≈58% that could hold neither ink nor paper text, failing AA for every label on it
+  (nav 2.58:1, footer 2.27:1, the AGPL §13 link 3.06:1). Even pure `#FFFFFF` on it
+  reached only 3.52:1, so the wall's lightness was the defect, not the text. On the
+  deep value, cream text clears AA with headroom: nav inactive (`paper 75%`) 6.74:1,
+  footer (`paper 80%`) 7.42:1, the AGPL link 10.62:1, and the cream active tab
+  15.09:1. Galleries hang work on dark walls so the paper reads as figure — the
+  change sharpens the North Star rather than compromising it.
 
 ### Neutral
 - **Cream** (`--paper` `#F2EFE4`): page background, the poster sheet itself.
@@ -197,18 +207,25 @@ sentence the user is meant to read as prose.
 ## 4. Elevation
 
 Flat by default — cards, inputs, and panels sit at zero elevation with only a 1px ink
-border to separate them from the cream ground. The single hard shadow
-(`6px 6px 0 rgba(20, 19, 17, 0.18)`, `--shadow-pop`) is reserved for things that
-genuinely float above the page: the page sheet itself against the teal wall, modals,
-dropdown/add-section menus, and toasts. Nothing else gets a shadow — depth is
+border to separate them from the cream ground. The hard offset shadow is reserved for
+things that genuinely float: the page sheet against the teal wall, modals,
+dropdown/add-section menus, and toasts. There is **one shadow value per ground**,
+because a shadow has to be visible against what it actually falls on. Nothing else gets a shadow — depth is
 otherwise conveyed by the ink border and by nested-panel tone (`--surface` →
 `--surface-dim`), not by blur.
 
 ### Shadow Vocabulary
-- **Poster-pop** (`box-shadow: 6px 6px 0 rgba(20, 19, 17, 0.18)`): the one shadow in
-  the system. Hard-edged, offset, no blur — reads as a printed sheet with a cast
-  shadow, not a soft UI lift. Used on `.page-container`, `.modal-box`, `.toast`,
-  `.add-section-menu`.
+Both values are hard-edged, offset, no blur — a printed sheet with a cast shadow, not
+a soft UI lift. They differ only in the ground they fall on.
+
+- **Poster-pop** (`6px 6px 0 rgba(20, 19, 17, 0.18)`, `--shadow-pop`): for elements
+  floating above the **cream sheet** — `.modal-box`, `.toast`, `.add-section-menu`
+  (1.44:1 on `--paper`).
+- **Poster-pop on wall** (`6px 6px 0 #0D1918`, `--shadow-pop-wall`): for the page
+  sheet floating above the **teal wall** — `.page-container` only. Ink-at-18%
+  computes to 1.08:1 there (invisible); this value restores the gesture at 1.47:1.
+
+A shadow under 1.2:1 against its own ground is not a shadow.
 
 ### Named Rules
 **The Flat-At-Rest Rule.** Nothing in normal document flow gets a shadow. If an
@@ -261,11 +278,19 @@ page (overlays, floating menus, the page sheet against the wall).
   disabled states desaturate rather than gray out completely.
 
 ### Navigation
-- **Style:** a fixed 208px sidebar filled with Wall Teal, holding the wordmark and
-  icon+label links (Lucide icons, 17px). Inactive links sit at ~82% white opacity on
-  teal; hover brightens to full white with a faint ink wash. The **active** item
-  reads as a cream tab cut from the poster sheet — full `--paper` background, ink
-  text, a 3px vermilion left border — rather than a colored pill or underline.
+- **Style:** a fixed 208px sidebar filled with the wall teal, holding the wordmark and
+  icon+label links (Lucide icons, 17px). Inactive links sit at 75% cream on the wall
+  (6.74:1); hover brightens to full cream over a faint **cream** wash (an ink wash is
+  invisible on a dark ground). The **active** item reads as a cream tab cut from the
+  poster sheet — full `--paper` background and ink text, **no accent border** —
+  rather than a colored pill or underline. The tab carries "you are here" on its own
+  at 15.09:1; the 3px vermilion left border it used to have measured 2.45:1 against
+  the wall, so it was decoration that failed the 3:1 UI threshold while spending a
+  rationed accent.
+- **Wordmark:** "JOB **COACH**" separates its two words by *value*, not hue — dim
+  cream (`paper 65%`, 5.48:1) and full cream (10.62:1). Vermilion is not an option
+  here: on the wall it is 2.45:1, the same ratio that disqualified the active-tab
+  border.
 - **Mobile:** not yet adapted for narrow viewports (desktop-first; app is currently
   used as a local/desktop tool).
 
@@ -281,8 +306,11 @@ state visually says the same thing everywhere in the app: ink fill = chosen/acti
 ### Do:
 - **Do** keep every border and rule at `--ink` (`#1C1A16`); never introduce a
   separate gray border token.
-- **Do** ration vermilion to one primary signal per screen — the default action, the
-  active tab, or the single most important chip (deadline).
+- **Do** ration vermilion to one primary signal per screen — the default action or
+  the single most important chip (deadline).
+- **Do** style in-content links as `--ink` with a 1px underline at `ink 45%`. The
+  underline is the affordance, not the color, so the link works without relying on
+  hue. `--accent-text` is reserved for a link that *is* the view's next action.
 - **Do** keep hard, offset, blur-free shadows (`6px 6px 0`) exclusive to floating
   elements (modals, menus, toasts, the page sheet) — never on resting cards or
   buttons.
@@ -292,6 +320,9 @@ state visually says the same thing everywhere in the app: ink fill = chosen/acti
   for a stressful process, not a loud dashboard.
 
 ### Don't:
+- **Don't** paint an element vermilion by *type* — a rule like `a { color: accent }`
+  put 25+ vermilion elements on one page and silently defeated the Rationed Accent
+  Rule everywhere else. The accent is spent per-view, deliberately, not by selector.
 - **Don't** round any corner. `border-radius` is `0px` everywhere except the 2px chip
   radius on badges/tags — never introduce `8px`/`12px` "friendly" rounding.
 - **Don't** build a **generic SaaS dashboard**: no soft card shadows, no

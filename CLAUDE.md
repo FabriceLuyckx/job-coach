@@ -881,13 +881,22 @@ Zero hosting cost to start, full data privacy (CV data is sensitive), and simple
 
 **Why the Bauhaus/Swiss poster style?**
 The UI borrows from mid-century festival posters (2026-07-08 redesign, replacing
-the earlier editorial/serif direction): the app shell (body + sidebar) is a muted
-teal wall (`--frame`) and each page renders as a cream poster sheet on it
-(`.page-container`), with ink-black hairline borders and rules, bold uppercase
+the earlier editorial/serif direction): the app shell (body + sidebar) is a deep
+teal wall (`--frame` `#1E3A38`) and each page renders as a cream poster sheet on
+it (`.page-container`), with ink-black hairline borders and rules, bold uppercase
 Inter headings (one grotesque family — no serif), a vermilion accent with a teal
 counterpoint, zero border-radius, squared chips instead of pills, and hard offset
-shadows on the sheet and menus/modals only. A thick ink bar underlines every page
-title; the active nav item reads as a cream tab cut from the sheet. Icons stay lucide-react (no emoji). Tokens live in
+shadows on the sheet and menus/modals only — **one shadow value per ground**
+(`--shadow-pop` on cream, `--shadow-pop-wall` on the wall, where ink-at-18% is
+invisible). Teal is one hue at three values (wall / content `--teal` / tint
+`--teal-soft`), not two unrelated teals. A thick ink bar underlines every page
+title; the active nav item reads as a cream tab cut from the sheet, carrying
+"you are here" on its own — it has no accent border (2.45:1 on the wall, and
+redundant beside the tab's 15.09:1). In-content links are `--ink` + underline,
+never the accent, which stays rationed to the primary signal. Shell contrast is
+enforced by `node scripts/check_contrast.mjs`, which parses the tokens out of
+`index.css`/`App.css` and fails if any shell pair drops below its WCAG
+threshold. Icons stay lucide-react (no emoji). Tokens live in
 `frontend/src/index.css` (`--paper/--ink/--accent/--teal/--space-1..8/--fs-*`);
 Inter is self-hosted via fontsource so the packaged app needs no CDN. All
 feedback flows through one Toast system (errors persist, successes auto-dismiss,

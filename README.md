@@ -457,14 +457,18 @@ backup-import safety (zip bombs, path traversal, manifest checks), slug
 sanitisation, LLM-config and AI-response guards, and profile/prompt validation.
 All tests exercise rejection paths only, so they never touch your local data.
 
-The frontend has one standalone check (no test framework needed):
+The frontend has two standalone checks (no test framework needed):
 
 ```bash
 node frontend/scripts/check-tags.mjs
+node scripts/check_contrast.mjs
 ```
 
-It covers `parseTags`, the tag-entry logic behind every tag field — comma/newline
-splitting, case-insensitive dedup, and per-entry length caps.
+The first covers `parseTags`, the tag-entry logic behind every tag field —
+comma/newline splitting, case-insensitive dedup, and per-entry length caps. The
+second reads the colour tokens straight out of `frontend/src/index.css` and
+`App.css` and fails if any app-shell element (nav links, wordmark, footer, the
+AGPL link, the page-sheet shadow) drops below its WCAG contrast threshold.
 
 ---
 

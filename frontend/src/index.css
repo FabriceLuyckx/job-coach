@@ -31,9 +31,19 @@
      on (--paper 4.33, --surface-dim 4.07). This darker cast clears all of them
      (worst 4.94:1) while reading as the same colour. Fills keep --accent. */
   --accent-text:  #AD3618;
-  --teal:         #2F6B66;   /* the iris — secondary hue, AI/success family */
+  /* Teal — one hue at three values, one job each:
+       --frame     the wall the cream sheet hangs on (app shell only)
+       --teal      content signals: AI, success
+       --teal-soft soft tint backgrounds
+     The wall was #6B8F91 (L≈58%) — a mid-tone that can hold neither ink nor
+     paper text: nav 2.58:1, footer 2.27:1, the AGPL §13 link 3.06:1, all
+     against 4.5:1. Even pure #FFFFFF on it reached 3.52:1, so no text-side
+     fix existed. At this value paper text clears AA with headroom (nav at
+     75% 6.74:1, footer at 80% 7.44:1, the AGPL link 10.62:1) and the cream
+     active tab still wins decisively at 15.09:1. */
+  --frame:        #1E3A38;
+  --teal:         #2F6B66;
   --teal-soft:    #DDEAE7;
-  --frame:        #6B8F91;   /* muted teal — the wall the poster hangs on (app shell) */
   --success:      var(--teal);
   --success-soft: var(--teal-soft);
   --danger:       #8F2410;   /* deeper than the accent so they never read as one */
@@ -53,7 +63,14 @@
   --radius: 0px;
   --radius-sm: 0px;
   --chip-radius: 2px;  /* badges/tags/pills — squared, not pill */
-  --shadow-pop: 6px 6px 0 rgba(20, 19, 17, 0.18); /* hard offset — menus & modals only */
+  /* Hard offset shadows — one per ground, since a shadow has to be visible
+     against what it actually falls on. --shadow-pop is for elements floating
+     above the cream sheet (menus, modals: 1.44:1). On the teal wall that same
+     ink-at-18% computes to 1.08:1 — invisible — so the page sheet uses
+     --shadow-pop-wall (1.47:1 on --frame), matching the weight the modal
+     shadow has on cream. */
+  --shadow-pop: 6px 6px 0 rgba(20, 19, 17, 0.18);
+  --shadow-pop-wall: 6px 6px 0 #0D1918;
 
   /* Spacing scale — use these, not ad-hoc pixel values */
   --space-1: 4px;
@@ -93,8 +110,18 @@ h1, h2, h3, .section-title, .page-title,
   letter-spacing: 0.02em;
 }
 
-a { color: var(--accent-text); text-decoration: none; }
-a:hover { text-decoration: underline; }
+/* Links are ink + underline, not accent. This rule used to paint every <a> in
+   the app --accent-text, which put 25+ vermilion elements on a populated Job
+   Suggestions page against a Rationed Accent Rule that permits one. The
+   underline isn't decoration — it's the non-colour affordance that lets a link
+   drop the accent without becoming colour-dependent. --accent-text stays
+   available to a link that IS the view's next action. */
+a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--ink) 45%, transparent);
+}
+a:hover { text-decoration-color: var(--ink); }
 
 /* ── Buttons ────────────────────────────────────────────────────────────── */
 button {
@@ -130,6 +157,7 @@ a.btn-primary {
   display: inline-block;
   padding: 8px 15px;
   color: #fff;
+  text-decoration: none;
   transition: background 0.15s;
 }
 a.btn-primary:hover { text-decoration: none; }
