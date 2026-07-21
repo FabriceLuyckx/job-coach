@@ -165,6 +165,16 @@ export interface Preferences {
   avoid: string
   locations: string[]
   remote: string
+  /** Employment type(s), multi-select: Permanent / Fixed-term / Freelance / Internship (canonical English). */
+  employment_types: string[]
+  /** Single-choice, canonical English: Full-time / Part-time / No preference. */
+  hours: string
+  /** Free-text salary expectation. */
+  salary: string
+  /** Free-text availability (start date / notice period). */
+  availability: string
+  /** Single-choice, canonical English: None / Occasional / Frequent / No preference. */
+  travel: string
   /** Working languages live on the profile (skills.languages) — not here. */
   notes: string
 }

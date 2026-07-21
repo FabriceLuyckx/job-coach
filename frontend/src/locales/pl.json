@@ -373,10 +373,18 @@
       "dealbreakersSub": "Nawet jeśli tytuł pasuje. Oferty, które trafiają do tych punktów, są odrzucone.",
       "dealbreakersPlaceholder": "np. Praca wyłącznie administracyjna, sprzedaż bez kontaktu, weekendowe zmiany",
       "practical": "Czy coś praktycznego powinno być sprawdzone?",
-      "practicalSub": "Oczekiwane wynagrodzenie, typ umowy, godziny, data rozpoczęcia, podróż — szczegóły, które warto zauważyć przed tym, jak przeczytasz ofertę samodzielnie.",
-      "practicalPlaceholder": "np. Pełny etat od września, co najmniej €3500/miesiąc, maksymalnie jeden dzień podróży w tygodniu",
+      "practicalSub": "Mała instrukcja warto przeczytać przed tym, jak samodzielnie przeczytasz ogłoszenie. Opuść wszystko, co nie dotyczy.",
       "languagesEmpty": "Brak języków na profilu — dodaj języki, w których możesz pracować, aby filtry wyrzucały oferty w innych językach.",
-      "languagesEdit": "Edytuj języki na profilu"
+      "languagesEdit": "Edytuj języki na profilu",
+      "employmentType": "Typ zatrudnienia",
+      "hours": "Godziny",
+      "salary": "Oczekiwana pensja",
+      "salaryPlaceholder": "np. co najmniej €3 500/miesiąc",
+      "availability": "Dostępność",
+      "availabilityPlaceholder": "np. od września, lub jedno miesięczne powiadomienie",
+      "travel": "Wycieczki",
+      "anythingElse": "Czego jeszcze potrzebujesz?",
+      "anythingElsePlaceholder": "np. brak wypowiedzi, preferuje czterodniowy tydzień, potrzebuje miejsca na parking"
     },
     "suggest": {
       "admin": "Praca wyłącznie administracyjna",
@@ -403,6 +411,21 @@
       "arrived_other": "{{count}} zaproponowane tytuły pracy",
       "none": "Nie mogłem wymyślić żadnych tytułów — dodaj więcej szczegółów o swoim doświadczeniu i spróbuj ponownie.",
       "needProfile": "Dodaj tytuł pracy lub jakieś doświadczenie z pracy na profilu."
+    },
+    "employment": {
+      "permanent": "Stałe",
+      "fixedTerm": "Na określony czas",
+      "freelance": "Freelancer",
+      "internship": "Staż"
+    },
+    "hours": {
+      "full": "Pełnoetatowy",
+      "part": "Częściowy"
+    },
+    "travel": {
+      "none": "Brak",
+      "occasional": "Czasem",
+      "frequent": "Często"
     }
   },
   "badges": {

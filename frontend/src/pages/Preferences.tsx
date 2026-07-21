@@ -71,6 +71,30 @@ function Segmented({ value, options, onChange, labelledBy }: {
   )
 }
 
+/** Squared multi-select toggle — same look as Segmented, but each option toggles
+ * independently. Not a radiogroup: `role="group"` of `aria-pressed` buttons, which
+ * `.seg` already styles (see index.css). Stores canonical English option values. */
+function MultiToggle({ value, options, onChange, labelledBy }: {
+  value: string[]
+  options: { value: string; label: string }[]
+  onChange: (v: string[]) => void
+  labelledBy: string
+}) {
+  return (
+    <div className="seg" role="group" aria-labelledby={labelledBy}>
+      {options.map(o => {
+        const on = value.includes(o.value)
+        return (
+          <button key={o.value} type="button" aria-pressed={on}
+            onClick={() => onChange(on ? value.filter(v => v !== o.value) : [...value, o.value])}>
+            {o.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 /** Append a suggestion phrase to a free-text answer.
  *
  * Casing was inconsistent — the first pick landed as written, later ones
@@ -272,9 +296,56 @@ export default function PreferencesPage() {
           ]} />
       </Question>
 
-      <Question title={t('preferences.q.practical')} sub={t('preferences.q.practicalSub')} controlId={id('notes')}>
-        <textarea id={id('notes')} value={p.notes} placeholder={t('preferences.q.practicalPlaceholder')}
-          onChange={e => set('preferences.notes', e.target.value)} style={{ minHeight: 80 }} />
+      <Question title={t('preferences.q.practical')} sub={t('preferences.q.practicalSub')}>
+        <div className="field">
+          <span className="field-label" id={id('empType')}>{t('preferences.q.employmentType')}</span>
+          <MultiToggle labelledBy={id('empType')} value={p.employment_types}
+            onChange={v => set('preferences.employment_types', v)}
+            options={[
+              { value: 'Permanent', label: t('preferences.employment.permanent') },
+              { value: 'Fixed-term', label: t('preferences.employment.fixedTerm') },
+              { value: 'Freelance', label: t('preferences.employment.freelance') },
+              { value: 'Internship', label: t('preferences.employment.internship') },
+            ]} />
+        </div>
+        <div className="field">
+          <span className="field-label" id={id('hours')}>{t('preferences.q.hours')}</span>
+          <Segmented labelledBy={id('hours')} value={p.hours}
+            onChange={v => set('preferences.hours', v)}
+            options={[
+              { value: 'Full-time', label: t('preferences.hours.full') },
+              { value: 'Part-time', label: t('preferences.hours.part') },
+              { value: 'No preference', label: t('profile.work.noPreference') },
+            ]} />
+        </div>
+        <div className="field">
+          <label htmlFor={id('salary')}>{t('preferences.q.salary')}</label>
+          <input id={id('salary')} type="text" value={p.salary}
+            placeholder={t('preferences.q.salaryPlaceholder')}
+            onChange={e => set('preferences.salary', e.target.value)} />
+        </div>
+        <div className="field">
+          <label htmlFor={id('availability')}>{t('preferences.q.availability')}</label>
+          <input id={id('availability')} type="text" value={p.availability}
+            placeholder={t('preferences.q.availabilityPlaceholder')}
+            onChange={e => set('preferences.availability', e.target.value)} />
+        </div>
+        <div className="field">
+          <span className="field-label" id={id('travel')}>{t('preferences.q.travel')}</span>
+          <Segmented labelledBy={id('travel')} value={p.travel}
+            onChange={v => set('preferences.travel', v)}
+            options={[
+              { value: 'None', label: t('preferences.travel.none') },
+              { value: 'Occasional', label: t('preferences.travel.occasional') },
+              { value: 'Frequent', label: t('preferences.travel.frequent') },
+              { value: 'No preference', label: t('profile.work.noPreference') },
+            ]} />
+        </div>
+        <div className="field">
+          <label htmlFor={id('notes')}>{t('preferences.q.anythingElse')}</label>
+          <textarea id={id('notes')} value={p.notes} placeholder={t('preferences.q.anythingElsePlaceholder')}
+            onChange={e => set('preferences.notes', e.target.value)} style={{ minHeight: 80 }} />
+        </div>
       </Question>
 
       {/* These questions had no destination: five careful answers and then the

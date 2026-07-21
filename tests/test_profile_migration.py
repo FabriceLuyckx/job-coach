@@ -201,7 +201,9 @@ def test_design_prefs_trimmed():
 def test_preferences_migrated():
     p = normalize_profile(copy.deepcopy(V1))
     prefs = p["preferences"]
-    assert set(prefs.keys()) == {"target_roles", "looking_for", "avoid", "locations", "remote", "notes"}
+    assert set(prefs.keys()) == {
+        "target_roles", "looking_for", "avoid", "locations", "remote", "notes",
+        "employment_types", "hours", "salary", "availability", "travel"}
     assert prefs["target_roles"] == []
     assert prefs["locations"] == ["Ghent"]
     assert prefs["remote"] == "Hybrid"
@@ -350,3 +352,21 @@ def test_language_migration_is_idempotent():
     once = normalize_profile(_v4_with(["Dutch", "English"], []))
     twice = normalize_profile(copy.deepcopy(once))
     assert once == twice
+
+
+def test_practical_fields_seeded_and_preserve_notes():
+    p = normalize_profile({
+        "personal": {"name": "X"},
+        "preferences": {"notes": "keep me"},
+    })
+    prefs = p["preferences"]
+    assert prefs["employment_types"] == []
+    assert prefs["hours"] == prefs["salary"] == prefs["availability"] == prefs["travel"] == ""
+    assert prefs["notes"] == "keep me"
+    # idempotent + existing values untouched on a second pass
+    prefs["employment_types"] = ["Permanent"]
+    prefs["hours"] = "Full-time"
+    twice = normalize_profile(copy.deepcopy(p))
+    assert twice["preferences"]["employment_types"] == ["Permanent"]
+    assert twice["preferences"]["hours"] == "Full-time"
+    assert normalize_profile(copy.deepcopy(twice)) == twice

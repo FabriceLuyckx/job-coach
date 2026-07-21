@@ -421,10 +421,33 @@
       "dealbreakersSub": "Even when the title fits. Postings that hit any of these are dropped.",
       "dealbreakersPlaceholder": "e.g. Purely administrative work, cold acquisition, weekend shifts",
       "practical": "Anything practical we should check?",
-      "practicalSub": "Salary expectations, contract type, hours, start date, travel — the small print worth catching before you read a posting yourself.",
-      "practicalPlaceholder": "e.g. Full-time from September, at least €3,500/month, max one day of travel a week",
+      "practicalSub": "The small print worth catching before you read a posting yourself. Leave anything that doesn't apply blank.",
+      "employmentType": "Employment type",
+      "hours": "Hours",
+      "salary": "Salary expectation",
+      "salaryPlaceholder": "e.g. at least €3,500/month",
+      "availability": "Availability",
+      "availabilityPlaceholder": "e.g. from September, or one month's notice",
+      "travel": "Travel",
+      "anythingElse": "Anything else?",
+      "anythingElsePlaceholder": "e.g. no on-call, prefers a four-day week, needs a parking spot",
       "languagesEmpty": "No languages on your profile yet — add the ones you can work in so postings in other languages get filtered out.",
       "languagesEdit": "Edit languages on your Profile"
+    },
+    "employment": {
+      "permanent": "Permanent",
+      "fixedTerm": "Fixed-term",
+      "freelance": "Freelance",
+      "internship": "Internship"
+    },
+    "hours": {
+      "full": "Full-time",
+      "part": "Part-time"
+    },
+    "travel": {
+      "none": "None",
+      "occasional": "Occasional",
+      "frequent": "Frequent"
     },
     "suggest": {
       "admin": "Purely administrative work",

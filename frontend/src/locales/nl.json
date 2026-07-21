@@ -373,10 +373,18 @@
       "dealbreakersSub": "Zelfs als de titel past. Aanbiedingen die een van deze punten raken, worden verwijderd.",
       "dealbreakersPlaceholder": "bijv. Uitsluitend administratief werk, koude acquisitie, weekenddiensten",
       "practical": "Wat praktische dingen moeten we controleren?",
-      "practicalSub": "Salariestelling, contracttype, uren, startdatum, reizen — de kleine details die vooraf moeten worden gecontroleerd voordat je een aanbod zelf leest.",
-      "practicalPlaceholder": "bijv. Fulltime vanaf september, minimaal €3.500 per maand, maximaal één dag reizen per week",
+      "practicalSub": "De kleine letters waarop je moet letten voordat je een vacature zelf leest. Laat dingen die niet van toepassing zijn leeg.",
       "languagesEmpty": "Geen talen op je profiel nog — voeg de talen toe waarin je werkt zodat functies in andere talen worden gefilterd.",
-      "languagesEdit": "Talen op je profiel bewerken"
+      "languagesEdit": "Talen op je profiel bewerken",
+      "employmentType": "Aard van de functie",
+      "hours": "Uren",
+      "salary": "Salariereeks",
+      "salaryPlaceholder": "bijv. minimaal €3.500 per maand",
+      "availability": "Beschikbaarheid",
+      "availabilityPlaceholder": "bijv. van september, of een maand voorwaar",
+      "travel": "Reis",
+      "anythingElse": "En nog iets?",
+      "anythingElsePlaceholder": "bijv. geen op-calling, voorkeur voor een vierdaagse week, behoefte aan een parkeerplaats"
     },
     "suggest": {
       "admin": "Uitsluitend administratief werk",
@@ -403,6 +411,21 @@
       "arrived_other": "{{count}} aangeboden functietitels",
       "none": "Kon geen functietitels bedenken — voeg meer detail toe aan je ervaring en probeer opnieuw.",
       "needProfile": "Voeg eerst je functietitel of werkervaring op je profiel toe."
+    },
+    "employment": {
+      "permanent": "Permanente functie",
+      "fixedTerm": "Vaste termijn",
+      "freelance": "Freelance",
+      "internship": "Stage"
+    },
+    "hours": {
+      "full": "Volledige tijd",
+      "part": "Deeltyd"
+    },
+    "travel": {
+      "none": "Geen",
+      "occasional": "Gebruikte",
+      "frequent": "Vaak"
     }
   },
   "badges": {

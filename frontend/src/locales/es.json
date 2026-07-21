@@ -373,10 +373,18 @@
       "dealbreakersSub": "Aunque el título encaje. Los anuncios que tocan cualquiera de estos se descartan.",
       "dealbreakersPlaceholder": "e.g. Trabajo puramente administrativo, ventas por contacto, turnos los fines de semana",
       "practical": "¿Algo práctico que deberíamos verificar?",
-      "practicalSub": "Expectativas de salario, tipo de contrato, horas, fecha de inicio, viajes — los detalles pequeños que vale la pena revisar antes de leer un anuncio por ti mismo.",
-      "practicalPlaceholder": "e.g. Tiempo completo a partir de septiembre, al menos €3.500 al mes, máximo un día de viaje por semana",
+      "practicalSub": "Los detalles pequeños que vale la pena leer antes de leer un anuncio por ti mismo. Deja en blanco cualquier cosa que no se aplique.",
       "languagesEmpty": "Aún no tienes idiomas en tu perfil — añade los que puedas trabajar para que las ofertas en otros idiomas se filtren.",
-      "languagesEdit": "Editar idiomas en tu Perfil"
+      "languagesEdit": "Editar idiomas en tu Perfil",
+      "employmentType": "Tipo de empleo",
+      "hours": "Horas",
+      "salary": "Expectativa de salario",
+      "salaryPlaceholder": "por ejemplo: al menos €3.500/mes",
+      "availability": "Disponibilidad",
+      "availabilityPlaceholder": "por ejemplo: desde septiembre, o un mes de aviso",
+      "travel": "Viajes",
+      "anythingElse": "Cualquier otra cosa?",
+      "anythingElsePlaceholder": "por ejemplo: sin llamadas de emergencia, prefiere una semana de cuatro días, necesita un lugar de estacionamiento"
     },
     "suggest": {
       "admin": "Trabajo puramente administrativo",
@@ -403,6 +411,21 @@
       "arrived_other": "{{count}} títulos sugeridos",
       "none": "No se me ocurrieron títulos — añade más detalles sobre tu experiencia y vuelve a intentarlo.",
       "needProfile": "Añade tu título o alguna experiencia laboral en tu Perfil primero."
+    },
+    "employment": {
+      "permanent": "Permanente",
+      "fixedTerm": "De duración fija",
+      "freelance": "Autónomo",
+      "internship": "Internado"
+    },
+    "hours": {
+      "full": "Tiempo completo",
+      "part": "Tiempo parcial"
+    },
+    "travel": {
+      "none": "Ninguno",
+      "occasional": "Ocasional",
+      "frequent": "Frecuente"
     }
   },
   "badges": {

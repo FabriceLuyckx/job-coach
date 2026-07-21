@@ -373,10 +373,18 @@
       "dealbreakersSub": "Auch wenn der Titel passt. Stellen, auf die einer dieser Punkte zutrifft, werden verworfen.",
       "dealbreakersPlaceholder": "z. B. Rein administrative Arbeit, Kaltakquise, Wochenendarbeit",
       "practical": "Ist noch etwas praktisches zu überprüfen?",
-      "practicalSub": "Gehaltsvorstellungen, Vertragsart, Arbeitszeiten, Startdatum, Reisebereitschaft — die kleinen Details, die Sie am besten schon kennen, bevor Sie eine Stellenanzeige selbst lesen.",
-      "practicalPlaceholder": "z. B. Vollzeit ab September, mindestens €3.500/Monat, maximal ein Tag Reise pro Woche",
+      "practicalSub": "Die kleinen Details, die Sie vor dem Lesen eines Eintrags selbst beachten sollten. Lassen Sie alles, was nicht zutrifft, leer.",
       "languagesEmpty": "Keine Sprachen auf deinem Profil noch vorhanden — füge die hinzu, in denen du arbeiten kannst, damit Stellen in anderen Sprachen ausgeschlossen werden.",
-      "languagesEdit": "Sprachen auf deinem Profil bearbeiten"
+      "languagesEdit": "Sprachen auf deinem Profil bearbeiten",
+      "employmentType": "Arbeitsform",
+      "hours": "Stunden",
+      "salary": "Lohnerwartung",
+      "salaryPlaceholder": "z. B. mindestens €3.500/Monat",
+      "availability": "Verfügbarkeit",
+      "availabilityPlaceholder": "z. B. ab September oder eine Monatsmiete",
+      "travel": "Reise",
+      "anythingElse": "Noch etwas anderes?",
+      "anythingElsePlaceholder": "z. B. keine Notrufverpflichtung, bevorzugt eine vier-tägige Woche, benötigt einen Parkplatz"
     },
     "suggest": {
       "admin": "Rein administrativer Arbeit",
@@ -403,6 +411,21 @@
       "arrived_other": "{{count}} vorgeschlagene Jobtitel",
       "none": "Keine Titel eingefallen — füge mehr Details zu deinem Berufserfahrung hinzu und versuche es erneut.",
       "needProfile": "Füge zuerst deinen Jobtitel oder einige Berufserfahrungen auf deinem Profil hinzu."
+    },
+    "employment": {
+      "permanent": "Dauerhaft",
+      "fixedTerm": "Festvertrag",
+      "freelance": "Freiberuflich",
+      "internship": "Praktikum"
+    },
+    "hours": {
+      "full": "Vollzeit",
+      "part": "Teilzeit"
+    },
+    "travel": {
+      "none": "Keine",
+      "occasional": "Gelegentlich",
+      "frequent": "Häufig"
     }
   },
   "badges": {

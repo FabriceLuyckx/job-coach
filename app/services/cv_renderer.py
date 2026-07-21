@@ -729,6 +729,11 @@ def normalize_profile(profile: dict) -> dict:
     # target_roles: job titles the user would apply for — the cheapest relevance
     # signal (matchable from a listing title alone). Additive, no version bump.
     p["preferences"].setdefault("target_roles", [])
+    # Structured practical fields (additive, no version bump). employment_types is a
+    # multi-select; hours/salary/availability/travel are single-choice or free-text.
+    p["preferences"].setdefault("employment_types", [])
+    for _k in ("hours", "salary", "availability", "travel"):
+        p["preferences"].setdefault(_k, "")
 
     # ── v4 → v5 ── academic dissolves: research_areas → a "Research areas" skills
     # group (printable, tag-shaped); research_themes → preferences.notes (AI-only prose).
@@ -822,6 +827,11 @@ def role_brief(profile: dict) -> str:
         f"Locations: {', '.join(prefs['locations'])}" if prefs.get("locations") else "",
         f"Working style: {prefs['remote']}" if prefs.get("remote") else "",
         f"Working languages: {', '.join(langs)}" if langs else "",
+        f"Employment type: {', '.join(prefs['employment_types'])}" if prefs.get("employment_types") else "",
+        f"Hours: {prefs['hours']}" if prefs.get("hours") else "",
+        f"Salary expectation: {prefs['salary']}" if prefs.get("salary") else "",
+        f"Availability: {prefs['availability']}" if prefs.get("availability") else "",
+        f"Travel: {prefs['travel']}" if prefs.get("travel") else "",
         f"Other notes: {prefs['notes']}" if prefs.get("notes") else "",
     ]
     return header + "\n".join(p for p in parts if p)
