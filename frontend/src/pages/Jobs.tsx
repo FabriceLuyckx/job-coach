@@ -211,12 +211,16 @@ export default function JobsPage() {
     activeScan = { id: scanId, kind }
     if (kind === 'scan') {
       setScanning(true)
+      // "Nothing found" is a neutral non-result, not a success, and easy to miss
+      // on a scan you walked away from — show it as info and hold it 10s.
       pollJob(scanId, setScanning, found =>
-        toast.success(found ? t('jobs.foundListings', { count: found }) : t('jobs.noNewListings')), resumed)
+        found ? toast.success(t('jobs.foundListings', { count: found }))
+              : toast.info(t('jobs.noNewListings'), { duration: 10000 }), resumed)
     } else {
       setRechecking(true)
       pollJob(scanId, setRechecking, found =>
-        toast.success(found ? t('jobs.recheckFound', { count: found }) : t('jobs.recheckNone')), resumed)
+        found ? toast.success(t('jobs.recheckFound', { count: found }))
+              : toast.info(t('jobs.recheckNone'), { duration: 10000 }), resumed)
     }
   }
 

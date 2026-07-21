@@ -32,8 +32,8 @@ from bs4 import BeautifulSoup
 from app.services.headless import http_get, render_html
 from app.services.llm import complete, tool_args
 
-# Below this many usable links we assume the page is JS-rendered and re-fetch it
-# with a headless browser.
+# A headless render that yields at least this many links is trusted as the real
+# page; below it we assume the render failed/was blocked and fall back to httpx.
 _MIN_LINKS = 5
 
 # Skip the title prescreen (just read them all) at or below this many new
@@ -156,13 +156,20 @@ def _links_from_html(html: str, page_url: str) -> list[dict]:
 
 
 def fetch_listing_links(url: str) -> list[dict]:
-    """Return the page's links as [{text, href}]. Tries a plain HTTP fetch first
-    and falls back to a headless Playwright render for JS-built job boards."""
-    links = _links_from_html(http_get(url), url)
-    if len(links) >= _MIN_LINKS:
-        return links
-    # ponytail: link-count threshold heuristic; bump _MIN_LINKS if a real board slips through.
-    return _links_from_html(render_html(url), url)
+    """Return the page's links as [{text, href}]. Renders with a headless browser
+    first: most job boards are JS-built, and a plain HTTP fetch of one often
+    returns only the static nav chrome — enough links to *look* fine by count
+    while carrying zero postings (the count heuristic that hid imec's jobs). Fall
+    back to httpx only when the render fails (no Chromium) or comes back thin.
+    ponytail: launches a throwaway browser per source; share one across the scan
+    if link-fetch time ever bites."""
+    try:
+        links = _links_from_html(render_html(url), url)
+        if len(links) >= _MIN_LINKS:
+            return links
+    except Exception:
+        pass
+    return _links_from_html(http_get(url), url)
 
 
 def links_hash(links: list[dict]) -> str:

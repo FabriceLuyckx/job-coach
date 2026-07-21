@@ -160,6 +160,18 @@ def _insert_opening(conn, opening: dict, source_url: str, row: dict) -> None:
     )
 
 
+def _has_stored_openings(source_url: str, hrefs: set[str]) -> bool:
+    """True if any already-stored opening for this source is still on the page.
+    Guards the link-hash skip against a poisoned hash (stamped without capturing
+    the page's openings): without a stored opening to prove the page was really
+    processed, don't trust 'unchanged, nothing new' — re-scan."""
+    with db.get_db() as conn:
+        for r in conn.execute("SELECT url FROM job_openings WHERE source_url = ?", (source_url,)):
+            if r["url"] in hrefs:
+                return True
+    return False
+
+
 def _mark_scanned(sid: str, lhash: str) -> None:
     """Stamp a source as fully scanned: record its link-set hash (skip marker for
     next time) and the scan time. Only called once a source completes uncancelled."""
@@ -208,7 +220,13 @@ def _run_scan(scan_id: str) -> None:
                 # unchanged since last scan — nothing new can exist.
                 links = fetch_listing_links(src["url"])
                 lhash = links_hash(links)
-                if lhash and lhash == src.get("links_hash"):
+                link_hrefs = {l["href"] for l in links}
+                # Trust the "unchanged, nothing new" skip only if the source's
+                # openings were actually captured: a hash can match while the last
+                # scan stamped it without storing anything (an early scan that
+                # extracted nothing, then skipped forever after) — that hid every
+                # euraxess job. If no stored opening is still on the page, re-scan.
+                if lhash and lhash == src.get("links_hash") and _has_stored_openings(src["url"], link_hrefs):
                     _mark_scanned(src["id"], lhash)  # source WAS checked, just empty
                     continue
                 phase("openings")
@@ -236,7 +254,6 @@ def _run_scan(scan_id: str) -> None:
                 # yielding a handful of links must not false-flag live jobs). Compare
                 # against raw hrefs, not the LLM's extract output (non-deterministic).
                 if len(links) >= _MIN_LINKS:
-                    link_hrefs = {l["href"] for l in links}
                     for r in conn.execute(
                         "SELECT id, url FROM job_openings WHERE source_url = ? AND status = 'seen'",
                         (src["url"],),
