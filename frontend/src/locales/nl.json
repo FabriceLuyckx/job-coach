@@ -770,5 +770,10 @@
       "tips": "Schrijfadviezen",
       "copy": "Gids kopiëren"
     }
+  },
+  "pager": {
+    "prev": "Vorige pagina",
+    "next": "Volgende pagina",
+    "page": "Pagina {{n}}"
   }
 }

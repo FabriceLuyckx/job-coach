@@ -770,5 +770,10 @@
       "tips": "Wskazówki do napisania",
       "copy": "Kierunek do kopiowania"
     }
+  },
+  "pager": {
+    "prev": "Poprzednia strona",
+    "next": "Następna strona",
+    "page": "Strona {{n}}"
   }
 }

@@ -308,8 +308,11 @@ export const api = {
   cancelScan: (id: string) => request<{ ok: boolean }>(`/jobs/scan/cancel/${id}`, { method: 'POST' }),
   getLastScan: () => request<{ last_scan: string | null; profile_changed: boolean; recheckable: number }>('/jobs/last-scan'),
 
-  getOpenings: (includeSeen = false) =>
-    request<JobOpening[]>(`/jobs/openings${includeSeen ? '?include_seen=true' : ''}`),
+  getOpenings: () => request<JobOpening[]>('/jobs/openings'),
+  // One page of an archival list: 'filtered' (available seen rows) or 'history'.
+  getOpeningsPage: (group: 'filtered' | 'history', offset: number, limit: number) =>
+    request<{ items: JobOpening[]; total: number }>(
+      `/jobs/openings/page?group=${group}&offset=${offset}&limit=${limit}`),
   checkOpening: (url: string) =>
     request<JobOpening>('/jobs/check', {
       method: 'POST',

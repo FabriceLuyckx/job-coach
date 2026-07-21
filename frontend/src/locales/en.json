@@ -554,6 +554,11 @@
     "noCvForJob": "No CV found for that job yet — its generation may have failed. Use “Regenerate CV” on the Job Suggestions page to try again.",
     "undo": "Undo"
   },
+  "pager": {
+    "prev": "Previous page",
+    "next": "Next page",
+    "page": "Page {{n}}"
+  },
   "jobs": {
     "title": "Job Suggestions",
     "loadError": "Couldn't load this page: {{error}}",

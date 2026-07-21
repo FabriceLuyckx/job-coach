@@ -770,5 +770,10 @@
       "tips": "Suggerimenti per la scrittura",
       "copy": "Copia guida"
     }
+  },
+  "pager": {
+    "prev": "Pagina precedente",
+    "next": "Pagina successiva",
+    "page": "Pagina {{n}}"
   }
 }

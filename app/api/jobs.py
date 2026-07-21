@@ -20,7 +20,7 @@ from app.services.cv_generator import fetch_job_description
 from app.services.cv_renderer import load_profile
 from app.services.headless import fetch_texts
 from app.services.job_scanner import (
-    extract_openings, fetch_listing_links, links_hash,
+    _MIN_LINKS, extract_openings, fetch_listing_links, links_hash,
     prescreen_openings, review_posting,
 )
 from app.services.llm import GenerationCancelled, current_cancel
@@ -221,6 +221,21 @@ def _run_scan(scan_id: str) -> None:
             # after their review below. A re-scan re-reviews nothing already stored.
             survivor_urls = {o["url"] for o in survivors}
             with db.get_db() as conn:
+                # Availability sweep: this source's link set just changed, so any
+                # filtered-out ('seen') opening whose URL fell off the page is no
+                # longer applyable — mark it unavailable so it leaves the filtered
+                # list and re-check. Reappearing URLs flip back to 1, so a transient
+                # miss self-heals. Guard on a healthy link set (a flaky JS render
+                # yielding a handful of links must not false-flag live jobs). Compare
+                # against raw hrefs, not the LLM's extract output (non-deterministic).
+                if len(links) >= _MIN_LINKS:
+                    link_hrefs = {l["href"] for l in links}
+                    for r in conn.execute(
+                        "SELECT id, url FROM job_openings WHERE source_url = ? AND status = 'seen'",
+                        (src["url"],),
+                    ).fetchall():
+                        conn.execute("UPDATE job_openings SET available = ? WHERE id = ?",
+                                     (1 if r["url"] in link_hrefs else 0, r["id"]))
                 for o in new:
                     if o["url"] in survivor_urls:
                         continue
@@ -313,7 +328,8 @@ def _run_recheck(scan_id: str) -> None:
         with db.get_db() as conn:
             rows = [dict(r) for r in conn.execute(
                 """SELECT * FROM job_openings
-                   WHERE status = 'seen' AND posting_text IS NOT NULL AND posting_text != ''
+                   WHERE status = 'seen' AND available = 1
+                     AND posting_text IS NOT NULL AND posting_text != ''
                    ORDER BY created_at DESC LIMIT 100"""
             ).fetchall()]
 
@@ -405,28 +421,46 @@ def last_scan():
     with db.get_db() as conn:
         recheckable = conn.execute(
             """SELECT COUNT(*) FROM job_openings
-               WHERE status = 'seen' AND posting_text IS NOT NULL AND posting_text != ''"""
+               WHERE status = 'seen' AND available = 1
+                 AND posting_text IS NOT NULL AND posting_text != ''"""
         ).fetchone()[0]
     return {"last_scan": scanned, "profile_changed": changed, "recheckable": recheckable}
 
 
 @router.get("/openings")
-def list_openings(include_seen: bool = False):
-    """Suggested + decided openings, newest decision/discovery first. With
-    include_seen, also append the 50 most recent 'filtered out' (seen) rows so
-    the user can audit — and rescue — what the filter dropped."""
+def list_openings():
+    """The live suggestion board: 'suggested' openings only, newest first. The
+    filtered-out and history lists are paged separately via /openings/page."""
     with db.get_db() as conn:
         rows = conn.execute(
-            """SELECT * FROM job_openings WHERE status != 'seen'
+            """SELECT * FROM job_openings WHERE status = 'suggested'
                ORDER BY COALESCE(decided_at, created_at) DESC"""
         ).fetchall()
-        out = [_opening_dict(r) for r in rows]
-        if include_seen:
-            seen = conn.execute(
-                "SELECT * FROM job_openings WHERE status = 'seen' ORDER BY created_at DESC LIMIT 50"
-            ).fetchall()
-            out += [_opening_dict(r) for r in seen]
-    return out
+    return [_opening_dict(r) for r in rows]
+
+
+# Each archival list is one WHERE clause; both share ordering, limit and offset.
+_GROUP_WHERE = {
+    "filtered": "status = 'seen' AND available = 1",
+    "history": "status IN ('accepted', 'rejected')",
+}
+
+
+@router.get("/openings/page")
+def list_openings_page(group: str, offset: int = 0, limit: int = 20):
+    """One page of an archival list. group='filtered' (available seen rows) or
+    'history' (accepted/rejected). Returns {items, total} for the pager."""
+    where = _GROUP_WHERE.get(group)
+    if where is None:
+        raise HTTPException(400, "Unknown group")
+    with db.get_db() as conn:
+        total = conn.execute(f"SELECT COUNT(*) FROM job_openings WHERE {where}").fetchone()[0]
+        rows = conn.execute(
+            f"""SELECT * FROM job_openings WHERE {where}
+                ORDER BY COALESCE(decided_at, created_at) DESC LIMIT ? OFFSET ?""",
+            (limit, offset),
+        ).fetchall()
+    return {"items": [_opening_dict(r) for r in rows], "total": total}
 
 
 @router.post("/openings/{oid}/reject")

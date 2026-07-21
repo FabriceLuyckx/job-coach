@@ -78,6 +78,9 @@ def init_db() -> None:
         # salary, deadline, requirements, summary) shown on the suggestion card.
         _add_column(conn, "job_openings", "posting_text TEXT")
         _add_column(conn, "job_openings", "posting_json TEXT")
+        # A filtered-out opening no longer on its source page is marked 0 during a
+        # scan (link-set sweep) so it drops off the filtered-out list and re-check.
+        _add_column(conn, "job_openings", "available INTEGER NOT NULL DEFAULT 1")
         # Skip the LLM link-extraction for a source whose link set is unchanged.
         _add_column(conn, "job_sources", "links_hash TEXT")
         # When this source was last successfully scanned (shown in the source list).

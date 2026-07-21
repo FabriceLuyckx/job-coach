@@ -11,6 +11,7 @@ import Button from '../components/Button'
 import RemoveButton from '../components/RemoveButton'
 import Badge from '../components/Badge'
 import Collapsible from '../components/Collapsible'
+import Pager from '../components/Pager'
 import EmptyState from '../components/EmptyState'
 import CreditChip from '../components/CreditChip'
 import { useToast } from '../components/Toast'
@@ -20,7 +21,10 @@ import { errMsg } from '../lib/errors'
 import { formatDateTime } from '../lib/format'
 import { usePoller } from '../lib/usePoller'
 
-const HISTORY_PAGE = 20  // history rows shown before "Show more"
+const PAGE_LIMIT = 10  // filtered-out / history rows per page
+
+type OpeningPage = { items: JobOpening[]; total: number; page: number }
+const EMPTY_PAGE: OpeningPage = { items: [], total: 0, page: 0 }
 
 function host(url: string): string {
   try { return new URL(url).hostname.replace('www.', '') } catch { return url }
@@ -75,7 +79,10 @@ export default function JobsPage() {
   const { t } = useTranslation()
   const { keySet } = useKeyStatus()
   const [sources, setSources] = useState<JobSource[]>([])
-  const [openings, setOpenings] = useState<JobOpening[]>([])
+  const [suggestions, setSuggestions] = useState<JobOpening[]>([])
+  // Filtered-out and history are paged server-side; each holds one page.
+  const [filtered, setFiltered] = useState<OpeningPage>(EMPTY_PAGE)
+  const [history, setHistory] = useState<OpeningPage>(EMPTY_PAGE)
   const [lastScan, setLastScan] = useState<string | null>(null)
   const [profileChanged, setProfileChanged] = useState(false)
   const [recheckableCount, setRecheckableCount] = useState(0)
@@ -93,20 +100,38 @@ export default function JobsPage() {
   const [accepted, setAccepted] = useState<Record<string, string>>({})
   const [query, setQuery] = useState('')
   const [sourceFilter, setSourceFilter] = useState('')
-  const [historyLimit, setHistoryLimit] = useState(HISTORY_PAGE)
   const poller = usePoller()
+
+  // Load one page of an archival list. If the page came back empty and it wasn't
+  // the first (its last row was just acted on), step back to the now-last page.
+  function loadGroup(group: 'filtered' | 'history', page: number) {
+    const set = group === 'filtered' ? setFiltered : setHistory
+    api.getOpeningsPage(group, page * PAGE_LIMIT, PAGE_LIMIT)
+      .then(({ items, total }) => {
+        if (items.length === 0 && page > 0) return loadGroup(group, page - 1)
+        set({ items, total, page })
+      })
+      .catch(e => toast.error(errMsg(e)))
+  }
 
   const load = useCallback(() => {
     setLoadError('')
-    Promise.all([api.getJobSources(), api.getOpenings(true), api.getLastScan()])
-      .then(([s, o, l]) => { setSources(s); setOpenings(o); setLastScan(l.last_scan); setProfileChanged(l.profile_changed); setRecheckableCount(l.recheckable) })
+    Promise.all([api.getJobSources(), api.getOpenings(), api.getLastScan()])
+      .then(([s, o, l]) => { setSources(s); setSuggestions(o); setLastScan(l.last_scan); setProfileChanged(l.profile_changed); setRecheckableCount(l.recheckable) })
       .catch(e => setLoadError(errMsg(e)))
+    loadGroup('filtered', 0)
+    loadGroup('history', 0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(load, [load])
 
   function reloadOpenings() {
-    api.getOpenings(true).then(setOpenings).catch(e => toast.error(errMsg(e)))
+    api.getOpenings().then(setSuggestions).catch(e => toast.error(errMsg(e)))
+    // Reload the current page of each archival list (a mutation can move a row
+    // between suggestions/filtered/history, so refresh all three).
+    loadGroup('filtered', filtered.page)
+    loadGroup('history', history.page)
     // Restoring a filtered row changes what a re-check could examine, so the
     // server's re-checkable count has to move with the list — a stale count
     // re-opens the "examined nothing, reported no matches" hole.
@@ -326,15 +351,12 @@ export default function JobsPage() {
   }
 
   const busyScan = scanning || rechecking
-  const allSuggested = openings.filter(o => o.status === 'suggested')
-  const filteredOut = openings.filter(o => o.status === 'seen')
+  const allSuggested = suggestions
   // Re-check re-judges cached posting text, which title-prescreened rows don't
   // have — without a gate the button runs, examines nothing, and still reports
   // "no filtered jobs match". The count comes from the server (same WHERE the
-  // re-check uses): the client only sees the newest 50 'seen' rows, so counting
-  // them here would disable the button while re-checkable rows sit past 50.
+  // re-check uses), so it counts every re-checkable row, not just this page.
   const recheckable = recheckableCount > 0
-  const decided = openings.filter(o => o.status === 'accepted' || o.status === 'rejected')
   const failedSources = Object.entries(sourceErrors)
 
   // D1: text + source filter, only worth showing once the list is long.
@@ -550,7 +572,7 @@ export default function JobsPage() {
       ))}
 
 
-      {(sources.length > 0 || filteredOut.length > 0) && (
+      {(sources.length > 0 || filtered.total > 0) && (
         <div style={{ marginTop: 'var(--space-5)' }}>
           {/* Outside the drawer, and never gated: the promise that nothing is
               discarded has to be readable *before* you open the drawer, which is
@@ -562,11 +584,11 @@ export default function JobsPage() {
                 actually changes them, rather than making the user recall it. */}
             <Link to="/preferences">{t('jobs.editPreferences')}</Link>
           </p>
-          <Collapsible title={<span className="section-title">{t('jobs.filteredOut', { count: filteredOut.length })}</span>}>
-            {filteredOut.length === 0 && (
+          <Collapsible title={<span className="section-title">{t('jobs.filteredOut', { count: filtered.total })}</span>}>
+            {filtered.total === 0 && (
               <p className="muted-sm" style={{ marginBottom: 'var(--space-3)' }}>{t('jobs.filteredOutNone')}</p>
             )}
-            {filteredOut.map(o => (
+            {filtered.items.map(o => (
               <div key={o.id} className="card card-decided" style={{ marginBottom: 'var(--space-2)', display: 'flex', alignItems: 'flex-start', gap: 'var(--space-4)' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -591,6 +613,8 @@ export default function JobsPage() {
                 </Button>
               </div>
             ))}
+            <Pager page={filtered.page} pageCount={Math.ceil(filtered.total / PAGE_LIMIT)}
+              onChange={p => loadGroup('filtered', p)} />
           </Collapsible>
           <div style={{ marginTop: 'var(--space-2)', display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
             <Button variant="secondary" onClick={recheck}
@@ -609,16 +633,16 @@ export default function JobsPage() {
               so a tooltip on it never renders. Mirrors the needEngine note above. */}
           {!recheckable && !busyScan && keySet !== false && (
             <p className="muted-sm" style={{ marginTop: 'var(--space-2)' }}>
-              {filteredOut.length === 0 ? t('jobs.recheckNoneYet') : t('jobs.recheckNothing')}
+              {filtered.total === 0 ? t('jobs.recheckNoneYet') : t('jobs.recheckNothing')}
             </p>
           )}
         </div>
       )}
 
-      {decided.length > 0 && (
+      {history.total > 0 && (
         <>
           <h2 className="section-title" style={{ marginTop: 'var(--space-6)', marginBottom: 'var(--space-3)' }}>{t('jobs.history')}</h2>
-          {decided.slice(0, historyLimit).map(o => {
+          {history.items.map(o => {
             const rejected = o.status === 'rejected'
             return (
               <div key={o.id} className={`card${rejected ? ' card-decided' : ''}`}
@@ -659,11 +683,8 @@ export default function JobsPage() {
               </div>
             )
           })}
-          {decided.length > historyLimit && (
-            <Button variant="ghost" onClick={() => setHistoryLimit(n => n + HISTORY_PAGE)}>
-              {t('jobs.showMore', { count: decided.length - historyLimit })}
-            </Button>
-          )}
+          <Pager page={history.page} pageCount={Math.ceil(history.total / PAGE_LIMIT)}
+            onChange={p => loadGroup('history', p)} />
         </>
       )}
     </div>
