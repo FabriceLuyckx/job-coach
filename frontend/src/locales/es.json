@@ -595,7 +595,11 @@
       "openings": "Buscando vacantes en {{source}}…",
       "filter": "Seleccionando candidatos de {{source}}…"
     },
-    "cancelling": "Cancelando…"
+    "cancelling": "Cancelando…",
+    "rejectModalTitle": "Rechazar esta oferta",
+    "rejectModalHelp": "Opcionalmente, indica por qué. El asistente utiliza tus aceptaciones y rechazos para filtrar mejor las ofertas futuras — pero puedes rechazar directamente.",
+    "rejectModalLabel": "¿Por qué la estás rechazando? (opcional)",
+    "rejectModalPlaceholder": "por ejemplo: demasiado senior, ubicación incorrecta, poca actividad práctica…"
   },
   "cveditor": {
     "sections": {

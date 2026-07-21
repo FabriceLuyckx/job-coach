@@ -20,8 +20,8 @@ from app.services.cv_generator import fetch_job_description
 from app.services.cv_renderer import load_profile
 from app.services.headless import fetch_texts
 from app.services.job_scanner import (
-    _MIN_LINKS, extract_openings, fetch_listing_links, links_hash,
-    prescreen_openings, review_posting,
+    _MIN_LINKS, build_preference_memo, extract_openings, fetch_listing_links,
+    links_hash, prescreen_openings, review_posting,
 )
 from app.services.llm import GenerationCancelled, current_cancel
 
@@ -36,6 +36,7 @@ def _opening_dict(r: dict) -> dict:
     d = dict(r)
     pj = d.pop("posting_json", None)
     d.pop("posting_text", None)
+    d.pop("user_note", None)  # server-only: feeds the preference memo, not shown
     d["digest"] = json.loads(pj) if pj else None
     return d
 
@@ -83,6 +84,10 @@ class SourceRequest(BaseModel):
     url: str
 
 
+class RejectRequest(BaseModel):
+    note: str | None = None  # optional free-text reason; feeds the preference memo
+
+
 @router.get("/sources")
 def list_sources():
     with db.get_db() as conn:
@@ -121,8 +126,37 @@ def delete_source(sid: str):
     return {"ok": True}
 
 
+def _preference_memo(cfg: dict) -> str:
+    """The user's learned-preferences memo, rebuilt from their accept/reject
+    history only when it has changed. Cheap signature = decision count + latest
+    decided_at; when it matches the cached one we reuse the stored memo and make
+    NO LLM call. Resolved once per scan/recheck/check and threaded into reviews."""
+    with db.get_db() as conn:
+        rows = [dict(r) for r in conn.execute(
+            """SELECT title, status, reason, user_note FROM job_openings
+               WHERE status IN ('accepted', 'rejected')
+               ORDER BY decided_at DESC"""
+        ).fetchall()]
+        agg = conn.execute(
+            """SELECT COUNT(*) n, COALESCE(MAX(decided_at), '') m FROM job_openings
+               WHERE status IN ('accepted', 'rejected')"""
+        ).fetchone()
+    sig = f"{agg['n']}:{agg['m']}"
+    if not rows:
+        return ""
+    if sig == cfg.get("job_preference_memo_sig"):
+        return cfg.get("job_preference_memo") or ""
+    accepted = [{"title": r["title"], "note": r["reason"]}
+                for r in rows if r["status"] == "accepted"]
+    rejected = [{"title": r["title"], "note": r["user_note"] or r["reason"]}
+                for r in rows if r["status"] == "rejected"]
+    memo = build_preference_memo(accepted, rejected, cfg)
+    config.save({"job_preference_memo": memo, "job_preference_memo_sig": sig})
+    return memo
+
+
 def _review_one(opening: dict, text: str, profile: dict, cfg: dict,
-                filter_prompt: str | None) -> dict:
+                filter_prompt: str | None, memo: str | None = None) -> dict:
     """Judge one posting from its (already-fetched) text and shape a DB row.
     Empty text or a review error ⇒ suggested-with-caveat: a plausible job that
     survived the title prescreen must never be silently buried."""
@@ -131,7 +165,7 @@ def _review_one(opening: dict, text: str, profile: dict, cfg: dict,
     if not text:
         return {**row, "status": "suggested", "reason": _FETCH_CAVEAT}
     try:
-        r = review_posting(opening, text, profile, cfg, filter_prompt)
+        r = review_posting(opening, text, profile, cfg, filter_prompt, memo=memo)
     except GenerationCancelled:
         raise  # a cancel must stop the scan, not masquerade as a suggested job
     except Exception:
@@ -196,6 +230,7 @@ def _run_scan(scan_id: str) -> None:
         extract_prompt = cfg.get("scan_extract_prompt") or None
         filter_prompt = cfg.get("scan_filter_prompt") or None
         profile = load_profile()
+        memo = _preference_memo(cfg)  # once per scan; rebuilt only when decisions changed
 
         with db.get_db() as conn:
             sources = [dict(r) for r in conn.execute("SELECT * FROM job_sources").fetchall()]
@@ -280,7 +315,7 @@ def _run_scan(scan_id: str) -> None:
                 with _scans_lock:
                     _scans[scan_id].update({"reading_current": j + 1,
                                             "reading_total": len(survivors)})
-                row = _review_one(o, texts.get(o["url"]) or "", profile, cfg, filter_prompt)
+                row = _review_one(o, texts.get(o["url"]) or "", profile, cfg, filter_prompt, memo)
                 with db.get_db() as conn:
                     _insert_opening(conn, o, src["url"], row)
                 known.add(o["url"])
@@ -348,6 +383,7 @@ def _run_recheck(scan_id: str) -> None:
         config.require_engine(cfg)
         filter_prompt = cfg.get("scan_filter_prompt") or None
         profile = load_profile()
+        memo = _preference_memo(cfg)
 
         with db.get_db() as conn:
             rows = [dict(r) for r in conn.execute(
@@ -363,7 +399,7 @@ def _run_recheck(scan_id: str) -> None:
             with _scans_lock:
                 _scans[scan_id].update({"reading_current": i + 1, "reading_total": len(rows)})
             r = _review_one({"title": row["title"], "url": row["url"]},
-                            row["posting_text"], profile, cfg, filter_prompt)
+                            row["posting_text"], profile, cfg, filter_prompt, memo)
             # The caveat path (posting_text None despite non-empty input) means
             # the REVIEW failed, not the page read. Unlike a scan — where a new
             # opening must not be buried — these rows already hold a valid old
@@ -488,13 +524,15 @@ def list_openings_page(group: str, offset: int = 0, limit: int = 20):
 
 
 @router.post("/openings/{oid}/reject")
-def reject_opening(oid: str):
+def reject_opening(oid: str, body: RejectRequest | None = None):
+    # No LLM here — the memo rebuilds lazily on the next scan (keeps reject instant).
+    note = ((body.note if body else None) or "").strip() or None
     with db.get_db() as conn:
         if not conn.execute("SELECT 1 FROM job_openings WHERE id = ?", (oid,)).fetchone():
             raise HTTPException(404, "Opening not found")
         conn.execute(
-            "UPDATE job_openings SET status = 'rejected', decided_at = ? WHERE id = ?",
-            (_now(), oid),
+            "UPDATE job_openings SET status = 'rejected', decided_at = ?, user_note = ? WHERE id = ?",
+            (_now(), note, oid),
         )
     return {"ok": True}
 
@@ -563,7 +601,8 @@ def check_opening(body: SourceRequest):
         raise HTTPException(502, f"Couldn't read that job page: {e}")
     # _review_one never raises (a bad read ⇒ suggested-with-caveat), so the
     # user always gets an opening back rather than an error.
-    r = _review_one({"title": "", "url": url}, text, profile, cfg, filter_prompt)
+    r = _review_one({"title": "", "url": url}, text, profile, cfg, filter_prompt,
+                    _preference_memo(cfg))
 
     digest = json.loads(r["posting_json"]) if r["posting_json"] else {}
     title = digest.get("employer") or (digest.get("summary") or "")[:60] or urlparse(url).netloc.replace("www.", "")

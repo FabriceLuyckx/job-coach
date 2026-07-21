@@ -595,7 +595,11 @@
       "openings": "Suchen nach Stellen auf {{source}}…",
       "filter": "Auswählen von Kandidaten aus {{source}}…"
     },
-    "cancelling": "Abbrechen…"
+    "cancelling": "Abbrechen…",
+    "rejectModalTitle": "Diesen Eintrag ablehnen",
+    "rejectModalHelp": "Optional: Erkläre dem Assistenten, warum. Er verwendet deine Akzeptanz- und Ablehnungsentscheidungen, um zukünftige Einträge besser zu filtern — aber du kannst einfach ablehnen.",
+    "rejectModalLabel": "Warum lehnen Sie es ab? (optional)",
+    "rejectModalPlaceholder": "z. B. zu senior, falsche Location, zu wenig praktische Arbeit…"
   },
   "cveditor": {
     "sections": {

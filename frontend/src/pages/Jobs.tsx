@@ -11,6 +11,7 @@ import Button from '../components/Button'
 import RemoveButton from '../components/RemoveButton'
 import Badge from '../components/Badge'
 import Collapsible from '../components/Collapsible'
+import Modal from '../components/Modal'
 import Pager from '../components/Pager'
 import EmptyState from '../components/EmptyState'
 import CreditChip from '../components/CreditChip'
@@ -96,6 +97,9 @@ export default function JobsPage() {
   const [sourceErrors, setSourceErrors] = useState<Record<string, string>>({})
   const [loadError, setLoadError] = useState('')
   const [busy, setBusy] = useState<string | null>(null)
+  // The opening whose reject modal is open, and the optional note being typed.
+  const [rejecting, setRejecting] = useState<JobOpening | null>(null)
+  const [rejectNote, setRejectNote] = useState('')
   // Openings accepted this visit: kept in place in the suggestions list showing
   // their generation state, instead of vanishing to History or navigating away.
   const [accepted, setAccepted] = useState<Record<string, string>>({})
@@ -319,10 +323,19 @@ export default function JobsPage() {
     }
   }
 
-  async function reject(o: JobOpening) {
+  function reject(o: JobOpening) {
+    setRejectNote('')
+    setRejecting(o)  // ask for an optional "why" before rejecting
+  }
+
+  async function confirmReject() {
+    const o = rejecting
+    if (!o) return
+    const note = rejectNote.trim()
+    setRejecting(null)
     setBusy(o.id)
     try {
-      await api.rejectOpening(o.id)
+      await api.rejectOpening(o.id, note)
       reloadOpenings()
       // Rejecting an *accepted* job doesn't remove the CV and letter it already
       // generated — say so, rather than silently orphaning them on Applications.
@@ -386,6 +399,29 @@ export default function JobsPage() {
 
   return (
     <div>
+      {rejecting && (
+        <Modal title={t('jobs.rejectModalTitle')} onClose={() => setRejecting(null)}>
+          <p style={{ lineHeight: 1.6, marginBottom: 'var(--space-3)' }}>
+            {t('jobs.rejectModalHelp')}
+          </p>
+          <div className="field" style={{ marginBottom: 'var(--space-4)' }}>
+            <label htmlFor="reject-note">{t('jobs.rejectModalLabel')}</label>
+            <textarea
+              id="reject-note"
+              rows={3}
+              value={rejectNote}
+              onChange={e => setRejectNote(e.target.value)}
+              placeholder={t('jobs.rejectModalPlaceholder')}
+            />
+          </div>
+          <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+            <Button variant="primary" className="btn-danger-hover" onClick={confirmReject}>
+              {t('jobs.reject')}
+            </Button>
+            <Button variant="ghost" onClick={() => setRejecting(null)}>{t('common.cancel')}</Button>
+          </div>
+        </Modal>
+      )}
       <div className="page-head">
         <h1 className="page-title">{t('jobs.title')}</h1>
         <CreditChip />

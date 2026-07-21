@@ -595,7 +595,11 @@
       "openings": "Zoekt vacatures op {{source}}…",
       "filter": "Kiest kandidaten uit {{source}}…"
     },
-    "cancelling": "Afbreken…"
+    "cancelling": "Afbreken…",
+    "rejectModalTitle": "Deze vacature weigeren",
+    "rejectModalHelp": "Optioneel, leg uit waarom. Het gebruikt jouw acceptaties en weigeringen om toekomstige vacatures beter te filteren — maar je kunt gewoon weigeren.",
+    "rejectModalLabel": "Waarom weiger je het? (optioneel)",
+    "rejectModalPlaceholder": "bijv. te senior, verkeerde locatie, te weinig praktijkwerk…"
   },
   "cveditor": {
     "sections": {

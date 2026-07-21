@@ -322,8 +322,12 @@ export const api = {
     }),
   acceptOpening: (id: string) =>
     request<{ cv_job_id: string; letter_job_id: string; job_url: string; lang: string }>(`/jobs/openings/${id}/accept`, { method: 'POST' }),
-  rejectOpening: (id: string) =>
-    request<{ ok: boolean }>(`/jobs/openings/${id}/reject`, { method: 'POST' }),
+  rejectOpening: (id: string, note?: string) =>
+    request<{ ok: boolean }>(`/jobs/openings/${id}/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note: note || null }),
+    }),
   restoreOpening: (id: string) =>
     request<{ ok: boolean }>(`/jobs/openings/${id}/restore`, { method: 'POST' }),
 

@@ -595,7 +595,11 @@
       "openings": "Szukanie stanowisk na {{source}}…",
       "filter": "Wybieranie kandydatów z {{source}}…"
     },
-    "cancelling": "Anulowanie…"
+    "cancelling": "Anulowanie…",
+    "rejectModalTitle": "Odrzuć to ogłoszenie",
+    "rejectModalHelp": "Opcjonalnie, powiedz asystentowi, dlaczego. Używa Twoich akceptacji i odrzucenia, aby lepiej filrować przyszłe ogłoszenia — ale możesz po prostu odrzucić.",
+    "rejectModalLabel": "Dlaczego odrzucasz to ogłoszenie? (opcjonalnie)",
+    "rejectModalPlaceholder": "np. zbyt doświadczony, złe lokalizacje, nie wystarczająca część praktyczna…"
   },
   "cveditor": {
     "sections": {

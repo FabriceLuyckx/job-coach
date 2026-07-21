@@ -493,9 +493,11 @@ cd frontend && npm run dev
 5. **History** keeps accepted + rejected openings (full info, recency-first, paged with "Show more"; rejected greyed). Accepted rows have **Open CV** (deep-links to the matching CV via `cv_open_url` → matched by `job_url`) and can still be rejected.
 6. **Re-check filtered jobs** re-judges the cached `seen` openings against the current profile (rescuing ones improved Preferences now match); **Check a specific job** runs any pasted URL through the same review — for a posting found off-platform.
 
-**Reading the page** (`app/services/headless.py` — the one place HTTP+headless fetching lives): `http_get()` tries plain httpx; `render_html(url, browser=None)` falls back to a headless render (reusing a passed-in browser when given). `fetch_listing_links()` uses these when a page yields too few links (JS-built boards). During a scan, all surviving postings are fetched via `fetch_texts()` — parallel httpx (pool of 4), then the too-short ones rendered sequentially through **one** shared browser — so a scan launches Chromium at most once, not per posting. LLM review stays sequential (the local engine serialises it behind a lock). The LLM only ever returns URLs actually on the page (hallucination guard). Verify a source with `uv run python scripts/scan_debug.py --url <page>`.
+**Reading the page** (`app/services/headless.py` — the one place HTTP+headless fetching lives): `http_get()` tries plain httpx; `render_html(url, browser=None)` falls back to a headless render (reusing a passed-in browser when given). `fetch_listing_links()` **renders first** and falls back to httpx only when the render fails or is thin — a JS board can serve nav-only chrome over plain HTTP (enough links to pass a count check while carrying zero postings, which hid imec's jobs), so link *count* is the wrong signal. During a scan, all surviving postings are fetched via `fetch_texts()` — parallel httpx (pool of 4), then the too-short ones rendered sequentially through **one** shared browser — so a scan launches Chromium at most once, not per posting. LLM review stays sequential (the local engine serialises it behind a lock). The LLM only ever returns URLs actually on the page (hallucination guard). Verify a source with `uv run python scripts/scan_debug.py --url <page>`.
 
-**Token-cost design**: unchanged sources cost **zero** LLM calls (link-hash skip). For a changed source, link extraction carries no profile context; the title prescreen runs only when >5 new openings survive dedup; the expensive per-posting call is paid **exactly once per opening ever** (URL dedup + `posting_text`/`posting_json` cache) and only for openings that survive the prescreen. The expensive text is read at the moment it can change a decision, and never again.
+**Token-cost design**: unchanged sources cost **zero** LLM calls (link-hash skip). For a changed source, link extraction carries no profile context; the title prescreen runs only when >5 new openings survive dedup; the expensive per-posting call is paid **exactly once per opening ever** (URL dedup + `posting_text`/`posting_json` cache) and only for openings that survive the prescreen. The expensive text is read at the moment it can change a decision, and never again. The link-hash skip is guarded by `_has_stored_openings` — a matching hash only skips a source if at least one already-stored opening is still on the page, so a hash stamped without ever capturing the openings (which silently hid every euraxess job) re-scans instead of skipping forever.
+
+**Learning from accept/reject** (learn-from-job-feedback): rejecting a suggestion opens a modal for an **optional** free-text reason (accept stays one-click), stored in `job_openings.user_note` (server-only, distinct from the LLM audit `reason`). The per-posting review (`review_posting`) is steered by a compact **learned-preferences memo** — the LLM distils the user's *whole* accept/reject history (accepted titles + why they matched; rejected titles + the user's note) into a short deduplicated summary. `_preference_memo()` (in `jobs.py`) rebuilds it via `build_preference_memo()` **only when a cheap signature changes** (decision count + latest `decided_at`), caching it in `config.json` (`job_preference_memo` + `job_preference_memo_sig`); resolved once per scan/recheck/check and threaded into every `_review_one`. So: no LLM call on the reject/accept action (rebuild is lazy, at most once per scan when something changed), one bounded memo injected as untrusted context (tool call stays forced), and the unchanged-source zero-LLM path holds. The memo is always rebuilt from scratch (never folded on itself) so the raw rows stay the source of truth and it can't accumulate drift.
 
 **Editable prompts** (Settings → **Advanced — AI prompts**, collapsed by default): the link-extraction and relevance-filter prompts (`scan_extract_prompt`, `scan_filter_prompt`) mirror the CV Generator prompt. `scan_filter_prompt` now drives the per-posting verdict+digest call; the title prescreen has its own non-editable default (`DEFAULT_PRESCREEN_PROMPT`) — no third Settings prompt. The CV prompt must keep the `{lang_name}` placeholder (validated client- and server-side).
 
@@ -518,7 +520,7 @@ GET    /api/jobs/last-scan              {last_scan, profile_changed} (nudge to r
 GET    /api/jobs/openings[?include_seen] Suggested + decided openings; include_seen also appends the 50 newest 'filtered out'
 POST   /api/jobs/check                  Judge one pasted URL {url} → the opening row (existing rows returned as-is, no LLM call)
 POST   /api/jobs/openings/{id}/accept   Mark accepted + generate CV AND cover-letter guide (both reuse cached posting_text) → {cv_job_id, letter_job_id, job_url, lang}
-POST   /api/jobs/openings/{id}/reject   Mark rejected (also works from History)
+POST   /api/jobs/openings/{id}/reject   Mark rejected, optional {note} (also works from History)
 POST   /api/jobs/openings/{id}/restore  Back to 'suggested' (Undo for reject; also "Suggest anyway" for filtered rows)
 ```
 
@@ -572,10 +574,11 @@ job_openings: id, url (UNIQUE), title, source_url,
               reason, lang, cv_slug, created_at, decided_at,
               posting_text (scrape cache, ≤20k chars),
               posting_json (digest: employer/location/remote/contract/
-                            salary/deadline/summary/requirements)
+                            salary/deadline/summary/requirements),
+              user_note (optional free-text reject reason — feeds the memo)
 ```
 `GET /api/jobs/openings` parses `posting_json` into a `digest` object and never
-ships `posting_text` to the client. `GET /api/jobs/last-scan` also returns a
+ships `posting_text` **or `user_note`** to the client. `GET /api/jobs/last-scan` also returns a
 **`recheckable`** count (same `WHERE` as `_run_recheck`): title-prescreened rows
 have no `posting_text`, so a re-check can't re-judge them — the client gates the
 button on that count rather than guessing from the 50 `seen` rows it can see. Scan status also reports
@@ -719,6 +722,8 @@ language is generated on-device by the engine (Phase D).
 | `local_custom_models` | User-added local models by URL, `{id: registry entry}` — merged over the curated set by `registry.all_models()` | `{}` |
 | `app_language` | UI language (ISO 639-1); `en` is the native source language | `en` |
 | `onboarding_done` | First-run wizard completion marker | `false` |
+| `job_preference_memo` | Cached learned-preferences memo distilled from accept/reject history; injected into the job-review prompt | `""` |
+| `job_preference_memo_sig` | Signature (decision count + latest `decided_at`) gating memo rebuilds | absent |
 
 ---
 

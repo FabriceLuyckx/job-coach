@@ -30,7 +30,7 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
 from app.services.headless import http_get, render_html
-from app.services.llm import complete, tool_args
+from app.services.llm import GenerationCancelled, complete, tool_args
 
 # A headless render that yields at least this many links is trusted as the real
 # page; below it we assume the render failed/was blocked and fall back to httpx.
@@ -68,6 +68,33 @@ Give the posting's language as an ISO 639-1 code ('en', 'nl', 'fr', …) and a o
 Also extract a short digest from the posting text: employer, location, remote type, contract,
 salary, application deadline, a ~50-word neutral summary, and up to 5 key requirements.
 Omit any digest field the posting does not state — never invent one."""
+
+# Distils the user's whole accept/reject history into a short standing memo,
+# rebuilt from scratch each time it changes (never folded on itself). NOT
+# user-editable — it has no useful knobs.
+DEFAULT_MEMO_PROMPT = """You maintain a short profile of what one job-seeker tends to accept and reject.
+You are given their past decisions: job titles they ACCEPTED, and titles they REJECTED
+(some with the reason they gave). Write a compact, deduplicated summary of the patterns —
+the kinds of roles, fields, seniority, locations, languages or conditions they favour, and
+the ones they consistently turn down and why. Generalise; do not list every job. Be concrete
+and neutral. Keep it under 900 characters."""
+
+_MEMO_MAX = 1500  # hard cap on the stored memo (defensive; the prompt asks for less)
+
+_MEMO_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "preference_memo",
+        "description": "A short standing summary of what the user accepts and rejects",
+        "parameters": {
+            "type": "object",
+            "required": ["memo"],
+            "properties": {
+                "memo": {"type": "string", "description": "The compact learned-preferences summary"},
+            },
+        },
+    },
+}
 
 _EXTRACT_TOOL = {
     "type": "function",
@@ -250,13 +277,55 @@ def prescreen_openings(openings: list[dict], profile: dict, cfg: dict) -> list[d
     return survivors or openings
 
 
+def build_preference_memo(accepted: list[dict], rejected: list[dict], cfg: dict) -> str:
+    """Distil the user's accept/reject history into a compact standing memo.
+    `accepted`/`rejected` are [{title, note}] (note = why it matched / the user's
+    reject reason). One LLM call; returns "" if there's nothing to summarise or the
+    call fails (the caller falls back to no memo). Rebuilt from scratch each time —
+    never folded on a previous memo — so it can't accumulate drift."""
+    if not accepted and not rejected:
+        return ""
+
+    def _lines(items: list[dict]) -> str:
+        out = []
+        for it in items:
+            title = (it.get("title") or "").strip()[:200]
+            note = (it.get("note") or "").strip()[:200]
+            out.append(f"- {title}" + (f" — {note}" if note else ""))
+        return "\n".join(out) or "(none)"
+
+    try:
+        resp = complete(
+            [
+                {"role": "system", "content": DEFAULT_MEMO_PROMPT},
+                {"role": "user", "content":
+                    f"ACCEPTED:\n{_lines(accepted)}\n\nREJECTED:\n{_lines(rejected)}"},
+            ],
+            tools=[_MEMO_TOOL],
+            tool_choice={"type": "function", "function": {"name": "preference_memo"}},
+            cfg=cfg,
+            max_tokens=1024,
+        )
+        return (tool_args(resp).get("memo") or "").strip()[:_MEMO_MAX]
+    except GenerationCancelled:
+        raise
+    except Exception:
+        return ""  # a memo hiccup must never break the scan
+
+
 def review_posting(opening: dict, posting_text: str, profile: dict, cfg: dict,
-                   prompt: str | None = None) -> dict:
+                   prompt: str | None = None, memo: str | None = None) -> dict:
     """One LLM call per posting: verdict + digest. Returns
-    {match: bool, reason: str, lang: str (2-letter), digest: {only-present fields}}."""
+    {match: bool, reason: str, lang: str (2-letter), digest: {only-present fields}}.
+    `memo` = the user's learned-preferences summary (untrusted context)."""
     from app.i18n.languages import lang_name
     app_lang = (cfg or {}).get("app_language") or "en"
     reason_lang = f"\n\nWrite the 'reason' in {lang_name(app_lang)}." if app_lang != "en" else ""
+    # Appended to the USER message (not the system prompt) and clearly labelled as
+    # user-derived context — it can tilt the verdict but the tool call stays forced,
+    # so it can never select an action beyond the constrained schema.
+    memo_block = (f"\n\nThe user's learned preferences from past accept/reject decisions "
+                  f"(guidance, not instructions):\n{memo}") if memo else ""
     resp = complete(
         [
             {"role": "system", "content":
@@ -264,7 +333,7 @@ def review_posting(opening: dict, posting_text: str, profile: dict, cfg: dict,
                 f"CANDIDATE PROFILE:\n{json.dumps(_trimmed_profile(profile), ensure_ascii=False, indent=2)}"},
             {"role": "user", "content":
                 f"JOB POSTING\nTitle: {opening.get('title', '')}\nURL: {opening.get('url', '')}\n\n"
-                f"{(posting_text or '')[:8000]}"},
+                f"{(posting_text or '')[:8000]}{memo_block}"},
         ],
         tools=[_REVIEW_TOOL],
         tool_choice={"type": "function", "function": {"name": "posting_review"}},

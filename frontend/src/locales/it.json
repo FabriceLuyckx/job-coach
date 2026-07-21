@@ -595,7 +595,11 @@
       "openings": "Cerca offerte su {{source}}…",
       "filter": "Seleziona i candidati da {{source}}…"
     },
-    "cancelling": "Annulla…"
+    "cancelling": "Annulla…",
+    "rejectModalTitle": "Rifiuta questa offerta",
+    "rejectModalHelp": "Opzionalmente, indica al assistente il motivo. Utilizza i tuoi rifiuti per filtrare meglio le future offerte — ma puoi semplicemente rifiutare.",
+    "rejectModalLabel": "Perché la stai rifiutando? (opzionale)",
+    "rejectModalPlaceholder": "ad es. troppo esperto, località sbagliata, poco lavoro pratico…"
   },
   "cveditor": {
     "sections": {
