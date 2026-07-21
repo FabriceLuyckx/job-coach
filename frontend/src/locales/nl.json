@@ -589,7 +589,13 @@
       "salary": "Salaris",
       "deadline": "Deadline"
     },
-    "aiCaveat": "Geschreven door AI uit de post — lees het origineel voordat je beslist."
+    "aiCaveat": "Geschreven door AI uit de post — lees het origineel voordat je beslist.",
+    "phase": {
+      "links": "Leest vacatures van {{source}}…",
+      "openings": "Zoekt vacatures op {{source}}…",
+      "filter": "Kiest kandidaten uit {{source}}…"
+    },
+    "cancelling": "Afbreken…"
   },
   "cveditor": {
     "sections": {

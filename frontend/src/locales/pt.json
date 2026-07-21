@@ -589,7 +589,13 @@
       "salary": "Salário",
       "deadline": "Prazo"
     },
-    "aiCaveat": "Escrito por IA a partir do anúncio — leia o original antes de decidir."
+    "aiCaveat": "Escrito por IA a partir do anúncio — leia o original antes de decidir.",
+    "phase": {
+      "links": "Lendo listagens do {{source}}…",
+      "openings": "Encontrando vagas no {{source}}…",
+      "filter": "Selecionando candidatos do {{source}}…"
+    },
+    "cancelling": "Cancelando…"
   },
   "cveditor": {
     "sections": {

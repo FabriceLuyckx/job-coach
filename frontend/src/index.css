@@ -678,7 +678,10 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 
 /* Long-running scan/recheck status. Sticks to the top of the scroll so Cancel
    stays reachable on a page whose History can run long. */
-.scan-status {
+/* .callout.scan-status, not .scan-status: .callout is defined later with equal
+   specificity, so its align-items:flex-start would otherwise win and push the
+   text to the top of the taller (button-height) row. */
+.callout.scan-status {
   position: sticky;
   /* Not 0: that pins it to the viewport edge, breaking it out of the cream
      page sheet and flush against the browser chrome. */

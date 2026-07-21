@@ -92,6 +92,7 @@ export default function JobsPage() {
   const [scanning, setScanning] = useState(false)
   const [rechecking, setRechecking] = useState(false)
   const [scanProgress, setScanProgress] = useState('')
+  const [cancelling, setCancelling] = useState(false)
   const [sourceErrors, setSourceErrors] = useState<Record<string, string>>({})
   const [loadError, setLoadError] = useState('')
   const [busy, setBusy] = useState<string | null>(null)
@@ -169,9 +170,13 @@ export default function JobsPage() {
       try {
         const s = await api.getScanStatus(scanId)
         if (s.status === 'running' && (s.total || s.reading_total)) {
-          setScanProgress(s.reading_total
-            ? t('jobs.readingPosting', { current: s.reading_current, total: s.reading_total })
-            : t('jobs.scanProgress', { source: s.source ?? '', current: s.current, total: s.total }))
+          const src = s.source ?? ''
+          setScanProgress(
+            s.reading_total
+              ? t('jobs.readingPosting', { current: s.reading_current, total: s.reading_total })
+              : s.phase
+                ? t(`jobs.phase.${s.phase}`, { source: src })
+                : t('jobs.scanProgress', { source: src, current: s.current, total: s.total }))
           return false
         }
         if (s.status === 'done') {
@@ -253,8 +258,13 @@ export default function JobsPage() {
   }
 
   function cancelScan() {
-    if (activeScan) api.cancelScan(activeScan.id).catch(() => {})  // poll resolves the true state
+    if (!activeScan) return
+    setCancelling(true)  // a remote in-flight LLM call can't be interrupted; show it registered
+    api.cancelScan(activeScan.id).catch(() => {})  // poll resolves the true state
   }
+
+  // Reset the pending-cancel flag once the run actually ends (any terminal branch).
+  useEffect(() => { if (!scanning && !rechecking) setCancelling(false) }, [scanning, rechecking])
 
   async function checkJob() {
     const url = checkUrl.trim()
@@ -398,9 +408,11 @@ export default function JobsPage() {
         <div className="callout scan-status" style={{ marginBottom: 'var(--space-4)' }}>
           <span className="spinner" aria-hidden />
           <span style={{ flex: 1 }}>
-            {scanProgress || t(rechecking ? 'jobs.rechecking' : 'jobs.scanning')}
+            {cancelling
+              ? t('jobs.cancelling')
+              : scanProgress || t(rechecking ? 'jobs.rechecking' : 'jobs.scanning')}
           </span>
-          <Button variant="ghost" onClick={cancelScan} title={t('jobs.cancelScan')}>
+          <Button variant="ghost" onClick={cancelScan} disabled={cancelling} title={t('jobs.cancelScan')}>
             <X size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />
             {t('common.cancel')}
           </Button>

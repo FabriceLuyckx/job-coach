@@ -589,7 +589,13 @@
       "salary": "Salaire",
       "deadline": "Date limite"
     },
-    "aiCaveat": "Rédigé par IA à partir de l'annonce — lisez l'original avant de décider."
+    "aiCaveat": "Rédigé par IA à partir de l'annonce — lisez l'original avant de décider.",
+    "phase": {
+      "links": "Lecture des offres depuis {{source}}…",
+      "openings": "Recherche des postes sur {{source}}…",
+      "filter": "Sélection des candidats depuis {{source}}…"
+    },
+    "cancelling": "Annulation…"
   },
   "cveditor": {
     "sections": {

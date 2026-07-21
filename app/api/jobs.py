@@ -193,9 +193,14 @@ def _run_scan(scan_id: str) -> None:
             if cancel.is_set():
                 break
             name = src["name"] or src["url"]
+
+            def phase(p: str) -> None:  # so the user sees which slow stage is running
+                with _scans_lock:
+                    _scans[scan_id]["phase"] = p
+
             with _scans_lock:
                 _scans[scan_id].update({"current": i + 1, "total": len(sources),
-                                        "source": name, "reading_total": 0})
+                                        "source": name, "reading_total": 0, "phase": "links"})
             # One bad source shouldn't abort the whole scan — but the user must
             # be able to see which source failed and why.
             try:
@@ -206,8 +211,10 @@ def _run_scan(scan_id: str) -> None:
                 if lhash and lhash == src.get("links_hash"):
                     _mark_scanned(src["id"], lhash)  # source WAS checked, just empty
                     continue
+                phase("openings")
                 openings = extract_openings(src["url"], cfg, extract_prompt, links=links)
                 new = [o for o in openings if o["url"] not in known]
+                phase("filter")
                 survivors = prescreen_openings(new, profile, cfg) if new else []
             except GenerationCancelled:
                 raise  # cancel — stop the whole scan, don't record it as a source error

@@ -589,7 +589,13 @@
       "salary": "Płaca",
       "deadline": "Limit terminu"
     },
-    "aiCaveat": "Napisane przez AI z ogłoszeniem — przeczytaj oryginał przed decyzją."
+    "aiCaveat": "Napisane przez AI z ogłoszeniem — przeczytaj oryginał przed decyzją.",
+    "phase": {
+      "links": "Odczytywanie ofert z {{source}}…",
+      "openings": "Szukanie stanowisk na {{source}}…",
+      "filter": "Wybieranie kandydatów z {{source}}…"
+    },
+    "cancelling": "Anulowanie…"
   },
   "cveditor": {
     "sections": {

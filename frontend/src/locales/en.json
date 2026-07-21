@@ -572,7 +572,13 @@
     "findNew": "Find new listings",
     "scanning": "Scanning…",
     "scanProgress": "Scanning {{source}} ({{current}} of {{total}})…",
+    "phase": {
+      "links": "Reading listings from {{source}}…",
+      "openings": "Finding openings on {{source}}…",
+      "filter": "Selecting candidates from {{source}}…"
+    },
     "readingPosting": "Reading posting {{current}} of {{total}}…",
+    "cancelling": "Cancelling…",
     "starting": "Starting…",
     "lastScan": "Last scan: {{time}}",
     "neverScanned": "Never scanned",

@@ -302,6 +302,7 @@ export const api = {
       current?: number // 1-based index of the source being scanned
       total?: number
       source?: string // name of the source being scanned
+      phase?: 'links' | 'openings' | 'filter' // slow pre-reading stage for the current source
       reading_current?: number // 1-based index of the posting being read in Stage 2
       reading_total?: number // postings to read for the current source (0 if none)
     }>(`/jobs/scan/status/${id}`),

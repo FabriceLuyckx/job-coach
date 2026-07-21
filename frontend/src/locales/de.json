@@ -589,7 +589,13 @@
       "salary": "Gehalt",
       "deadline": "Frist"
     },
-    "aiCaveat": "Von AI geschrieben — lesen Sie das Original, bevor Sie eine Entscheidung treffen."
+    "aiCaveat": "Von AI geschrieben — lesen Sie das Original, bevor Sie eine Entscheidung treffen.",
+    "phase": {
+      "links": "Lesen von Einträgen aus {{source}}…",
+      "openings": "Suchen nach Stellen auf {{source}}…",
+      "filter": "Auswählen von Kandidaten aus {{source}}…"
+    },
+    "cancelling": "Abbrechen…"
   },
   "cveditor": {
     "sections": {

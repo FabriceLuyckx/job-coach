@@ -589,7 +589,13 @@
       "salary": "Stipendio",
       "deadline": "Scadenza"
     },
-    "aiCaveat": "Scritto da AI dal messaggio — leggi l'originale prima di decidere."
+    "aiCaveat": "Scritto da AI dal messaggio — leggi l'originale prima di decidere.",
+    "phase": {
+      "links": "Legge i risultati da {{source}}…",
+      "openings": "Cerca offerte su {{source}}…",
+      "filter": "Seleziona i candidati da {{source}}…"
+    },
+    "cancelling": "Annulla…"
   },
   "cveditor": {
     "sections": {
