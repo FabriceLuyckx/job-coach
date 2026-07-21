@@ -355,7 +355,6 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 .badge-jobs    { background: var(--ink); color: var(--paper); }
 .badge-lang    { background: transparent; color: var(--ink); border: 1px solid var(--border); }
 .badge-neutral { background: transparent; color: var(--muted); border: 1px solid color-mix(in srgb, var(--ink) 45%, transparent); }
-.badge-deadline { background: transparent; color: var(--accent-text); border: 1px solid var(--accent-text); }
 /* "Needs an answer" — mustard, matching the other --highlight nudges. Not the
    accent (the section already carries a vermilion CV badge, and two in one row
    breaks the rationing) and not --danger (unanswered is not an error). */

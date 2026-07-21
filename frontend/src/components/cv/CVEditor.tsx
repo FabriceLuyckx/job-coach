@@ -141,6 +141,25 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
   // Re-apply when toggles change without a reload.
   useEffect(() => { applyVisibility() }, [applyVisibility])
 
+  // The CV is a fixed-width A4 sheet (210mm ≈ 794px). In a narrower panel it
+  // overflows and the iframe scrolls horizontally — scale it down to fit with
+  // native zoom (template-agnostic: measured from the doc's own scrollWidth).
+  const applyScale = useCallback(() => {
+    const el = iframeRef.current
+    const body = el?.contentDocument?.body
+    if (!el || !body) return
+    body.style.setProperty('zoom', '1')
+    body.style.setProperty('zoom', String(Math.min(1, el.clientWidth / body.scrollWidth)))
+  }, [])
+
+  useEffect(() => {
+    const el = iframeRef.current
+    if (!el) return
+    const ro = new ResizeObserver(applyScale)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [applyScale, previewKey])
+
   // ── Content editing ──
   function setSummary(text: string) { editPlan(p => ({ ...p, summary: text })) }
   function setRoleBullets(id: string, bullets: string[]) {
@@ -300,7 +319,7 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
           key={previewKey}
           ref={iframeRef}
           src={result.preview_url}
-          onLoad={() => { readSections(); applyVisibility() }}
+          onLoad={() => { readSections(); applyVisibility(); applyScale() }}
           style={{ width: '100%', height: '80vh', border: 'none', display: 'block' }}
           title={t('cveditor.cvPreview')}
         />
@@ -398,14 +417,6 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
               </div>
             )}
 
-            {plan.highlighted_skills.length > 0 && (
-              <div style={{ marginTop: 'var(--space-2)' }}>
-                <span className="muted-sm">{t('cveditor.emphasisedSkills')}: </span>
-                {plan.highlighted_skills.map(s => (
-                  <span key={s} className="chip-readonly">{s}</span>
-                ))}
-              </div>
-            )}
           </Collapsible>
         </div>
       )}

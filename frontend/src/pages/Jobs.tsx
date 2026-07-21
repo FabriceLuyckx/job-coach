@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Trans, useTranslation } from 'react-i18next'
 import { Search, Inbox, RotateCcw, ExternalLink, Check, X, RefreshCw, Link2, Filter,
-  Building2, MapPin, Laptop, FileText, Banknote, CalendarClock, type LucideIcon } from 'lucide-react'
+  Building2, MapPin, Laptop, FileText, CalendarClock, type LucideIcon } from 'lucide-react'
 import { api, type JobSource, type JobOpening, type JobDigest } from '../api'
 import Button from '../components/Button'
 import RemoveButton from '../components/RemoveButton'
@@ -31,21 +31,19 @@ function host(url: string): string {
   try { return new URL(url).hostname.replace('www.', '') } catch { return url }
 }
 
-// Structured fields read from the posting. Shown as squared chips under the
-// title; the ~50-word summary as muted text. The deadline chip is accented so
-// an expiring posting stands out.
+// Structured fields read from the posting. Shown as squared neutral chips under
+// the title; the ~50-word summary as muted text.
 function Digest({ digest }: { digest: JobDigest | null }) {
   const { t } = useTranslation()
   if (!digest) return null
   // The icon is decorative, so each chip carries a screen-reader-only label —
   // without it a chip reads as a bare "Ghent" with no hint it's a location.
-  const chips: [LucideIcon, string | undefined, boolean, string][] = [
-    [Building2, digest.employer, false, 'employer'],
-    [MapPin, digest.location, false, 'location'],
-    [Laptop, digest.remote && digest.remote !== 'unknown' ? digest.remote : undefined, false, 'remote'],
-    [FileText, digest.contract, false, 'contract'],
-    [Banknote, digest.salary, false, 'salary'],
-    [CalendarClock, digest.deadline, true, 'deadline'],
+  const chips: [LucideIcon, string | undefined, string][] = [
+    [Building2, digest.employer, 'employer'],
+    [MapPin, digest.location, 'location'],
+    [Laptop, digest.remote && digest.remote !== 'unknown' ? digest.remote : undefined, 'remote'],
+    [FileText, digest.contract, 'contract'],
+    [CalendarClock, digest.deadline, 'deadline'],
   ]
   const shown = chips.filter(([, v]) => v)
   if (!shown.length && !digest.summary) return null
@@ -53,8 +51,8 @@ function Digest({ digest }: { digest: JobDigest | null }) {
     <>
       {shown.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', marginTop: 'var(--space-2)' }}>
-          {shown.map(([Icon, v, accent, key], i) => (
-            <span key={i} className={`badge ${accent ? 'badge-deadline' : 'badge-neutral'}`}>
+          {shown.map(([Icon, v, key], i) => (
+            <span key={i} className="badge badge-neutral">
               <Icon size={12} style={{ marginRight: 4, verticalAlign: -2 }} aria-hidden />
               <span className="sr-only">{t(`jobs.digest.${key}`)}: </span>{v}
             </span>
