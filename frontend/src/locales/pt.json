@@ -757,7 +757,8 @@
         "target_roles": "as funções que você está almejando",
         "experience": "pelo menos uma função em sua experiência profissional"
       }
-    }
+    },
+    "regenLetter": "Gerar novamente o guia"
   },
   "letters": {
     "title": "Carta de apresentação",

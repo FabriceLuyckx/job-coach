@@ -757,7 +757,8 @@
         "target_roles": "les postes que vous ciblez",
         "experience": "au moins un poste dans votre parcours professionnel"
       }
-    }
+    },
+    "regenLetter": "Générer à nouveau le guide"
   },
   "letters": {
     "title": "Lettre de motivation",

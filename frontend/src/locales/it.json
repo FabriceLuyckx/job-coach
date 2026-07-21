@@ -757,7 +757,8 @@
         "target_roles": "le posizioni che stai mirando",
         "experience": "almeno un'esperienza nel tuo percorso professionale"
       }
-    }
+    },
+    "regenLetter": "Rigenera il documento"
   },
   "letters": {
     "title": "Lettera di presentazione",

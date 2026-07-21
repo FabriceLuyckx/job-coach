@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Trans, useTranslation } from 'react-i18next'
-import { Check, ExternalLink, FileText, Minus, Plus, X } from 'lucide-react'
+import { Check, ExternalLink, FileText, Minus, Plus, Sparkles, X } from 'lucide-react'
 import { api, pollCVJob, PollAbortedError, type CvHistoryEntry, type CVResult, type CVMutation } from '../api'
 import type { LetterHistoryEntry, Profile } from '../types'
 import Button from '../components/Button'
@@ -335,6 +335,27 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
   }
 
   const cancelCreateRef = useRef<(() => void) | null>(null)
+  const [regenLetter, setRegenLetter] = useState(false)
+
+  // Regenerate the cover-letter guide against the current profile/engine, in the
+  // listing's language. Mirrors the relang letter branch: build a fresh guide,
+  // swap it in, then delete the old row (letters are append-only history).
+  async function regenerateLetter() {
+    if (!app.jobUrl || !letter || regenLetter) return
+    const old = letter
+    const c = makeCanceller()
+    cancelCreateRef.current = c.cancel
+    setRegenLetter(true); setCreateErr(''); setCreateStage('')
+    try {
+      const e = await runLetter(app.jobUrl, lang, s => setCreateStage(t(`cv.stage.${s}`, s)), c.signal, c.track)
+      setLetter(e); onLetterGenerated(e)
+      api.deleteLetter(old.id).catch(() => {})
+    } catch (e) {
+      if (!(e instanceof PollAbortedError)) setCreateErr(errMsg(e))
+    } finally {
+      setRegenLetter(false); setCreateStage(''); cancelCreateRef.current = null
+    }
+  }
 
   async function create(kind: 'cv' | 'letter') {
     if (!app.jobUrl) return
@@ -530,8 +551,28 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
                   <div><strong>{t('letters.explainer.headline')}</strong></div>
                 </div>
                 {letter ? (
-                  <GuideView guide={letter.guide}
-                    actions={<RemoveButton onClick={() => onDeleteLetter(letter)} title={t('applications.deleteLetter')} />} />
+                  <>
+                    <GuideView guide={letter.guide}
+                      actions={
+                        <>
+                          <Button variant="secondary" onClick={regenerateLetter} busy={regenLetter} disabled={relanging}>
+                            {!regenLetter && <Sparkles size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
+                            {regenLetter ? (createStage || t('cv.starting')) : t('applications.regenLetter')}
+                          </Button>
+                          {regenLetter && (
+                            <Button variant="ghost" onClick={() => cancelCreateRef.current?.()}>{t('common.cancel')}</Button>
+                          )}
+                          <RemoveButton onClick={() => onDeleteLetter(letter)} title={t('applications.deleteLetter')} />
+                        </>
+                      }
+                      note={
+                        <>
+                          {regenLetter && <p className="muted-sm" style={{ margin: 0 }}>{t('applications.slowLocalHint')}</p>}
+                          {createErr && <p className="error-msg" style={{ margin: 0 }}>{createErr}</p>}
+                        </>
+                      } />
+
+                  </>
                 ) : missingArtifact('letter')}
               </div>
             )}

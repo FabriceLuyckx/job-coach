@@ -757,7 +757,8 @@
         "target_roles": "role, które chcesz osiągnąć",
         "experience": "przynajmniej jedno stanowisko w historii zawodowej"
       }
-    }
+    },
+    "regenLetter": "Wygeneruj przewodnik"
   },
   "letters": {
     "title": "List motywacyjny",

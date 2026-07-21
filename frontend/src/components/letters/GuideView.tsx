@@ -44,8 +44,9 @@ function toHtml(g: LetterGuide, t: (k: string) => string): string {
   return parts.join('')
 }
 
-/** actions: extra controls (e.g. a delete button) rendered beside the Copy button. */
-export default function GuideView({ guide, actions }: { guide: LetterGuide; actions?: ReactNode }) {
+/** actions: extra controls (e.g. a delete button) rendered beside the Copy button.
+ *  note: a full-width line rendered directly under the action row (e.g. a busy hint). */
+export default function GuideView({ guide, actions, note }: { guide: LetterGuide; actions?: ReactNode; note?: ReactNode }) {
   const { t } = useTranslation()
   const toast = useToast()
 
@@ -81,6 +82,7 @@ export default function GuideView({ guide, actions }: { guide: LetterGuide; acti
         </Button>
         {actions}
       </div>
+      {note}
 
       <div>
         <div className="editor-cluster-label" style={{ marginBottom: 6 }}>{t('letters.guide.structure')}</div>

@@ -183,12 +183,12 @@ Rules:
 - Write the summary in first person (I, my)
 - Professional summary: maximum 4 sentences, direct and specific to this role
 - The CV ALWAYS shows the candidate's full work history — you never choose which roles appear, only how each role's bullets read
-- For EVERY role in the profile's experience, write a SINGLE list of at most 4 bullet points (keyed by that role's id in adjusted_responsibilities) that combines its most relevant responsibilities and achievements for this job; still write bullets for less-relevant roles, just shorter and less emphasised
+- For EVERY role in the profile's experience, write a SINGLE list of 1–4 bullet points (keyed by that role's id in adjusted_responsibilities) that combines its most relevant responsibilities and achievements for this job. 4 is a ceiling, not a target: include only bullets genuinely relevant to this job — a role with little bearing on it may warrant just one or two strong bullets. Do not pad to reach four. Still write at least one bullet for every role.
 - selected_experience_ids: list the roles most relevant to this job (advisory ordering hint only — it does not drop any role)
 - For non-English CVs, fill in sidebar_translations: every key is one exact string copied from the profile — translate each into {lang_name} as its value, and omit any that should stay as-is. Keep degree titles (e.g. "Doctor of Philosophy (PhD)", "Master's Degree") and skill/tool names (Python, AWS) in English; DO translate skill group headings, language names, education fields of study, distinctions and grant names
 - Mirror the language of the job description, but only honestly
 - Do not invent skills or experience not present in the profile
-- Keep bullets concise (one line each); never more than 4 per role
+- Keep bullets concise (one line each); never more than 4 per role, and fewer when fewer are directly applicable
 - Optional sections (projects, volunteering, certifications, courses, awards, memberships, grants, custom_sections, publications, teaching): list in excluded_sections any that are clearly irrelevant to this role so they are dropped; keep publications and teaching only for academic, research, or training-heavy roles; keep the rest
 - Use each role's ai_notes field in the profile to decide which entries best match the role type"""
 
@@ -353,6 +353,10 @@ def apply_tailoring(profile: dict, plan: TailoringPlan) -> dict:
         eid = entry.get("id")
         if eid and eid in plan.adjusted_responsibilities:
             entry["responsibilities"] = plan.adjusted_responsibilities[eid][:4]
+        else:
+            # Untailored role: keep its own bullets but still cap at 4 — a full
+            # career path shows every role, not every bullet of every role.
+            entry["responsibilities"] = list(entry.get("responsibilities", []))[:4]
         entry["achievements"] = []  # achievements are folded into the bullet list above
     p["experience"] = ordered_experience(p)
 
@@ -413,4 +417,8 @@ if __name__ == "__main__":
     # The full history always shows, even when the AI selected nothing.
     empty = TailoringPlan("t", "e", "s", "sum", [], {}, [], "n")
     assert [e["id"] for e in apply_tailoring(prof, empty)["experience"]] == ["b", "c", "a"]
+    # An untailored role caps its own bullets at 4 (full path ≠ all bullets).
+    prof2 = {"experience": [{"id": "a", "responsibilities": [1, 2, 3, 4, 5, 6]}]}
+    out = apply_tailoring(prof2, empty)["experience"][0]["responsibilities"]
+    assert len(out) == 4, out
     print("ok", order)

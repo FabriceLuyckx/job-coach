@@ -598,7 +598,7 @@ def get_plan(history_id: str):
         "id": e["id"],
         "title": e.get("title", ""),
         "employer": e.get("employer", ""),
-        "bullets": plan.adjusted_responsibilities.get(e["id"], e.get("responsibilities", [])),
+        "bullets": (plan.adjusted_responsibilities.get(e["id"]) or e.get("responsibilities", []))[:4],
     } for e in ordered]
     return {
         "lang": lang, "summary": plan.summary, "roles": roles,

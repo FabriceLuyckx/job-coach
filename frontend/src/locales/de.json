@@ -757,7 +757,8 @@
         "target_roles": "die Stellen, die Sie ansprechen möchten",
         "experience": "mindestens eine Rolle aus Ihrer Berufsgeschichte"
       }
-    }
+    },
+    "regenLetter": "Leitfaden erneuern"
   },
   "letters": {
     "title": "Brief",

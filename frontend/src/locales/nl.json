@@ -757,7 +757,8 @@
         "target_roles": "de functies die je doelstelling hebt",
         "experience": "minstens één functie uit je werkgeschiedenis"
       }
-    }
+    },
+    "regenLetter": "Gids opnieuw genereren"
   },
   "letters": {
     "title": "Brief",

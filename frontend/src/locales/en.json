@@ -30,6 +30,7 @@
     "noUrl": "This entry has no saved job URL, so nothing more can be generated for it.",
     "deleteApp": "Delete application for {{title}}",
     "deleteLetter": "Delete this letter guide",
+    "regenLetter": "Regenerate guide",
     "changingLang": "Changing language…",
     "changeLangTitle": "Change language?",
     "changeLangBody": "This regenerates the cover-letter guide in <b>{{lang}}</b> and replaces the current one, and re-tailors your CV (your edits are kept).",

@@ -757,7 +757,8 @@
         "target_roles": "los puestos que estás buscando",
         "experience": "al menos un puesto en tu historial laboral"
       }
-    }
+    },
+    "regenLetter": "Regenerar guía"
   },
   "letters": {
     "title": "Carta de presentación",
