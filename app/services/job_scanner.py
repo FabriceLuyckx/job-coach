@@ -36,6 +36,14 @@ from app.services.llm import GenerationCancelled, complete, tool_args
 # page; below it we assume the render failed/was blocked and fall back to httpx.
 _MIN_LINKS = 5
 
+# The link list handed to the extraction LLM is truncated to this many chars.
+# Nav/facet links crowd the top of a page and can push real job links past a
+# small cap (euraxess: 135 links / 28k chars, every job link beyond char 14.8k
+# — the old 14k cap hid them all). ~10k tokens; extract runs once per changed
+# source. ponytail: raise or prioritise distinct-path links if a huge board
+# still overflows.
+_MAX_LISTING_CHARS = 40000
+
 # Skip the title prescreen (just read them all) at or below this many new
 # openings — the triage LLM call would cost more than the postings it saves.
 _PRESCREEN_MIN = 5
@@ -220,7 +228,7 @@ def extract_openings(page_url: str, cfg: dict, prompt: str | None = None,
     resp = complete(
         [
             {"role": "system", "content": prompt or DEFAULT_EXTRACT_PROMPT},
-            {"role": "user", "content": f"Listing page: {page_url}\n\nLinks found:\n{listing[:14000]}"},
+            {"role": "user", "content": f"Listing page: {page_url}\n\nLinks found:\n{listing[:_MAX_LISTING_CHARS]}"},
         ],
         tools=[_EXTRACT_TOOL],
         tool_choice={"type": "function", "function": {"name": "job_openings"}},
