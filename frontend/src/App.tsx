@@ -19,6 +19,14 @@ import { api } from './api'
 import { loadLanguage } from './i18n'
 import './App.css'
 
+// Captured at module load, before React Router redirects "/" → "/profile" and
+// drops the query. Dev-only escape hatch: ?onboarding=1 forces the first-run
+// wizard regardless of engine/config state, so it can be worked on without
+// tearing down a real setup. Gated on import.meta.env.DEV so it never ships.
+const FORCE_ONBOARDING =
+  (import.meta as { env?: { DEV?: boolean } }).env?.DEV === true &&
+  new URLSearchParams(window.location.search).get('onboarding') === '1'
+
 export default function App() {
   const { t } = useTranslation()
   // null = still checking; true = show the first-run wizard.
@@ -27,6 +35,7 @@ export default function App() {
   // Reconcile the UI language with the server preference and decide whether the
   // first-run wizard should appear (engine not ready AND not previously skipped).
   useEffect(() => {
+    if (FORCE_ONBOARDING) { setShowOnboarding(true); return }
     Promise.all([api.getSettings(), api.getEngine()])
       .then(([s, e]) => {
         if (s.app_language) void loadLanguage(s.app_language)

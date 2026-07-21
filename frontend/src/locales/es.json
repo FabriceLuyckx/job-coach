@@ -41,12 +41,10 @@
     "langTitle": "Elige tu idioma",
     "langHelp": "La app está en inglés por defecto. Elige un idioma; los demás están traducidos por IA.",
     "langOther": "Otro idioma…",
-    "langOtherHelp": "Introduce un código de 2 letras (p. ej. sv, ja). Se traduce en tu dispositivo una vez configurado el motor de IA.",
     "langQueued": "Traduciremos la interfaz justo después de que configures un motor de IA.",
     "engineTitle": "Configura la IA",
     "engineHelp": "La IA personaliza tu CV y analiza ofertas de empleo. Elige cómo ejecutarla.",
     "engineLocalCta": "Descargar modelo gratuito",
-    "engineDownloading": "Descargando… {{pct}}%",
     "engineLocalReady": "Modelo gratuito listo.",
     "engineKeyPlaceholder": "Pega tu clave API de OpenRouter (sk-or-…)",
     "engineSaveKey": "Guardar clave",
@@ -54,7 +52,11 @@
     "engineGetKey": "Obtén una clave en openrouter.ai",
     "doneTitle": "Todo listo",
     "doneBody": "A continuación: crea tu Perfil (importa un CV existente para empezar rápido) y luego añade fuentes de empleo en Sugerencias de empleo.",
-    "finish": "Empezar a usar Job Coach"
+    "finish": "Empezar a usar Job Coach",
+    "langOtherPlaceholder": "sv, ja, ar…",
+    "langOtherDoneNote": "Estamos traduciendo la interfaz en segundo plano — puedes seguir el progreso en Configuración.",
+    "langTranslateFailed": "No se pudo iniciar la traducción de la interfaz — puedes intentarlo de nuevo en Configuración.",
+    "engineDownloadWait": "Esto puede tardar unos minutos."
   },
   "banner": {
     "engineNotReady": "¡Bienvenido! Para generar CVs y analizar ofertas de empleo, configura un motor de IA en <settings>Configuración</settings>: descarga el modelo local gratuito o añade una clave API de OpenRouter.",

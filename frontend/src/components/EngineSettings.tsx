@@ -14,7 +14,7 @@ import { usePoller } from '../lib/usePoller'
 import { errMsg } from '../lib/errors'
 import { radioGroup } from '../lib/radiogroup'
 
-const fmtGb = (b: number | null | undefined) => (b == null ? '—' : `${(b / 1e9).toFixed(1)} GB`)
+export const fmtGb = (b: number | null | undefined) => (b == null ? '—' : `${(b / 1e9).toFixed(1)} GB`)
 
 /**
  * AI-engine chooser: the free local model vs OpenRouter. Handles downloading and

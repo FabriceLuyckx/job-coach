@@ -41,12 +41,10 @@
     "langTitle": "Wählen Sie Ihre Sprache",
     "langHelp": "Die App ist standardmäßig auf Englisch. Wählen Sie eine Sprache – andere sind KI-übersetzt.",
     "langOther": "Andere Sprache…",
-    "langOtherHelp": "Geben Sie einen 2-Buchstaben-Code ein (z. B. sv, ja). Die Übersetzung erfolgt auf Ihrem Gerät, sobald Ihre KI-Engine eingerichtet ist.",
     "langQueued": "Wir übersetzen die Benutzeroberfläche, sobald Sie eine KI-Engine eingerichtet haben.",
     "engineTitle": "KI einrichten",
     "engineHelp": "Die KI passt Ihre Lebensläufe an und scannt Stellenanzeigen. Wählen Sie, wie sie arbeiten soll.",
     "engineLocalCta": "Kostenloses Modell herunterladen",
-    "engineDownloading": "Wird heruntergeladen… {{pct}}%",
     "engineLocalReady": "Kostenloses Modell bereit.",
     "engineKeyPlaceholder": "OpenRouter-API-Schlüssel einfügen (sk-or-…)",
     "engineSaveKey": "Schlüssel speichern",
@@ -54,7 +52,11 @@
     "engineGetKey": "Schlüssel auf openrouter.ai holen",
     "doneTitle": "Alles erledigt",
     "doneBody": "Weiter: Erstellen Sie Ihr Profil (importieren Sie einen vorhandenen Lebenslauf für einen schnellen Start) und fügen Sie dann Jobquellen unter Jobvorschläge hinzu.",
-    "finish": "Job Coach verwenden"
+    "finish": "Job Coach verwenden",
+    "langOtherPlaceholder": "sv, ja, ar…",
+    "langOtherDoneNote": "Wir übersetzen das Interface im Hintergrund — du kannst es in den Einstellungen verfolgen.",
+    "langTranslateFailed": "Die Übersetzung des Interfaces konnte nicht gestartet werden — du kannst es in den Einstellungen erneut versuchen.",
+    "engineDownloadWait": "Das kann einige Minuten dauern."
   },
   "banner": {
     "engineNotReady": "Willkommen! Um Lebensläufe zu erstellen und Stellenanzeigen zu scannen, richten Sie eine KI-Engine in den <settings>Einstellungen</settings> ein – laden Sie das kostenlose lokale Modell herunter oder fügen Sie einen OpenRouter-API-Schlüssel hinzu.",

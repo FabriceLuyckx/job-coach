@@ -41,12 +41,10 @@
     "langTitle": "Scegli la lingua",
     "langHelp": "L'app è in inglese per impostazione predefinita. Scegli una lingua — le altre sono tradotte dall'IA.",
     "langOther": "Altra lingua…",
-    "langOtherHelp": "Inserisci un codice di 2 lettere (es. sv, ja). Viene tradotto sul tuo dispositivo una volta configurato il motore IA.",
     "langQueued": "Tradurremo l'interfaccia subito dopo aver configurato un motore IA.",
     "engineTitle": "Configura l'IA",
     "engineHelp": "L'IA personalizza i tuoi CV e analizza le offerte di lavoro. Scegli come eseguirla.",
     "engineLocalCta": "Scarica il modello gratuito",
-    "engineDownloading": "Download in corso… {{pct}}%",
     "engineLocalReady": "Modello gratuito pronto.",
     "engineKeyPlaceholder": "Incolla la tua chiave API OpenRouter (sk-or-…)",
     "engineSaveKey": "Salva chiave",
@@ -54,7 +52,11 @@
     "engineGetKey": "Ottieni una chiave su openrouter.ai",
     "doneTitle": "Sei pronto",
     "doneBody": "Prossimo passo: crea il tuo Profilo (importa un CV esistente per iniziare rapidamente), poi aggiungi fonti di lavoro in Suggerimenti di lavoro.",
-    "finish": "Inizia a usare Job Coach"
+    "finish": "Inizia a usare Job Coach",
+    "langOtherPlaceholder": "sv, ja, ar…",
+    "langOtherDoneNote": "Stiamo traducendo l'interfaccia in background — puoi tracciare il progresso nelle Impostazioni.",
+    "langTranslateFailed": "Impossibile avviare la traduzione dell'interfaccia — puoi riprovarci nelle Impostazioni.",
+    "engineDownloadWait": "Questo può richiedere alcuni minuti."
   },
   "banner": {
     "engineNotReady": "Benvenuto! Per generare CV e scansionare offerte di lavoro, configura un motore IA nelle <settings>Impostazioni</settings> — scarica il modello locale gratuito oppure aggiungi una chiave API OpenRouter.",

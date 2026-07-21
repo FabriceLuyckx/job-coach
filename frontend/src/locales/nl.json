@@ -41,12 +41,10 @@
     "langTitle": "Kies je taal",
     "langHelp": "De app is standaard in het Engels. Kies een taal — andere talen zijn AI-vertaald.",
     "langOther": "Andere taal…",
-    "langOtherHelp": "Voer een 2-letterige code in (bijv. sv, ja). De vertaling gebeurt op je apparaat zodra je AI-engine is ingesteld.",
     "langQueued": "We vertalen de interface zodra je een AI-engine hebt ingesteld.",
     "engineTitle": "AI instellen",
     "engineHelp": "De AI past je cv's aan en scant vacatures. Kies hoe het werkt.",
     "engineLocalCta": "Gratis model downloaden",
-    "engineDownloading": "Downloaden… {{pct}}%",
     "engineLocalReady": "Gratis model klaar.",
     "engineKeyPlaceholder": "Plak je OpenRouter API-sleutel (sk-or-…)",
     "engineSaveKey": "Sleutel opslaan",
@@ -54,7 +52,11 @@
     "engineGetKey": "Vraag een sleutel aan op openrouter.ai",
     "doneTitle": "Je bent helemaal klaar",
     "doneBody": "Volgende stap: maak je Profiel aan (importeer een bestaand cv om snel te beginnen) en voeg vacaturebronnen toe via Vacaturesuggesties.",
-    "finish": "Job Coach starten"
+    "finish": "Job Coach starten",
+    "langOtherPlaceholder": "sv, ja, ar…",
+    "langOtherDoneNote": "We're translating the interface in the background — you can track it in Settings.",
+    "langTranslateFailed": "Couldn't start translating the interface — you can retry in Settings.",
+    "engineDownloadWait": "This can take a few minutes."
   },
   "banner": {
     "engineNotReady": "Welkom! Om cv's te genereren en vacatures te scannen, stel een AI-engine in via <settings>Instellingen</settings> — download het gratis lokale model of voeg een OpenRouter API-sleutel toe.",

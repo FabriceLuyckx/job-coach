@@ -41,12 +41,10 @@
     "langTitle": "Wybierz język",
     "langHelp": "Aplikacja jest domyślnie w języku angielskim. Wybierz język — pozostałe są tłumaczone przez AI.",
     "langOther": "Inny język…",
-    "langOtherHelp": "Wpisz dwuliterowy kod (np. sv, ja). Tłumaczenie odbywa się na Twoim urządzeniu po skonfigurowaniu silnika AI.",
     "langQueued": "Interfejs zostanie przetłumaczony zaraz po skonfigurowaniu silnika AI.",
     "engineTitle": "Skonfiguruj AI",
     "engineHelp": "AI dostosowuje Twoje CV i skanuje oferty pracy. Wybierz sposób działania.",
     "engineLocalCta": "Pobierz darmowy model",
-    "engineDownloading": "Pobieranie… {{pct}}%",
     "engineLocalReady": "Darmowy model gotowy.",
     "engineKeyPlaceholder": "Wklej swój klucz API OpenRouter (sk-or-…)",
     "engineSaveKey": "Zapisz klucz",
@@ -54,7 +52,11 @@
     "engineGetKey": "Uzyskaj klucz na openrouter.ai",
     "doneTitle": "Wszystko gotowe",
     "doneBody": "Co dalej: uzupełnij swój Profil (zaimportuj istniejące CV, aby zacząć szybciej), a następnie dodaj źródła ofert w sekcji Sugestie Pracy.",
-    "finish": "Zacznij korzystać z Job Coach"
+    "finish": "Zacznij korzystać z Job Coach",
+    "langOtherPlaceholder": "sv, ja, ar…",
+    "langOtherDoneNote": "Przetwarzamy interfejs w tle — możesz śledzić postęp w Ustawieniach.",
+    "langTranslateFailed": "Nie udało się rozpocząć tłumaczenia interfejsu — możesz spróbować ponownie w Ustawieniach.",
+    "engineDownloadWait": "To może zająć kilka minut."
   },
   "banner": {
     "engineNotReady": "Witaj! Aby generować CV i skanować oferty pracy, skonfiguruj silnik AI w <settings>Ustawieniach</settings> — pobierz darmowy model lokalny lub dodaj klucz API OpenRouter.",
