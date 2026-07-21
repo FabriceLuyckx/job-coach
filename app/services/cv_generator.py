@@ -182,8 +182,9 @@ Rules:
 - Write ALL generated text (summary, responsibility bullets) in {lang_name}
 - Write the summary in first person (I, my)
 - Professional summary: maximum 4 sentences, direct and specific to this role
-- Select only experience entries that are genuinely relevant to the role
-- For each selected role, write a SINGLE list of at most 4 bullet points that combines its most relevant responsibilities and achievements for this job, in adjusted_responsibilities
+- The CV ALWAYS shows the candidate's full work history — you never choose which roles appear, only how each role's bullets read
+- For EVERY role in the profile's experience, write a SINGLE list of at most 4 bullet points (keyed by that role's id in adjusted_responsibilities) that combines its most relevant responsibilities and achievements for this job; still write bullets for less-relevant roles, just shorter and less emphasised
+- selected_experience_ids: list the roles most relevant to this job (advisory ordering hint only — it does not drop any role)
 - For non-English CVs, fill in sidebar_translations: every key is one exact string copied from the profile — translate each into {lang_name} as its value, and omit any that should stay as-is. Keep degree titles (e.g. "Doctor of Philosophy (PhD)", "Master's Degree") and skill/tool names (Python, AWS) in English; DO translate skill group headings, language names, education fields of study, distinctions and grant names
 - Mirror the language of the job description, but only honestly
 - Do not invent skills or experience not present in the profile
@@ -330,26 +331,30 @@ def _start_key(entry: dict) -> tuple[int, int]:
     return (0, 0)
 
 
+def ordered_experience(profile: dict) -> list[dict]:
+    """Every career-history entry in the CV's canonical order: active roles first,
+    then past roles by newest start date. The full history is always shown — the
+    single source of order for both the rendered CV and the plan editor."""
+    exp = profile.get("experience", [])
+    active = [e for e in exp if _is_active(e)]
+    past = sorted((e for e in exp if not _is_active(e)), key=_start_key, reverse=True)
+    return active + past
+
+
 def apply_tailoring(profile: dict, plan: TailoringPlan) -> dict:
     """Merge a TailoringPlan into a profile dict, returning a modified copy."""
     p = copy.deepcopy(profile)
     p["summary"] = plan.summary
 
-    exp_by_id = {e["id"]: e for e in p.get("experience", []) if e.get("id")}
-    filtered = []
-    for eid in plan.selected_experience_ids:
-        if eid not in exp_by_id:
-            continue
-        entry = exp_by_id[eid]
-        if eid in plan.adjusted_responsibilities:
+    # The full career history is ALWAYS shown — tailoring only rewrites the bullets
+    # under each role (adjusted_responsibilities), never which roles appear. A role
+    # the AI didn't tailor keeps its own responsibilities.
+    for entry in p.get("experience", []):
+        eid = entry.get("id")
+        if eid and eid in plan.adjusted_responsibilities:
             entry["responsibilities"] = plan.adjusted_responsibilities[eid][:4]
         entry["achievements"] = []  # achievements are folded into the bullet list above
-        filtered.append(entry)
-
-    # Active roles first (in selected order); past roles below, newest start first.
-    active = [e for e in filtered if _is_active(e)]
-    past = sorted((e for e in filtered if not _is_active(e)), key=_start_key, reverse=True)
-    p["experience"] = active + past
+    p["experience"] = ordered_experience(p)
 
     # Drop any optional printable sections the model judged irrelevant.
     _EXCLUDABLE = {
@@ -405,4 +410,7 @@ if __name__ == "__main__":
     plan = TailoringPlan("t", "e", "s", "sum", ["a", "b", "c"], {}, [], "n")
     order = [e["id"] for e in apply_tailoring(prof, plan)["experience"]]
     assert order == ["b", "c", "a"], order  # active first, then newest start
+    # The full history always shows, even when the AI selected nothing.
+    empty = TailoringPlan("t", "e", "s", "sum", [], {}, [], "n")
+    assert [e["id"] for e in apply_tailoring(prof, empty)["experience"]] == ["b", "c", "a"]
     print("ok", order)

@@ -784,7 +784,9 @@ export default function ApplicationsPage() {
           pending={pending ?? undefined}
           onCvGenerated={addCv}
           onLetterGenerated={addLetter}
-          onClose={() => { setShowNew(false); setPending(null) }}
+          // Resync from the server on close so an artifact that finished after a
+          // poll gave up still appears without a manual refresh.
+          onClose={() => { setShowNew(false); setPending(null); load() }}
         />
       )}
 

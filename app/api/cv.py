@@ -18,7 +18,7 @@ from pydantic import BaseModel
 from app import config, db
 from app.services.cv_generator import (
     DEFAULT_CV_PROMPT, TailoringPlan, apply_tailoring, detect_language,
-    fetch_job_description, tailor, _is_active, _start_key,
+    fetch_job_description, tailor, ordered_experience,
 )
 from app.api.i18n import ensure_cv_labels
 from app.i18n.languages import is_valid_code, lang_name
@@ -591,12 +591,9 @@ def get_plan(history_id: str):
 
     plan = TailoringPlan(**plans[lang])
     profile = load_profile()
-    exp_by_id = {e["id"]: e for e in profile.get("experience", [])}
-    selected = [exp_by_id[eid] for eid in plan.selected_experience_ids if eid in exp_by_id]
-    # Same ordering the CV uses: active roles first (selected order), then past
-    # roles by newest start date — so the editor matches the rendered CV.
-    ordered = [e for e in selected if _is_active(e)] + \
-        sorted((e for e in selected if not _is_active(e)), key=_start_key, reverse=True)
+    # Every role is always shown (the CV never drops history) in the CV's own
+    # order — the editor edits the bullets under each, matching apply_tailoring.
+    ordered = ordered_experience(profile)
     roles = [{
         "id": e["id"],
         "title": e.get("title", ""),

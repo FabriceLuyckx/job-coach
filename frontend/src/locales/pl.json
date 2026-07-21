@@ -419,7 +419,7 @@
       "description": "Krótkie wprowadzenie widoczne na górze Twojego CV."
     },
     "experience": {
-      "label": "Doświadczenie",
+      "label": "Ścieżka kariery",
       "description": "Twoje stanowiska i zakres obowiązków."
     },
     "skills": {
@@ -604,7 +604,7 @@
   "cveditor": {
     "sections": {
       "summary": "Podsumowanie",
-      "experience": "Doświadczenie",
+      "experience": "Ścieżka kariery",
       "publications": "Publikacje",
       "links": "Linki",
       "skills": "Umiejętności",

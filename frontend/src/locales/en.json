@@ -466,7 +466,7 @@
       "description": "A short intro shown at the top of your CV."
     },
     "experience": {
-      "label": "Experience",
+      "label": "Career Path",
       "description": "Your roles and what you did in them."
     },
     "skills": {
@@ -657,7 +657,7 @@
     "aiCaveat": "AI wrote this from your profile. Check every line before you send it — it can overstate or invent things.",
     "sections": {
       "summary": "Summary",
-      "experience": "Experience",
+      "experience": "Career Path",
       "publications": "Publications",
       "links": "Links",
       "skills": "Skills",

@@ -422,7 +422,11 @@ export async function pollCVJob<T>(jobId: string, onStage?: (s: CVJobStage) => v
       st = await api.getCVJobStatus<T>(jobId)
       misses = 0
     } catch (e) {
-      if (++misses >= 3) throw e
+      // A busy local engine can briefly starve the /status endpoint mid-
+      // generation; don't abandon a still-running job over a short blip, or its
+      // card vanishes and the finished artifact only appears after a refresh.
+      // ~45s of *consecutive* failures still gives up (server genuinely gone).
+      if (++misses >= 30) throw e
       continue
     }
     if (st.stage) onStage?.(st.stage)
