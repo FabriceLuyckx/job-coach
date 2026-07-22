@@ -63,7 +63,7 @@
 
   /* Radius scale — pill controls, round panels, round frame. */
   --r-btn:        999px;
-  --r-field:      999px;
+  --r-field:      12px;    /* fields are rounded RECTANGLES, not pills — a straight left edge lets a label anchor to the field border; a 999px pill has no straight edge and strands the label. Pills stay on buttons/chips/nav/seg (centred content). See DESIGN.md §5. */
   --r-nav:        999px;
   --r-panel:      22px;
   --r-frame:      30px;
@@ -93,8 +93,7 @@
   --fs-xs:   11px;  /* meta labels, badges */
   --fs-sm:   13px;  /* secondary text, captions, help */
   --fs-base: 14px;  /* body text */
-  --fs-md:   15px;  /* slightly emphasized body */
-  --fs-lg:   17px;  /* card headings */
+  --fs-lg:   18px;  /* section / card / collapsible / question titles */
   --fs-xl:   20px;  /* section labels */
   --fs-2xl:  26px;  /* page titles */
 }
@@ -145,7 +144,9 @@ button:disabled { cursor: not-allowed; }
 
 /* Labeled action buttons — pill, mixed case, weight-based (no uppercase). */
 .btn-primary, .btn-secondary, .btn-danger, .btn-ghost, .btn-saved {
-  font-size: var(--fs-sm);
+  /* Body size, not caption: an action must never be a size-step below the prose
+     beside it, or the eye lands on the paragraph instead of the button. */
+  font-size: var(--fs-base);
   font-weight: 600;
   border-radius: var(--r-btn);
 }
@@ -226,10 +227,10 @@ input[type="number"], input[type="password"], select, textarea {
   font-size: var(--fs-base);
   border: 1px solid var(--line);
   border-radius: var(--r-field);
-  /* Pill fields: the cap radius (~18px) curves the left/right edge inward, so
-     the text must clear it to read centred in the pill, not shoved against the
-     left curve. 20px starts it comfortably past the cap on the flat run. */
-  padding: 8px 20px;
+  /* Normal ~14px inset: the 12px-radius rectangle keeps a straight left edge, so
+     the label above lines up with the field border and this padding is invisible
+     (a 999px pill needed ~20px to clear its cap, which is what stranded labels). */
+  padding: 9px 14px;
   width: 100%;
   background: var(--surface);
   color: var(--ink);
@@ -238,14 +239,14 @@ input[type="number"], input[type="password"], select, textarea {
 /* Multiline fields take the panel radius — a pill on a tall box looks wrong. */
 textarea { border-radius: var(--r-panel); }
 
-/* Native <select>: the UA arrow renders hard against the pill's rounded cap.
-   Swap it for a chevron inset from the cap, with room to its right. */
+/* Native <select>: swap the UA arrow for a chevron inset from the right edge,
+   with room to its right. */
 select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231E332D' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 18px center;
-  padding-right: 42px;
+  background-position: right 14px center;
+  padding-right: 38px;
 }
 
 /* Native colour input paints a swatch inside a UA wrapper that has its own
@@ -629,11 +630,14 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   background: var(--ink);
   color: var(--paper);
   font-size: var(--fs-sm);
-  padding: 3px 9px;
+  /* Right padding is tight and the remove button reaches into it (negative
+     margin below): the 24px button is mostly invisible slack around a small ×,
+     so symmetric text padding left the × floating with a wide void after it. */
+  padding: 3px 4px 3px 10px;
   border-radius: var(--chip-radius);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0;
   /* A tag holds whatever was pasted into it; without these one long entry
      stretches the row past the card edge. */
   max-width: 100%;
@@ -649,6 +653,9 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   height: 24px;
   flex-shrink: 0;
   margin-left: 2px;
+  /* Pull the button into the pill's right padding so its centered × sits ~10px
+     from the edge, matching the left text padding. */
+  margin-right: -2px;
   display: inline-flex;
   align-items: center;
   justify-content: center;

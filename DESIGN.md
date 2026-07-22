@@ -37,7 +37,7 @@ typography:
     letterSpacing: "0"
 rounded:
   btn: "999px"
-  field: "999px"
+  field: "12px"
   nav: "999px"
   panel: "22px"
   frame: "30px"
@@ -225,11 +225,13 @@ face was trialled and rejected as cliché.
 
 ### Hierarchy
 - **Page title** (700, 26px `--fs-2xl`, mixed case): page titles.
-- **Section title** (700, 17–20px, mixed case): section headers, modal titles,
-  collapsible titles.
-- **Emphasized body** (600, 15px): question titles, card sub-headings.
-- **Body** (400, 14px `--fs-base`, 1.55): all prose and form values. Cap long-form prose
-  at 65–75ch.
+- **Section title** (700, 18px `--fs-lg`, mixed case): section headers, question titles,
+  modal + collapsible titles.
+- **Emphasized body** (600, 14px): option titles, card sub-headings — body weight-bumped,
+  not a separate size step (the old 15px `--fs-md` rung was retired 2026-07-22; it had no
+  real home, leaving the working scale honest at 11/13/14/18/20/26).
+- **Body** (400, 14px `--fs-base`, 1.55): all prose and form values — and **button labels**
+  (an action is never a size-step below the prose beside it). Cap long-form prose at 65–75ch.
 - **Data line** (`--data-font`, 13px): dates, counts, a listing's meta line, the match
   word. Monospace + a middot separator reads as a discrete field list.
 
@@ -294,9 +296,17 @@ of them. A hard offset shadow on a resting card is the banned pattern.
   restate a row's own fields.
 
 ### Inputs / Fields
-- Pill (`--r-field`) single-line, `--r-panel` for `textarea`; `--surface` fill, `--line`
-  border. Focus keeps a `:focus-visible` accent ring for a11y (never a colour-only border
-  change).
+- **Fields are rounded rectangles, not pills.** Single-line inputs and selects take
+  `--r-field` (`12px`); `textarea` takes `--r-panel`. This is deliberate and is the one
+  place the pill motif stops: a text field holds *left-aligned* text that must line up
+  with its label, and a `999px` pill has no straight left edge to anchor that label to —
+  the label strands ~20px left of the placeholder (the "text outside the frame looks
+  offset" failure). A 12px radius keeps a straight left edge, so the label aligns to the
+  field border and the field's normal ~14px text inset reads flush. Pills stay on
+  controls whose content is *centred and self-contained* — buttons, chips/tags, nav,
+  the segmented control — where nothing outside has to align to the inset.
+- `--surface` fill, `--line` border. Focus keeps a `:focus-visible` accent ring for a11y
+  (never a colour-only border change).
 
 ### Callout / Empty state
 - `--r-panel`, a tonal accent tint (`color-mix(--accent 10%, --board)`) or a plain tonal

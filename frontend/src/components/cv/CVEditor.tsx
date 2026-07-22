@@ -282,7 +282,7 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
       {/* Job info strip */}
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-4)', flexWrap: 'wrap', marginBottom: 'var(--space-4)' }}>
         <span style={{ fontWeight: 700, fontSize: 'var(--fs-lg)' }}>{result.job_title}</span>
-        <span style={{ color: 'var(--muted)', fontSize: 'var(--fs-md)' }}>{result.employer}</span>
+        <span style={{ color: 'var(--muted)', fontSize: 'var(--fs-base)' }}>{result.employer}</span>
         {/* Only web URLs are worth linking — the generic application's sentinel
             job_url (generic:profile) would render as a dead link. */}
         {result.job_url.startsWith('http') && (
@@ -328,7 +328,7 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
             position: 'absolute', inset: 0, zIndex: 9,
             background: 'color-mix(in srgb, var(--surface) 80%, transparent)',
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-3)',
-            fontSize: 'var(--fs-md)', fontWeight: 500, textAlign: 'center', padding: 'var(--space-4)',
+            fontSize: 'var(--fs-base)', fontWeight: 500, textAlign: 'center', padding: 'var(--space-4)',
           }}>
             <span className="spinner" />
             {t('cveditor.regeneratingCv')}
