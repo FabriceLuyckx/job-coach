@@ -262,7 +262,8 @@
       "funderOptional": "Financier (optioneel)",
       "amountOptional": "Bedrag (optioneel)",
       "linkLabel": "Koppel {{n}} naam",
-      "linkUrl": "Koppel {{n}} adres"
+      "linkUrl": "Koppel {{n}} adres",
+      "monthPlaceholder": "JJJJ-MM"
     },
     "help": {
       "personal": "Je naam, contactgegevens en links — weergegeven bovenaan elk cv.",

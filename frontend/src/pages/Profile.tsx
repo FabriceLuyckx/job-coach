@@ -103,9 +103,9 @@ function ExperienceCard({
       </div>
       <Field label={t('profile.fields.location')}><input type="text" value={exp.location} onChange={e => set('location', e.target.value)} /></Field>
       <div className="row">
-        <Field label={t('profile.fields.startDate')}><input type="month" value={exp.start_date} onChange={e => set('start_date', e.target.value)} /></Field>
+        <Field label={t('profile.fields.startDate')}><input type="month" placeholder={t('profile.fields.monthPlaceholder')} value={exp.start_date} onChange={e => set('start_date', e.target.value)} /></Field>
         <Field label={t('profile.fields.endDate')}>
-          <input type="month" value={exp.end_date ?? ''} disabled={current}
+          <input type="month" placeholder={t('profile.fields.monthPlaceholder')} value={exp.end_date ?? ''} disabled={current}
             onChange={e => set('end_date', e.target.value || null)} />
         </Field>
       </div>
@@ -223,8 +223,8 @@ function VolunteeringCard({ vol, onChange, onRemove, handle }: { vol: Volunteeri
         <Field label={t('profile.fields.organisation')}><input type="text" value={vol.organisation} onChange={e => set('organisation', e.target.value)} /></Field>
       </div>
       <div className="row">
-        <Field label={t('profile.fields.startDate')}><input type="month" value={vol.start_date} onChange={e => set('start_date', e.target.value)} /></Field>
-        <Field label={t('profile.fields.endDate')}><input type="month" value={vol.end_date ?? ''} disabled={current} onChange={e => set('end_date', e.target.value || null)} /></Field>
+        <Field label={t('profile.fields.startDate')}><input type="month" placeholder={t('profile.fields.monthPlaceholder')} value={vol.start_date} onChange={e => set('start_date', e.target.value)} /></Field>
+        <Field label={t('profile.fields.endDate')}><input type="month" placeholder={t('profile.fields.monthPlaceholder')} value={vol.end_date ?? ''} disabled={current} onChange={e => set('end_date', e.target.value || null)} /></Field>
       </div>
       <label className="checkbox-row">
         <input type="checkbox" checked={current} onChange={e => set('end_date', e.target.checked ? null : '')} />

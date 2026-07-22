@@ -222,6 +222,10 @@ a.btn-primary:hover { text-decoration: none; }
 /* ── Forms ──────────────────────────────────────────────────────────────── */
 input:not([type]), input[type="search"],
 input[type="text"], input[type="email"], input[type="tel"], input[type="url"],
+/* Firefox has no month/date widget for type="month" — it renders a plain text
+   box. List it here so that fallback matches the other fields (Chromium's native
+   month widget takes its own appearance and ignores most of this). */
+input[type="month"],
 input[type="number"], input[type="password"], select, textarea {
   font-family: inherit;
   font-size: var(--fs-base);
@@ -251,9 +255,14 @@ select {
 
 /* Native colour input paints a swatch inside a UA wrapper that has its own
    padding + border — a second frame inside ours. Strip both so the colour fills
-   our rounded box. */
+   our rounded box. appearance:none kills the UA's inset bevel on the control
+   itself (read as a stray shadow around the swatch). */
+input[type="color"] { appearance: none; box-shadow: none; padding: 0; }
 input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
 input[type="color"]::-webkit-color-swatch { border: none; border-radius: var(--radius-xs); }
+/* Firefox draws the swatch via its own pseudo with a default grey border (reads
+   as a stray inset frame) — the -webkit rules above don't touch it. */
+input[type="color"]::-moz-color-swatch { border: none; border-radius: var(--radius-xs); }
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--accent);

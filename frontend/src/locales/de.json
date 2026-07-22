@@ -262,7 +262,8 @@
       "funderOptional": "Finanzierer (optional)",
       "amountOptional": "Betrag (optional)",
       "linkLabel": "Link {{n}} Name",
-      "linkUrl": "Link {{n}} Adresse"
+      "linkUrl": "Link {{n}} Adresse",
+      "monthPlaceholder": "JJJJ-MM"
     },
     "help": {
       "personal": "Ihr Name, Kontaktdaten und Links – erscheinen oben auf jedem Lebenslauf.",

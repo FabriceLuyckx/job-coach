@@ -262,7 +262,8 @@
       "funderOptional": "Financiador (opcional)",
       "amountOptional": "Importe (opcional)",
       "linkLabel": "Enlazar el nombre {{n}}",
-      "linkUrl": "Enlazar la dirección {{n}}"
+      "linkUrl": "Enlazar la dirección {{n}}",
+      "monthPlaceholder": "YYYY-MM"
     },
     "help": {
       "personal": "Tu nombre, datos de contacto y enlaces — se muestran en la parte superior de cada CV.",

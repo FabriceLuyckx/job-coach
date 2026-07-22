@@ -262,7 +262,8 @@
       "funderOptional": "Financiador (opcional)",
       "amountOptional": "Valor (opcional)",
       "linkLabel": "Link {{n}} nome",
-      "linkUrl": "Link {{n}} endereço"
+      "linkUrl": "Link {{n}} endereço",
+      "monthPlaceholder": "YYYY-MM"
     },
     "help": {
       "personal": "O seu nome, contactos e links — exibidos no topo de cada CV.",

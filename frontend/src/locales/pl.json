@@ -262,7 +262,8 @@
       "funderOptional": "Fundator (opcjonalnie)",
       "amountOptional": "Wartość (opcjonalnie)",
       "linkLabel": "Link {{n}} nazwy",
-      "linkUrl": "Link {{n}} adresu"
+      "linkUrl": "Link {{n}} adresu",
+      "monthPlaceholder": "RRRR-MM"
     },
     "help": {
       "personal": "Twoje imię i nazwisko, dane kontaktowe i linki — widoczne na górze każdego CV.",
