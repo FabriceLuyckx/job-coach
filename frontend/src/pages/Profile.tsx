@@ -18,7 +18,6 @@ import Button from '../components/Button'
 import RemoveButton from '../components/RemoveButton'
 import SaveStatus from '../components/SaveStatus'
 import StarRating from '../components/StarRating'
-import Badge from '../components/Badge'
 import Collapsible from '../components/Collapsible'
 import ReorderableList from '../components/ReorderableList'
 import Modal from '../components/Modal'
@@ -116,19 +115,6 @@ function ExperienceCard({
       <Field label={t('profile.fields.whatYouDid')}>
         <BulletListEditor value={exp.responsibilities} onChange={v => set('responsibilities', v)} placeholder={t('profile.fields.responsibilityPlaceholder')} reorder format />
       </Field>
-      <Field label={t('profile.fields.roleSkillsTools')}><TagInput value={exp.technologies} onChange={v => set('technologies', v)} /></Field>
-      <div style={{ marginTop: 'var(--space-3)' }}>
-        <Collapsible flat title={
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontWeight: 600, fontSize: 'var(--fs-sm)' }}>
-            {t('profile.notesForAi')}<Badge variant="ai">{t('badges.ai')}</Badge>
-          </span>
-        }>
-          <p className="section-help" style={{ margin: '0 0 var(--space-2)' }}>{t('profile.notesForAiHelp')}</p>
-          <textarea value={exp.ai_notes} onChange={e => set('ai_notes', e.target.value)}
-            aria-label={t('profile.notesForAi')}
-            placeholder={t('profile.aiNotesPlaceholder')} />
-        </Collapsible>
-      </div>
     </ItemCard>
   )
 }
