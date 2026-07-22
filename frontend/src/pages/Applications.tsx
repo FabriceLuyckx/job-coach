@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Trans, useTranslation } from 'react-i18next'
-import { Check, ExternalLink, FileText, Minus, Plus, Sparkles, X } from 'lucide-react'
+import { Check, FileText, Minus, Plus, Sparkles, X } from 'lucide-react'
 import { api, pollCVJob, PollAbortedError, type CvHistoryEntry, type CVResult, type CVMutation } from '../api'
 import type { LetterHistoryEntry, Profile } from '../types'
 import Button from '../components/Button'
@@ -503,11 +503,6 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
           extras={
             <>
               <span className="muted-sm" style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{formatDate(app.createdAt)}</span>
-              {app.jobUrl && !app.generic && (
-                <a href={app.jobUrl} target="_blank" rel="noreferrer" style={{ fontSize: 'var(--fs-sm)', whiteSpace: 'nowrap' }}>
-                  {t('cv.listing')} <ExternalLink size={11} aria-hidden />
-                </a>
-              )}
               <Button variant="ghost" icon className="btn-icon-danger" aria-label={t('applications.deleteApp', { title })} title={t('common.delete')}
                 onClick={() => onDeleteApp(app)}><X size={16} aria-hidden /></Button>
             </>

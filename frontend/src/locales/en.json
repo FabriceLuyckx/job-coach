@@ -567,7 +567,6 @@
       "thinking": "Tailoring with AI…",
       "rendering": "Building your CV…"
     },
-    "listing": "Listing",
     "searchPlaceholder": "Search your CVs…",
     "noMatches": "No CVs match your search.",
     "deleteCv": "Delete CV for {{title}}",
