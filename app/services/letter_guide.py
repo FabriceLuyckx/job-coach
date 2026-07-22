@@ -23,7 +23,11 @@ class LetterGuide:
     job_title: str
     employer: str
     structure: list[dict]          # 3–5 items: {title, goal, evidence: [str]}
-    tips: list[str] = field(default_factory=list)  # short practical reminders (recipient, quantify, length, tone)
+    # ponytail: tips were generic per-letter boilerplate (address a real person,
+    # quantify, ~word count, tone) — the same reminders under every letter. They
+    # now live once as a static block in the letter explainer, not generated here.
+    # Field kept + defaulted so old stored rows still reshape.
+    tips: list[str] = field(default_factory=list)
 
 
 _TOOL = {
@@ -33,7 +37,7 @@ _TOOL = {
         "description": "A tailored cover-letter WRITING SKELETON (sections + real facts to cite, never finished prose).",
         "parameters": {
             "type": "object",
-            "required": ["job_title", "employer", "structure", "tips"],
+            "required": ["job_title", "employer", "structure"],
             "properties": {
                 "job_title": {"type": "string", "description": "Job title as listed in the posting"},
                 "employer": {"type": "string", "description": "Employer or institution name"},
@@ -41,7 +45,7 @@ _TOOL = {
                     "type": "array",
                     "minItems": 3,
                     "maxItems": 5,
-                    "description": "3–5 sections you name for this posting — each a paragraph of the letter itself (never a tips/advice section; that goes in `tips`). Each an object with a title, a goal, and the real profile facts to cite.",
+                    "description": "3–5 sections you name for this posting — each a paragraph of the letter itself (never a generic tips/advice/checklist section). Each an object with a title, a goal, and the real profile facts to cite.",
                     "items": {
                         "type": "object",
                         "required": ["title", "goal", "evidence"],
@@ -56,13 +60,6 @@ _TOOL = {
                         },
                     },
                 },
-                "tips": {
-                    "type": "array",
-                    "minItems": 3,
-                    "maxItems": 5,
-                    "items": {"type": "string"},
-                    "description": "3–5 short practical reminders: who to address, quantifying impact, length target, tone/language.",
-                },
             },
         },
     },
@@ -75,9 +72,8 @@ DEFAULT_LETTER_PROMPT = """You are a cover-letter writing coach. You NEVER write
 Rules:
 - Write ALL output in {lang_name}.
 - NEVER write letter sentences or paragraphs to paste. Every goal is an instruction to the writer, e.g. "Open by naming what draws you to them — cite a specific product or mission" — not "I have long admired your mission."
-- structure: 3–5 sections you name and order for THIS posting (e.g. a hook, why-you, why-them, close). Every section is a paragraph OF THE LETTER — never a "tips"/"advice"/"checklist" section; that belongs only in tips. Give each a clear goal and the specific real profile facts (a role, project, or skill) to cite there. No generic advice like "show enthusiasm", and never invent experience the candidate doesn't have.
-- Use the profile's preferences (looking_for, notes) to ground the motivation section in what the candidate actually wants from a role.
-- tips: 3–5 short practical reminders for writing it — address a real person (find the hiring manager; else "Dear Hiring Team"), quantify impact ("so what?" — the concrete result), keep it to ~250–350 words on one page, and match the employer's tone while writing in {lang_name}."""
+- structure: 3–5 sections you name and order for THIS posting (e.g. a hook, why-you, why-them, close). Every section is a paragraph OF THE LETTER — never a generic "tips"/"advice"/"checklist" section. Give each a clear goal and the specific real profile facts (a role, project, or skill) to cite there. No generic advice like "show enthusiasm", and never invent experience the candidate doesn't have.
+- Use the profile's preferences (looking_for, notes) to ground the motivation section in what the candidate actually wants from a role."""
 
 
 def _reshape(d: dict) -> LetterGuide:
@@ -130,7 +126,7 @@ def build_guide(
         max_tokens=4096,
     )
 
-    d = tool_args(response, required=("job_title", "employer", "structure", "tips"))
+    d = tool_args(response, required=("job_title", "employer", "structure"))
     return _reshape(d)
 
 

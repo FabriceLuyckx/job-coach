@@ -141,7 +141,7 @@
       "filterTitle": "Sugestões de Emprego — prompt de filtro de relevância",
       "filterHelp": "Avalia cada novo anúncio lendo a publicação completa: decide se é adequado para si e extrai um resumo curto (empregador, localização, salário, prazo, requisitos). As partes relevantes do seu perfil são adicionadas automaticamente abaixo.",
       "letterTitle": "Carta de apresentação — prompt de guia",
-      "letterHelp": "Enviado quando se cria um guia para carta de apresentação. O seu perfil e a oferta de emprego são adicionados automaticamente abaixo. Isto gera um esqueleto de escrita (3–5 secções com os factos do perfil a citar, mais dicas de escrita) — nunca um texto final da carta. <code>{lang_name}</code> é substituído pelo idioma de saída — deve permanecer no prompt."
+      "letterHelp": "Enviado quando se cria um guia para carta de apresentação. Seu perfil e o anúncio de emprego são adicionados automaticamente abaixo. Isso gera um esqueleto de escrita (3–5 seções com os fatos do perfil para citar) — a carta nunca é finalizada. <code>{lang_name}</code> é substituído pela linguagem de saída — deve permanecer no prompt."
     },
     "template": {
       "label": "Modelo de CV",
@@ -199,9 +199,6 @@
     "enableImportSuffix": "para ativar a importação de CV.",
     "addSection": "+ Adicionar secção",
     "hasContent": "tem conteúdo",
-    "notesForAi": "Notas para a IA (opcional)",
-    "notesForAiHelp": "Não é impresso — ajuda a IA a decidir quando destacar esta função e como formulá-la.",
-    "aiNotesPlaceholder": "ex.: Melhor para funções de liderança ou com muitos dados; reportava ao CTO; tempo parcial",
     "currentlyWorkHere": "Trabalho aqui atualmente",
     "currentlyVolunteering": "Faço voluntariado aqui atualmente",
     "untitled": "(sem título)",
@@ -253,7 +250,6 @@
       "subheading": "Subtítulo (opcional)",
       "dateOptional": "Data (opcional)",
       "responsibilityPlaceholder": "Comece com um verbo; inclua resultados mensuráveis quando possível",
-      "roleSkillsTools": "Competências e ferramentas utilizadas nesta função",
       "summaryPlaceholder": "2–4 frases: quem é profissionalmente, as suas principais especialidades e o que procura",
       "projectDescriptionPlaceholder": "O que foi, para quem foi e qual foi o resultado?",
       "educationDescriptionOptional": "Observações (opcional)",
@@ -796,7 +792,13 @@
     "deletedToast": "Guia excluído para \"{{title}}\"",
     "explainer": {
       "headline": "Esta ferramenta não escreve a sua carta — esse é o objetivo.",
-      "body": "Uma carta de apresentação só funciona se for escrita nas suas próprias palavras; os recrutadores descartam cada vez mais cartas escritas por IA. Em vez disso, recebe um plano personalizado: o que dizer, em que ordem e quais partes do seu perfil usar como evidência. A escrita continua a ser sua."
+      "body": "Uma carta de apresentação só funciona se for escrita nas suas próprias palavras; os recrutadores descartam cada vez mais cartas escritas por IA. Em vez disso, recebe um plano personalizado: o que dizer, em que ordem e quais partes do seu perfil usar como evidência. A escrita continua a ser sua.",
+      "tips": [
+        "Enderece uma pessoa real — encontre o nome do gestor de recrutamento; caso contrário, use \"Dear Hiring Team\".",
+        "Quantifique o impacto: nomeie o resultado concreto, não apenas a tarefa.",
+        "Mantenha entre ~250–350 palavras em uma única página.",
+        "Adapte o tom da empresa e escreva na língua do anúncio."
+      ]
     },
     "guide": {
       "headingFor": "Guia de carta para",

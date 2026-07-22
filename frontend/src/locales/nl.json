@@ -141,7 +141,7 @@
       "filterTitle": "Vacaturesuggesties — relevantiefilterprompt",
       "filterHelp": "Beoordeelt elke nieuwe functie door de volledige aanbieding te lezen: bepaalt of het past bij u en haalt een korte samenvatting (bedrijf, locatie, salaris, deadline, eisen) op. De relevante delen van uw profiel worden automatisch hieronder toegevoegd.",
       "letterTitle": "Brief — gidsprompt",
-      "letterHelp": "Verstuurd bij het maken van een handleiding voor een sollicitatiebrief. Je profiel en de functieaanbod worden automatisch toegevoegd hieronder. Dit produceert een schrijfskelet (3–5 secties met de profielgegevens om te citeren, plus schrijfadviezen) — de brief wordt nooit volledig geschreven. <code>{lang_name}</code> wordt vervangen door de uitvoer taal — het moet in de prompt blijven."
+      "letterHelp": "Verzonden bij het maken van een handleiding voor een sollicitatiebrief. Je profiel en de functieaanbieding worden automatisch toegevoegd hieronder. Dit produceert een schrijfskelet (3–5 secties met feiten uit je profiel om te citeren) — de brief wordt nooit volledig geschreven. <code>{lang_name}</code> wordt vervangen door de uitvoerende taal — het moet in de prompt blijven."
     },
     "template": {
       "label": "CV sjabloon",
@@ -199,9 +199,6 @@
     "enableImportSuffix": "om cv-import in te schakelen.",
     "addSection": "+ Sectie toevoegen",
     "hasContent": "heeft inhoud",
-    "notesForAi": "Notities voor de AI (optioneel)",
-    "notesForAiHelp": "Niet afgedrukt — helpt de AI te bepalen wanneer deze rol wordt uitgelicht en hoe deze wordt verwoord.",
-    "aiNotesPlaceholder": "bijv. Beste voor leiderschaps- of data-intensieve functies; rapporteerde aan de CTO; deeltijd",
     "currentlyWorkHere": "Ik werk hier momenteel",
     "currentlyVolunteering": "Doe hier momenteel vrijwilligerswerk",
     "untitled": "(zonder titel)",
@@ -253,7 +250,6 @@
       "subheading": "Subtitel (optioneel)",
       "dateOptional": "Datum (optioneel)",
       "responsibilityPlaceholder": "Begin met een werkwoord; voeg meetbare resultaten toe waar mogelijk",
-      "roleSkillsTools": "Vaardigheden & hulpmiddelen gebruikt in deze functie",
       "summaryPlaceholder": "2–4 zinnen: wie je professioneel bent, je sterkste expertise en wat je zoekt",
       "projectDescriptionPlaceholder": "Wat was het, voor wie was het, en wat was het resultaat?",
       "educationDescriptionOptional": "Notities (optioneel)",
@@ -796,7 +792,13 @@
     "deletedToast": "Gids verwijderd voor ‘{{title}}’",
     "explainer": {
       "headline": "Dit hulpprogramma schrijft niet jouw brief — dat is het doel.",
-      "body": "Een brief werkt alleen als hij in je eigen woorden is geschreven; recruiters wijzen AI-geschreven brieven steeds vaker af. In plaats daarvan krijg je een aangepast plan: wat te zeggen, in welke volgorde, en welke delen van je profiel je als bewijs kunt gebruiken. Het schrijven blijft van jou."
+      "body": "Een brief werkt alleen als hij in je eigen woorden is geschreven; recruiters wijzen AI-geschreven brieven steeds vaker af. In plaats daarvan krijg je een aangepast plan: wat te zeggen, in welke volgorde, en welke delen van je profiel je als bewijs kunt gebruiken. Het schrijven blijft van jou.",
+      "tips": [
+        "Adres een echte persoon — zoek de naam van de huidige functiehouder; anders \"Beste Recruiteringsteam\".",
+        "Quantificeer de impact: noem het concreet resultaat, niet alleen de taak.",
+        "Houd het op ~250–350 woorden op één pagina.",
+        "Pas het toonpatroon van de werkgever aan en schrijf in de taal van de aanbieding."
+      ]
     },
     "guide": {
       "headingFor": "Briefgids voor",

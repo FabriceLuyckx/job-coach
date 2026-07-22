@@ -519,7 +519,7 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
                 <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 0, fontSize: 'var(--fs-sm)', color: 'var(--muted)' }}>
                   {t('cv.language')}
                   <LangSelect value={lang} extra={cv?.lang ?? letter?.lang} disabled={relanging}
-                    onChange={requestLangChange} style={{ padding: '3px 6px', fontSize: 'var(--fs-sm)', width: 'auto' }} />
+                    onChange={requestLangChange} style={{ padding: '3px 30px 3px 10px', backgroundPosition: 'right 10px center', fontSize: 'var(--fs-sm)', width: 'auto' }} />
                 </label>
                 {relanging && (
                   <>
@@ -548,7 +548,14 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
             {tab === 'letter' && (
               <div style={{ paddingBottom: 16 }}>
                 <div className="callout callout-highlight" style={{ marginBottom: 'var(--space-4)' }}>
-                  <div><strong>{t('letters.explainer.headline')}</strong></div>
+                  <div>
+                    <div><strong>{t('letters.explainer.headline')}</strong></div>
+                    <p className="muted-sm" style={{ margin: '4px 0 0' }}>{t('letters.explainer.body')}</p>
+                    <div className="editor-cluster-label" style={{ margin: '12px 0 4px' }}>{t('letters.guide.tips')}</div>
+                    <ul className="muted-sm" style={{ margin: 0, paddingLeft: '1.2em' }}>
+                      {(t('letters.explainer.tips', { returnObjects: true }) as string[]).map((tip, i) => <li key={i}>{tip}</li>)}
+                    </ul>
+                  </div>
                 </div>
                 {letter ? (
                   <>

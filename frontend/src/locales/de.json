@@ -141,7 +141,7 @@
       "filterTitle": "Jobvorschläge – Relevanzfilter-Prompt",
       "filterHelp": "Beurteilt jedes neue Stellenausschreibung, indem es den vollständigen Text liest: entscheidet, ob es zu Ihnen passt und extrahiert eine kurze Zusammenfassung (Unternehmen, Ort, Lohn, Frist, Anforderungen). Die relevanten Teile Ihres Profils werden automatisch unterhalb angezeigt.",
       "letterTitle": "Brief — Anleitungsprompt",
-      "letterHelp": "Gesendet, wenn ein Leitfaden für eine Einstellungsanschreiben erstellt wird. Ihr Profil und die Stellenausschreibung werden automatisch unten hinzugefügt. Dadurch entsteht ein Schablonenrahmen (3–5 Abschnitte mit den Profile-Fakten, die zitiert werden sollen, sowie Schreibtipps) — kein vollständiges Brieftext. <code>{lang_name}</code> wird durch die Ausgabesprache ersetzt — es muss im Prompt erhalten bleiben."
+      "letterHelp": "Wird beim Erstellen eines Leitfadens für eine Bewerbungsemail gesendet. Ihr Profil und die Stellenausschreibung werden automatisch unterhalb dieses Textes hinzugefügt. Dadurch entsteht ein Schablonenrahmen (3–5 Abschnitte mit den Profile-Fakten, die zitiert werden) — kein vollständiger Brieftext. <code>{lang_name}</code> wird durch die Ausgabesprache ersetzt — es muss im Prompt erhalten bleiben."
     },
     "template": {
       "label": "Lebenslaufvorlage",
@@ -199,9 +199,6 @@
     "enableImportSuffix": "um den Lebenslauf-Import zu aktivieren.",
     "addSection": "+ Abschnitt hinzufügen",
     "hasContent": "hat Inhalt",
-    "notesForAi": "Hinweise für die KI (optional)",
-    "notesForAiHelp": "Wird nicht gedruckt – hilft der KI zu entscheiden, wann diese Stelle hervorgehoben und wie sie formuliert werden soll.",
-    "aiNotesPlaceholder": "z. B. Ideal für Führungs- oder datenintensive Stellen; berichtete an den CTO; Teilzeit",
     "currentlyWorkHere": "Ich arbeite derzeit hier",
     "currentlyVolunteering": "Derzeit hier ehrenamtlich tätig",
     "untitled": "(ohne Titel)",
@@ -253,7 +250,6 @@
       "subheading": "Untertitel (optional)",
       "dateOptional": "Datum (optional)",
       "responsibilityPlaceholder": "Beginnen Sie mit einem Verb; beinhalten Sie messbare Ergebnisse, wenn möglich",
-      "roleSkillsTools": "Fertigkeiten & Werkzeuge, die in dieser Rolle verwendet wurden",
       "summaryPlaceholder": "2–4 Sätze: wer Sie beruflich sind, Ihre stärksten Expertisen und was Sie erreichen möchten",
       "projectDescriptionPlaceholder": "Was war es, für wen war es gedacht und wie war das Ergebnis?",
       "educationDescriptionOptional": "Anmerkungen (optional)",
@@ -796,7 +792,13 @@
     "deletedToast": "Anleitung für „{{title}}“ gelöscht",
     "explainer": {
       "headline": "Dieses Tool schreibt Ihren Brief nicht — das ist der Punkt.",
-      "body": "Ein Brief funktioniert nur, wenn er in Ihren eigenen Worten geschrieben ist; von der KI verfasste Briefe werden von Recruitern zunehmend aussortiert."
+      "body": "Ein Brief funktioniert nur, wenn er in Ihren eigenen Worten geschrieben ist; von der KI verfasste Briefe werden von Recruitern zunehmend aussortiert.",
+      "tips": [
+        "Adresse einen echten Person — finde den Namen des Personalmanagers; andernfalls: „Sehr geehrte Rekrutierungs-Team“.",
+        "Messen Sie den Einfluss: nennen Sie das konkrete Ergebnis, nicht nur die Aufgabe.",
+        "Halten Sie es auf ca. 250–350 Wörter auf einer Seite.",
+        "Passen Sie dem Ton des Unternehmens an und schreiben Sie in der Sprache der Stellenausschreibung."
+      ]
     },
     "guide": {
       "headingFor": "Briefanleitung für",

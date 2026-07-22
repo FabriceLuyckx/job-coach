@@ -70,11 +70,16 @@ _TOOL = {
 
 
 def flatten(obj: dict, prefix: str = "") -> dict[str, str]:
+    """Leaves are strings, or string-array items (exploded to `key.0`, `key.1`, …
+    and reassembled into a list by unflatten)."""
     out: dict[str, str] = {}
     for k, v in obj.items():
         key = f"{prefix}.{k}" if prefix else k
         if isinstance(v, dict):
             out.update(flatten(v, key))
+        elif isinstance(v, list):
+            for i, item in enumerate(v):
+                out[f"{key}.{i}"] = item
         else:
             out[key] = v
     return out
@@ -88,7 +93,19 @@ def unflatten(flat: dict[str, str]) -> dict:
         for p in parts[:-1]:
             node = node.setdefault(p, {})
         node[parts[-1]] = val
-    return root
+    return _delistify(root)
+
+
+def _delistify(node):
+    """A dict whose keys are exactly "0".."n-1" is a flattened list — restore it."""
+    if not isinstance(node, dict):
+        return node
+    for k in node:
+        node[k] = _delistify(node[k])
+    keys = list(node.keys())
+    if keys and all(k.isdigit() for k in keys) and set(keys) == {str(i) for i in range(len(keys))}:
+        return [node[str(i)] for i in range(len(keys))]
+    return node
 
 
 def _translate_batch(pairs: list[tuple[str, str]], lang_name: str, cfg: dict) -> dict[str, str]:

@@ -141,7 +141,7 @@
       "filterTitle": "Suggestions d'offres — prompt de filtre de pertinence",
       "filterHelp": "Évalue chaque nouveau poste en le lisant en entier : décide s'il correspond à vous et extrait une synthèse courte (employeur, localisation, salaire, délai, exigences). Les parties pertinentes de votre profil sont ajoutées automatiquement ci-dessous.",
       "letterTitle": "Lettre de motivation — prompt de guide",
-      "letterHelp": "Envoyé lors de la création d'un guide de lettre de motivation. Profil et offre d'emploi sont ajoutés automatiquement ci-dessous. Cela produit un squelette de rédaction (3 à 5 sections avec les faits du profil à citer, ainsi que des conseils de rédaction) — la lettre n'est jamais complètement écrite. <code>{lang_name}</code> est remplacé par la langue de sortie — il doit rester dans le prompt."
+      "letterHelp": "Envoyé lors de la création d'un guide de lettre de motivation. Votre profil et l'offre d'emploi sont ajoutés automatiquement ci-dessous. Cela produit un squelette de rédaction (3 à 5 sections avec des faits de profil à citer) — jamais un texte complet de lettre. <code>{lang_name}</code> est remplacé par la langue de sortie — il doit rester dans le prompt."
     },
     "template": {
       "label": "Modèle de CV",
@@ -199,9 +199,6 @@
     "enableImportSuffix": "pour activer l'import de CV.",
     "addSection": "+ Ajouter une section",
     "hasContent": "a du contenu",
-    "notesForAi": "Notes pour l'IA (facultatif)",
-    "notesForAiHelp": "Non imprimé — aide l'IA à décider quand mettre en avant ce poste et comment le formuler.",
-    "aiNotesPlaceholder": "ex. Idéal pour les rôles de leadership ou axés sur les données ; rattaché au CTO ; temps partiel",
     "currentlyWorkHere": "Je travaille actuellement ici",
     "currentlyVolunteering": "Bénévole ici actuellement",
     "untitled": "(sans titre)",
@@ -253,7 +250,6 @@
       "subheading": "Sous-titre (facultatif)",
       "dateOptional": "Date (facultatif)",
       "responsibilityPlaceholder": "Commencez par un verbe ; incluez des résultats mesurables lorsque possible",
-      "roleSkillsTools": "Compétences et outils utilisés dans ce poste",
       "summaryPlaceholder": "2 à 4 phrases : qui vous êtes professionnellement, vos compétences les plus fortes et ce que vous cherchez",
       "projectDescriptionPlaceholder": "Qu'est-ce que c'était, pour qui était-il, et quel était le résultat ?",
       "educationDescriptionOptional": "Remarques (optionnelles)",
@@ -796,7 +792,13 @@
     "deletedToast": "Le guide pour « {{title}} » a été supprimé",
     "explainer": {
       "headline": "Cet outil ne rédige pas votre lettre — et c'est voulu.",
-      "body": "Une lettre de motivation ne fonctionne que si elle est écrite par vous-même ; les recruteurs rejettent de plus en plus les lettres générées par l'IA. Vous obtenez au contraire un plan adapté : ce qu'il faut dire, dans quel ordre, et quelles parties de votre profil utiliser comme preuves. L'écriture reste à vous."
+      "body": "Une lettre de motivation ne fonctionne que si elle est écrite par vous-même ; les recruteurs rejettent de plus en plus les lettres générées par l'IA. Vous obtenez au contraire un plan adapté : ce qu'il faut dire, dans quel ordre, et quelles parties de votre profil utiliser comme preuves. L'écriture reste à vous.",
+      "tips": [
+        "Adressez une personne réelle — trouvez le nom du responsable recrutement ; sinon, utilisez « Cher équipe recruteurs ». ",
+        "Quantifiez l'impact : nommez le résultat concret, et non seulement la tâche.",
+        "Restez à environ 250 à 350 mots sur une seule page.",
+        "Adaptez le ton de l'entreprise et rédigez dans le langage de l'offre."
+      ]
     },
     "guide": {
       "headingFor": "Guide de lettre pour",

@@ -141,7 +141,7 @@
       "filterTitle": "Suggerimenti lavoro — prompt di filtro pertinenza",
       "filterHelp": "Valuta ogni nuovo annuncio leggendo l'intero testo: decide se corrisponde a te ed estrae un breve riassunto (azienda, località, stipendio, scadenza, requisiti). Le parti rilevanti del tuo profilo vengono aggiunte automaticamente sotto.",
       "letterTitle": "Lettera — prompt della guida",
-      "letterHelp": "Inviato quando si crea una guida per la lettera di presentazione. Il tuo profilo e l'annuncio di lavoro vengono aggiunti automaticamente sotto di esso. Questo genera uno scheletro di scrittura (3–5 sezioni con i dati del profilo da citare, più suggerimenti di scrittura) — mai un testo completo della lettera. <code>{lang_name}</code> viene sostituito con la lingua di output — deve rimanere nel prompt."
+      "letterHelp": "Invia quando si crea una guida per una lettera di presentazione. Il tuo profilo e l'annuncio del lavoro vengono aggiunti automaticamente sotto. Questo genera uno scheletro di scrittura (3–5 sezioni con i dati del profilo da citare) — mai un testo finale della lettera. <code>{lang_name}</code> viene sostituito con il linguaggio di output — deve rimanere nel prompt."
     },
     "template": {
       "label": "Modello CV",
@@ -199,9 +199,6 @@
     "enableImportSuffix": "per abilitare l'importazione del CV.",
     "addSection": "+ Aggiungi una sezione",
     "hasContent": "contiene contenuto",
-    "notesForAi": "Note per l'IA (opzionale)",
-    "notesForAiHelp": "Non stampate — aiutano l'IA a decidere quando includere questo ruolo e come formularlo.",
-    "aiNotesPlaceholder": "es. Adatto a ruoli di leadership o con molti dati; riportava al CTO; part-time",
     "currentlyWorkHere": "Lavoro attualmente qui",
     "currentlyVolunteering": "Attualmente volontario qui",
     "untitled": "(senza titolo)",
@@ -253,7 +250,6 @@
       "subheading": "Sottotitolo (opzionale)",
       "dateOptional": "Data (opzionale)",
       "responsibilityPlaceholder": "Inizia con un verbo; includi risultati misurabili quando possibile",
-      "roleSkillsTools": "Competenze e strumenti utilizzati in questo ruolo",
       "summaryPlaceholder": "2–4 frasi: chi sei professionalmente, le tue competenze più forti e ciò che cerchi",
       "projectDescriptionPlaceholder": "Di cosa si trattava, a chi era rivolto e qual è stato il risultato?",
       "educationDescriptionOptional": "Note (opzionale)",
@@ -796,7 +792,13 @@
     "deletedToast": "Eliminata la guida per \"{{title}}\"",
     "explainer": {
       "headline": "Questo strumento non scrive la tua lettera — questo è il punto.",
-      "body": "Una lettera di presentazione funziona solo se è scritta con parole tue; i recruiter scartano sempre più spesso le lettere scritte dall'IA. Invece, ottieni un piano personalizzato: cosa dire, in quale ordine e quali parti del tuo profilo usare come prova. La scrittura rimane tua."
+      "body": "Una lettera di presentazione funziona solo se è scritta con parole tue; i recruiter scartano sempre più spesso le lettere scritte dall'IA. Invece, ottieni un piano personalizzato: cosa dire, in quale ordine e quali parti del tuo profilo usare come prova. La scrittura rimane tua.",
+      "tips": [
+        "Indirizza una persona reale — trova il nome del responsabile della selezione; altrimenti \"Cari membri del team di assunzione\".",
+        "Quantifica l'impatto: indica il risultato concreto, non solo la missione.",
+        "Mantieni il testo intorno a 250–350 parole su una sola pagina.",
+        "Adatta il tono all'azienda e scrivi nel linguaggio dell'annuncio."
+      ]
     },
     "guide": {
       "headingFor": "Guida alla lettera per",

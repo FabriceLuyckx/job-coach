@@ -141,7 +141,7 @@
       "filterTitle": "Sugestie ofert — prompt filtrowania trafności",
       "filterHelp": "Ocenia każdą nową ofertę, czytając pełne ogłoszenie: decyduje, czy Ci odpowiada, i sporządza krótkie podsumowanie (firma, lokalizacja, wynagrodzenie, termin, wymagania). Odpowiednie fragmenty Twojego profilu są dodawane automatycznie poniżej.",
       "letterTitle": "List — przewodnik promptowy",
-      "letterHelp": "Wysyłany podczas tworzenia przewodnika do napisania listu motywacyjnego. Twój profil i ogłoszenie o pracę są dodawane automatycznie poniżej. Tworzy szkielet tekstu (3–5 sekcji z faktami z profilu do zacytowania, plus wskazówki dotyczące pisania) — nigdy gotowego tekstu listu. <code>{lang_name}</code> jest zastępowany językiem wyjściowym — musi pozostać w prompcie."
+      "letterHelp": "Wyświetzany przy tworzeniu kierunku do napisania listy ofertowej. Profil i ogłoszenie pracy są automatycznie dodawane poniżej. Tworzy szkielet tekstu (3–5 sekcji z danymi profilu do cytowania) — nigdy nie kończy się pełnym tekstem listy. <code>{lang_name}</code> jest zastąpione językiem wyjściowym — musi zostać w treści promptu."
     },
     "template": {
       "label": "Szablon CV",
@@ -199,9 +199,6 @@
     "enableImportSuffix": "aby włączyć import CV.",
     "addSection": "+ Dodaj sekcję",
     "hasContent": "zawiera treść",
-    "notesForAi": "Notatki dla AI (opcjonalnie)",
-    "notesForAiHelp": "Nie są drukowane — pomagają AI zdecydować, kiedy uwzględnić tę rolę i jak ją sformułować.",
-    "aiNotesPlaceholder": "np. Najlepiej do ról przywódczych lub analitycznych; podlegał/a CTO; niepełny etat",
     "currentlyWorkHere": "Obecnie tu pracuję",
     "currentlyVolunteering": "Obecnie tu wolontariuję",
     "untitled": "(bez tytułu)",
@@ -253,7 +250,6 @@
       "subheading": "Podtytuł (opcjonalnie)",
       "dateOptional": "Data (opcjonalnie)",
       "responsibilityPlaceholder": "Zacznij od czasownika; podaj mierzalne wyniki, jeśli to możliwe",
-      "roleSkillsTools": "Umiejętności i narzędzia stosowane w tym stanowisku",
       "summaryPlaceholder": "2–4 zdania: kto jesteś profesjonalnie, Twoje najważniejsze doświadczenie i co chcesz osiągnąć",
       "projectDescriptionPlaceholder": "Co to było, dla kogo było, i jaki był wynik?",
       "educationDescriptionOptional": "Uwagi (opcjonalnie)",
@@ -796,7 +792,13 @@
     "deletedToast": "Usunięto przewodnik dla „{{title}}”",
     "explainer": {
       "headline": "Ten narzędzie nie napisze Twojej listy — to jest cel.",
-      "body": "Listy działają tylko w Twoich własnych słowach; rekruterzy coraz częściej odrzucają te napisane przez AI. Zamiast tego otrzymujesz dostosowany plan: co powinno się powiedzieć, w jakiej kolejności i które części profilu należy użyć jako dowodów. Pisanie pozostaje Twoje."
+      "body": "Listy działają tylko w Twoich własnych słowach; rekruterzy coraz częściej odrzucają te napisane przez AI. Zamiast tego otrzymujesz dostosowany plan: co powinno się powiedzieć, w jakiej kolejności i które części profilu należy użyć jako dowodów. Pisanie pozostaje Twoje.",
+      "tips": [
+        "Wpisz imię osoby rzeczywistej — znajdź imię menedżera zatrudnienia; w przeciwnym razie użyj „Drodzy Komitet Zatrudnienia”.",
+        "Użyj konkretnych wyników: podaj konkretny efekt, a nie tylko zadanie.",
+        "Zachowaj długość tekstu na poziomie 250–350 słów na jedną stronę.",
+        "Zgodność z tonem pracodawcy i napisanie w języku ogłoszenia."
+      ]
     },
     "guide": {
       "headingFor": "Przewodnik listu motywacyjnego dla",

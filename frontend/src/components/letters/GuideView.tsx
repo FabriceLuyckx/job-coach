@@ -71,8 +71,6 @@ export default function GuideView({ guide, actions, note }: { guide: LetterGuide
     }
   }
 
-  const tips = guide.tips ?? []
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 'var(--space-2)' }}>
@@ -100,15 +98,6 @@ export default function GuideView({ guide, actions, note }: { guide: LetterGuide
           ))}
         </div>
       </div>
-
-      {tips.length > 0 && (
-        <div>
-          <div className="editor-cluster-label" style={{ marginBottom: 6 }}>{t('letters.guide.tips')}</div>
-          <ul style={{ margin: 0, paddingLeft: '1.2em' }}>
-            {tips.map((tip, i) => <li key={i} className="muted-sm">{tip}</li>)}
-          </ul>
-        </div>
-      )}
     </div>
   )
 }
