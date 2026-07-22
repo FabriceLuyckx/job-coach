@@ -622,7 +622,8 @@
     "rejectModalTitle": "Diesen Eintrag ablehnen",
     "rejectModalHelp": "Optional: Erkläre dem Assistenten, warum. Er verwendet deine Akzeptanz- und Ablehnungsentscheidungen, um zukünftige Einträge besser zu filtern — aber du kannst einfach ablehnen.",
     "rejectModalLabel": "Warum lehnen Sie es ab? (optional)",
-    "rejectModalPlaceholder": "z. B. zu senior, falsche Location, zu wenig praktische Arbeit…"
+    "rejectModalPlaceholder": "z. B. zu senior, falsche Location, zu wenig praktische Arbeit…",
+    "match": "Passen"
   },
   "cveditor": {
     "sections": {

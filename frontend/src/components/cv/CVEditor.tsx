@@ -297,19 +297,19 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
 
       {/* Tailoring notes — full width above preview */}
       {result.tailoring_notes && (
-        <div style={{ marginBottom: 'var(--space-4)', padding: '10px 14px', background: 'var(--surface-dim)', border: '1px solid var(--border)' }}>
+        <div style={{ marginBottom: 'var(--space-4)', padding: 'var(--space-3) var(--space-4)', background: 'var(--surface-dim)', border: '1px solid var(--line)', borderRadius: 'var(--r-panel)' }}>
           <div className="editor-cluster-label" style={{ marginBottom: 6 }}>{t('cveditor.tailoringNotes')}</div>
           <p style={{ fontSize: 'var(--fs-base)', lineHeight: 1.65, margin: 0 }}>{result.tailoring_notes}</p>
         </div>
       )}
 
       {/* Preview iframe — full width, natural scroll */}
-      <div style={{ position: 'relative', border: '1px solid var(--border)', overflow: 'hidden', marginBottom: 'var(--space-4)' }}>
+      <div style={{ position: 'relative', border: '1px solid var(--line)', borderRadius: 'var(--r-panel)', overflow: 'hidden', marginBottom: 'var(--space-4)' }}>
         <a
           href={result.preview_url} target="_blank" rel="noreferrer"
           style={{
             position: 'absolute', top: 10, right: 10, zIndex: 10,
-            background: 'var(--surface)', border: '1px solid var(--border)',
+            background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 'var(--r-btn)',
             padding: '5px 12px', fontSize: 'var(--fs-sm)', fontWeight: 500, textDecoration: 'none',
           }}
         >
@@ -423,7 +423,7 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
 
       {/* AI-generated content editor */}
       {plan ? (
-        <div style={{ border: '1px solid var(--border)', padding: 'var(--space-4)' }}>
+        <div style={{ border: '1px solid var(--line)', borderRadius: 'var(--r-panel)', padding: 'var(--space-4)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
             <div style={{ fontSize: 'var(--fs-sm)', fontWeight: 700 }}>{t('cveditor.editContent')}</div>
             {saveLabel && (

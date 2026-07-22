@@ -622,7 +622,8 @@
     "rejectModalTitle": "Deze vacature weigeren",
     "rejectModalHelp": "Optioneel, leg uit waarom. Het gebruikt jouw acceptaties en weigeringen om toekomstige vacatures beter te filteren — maar je kunt gewoon weigeren.",
     "rejectModalLabel": "Waarom weiger je het? (optioneel)",
-    "rejectModalPlaceholder": "bijv. te senior, verkeerde locatie, te weinig praktijkwerk…"
+    "rejectModalPlaceholder": "bijv. te senior, verkeerde locatie, te weinig praktijkwerk…",
+    "match": "Match"
   },
   "cveditor": {
     "sections": {

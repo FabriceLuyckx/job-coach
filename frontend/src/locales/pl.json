@@ -622,7 +622,8 @@
     "rejectModalTitle": "Odrzuć to ogłoszenie",
     "rejectModalHelp": "Opcjonalnie, powiedz asystentowi, dlaczego. Używa Twoich akceptacji i odrzucenia, aby lepiej filrować przyszłe ogłoszenia — ale możesz po prostu odrzucić.",
     "rejectModalLabel": "Dlaczego odrzucasz to ogłoszenie? (opcjonalnie)",
-    "rejectModalPlaceholder": "np. zbyt doświadczony, złe lokalizacje, nie wystarczająca część praktyczna…"
+    "rejectModalPlaceholder": "np. zbyt doświadczony, złe lokalizacje, nie wystarczająca część praktyczna…",
+    "match": "Zgodność"
   },
   "cveditor": {
     "sections": {

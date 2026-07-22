@@ -627,6 +627,7 @@
     "checkMatch": "It's a match — added to your suggestions.",
     "checkNoMatch": "Filtered out: {{reason}}",
     "suggestions": "Suggestions",
+    "match": "Match",
     "searchPlaceholder": "Search suggestions…",
     "filterBySource": "Filter by source",
     "allSources": "All sources",

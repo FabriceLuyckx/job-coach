@@ -1,43 +1,46 @@
 ---
 name: Job Coach
-description: A mid-century print-shop poster system for a calm, local-first career-application tool.
+description: The Atelier / Stone system — one drenched sage colour world, rationed terracotta, calm register, for a local-first career-application tool.
 colors:
-  paper: "#F2EFE4"
-  surface: "#FBFAF3"
-  surface-dim: "#ECE8D9"
-  ink: "#1C1A16"
-  muted: "#666256"
-  accent: "#C8401F"
-  accent-hover: "#A83415"
-  accent-soft: "#F5DFD5"
-  accent-text: "#AD3618"
-  teal: "#2F6B66"
-  teal-soft: "#DDEAE7"
-  teal-wall: "#1E3A38"
+  ground: "#CCD4CD"
+  board: "#D9E0DA"
+  surface: "#E3E8E4"
+  ink: "#1E332D"
+  heading: "#14261F"
+  muted: "#3A4B43"
+  accent: "#BC4A26"
+  accent-hover: "#A53E1E"
+  accent-ink: "#FFFFFF"
+  accent-soft: "#E7CFC4"
+  accent-text: "#963618"
+  mark: "#1F5A44"
+  deadline: "#963618"
+  line: "rgba(30, 51, 45, 0.16)"
   deep-red: "#8F2410"
-  deep-red-soft: "#F3DCD4"
-  mustard: "#7C5C08"
-  info-soft: "#ECE8D9"
+  deep-red-soft: "#EAD9CF"
+  mustard: "#6E5406"
 typography:
   display:
-    fontFamily: "Inter Variable, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif"
     fontSize: "{fs-2xl}"
-    fontWeight: 800
+    fontWeight: 700
     lineHeight: 1.2
-    letterSpacing: "0.02em"
+    letterSpacing: "-0.01em"
   body:
-    fontFamily: "Inter Variable, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif"
     fontSize: "14px"
     fontWeight: 400
     lineHeight: 1.55
-  label:
-    fontFamily: "Inter Variable, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+  data:
+    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
     fontSize: "13px"
-    fontWeight: 700
-    letterSpacing: "0.04em"
+    letterSpacing: "0"
 rounded:
-  none: "0px"
-  chip: "2px"
+  btn: "999px"
+  field: "999px"
+  nav: "999px"
+  panel: "22px"
+  frame: "30px"
 spacing:
   1: "4px"
   2: "8px"
@@ -50,289 +53,284 @@ spacing:
 components:
   button-primary:
     backgroundColor: "{colors.accent}"
-    textColor: "#FFFFFF"
-    rounded: "{rounded.none}"
-    padding: "8px 15px"
+    textColor: "{colors.accent-ink}"
+    rounded: "{rounded.btn}"
+    padding: "9px 18px"
   button-primary-hover:
     backgroundColor: "{colors.accent-hover}"
   button-secondary:
     backgroundColor: "transparent"
     textColor: "{colors.ink}"
-    rounded: "{rounded.none}"
-    padding: "7px 14px"
+    border: "1px solid {colors.line}"
+    rounded: "{rounded.btn}"
+    padding: "8px 17px"
   button-danger:
     backgroundColor: "{colors.deep-red}"
     textColor: "#FFFFFF"
-    rounded: "{rounded.none}"
-    padding: "8px 15px"
+    rounded: "{rounded.btn}"
+    padding: "9px 18px"
   button-ghost:
     backgroundColor: "transparent"
     textColor: "{colors.muted}"
-    rounded: "{rounded.none}"
-    padding: "8px 15px"
-  badge-cv:
-    backgroundColor: "{colors.accent}"
-    textColor: "{colors.paper}"
-    rounded: "{rounded.chip}"
-    padding: "2px 8px"
-  badge-ai:
-    backgroundColor: "{colors.teal}"
-    textColor: "{colors.paper}"
-    rounded: "{rounded.chip}"
-    padding: "2px 8px"
+    rounded: "{rounded.btn}"
+    padding: "9px 18px"
+  board:
+    backgroundColor: "{colors.board}"
+    rounded: "{rounded.panel}"
+    border: "1px solid {colors.line}"
+  badge-lang:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink}"
+    border: "1px solid {colors.line}"
+    rounded: "{rounded.btn}"
 ---
 
 # Design System: Job Coach
 
 ## 1. Overview
 
-**Creative North Star: "The Print Shop"**
+**Creative North Star: "Atelier / Stone"**
 
-Job Coach reads as something printed, not something rendered: ink-black hairline
-rules, flat color blocks instead of gradients, hard offset shadows instead of soft
-blurs, and squared corners everywhere (`--radius: 0px`). Each page is a cream poster
-sheet (`--paper`) laid on a deep teal gallery wall (`--frame`, the app shell behind
-the fixed sidebar) — the sheet gets a hard drop shadow, the wall doesn't. Headings are
-one grotesque family (Inter), always bold and uppercase; there is no second display
-font pretending to be more decorative than the first.
+Job Coach owns a colour instead of hiding in neutral. The whole app lives in one
+drenched, *lighter* colour world — a de-yellowed sage — rather than a light sheet
+floating on a contrasting wall. There is no cream and no dark wall: the ground is sage
+(`--ground`), the sidebar is a tonal *step* of that same ground, and content sits
+directly on it. Depth comes from tone, not shadow; a list is one tonal board split by
+hairlines, not a grid of bordered cards; meta and status are read as text, not stamped
+into pill badges. One warm terracotta accent is rationed to the primary signal.
 
-That printed confidence is structural, not emotional. Job Coach's brand personality is
-calm, trustworthy, reassuring — job hunting is stressful enough — so the boldness
-lives in geometry and typography (hard edges, heavy uppercase headings, flat ink
-rules), while color usage, motion, and copy stay restrained. Vermilion is loud by hue,
-but it is rationed to one thing at a time: the active nav tab, a primary action, a
-deadline chip. This explicitly rejects the **generic SaaS dashboard** (rounded cards,
-soft shadows, blue-gradient chrome), **corporate job-board chrome** (LinkedIn/Indeed
-dense blue, stock-photo emptiness), and the **AI-assistant chat-bot look** (bubbles,
-glowing orbs, sparkle iconography) — the AI in this app does quiet background work, it
-never performs as a character.
+That calm is structural. Job Coach's brand personality is calm, trustworthy,
+reassuring — job hunting is stressful enough — so the confidence lives in the drenched
+ground and the rounded, roomy form, while colour, motion, and copy stay restrained.
+Terracotta is warm by hue, but it is rationed to one thing at a time: the primary
+action, the current selection, the deadline signal. This explicitly rejects the
+**generic SaaS dashboard** (soft-shadowed cards, blue-gradient chrome, pastel status
+pills), **corporate job-board chrome** (LinkedIn/Indeed dense blue, stock-photo
+emptiness), and the **AI-assistant chat-bot look** (bubbles, glowing orbs, sparkle
+iconography) — the AI in this app does quiet background work, it never performs as a
+character. "Not generic" is earned by *execution* — the mono data voice on every field,
+tonal-only depth, and the one rationed accent — not by asserting it, and not by the
+absence of radius or depth.
 
 **Key Characteristics:**
-- Flat ink-on-cream print system: zero border-radius, hairline borders, no gradients
-- One grotesque type family; hierarchy is weight/case/size, not font-switching
-- A single accent (vermilion) used sparingly, rationed to primary actions and state
-- A teal counterpoint used specifically for AI/"good" signals (success, AI badges)
-- Hard offset shadows (`6px 6px 0`) reserved for things that float: modals, menus,
-  toasts, the page sheet itself — never resting UI
+- One drenched sage ground at three tonal values (`ground`/`board`/`surface`); no cream,
+  no dark shell wall
+- Depth is tonal + hairline; no resting drop-shadow, no side-stripe accent, no cards
+- Listings are one tonal board split by hairlines
+- Meta/status are text (mono line, coloured marker/deadline), not pill badges
+- Rounded, roomy: pill controls, round panels/frame, generous spacing
+- System-sans body paired with a mono data voice for every data line; mixed-case,
+  weight-based headings — no blanket uppercase
+- A single terracotta accent, rationed to the primary signal
 
 ## 2. Colors
 
-A cream-and-ink print base, one warm accent, one cool counterpoint, and two narrow
-semantic colors (mustard, deep red) that never get confused with the accent.
+One sage ground at three values, deep-pine ink, one warm terracotta accent, one pine
+marker for match/success, and two narrow semantics (deep red, mustard) that never get
+confused with the accent.
 
-### Primary
-- **Vermilion** (`#C8401F`, hover `#A83415`, tint `#F5DFD5`, text `#AD3618`): primary actions,
-  star-rating fill, deadline chips. The one color allowed to feel urgent — used at low
-  frequency on purpose. The base value is tuned as a **fill** (white on it is
-  4.99:1); as small text it fails AA on the cream grounds, so text uses of the
-  accent — links, the deadline chip, star fills — take `--accent-text`
-  (`#AD3618`, worst case 4.94:1). Fills keep `--accent`.
+### Ground — one sage hue at three values
+The interface is one drenched ground, not a sheet on a wall. The three values are a
+ramp (one hue), so any of them can meet on screen without clashing:
 
-### Secondary
-- **Teal** — one hue at three values, one job each. They are a ramp, not three
-  unrelated colors, so any of them can meet on screen without clashing:
+| Value | Token | Role |
+|---|---|---|
+| `#CCD4CD` | `--ground` | Base — the app ground, what content sits directly on |
+| `#D9E0DA` | `--board` | Raised panel — the listings board, callouts, menus |
+| `#E3E8E4` | `--surface` | Inset — input/field fills, the lightest step |
 
-  | Value | Token | Job |
-  |---|---|---|
-  | `#1E3A38` | `--frame` | The wall: app-shell background and sidebar fill |
-  | `#2F6B66` | `--teal` | Content signals: "AI" badges, success states, the `--success` alias |
-  | `#DDEAE7` | `--teal-soft` | Soft tint backgrounds |
+The sidebar is `color-mix(--ink 8%, --ground)` — a tonal *step* of the ground, one hue
+down from the base, never a separate panel colour. There is no cream (`--paper` as a
+floating sheet) and no dark wall (`--frame`).
 
-  The content value reads as considered and cool against vermilion's warmth, never
-  competing for the same job. The wall was `#6B8F91` until 2026-07 — a mid-tone at
-  L≈58% that could hold neither ink nor paper text, failing AA for every label on it
-  (nav 2.58:1, footer 2.27:1, the AGPL §13 link 3.06:1). Even pure `#FFFFFF` on it
-  reached only 3.52:1, so the wall's lightness was the defect, not the text. On the
-  deep value, cream text clears AA with headroom: nav inactive (`paper 75%`) 6.74:1,
-  footer (`paper 80%`) 7.42:1, the AGPL link 10.62:1, and the cream active tab
-  15.09:1. Galleries hang work on dark walls so the paper reads as figure — the
-  change sharpens the North Star rather than compromising it.
+### Ink — deep pine
+- **Ink** (`--ink` `#1E332D`): body text.
+- **Heading** (`--heading` `#14261F`): headings — a touch deeper than ink.
+- **Muted** (`--muted` `#3A4B43`): secondary text, labels, help, meta. Clears WCAG AA on
+  every ground it sits on (6.12:1 on `--ground`, with headroom on `--board`/`--surface`).
 
-### Neutral
-- **Cream** (`--paper` `#F2EFE4`): page background, the poster sheet itself.
-- **Card White** (`--surface` `#FBFAF3`): cards, inputs — barely lighter than cream,
-  never a hard white.
-- **Panel Cream** (`--surface-dim` `#ECE8D9`): nested panels, collapsible headers,
-  empty states — one step down from card white.
-- **Ink** (`--ink` / `--border` / `--heading` `#1C1A16`–`#141311`): body text,
-  headings, and *every* hairline border in the system. Borders and text share the
-  same ink value on purpose — there is no separate lighter "border gray".
-- **Muted** (`#666256`): secondary text, labels, help copy, disabled affordances. Chosen to clear WCAG AA (4.5:1) on every ground it sits on, including the dimmest (`--surface-dim`, 4.96:1).
+### Accent — terracotta (fill vs. text are two tokens, do not collapse them)
+- **Terracotta fill** (`--accent` `#BC4A26`, hover `--accent-hover` `#A53E1E`, on-accent
+  text `--accent-ink` `#FFFFFF`, tint `--accent-soft` `#E7CFC4`): the primary action, the
+  current selection. Tuned as a **fill** — white on it is 5.07:1.
+- **Terracotta text** (`--accent-text` `#963618`): any terracotta *rendered as text* — a
+  call-to-action link, the deadline signal. `--accent` as small text on the sage grounds
+  is only 3.34:1 (ground) / 3.77:1 (board) and **fails AA**; `--accent-text` clears it
+  (4.89:1 on ground, 5.51:1 on board, 5.97:1 on surface). The sage ground is darker than
+  the old cream (L≈0.83), so this text value is darkened past the cream-era value to keep
+  the same AA headroom.
+- **Deadline** (`--deadline` = `--accent-text`): a deadline is always coloured text,
+  never a fill, so it *is* the text token.
+
+### Marker — pine green
+- **Mark** (`--mark` `#1F5A44`): the match/success signal — a small square marker + a
+  plain word, and success states. This replaces the old teal ramp entirely; there is no
+  teal wall, teal signal, or teal tint.
 
 ### Semantic (narrow use)
-- **Mustard** (`#7C5C08`): unsaved-change markers, low-credit warnings, info toasts.
-  Never used for errors.
-- **Deep Red** (`#8F2410`, tint `#F3DCD4`): errors and destructive actions.
-  Deliberately deeper/darker than vermilion so a danger button never gets misread as
-  a primary one at a glance.
+- **Mustard** (`--highlight` `#6E5406`): unsaved-change markers, low-credit warnings,
+  "needs an answer" nudges, info toasts. Never used for errors; darkened to clear AA on
+  the sage grounds.
+- **Deep Red** (`--danger` `#8F2410`, tint `--danger-soft`): errors and destructive
+  actions — deeper than terracotta so a danger button is never misread as a primary one.
+
+### Palette nudges
+**Stone** is the shipped default. **Fern** and **Meadow** (deeper-sage variants of the
+same ground ramp, same terracotta accent) are sanctioned nudges for a future themed
+build; they change only the ground values, never the accent or the structure.
 
 ### Named Rules
-**The One Ink Rule.** Every border, hairline, and rule in the system is `--ink`
-(`#1C1A16`) at full or mixed opacity — never a separate mid-gray border color. If a
-border needs to look lighter, mix ink with the background (`color-mix(in srgb, var(--ink) 45%, transparent)`), don't invent a new gray token.
+**The One Line Rule.** Every hairline in the system is `--line`
+(`color-mix(--ink 16%, transparent)`) — a low-contrast ink line, never a separate gray
+token and never a coloured side-stripe.
 
-**The Rationed Accent Rule.** Vermilion marks *one* primary thing per view: the
-default action, the active tab, the thing you're most likely to click next. If two
-elements on a screen both want vermilion, one of them is wrong.
+**The Rationed Accent Rule.** Terracotta marks *one* primary thing per view: the default
+action, the current selection, the deadline signal. If two elements on a screen both want
+terracotta, one of them is wrong. Fills use `--accent`; text uses `--accent-text`.
 
 ## 3. Typography
 
-**Display Font:** Inter Variable (with `-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif`)
-**Body Font:** Inter Variable (same family, same stack — one typeface for the whole app)
+**Body / Display Font:** the system-sans stack (`system-ui, -apple-system,
+BlinkMacSystemFont, Segoe UI, Roboto, sans-serif`). One family carries the whole
+hierarchy through weight and size. (The packaged build keeps a self-hosted Inter as a
+neutral fallback; it renders as a plain sans, not a display face.)
 
-**Character:** Confident and squared, calm underneath — headings are heavy,
-uppercase, and tightly tracked (a poster masthead), but body copy at 14px/1.55 stays
-plain, lowercase, and unhurried. The boldness is in the headings and structure, not
-the sentence you're reading.
+**Data Font:** a mono stack (`ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`,
+`--data-font`) — the data voice. Every data line uses it: dates, meta, counts, the
+page sub-line, the match marker word.
+
+**Character:** calm and plain. Headings are heavier and mixed-case — never blanket
+uppercase. Body copy at 14px/1.55 reads unhurried. The one thing that *is* uppercase is
+the mono match-marker word and small utility labels; a serif or quirky-grotesque display
+face was trialled and rejected as cliché.
 
 ### Hierarchy
-- **Display / Page title** (800, 26px `--fs-2xl`, 1.2): page titles, always paired
-  with a 4px ink rule underneath (`.page-title`) — the poster masthead.
-- **Headline / Section title** (800, 20px `--fs-xl` down to 17px `--fs-lg`, uppercase):
-  section headers, modal titles, collapsible titles, card headings.
-- **Title / Emphasized body** (600–700, 15px `--fs-md`): question titles, card
-  sub-headings, collapsible-title-sm rows — not uppercase, just heavier.
-- **Body** (400, 14px `--fs-base`, 1.55): all prose and form values. Cap prose at
-  65–75ch where it runs long-form (letter guides, tailoring notes).
-- **Label** (700, 13px `--fs-sm`, uppercase, 0.04em tracking): button labels, badges
-  at 11px `--fs-xs`. Anything that names an action or a category is uppercase and
-  tracked; anything the user is reading is not.
+- **Page title** (700, 26px `--fs-2xl`, mixed case): page titles.
+- **Section title** (700, 17–20px, mixed case): section headers, modal titles,
+  collapsible titles.
+- **Emphasized body** (600, 15px): question titles, card sub-headings.
+- **Body** (400, 14px `--fs-base`, 1.55): all prose and form values. Cap long-form prose
+  at 65–75ch.
+- **Data line** (`--data-font`, 13px): dates, counts, a listing's meta line, the match
+  word. Monospace + a middot separator reads as a discrete field list.
 
 ### Named Rules
-**The Case Signal Rule.** Uppercase means "this labels an action or category"
-(buttons, badges, headings). Sentence case means "this is content" (body text,
-collapsible-toggle labels that wrap real content, menu options). Never uppercase a
-sentence the user is meant to read as prose.
+**The Case Signal Rule.** Mixed case is the default — headings included. Uppercase is
+reserved for the mono match-marker word and small utility/category labels. Never
+uppercase a sentence the user reads as prose, and never blanket-uppercase headings.
 
-## 4. Elevation
+**The Data Voice Rule.** Anything that is data — a date, a count, a listing's fields, a
+match verdict — is set in `--data-font`. This is what carries at-a-glance scannability
+now that meta is text, not badges.
 
-Flat by default — cards, inputs, and panels sit at zero elevation with only a 1px ink
-border to separate them from the cream ground. The hard offset shadow is reserved for
-things that genuinely float: the page sheet against the teal wall, modals,
-dropdown/add-section menus, and toasts. There is **one shadow value per ground**,
-because a shadow has to be visible against what it actually falls on. Nothing else gets a shadow — depth is
-otherwise conveyed by the ink border and by nested-panel tone (`--surface` →
-`--surface-dim`), not by blur.
+## 4. Depth
 
-### Shadow Vocabulary
-Both values are hard-edged, offset, no blur — a printed sheet with a cast shadow, not
-a soft UI lift. They differ only in the ground they fall on.
+Depth is tonal, not shadow. In-content surfaces separate by the
+`ground`/`board`/`surface` tonal steps plus low-contrast hairlines (`--line`). Nothing in
+normal document flow casts a drop-shadow, and nothing uses a coloured side-stripe.
 
-- **Poster-pop** (`6px 6px 0 rgba(20, 19, 17, 0.18)`, `--shadow-pop`): for elements
-  floating above the **cream sheet** — `.modal-box`, `.toast`, `.add-section-menu`
-  (1.44:1 on `--paper`).
-- **Poster-pop on wall** (`6px 6px 0 #0D1918`, `--shadow-pop-wall`): for the page
-  sheet floating above the **teal wall** — `.page-container` only. Ink-at-18%
-  computes to 1.08:1 there (invisible); this value restores the gesture at 1.47:1.
-
-A shadow under 1.2:1 against its own ground is not a shadow.
+**The one exception:** overlays that float above arbitrary content — modals,
+dropdown/add-section menus, and toasts — sit where tone cannot separate them, so they MAY
+cast a single soft float shadow (`--shadow-float`), shared by all of them. No resting
+in-content surface reuses it.
 
 ### Named Rules
-**The Flat-At-Rest Rule.** Nothing in normal document flow gets a shadow. If an
-element needs to feel important, use the ink border, a filled background, or spacing
-— never a shadow. Shadows are reserved for elements that visually detach from the
-page (overlays, floating menus, the page sheet against the wall).
+**The Tonal-Depth Rule.** A resting panel, board, row, or callout is distinguished by its
+surface tone and a hairline — never a shadow, never a side-stripe (a coloured left/right
+border). If an element needs to feel raised, step its tone up (`--board`/`--surface`), not
+add a shadow.
+
+**The Float Rule.** Only overlays get `--shadow-float`, and it is one soft value for all
+of them. A hard offset shadow on a resting card is the banned pattern.
 
 ## 5. Components
 
 ### Buttons
-- **Shape:** zero radius (`0px`), sharp corners on every variant.
-- **Primary:** vermilion fill, white text, `8px 15px` padding, uppercase 13px label,
-  hover darkens to `#A83415`. Disabled keeps full white-text contrast on a
-  desaturated fill (never washes out to gray-on-gray).
-- **Secondary:** transparent fill, 1.5px ink outline, ink text — inverts to a solid
-  ink fill with cream text on hover ("poster inversion"). Padding compensates the
-  border (`7px 14px`) so it sits flush with primary buttons.
-- **Danger:** deep-red fill, white text — same shape/padding as primary, distinct hue
-  so it's never confused with the accent at a glance.
-- **Ghost:** transparent, muted text, hover fills to accent-soft with ink text. Used
-  for lower-emphasis actions in dense rows.
-- **Icon:** 28×28px square, no label, no border — destructive intent (e.g. remove) is
-  ink by default and only turns red on hover, so lists never show permanent red
-  squares.
+- **Shape:** pill (`--r-btn`, `999px`) on every variant; no button shadow.
+- **Primary:** terracotta fill (`--accent`), white text, hover darkens to
+  `--accent-hover`. Full state set: default / hover / active / `:focus-visible` ring /
+  disabled (disabled keeps white text on a desaturated fill, never gray-on-gray).
+- **Secondary:** transparent fill, `--line` hairline border, ink text; hover fills to a
+  tonal step.
+- **Danger:** deep-red fill, white text — distinct hue so it's never read as primary.
+- **Ghost:** transparent, muted text; hover fills to `--accent-soft` with ink text.
+- **Icon:** small square-ish pill, no label; destructive intent is ink by default and only
+  turns red on hover, so lists never show permanent red controls.
 
-### Chips / Badges
-- **Style:** small, squared (2px radius, not pill-shaped), uppercase, 11px, bold,
-  tightly tracked. Filled variants (`badge-cv` accent, `badge-ai` teal, `badge-jobs`
-  ink) carry a solid background + cream text; outline variants (`badge-lang`,
-  `badge-neutral`, `badge-deadline`) are transparent with an ink or accent border.
-- **State:** tags (skills, keywords) are solid ink chips with an inline remove ×;
-  read-only AI-decision chips use a thin ink border instead of a fill, to visually
-  separate "the AI decided this" from "you typed this."
+### Listings — one tonal board
+- A list (job suggestions, filtered rows, history) is a single `--board` panel
+  (`--r-panel`, a `--line` hairline, no shadow). Its rows are divided by a bottom hairline
+  (`--line`); the last row has none. **No** per-item border, per-item shadow, or
+  side-stripe. Separation is tonal + hairline.
+- A de-emphasised row (filtered/rejected) steps its tone, never fades opacity — fading a
+  row also fades the AI's stated reason, the one thing that must stay readable.
 
-### Cards / Containers
-- **Corner Style:** zero radius, matching buttons and inputs — nothing in the system
-  is rounded.
-- **Background:** `--surface` (card white) on the cream page; nested panels step down
-  to `--surface-dim`.
-- **Shadow Strategy:** none — see Elevation. Separation comes entirely from the 1px
-  ink border.
-- **Border:** 1px solid ink on every card.
-- **Internal Padding:** `--space-5` (20px) standard card padding.
+### Meta & status — text, not badges
+- **Meta** (work style, contract, location, languages): one inline `--data-font` line,
+  fields joined by a middot (` · `). No field is a pill.
+- **Match:** a 7px square marker + the plain word in `--mark`.
+- **Deadline:** `--deadline` mono text — never a chip.
+- **Badge** primitive: reserved for genuine *categorical* labels (a section's destination,
+  a language level). It is a pill (`--r-btn`) hairline-outlined tag, and it SHALL NOT
+  restate a row's own fields.
 
 ### Inputs / Fields
-- **Style:** 1px ink border, zero radius, `--surface` background, 7px/10px padding.
-- **Focus:** border color shifts to vermilion — no glow, no outline ring, just the
-  color change.
-- **Error / Disabled:** error text below the field in deep-red (`.error-msg`);
-  disabled states desaturate rather than gray out completely.
+- Pill (`--r-field`) single-line, `--r-panel` for `textarea`; `--surface` fill, `--line`
+  border. Focus keeps a `:focus-visible` accent ring for a11y (never a colour-only border
+  change).
+
+### Callout / Empty state
+- `--r-panel`, a tonal accent tint (`color-mix(--accent 10%, --board)`) or a plain tonal
+  step; a hairline; no shadow.
 
 ### Navigation
-- **Style:** a fixed 208px sidebar filled with the wall teal, holding the wordmark and
-  icon+label links (Lucide icons, 17px). Inactive links sit at 75% cream on the wall
-  (6.74:1); hover brightens to full cream over a faint **cream** wash (an ink wash is
-  invisible on a dark ground). The **active** item reads as a cream tab cut from the
-  poster sheet — full `--paper` background and ink text, **no accent border** —
-  rather than a colored pill or underline. The tab carries "you are here" on its own
-  at 15.09:1; the 3px vermilion left border it used to have measured 2.45:1 against
-  the wall, so it was decoration that failed the 3:1 UI threshold while spending a
-  rationed accent.
-- **Wordmark:** "JOB **COACH**" separates its two words by *value*, not hue — dim
-  cream (`paper 65%`, 5.48:1) and full cream (10.62:1). Vermilion is not an option
-  here: on the wall it is 2.45:1, the same ratio that disqualified the active-tab
-  border.
-- **Mobile:** not yet adapted for narrow viewports (desktop-first; app is currently
-  used as a local/desktop tool).
+- A fixed sidebar filled with the sage tonal step (`color-mix(--ink 8%, --ground)`),
+  holding the wordmark and icon+label links (Lucide icons). Inactive links are `--muted`
+  ink; hover brightens to `--ink` over a faint tonal wash. The **active** route is a
+  `--board` fill **pill** (`--r-nav`) with `--heading` text — no accent, no side-stripe.
+  The pill carries "you are here" tonally; contrast is verified against the sidebar sage.
+- **Wordmark:** "Job **Coach**" separates its words by weight, mixed case, `--heading`.
 
-### Segmented Control (signature component)
-The `.seg` control (used for the working-style choice on Preferences) is a squared
-button row with a single 1px ink outer border and 1px ink dividers between options —
-no gaps, no individual pills. The selected option inverts to a solid ink fill with
-cream text, exactly mirroring the secondary-button hover treatment, so the "selected"
-state visually says the same thing everywhere in the app: ink fill = chosen/active.
+### Segmented control (`.seg`)
+- A pill-outlined button row (`--r-btn`, `--line` border) with hairline dividers — no gaps,
+  no individual pills. The selected option fills to `--ink` with light text — a *tonal*
+  selection signal (the same "ink fill = chosen" the engine/model pickers use), so it reads
+  as selected everywhere without spending the rationed accent.
+
+### Overlays
+- Modal/menu/toast use `--r-panel` (or `--r-btn` for small controls within them) and the
+  single `--shadow-float`.
 
 ## 6. Do's and Don'ts
 
 ### Do:
-- **Do** keep every border and rule at `--ink` (`#1C1A16`); never introduce a
-  separate gray border token.
-- **Do** ration vermilion to one primary signal per screen — the default action or
-  the single most important chip (deadline).
-- **Do** style in-content links as `--ink` with a 1px underline at `ink 45%`. The
-  underline is the affordance, not the color, so the link works without relying on
-  hue. `--accent-text` is reserved for a link that *is* the view's next action.
-- **Do** keep hard, offset, blur-free shadows (`6px 6px 0`) exclusive to floating
-  elements (modals, menus, toasts, the page sheet) — never on resting cards or
-  buttons.
-- **Do** keep uppercase reserved for actions/labels/headings and sentence case for
-  anything the user reads as content.
-- **Do** keep copy and motion calm even where the geometry is bold — this is a tool
-  for a stressful process, not a loud dashboard.
+- **Do** keep the app one drenched sage ground; the sidebar is a tonal step of it, content
+  sits directly on `--ground`, no floating sheet.
+- **Do** keep every hairline at `--line`; separate depth by tone, never by a shadow or a
+  side-stripe.
+- **Do** render a listing as one `--board` panel with hairline-divided rows — not a grid
+  of bordered cards.
+- **Do** set every data line in `--data-font`; meta is a mono middot line, match is a
+  marker + `--mark` word, deadline is `--deadline` mono text.
+- **Do** ration terracotta to one primary signal per view; use `--accent` for fills and
+  `--accent-text` for any terracotta text.
+- **Do** style in-content links as `--ink` with an underline; the underline is the
+  affordance, not the colour. `--accent-text` is reserved for a link that *is* the view's
+  next action.
+- **Do** keep controls pill-shaped and spacing roomy; copy and motion calm.
 
 ### Don't:
-- **Don't** paint an element vermilion by *type* — a rule like `a { color: accent }`
-  put 25+ vermilion elements on one page and silently defeated the Rationed Accent
-  Rule everywhere else. The accent is spent per-view, deliberately, not by selector.
-- **Don't** round any corner. `border-radius` is `0px` everywhere except the 2px chip
-  radius on badges/tags — never introduce `8px`/`12px` "friendly" rounding.
-- **Don't** build a **generic SaaS dashboard**: no soft card shadows, no
-  blue-and-white gradients, no pastel status pills.
-- **Don't** read as **corporate job-board chrome**: avoid dense blue UI chrome or
-  stock-photo emptiness that makes this feel like "another job board."
-- **Don't** give the AI a **chat-bot persona**: no chat bubbles, no glowing gradient
-  orbs, no sparkle/magic-wand iconography. The AI works quietly in the background.
-- **Don't** use a second display typeface for "decorative" contrast — Inter carries
-  the whole hierarchy through weight, case, and size alone.
-- **Don't** soften the vermilion into a lighter "friendlier" tint for primary
-  actions — use the full-saturation value; softness lives in copy and motion, not in
-  desaturating the accent.
+- **Don't** reintroduce cream, a dark wall, or a floating page sheet — the world is one
+  sage ground.
+- **Don't** build cards: no per-item border + shadow, no soft card shadow on resting UI,
+  no coloured side-stripe.
+- **Don't** stamp a row's own fields into pill badges; meta/status are text. Badge is only
+  for categorical labels.
+- **Don't** paint an element terracotta by *type* (a rule like `a { color: accent }`); the
+  accent is spent per-view, deliberately.
+- **Don't** blanket-uppercase headings, or set a data line in the body sans.
+- **Don't** read as a **generic SaaS dashboard**, **corporate job-board chrome**, or an
+  **AI chat-bot persona**.
+- **Don't** soften terracotta into a friendlier tint for primary actions — use the full
+  value; softness lives in copy, motion, and the roomy form, not in desaturating the
+  accent.

@@ -46,8 +46,15 @@ and language stay plain-spoken and unhurried rather than loud.
 
 ## Anti-references
 
-- **Generic SaaS dashboard** — rounded cards, soft shadows, blue-and-white gradients.
-  Already structurally rejected (zero border-radius, hard offset shadows, flat color).
+"Not generic SaaS" is defined **positively** — the drenched Stone sage ground, one
+rationed terracotta accent, and a calm register — not as the absence of radius or depth,
+and not the old cream/Bauhaus print system (which itself became a tell). See DESIGN.md.
+
+- **Generic SaaS dashboard** — the explicit slop list: bordered/soft-shadowed **cards**,
+  **cream** or near-white grounds, **soft drop-shadows** on resting UI, **side-stripe**
+  accents (a coloured left/right border), **glassmorphism**, and **pill badges** stamped
+  onto a row's own fields. Job Coach separates depth by tone, renders listings as one
+  board, and reads meta as text.
 - **Corporate job-board chrome** — LinkedIn/Indeed-style dense blue UI and
   stock-photo emptiness. Job Coach should never read as "another job board."
 - **AI-assistant chat-bot look** — chat bubbles, glowing gradient orbs, sparkle
@@ -77,6 +84,7 @@ scoring); it is never staged as a chatbot or assistant character.
 
 ## Accessibility & Inclusion
 
-WCAG AA baseline: sufficient color contrast (including the existing vermilion/teal
-accents against cream), full keyboard navigation, readable type sizes. No further
-user-specific accommodations known at this time.
+WCAG AA baseline: sufficient color contrast (including the terracotta accent and mono
+text against the sage grounds — fill vs. text terracotta are separate tokens for this
+reason), full keyboard navigation, readable type sizes. No further user-specific
+accommodations known at this time.

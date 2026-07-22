@@ -884,29 +884,39 @@ Best-in-class long-form text generation and document understanding. The user alr
 **Why local-first?**
 Zero hosting cost to start, full data privacy (CV data is sensitive), and simpler to develop and test. The architecture is cloud-ready from day one — adding a `DATABASE_URL` env var and a Dockerfile is all that's needed.
 
-**Why the Bauhaus/Swiss poster style?**
-The UI borrows from mid-century festival posters (2026-07-08 redesign, replacing
-the earlier editorial/serif direction): the app shell (body + sidebar) is a deep
-teal wall (`--frame` `#1E3A38`) and each page renders as a cream poster sheet on
-it (`.page-container`), with ink-black hairline borders and rules, bold uppercase
-Inter headings (one grotesque family — no serif), a vermilion accent with a teal
-counterpoint, zero border-radius, squared chips instead of pills, and hard offset
-shadows on the sheet and menus/modals only — **one shadow value per ground**
-(`--shadow-pop` on cream, `--shadow-pop-wall` on the wall, where ink-at-18% is
-invisible). Teal is one hue at three values (wall / content `--teal` / tint
-`--teal-soft`), not two unrelated teals. A thick ink bar underlines every page
-title; the active nav item reads as a cream tab cut from the sheet, carrying
-"you are here" on its own — it has no accent border (2.45:1 on the wall, and
-redundant beside the tab's 15.09:1). In-content links are `--ink` + underline,
-never the accent, which stays rationed to the primary signal. Shell contrast is
-enforced by `node scripts/check_contrast.mjs`, which parses the tokens out of
-`index.css`/`App.css` and fails if any shell pair drops below its WCAG
+**Why the Atelier / Stone style?**
+The UI owns a colour instead of hiding in neutral (2026-07-22 redesign, replacing
+the cream-sheet-on-teal-wall "Print Shop" system, which itself read as generic AI
+design). The whole app is one drenched, *lighter* sage world: the ground is
+`--ground` `#CCD4CD` at three tonal values (`ground`/`board`/`surface`), the
+sidebar is a tonal *step* of that same ground (`color-mix(--ink 8%, --ground)`),
+and content sits directly on it — **no cream, no dark wall, no floating page
+sheet**. Depth is **tonal, not shadow**: resting surfaces separate by the tonal
+steps + a low-contrast hairline (`--line`, ink 16%); only overlays (modal/menu/
+toast) cast the single soft `--shadow-float`. Listings are **one tonal board split
+by hairlines** (`--board`, `--r-panel`), never a grid of bordered cards, and never
+a coloured side-stripe. A listing's meta/status are **text, not badges**: meta is
+an inline mono line (middot separators, `--data-font`), match is a square marker +
+`--mark` (pine) word, deadline is `--deadline` mono text; the Badge primitive is
+kept only for categorical labels (section destination, language level). Form is
+**rounded + roomy**: pill controls (`--r-btn/--r-field/--r-nav` `999px`),
+`--r-panel` `22px`, `--r-frame` `30px`. Type is **system-sans × mono** — the
+system-sans stack for body/headings (mixed case, weight-based; the blanket
+uppercase transform is dropped) and `--data-font` mono for every data line. One
+**terracotta** accent, rationed to the primary signal: **fill vs. text are two
+tokens** — `--accent` `#BC4A26` for fills (white on it 5.07:1), `--accent-text`
+`#963618` for any terracotta *text* (a CTA link, the deadline), which fails AA as
+the fill value on sage. In-content links are `--ink` + underline, never the accent;
+the active nav route is a `--board` fill pill (no accent, no side-stripe). Shell
+contrast is enforced by `node scripts/check_contrast.mjs`, which parses the tokens
+out of `index.css`/`App.css` and fails if any shell pair drops below its WCAG
 threshold. Icons stay lucide-react (no emoji). Tokens live in
-`frontend/src/index.css` (`--paper/--ink/--accent/--teal/--space-1..8/--fs-*`);
-Inter is self-hosted via fontsource so the packaged app needs no CDN. All
-feedback flows through one Toast system (errors persist, successes auto-dismiss,
-destructive actions get Undo); Modal/Collapsible/EmptyState/Badge are the shared
-primitives — pages should not reimplement these patterns inline.
+`frontend/src/index.css` (`--ground/--board/--surface/--ink/--accent/--accent-text/
+--mark/--r-*/--data-font/--space-1..8/--fs-*`); Inter is self-hosted via fontsource
+as a neutral fallback so the packaged app needs no CDN. All feedback flows through
+one Toast system (errors persist, successes auto-dismiss, destructive actions get
+Undo); Modal/Collapsible/EmptyState/Badge are the shared primitives — pages should
+not reimplement these patterns inline.
 
 **Why SQLite for job data?**
 File-based, no server needed locally, and the job data has no concurrent write requirements. SQLAlchemy abstracts the difference, so migrating to PostgreSQL for cloud deployment is a one-line change.

@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Fabrice Luyckx
 //
-// Shell contrast check: every persistent element on the app-shell wall
-// (--frame) must clear its WCAG threshold. The cream sheet's colours were
-// audited when they were written; the wall never was (see
-// openspec/changes/fix-shell-color-contrast). Run: node scripts/check_contrast.mjs
+// Shell contrast check (Atelier / Stone): the app is one drenched sage ground
+// with the sidebar a tonal step of it — no dark wall. Every persistent shell
+// element must clear its WCAG threshold against the sage surface it sits on, and
+// terracotta *as text* (CTA/deadline) must use --accent-text, not the fill value
+// --accent (which passes only as a fill). Run: node scripts/check_contrast.mjs
 
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -42,12 +43,13 @@ function color(expr, bg) {
   const v = expr.match(/^var\((--[\w-]+)\)$/);
   if (v) return color(tokens[v[1]], bg);
 
-  // color-mix(in srgb, <color> N%, transparent) — N% opacity over bg
-  const mix = expr.match(/^color-mix\(in srgb,\s*(.+?)\s+([\d.]+)%,\s*transparent\)$/);
+  // color-mix(in srgb, <color> N%, <color2|transparent>) — N% of <color> over the rest.
+  const mix = expr.match(/^color-mix\(in srgb,\s*(.+?)\s+([\d.]+)%,\s*(.+?)\)$/);
   if (mix) {
-    const fg = color(mix[1], bg);
     const a = Number(mix[2]) / 100;
-    return fg.map((c, i) => c * a + bg[i] * (1 - a));
+    const over = mix[3].trim() === 'transparent' ? bg : color(mix[3], bg);
+    const fg = color(mix[1], over);
+    return fg.map((c, i) => c * a + over[i] * (1 - a));
   }
 
   const rgba = expr.match(/^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,/\s]+([\d.]+))?\s*\)$/);
@@ -61,13 +63,6 @@ function color(expr, bg) {
   throw new Error(`cannot parse colour "${expr}"`);
 }
 
-/** The colour part of a box-shadow value (offsets first, colour last). */
-function shadowColor(expr) {
-  const v = expr.trim().match(/^var\((--[\w-]+)\)$/);
-  if (v) return shadowColor(tokens[v[1]]);
-  return expr.replace(/^(?:[-\d.]+(?:px)?\s+){2,3}/, '').replace(/\s*\/\*.*$/, '').trim();
-}
-
 const lum = (rgb) =>
   rgb
     .map((c) => c / 255)
@@ -79,22 +74,41 @@ const ratio = (a, b) => {
   return (x + 0.05) / (y + 0.05);
 };
 
-// --- the checks -------------------------------------------------------------
+// --- grounds ----------------------------------------------------------------
 
-const wall = color(tokens['--frame'], [255, 255, 255]);
-// Hover ground: the wash sits on the wall, so hover text is judged against it.
-const hoverGround = color(decl(appCss, '.sidebar-nav a:hover', 'background'), wall);
+const white = [255, 255, 255];
+const ground = color(tokens['--ground'], white);
+const board = color(tokens['--board'], white);
+const accentFill = color(tokens['--accent'], white);
+// The sidebar is a tonal step of the ground; read it from the source, not a copy.
+const sidebar = color(decl(appCss, '.sidebar-nav', 'background'), white);
+// Nav hover wash sits on the sidebar, so hover text is judged against it.
+const hoverGround = color(decl(appCss, '.sidebar-nav a:hover', 'background'), sidebar);
 
 const checks = [
-  ['nav inactive', decl(appCss, '.sidebar-nav a', 'color'), wall, 4.5],
+  // Sidebar / nav — against the sage sidebar step
+  ['nav inactive', decl(appCss, '.sidebar-nav a', 'color'), sidebar, 4.5],
   ['nav hover', decl(appCss, '.sidebar-nav a:hover', 'color'), hoverGround, 4.5],
   ['nav active', decl(appCss, '.sidebar-nav a.active', 'color'),
-    color(decl(appCss, '.sidebar-nav a.active', 'background'), wall), 4.5],
-  ['wordmark', decl(appCss, '.sidebar-nav .nav-logo', 'color'), wall, 4.5],
-  ['wordmark em', decl(appCss, '.nav-logo em', 'color'), wall, 4.5],
-  ['footer text', decl(appCss, '.app-footer', 'color'), wall, 4.5],
-  ['AGPL link', decl(appCss, '.app-footer a', 'color'), wall, 4.5],
-  ['page-sheet shadow', shadowColor(decl(appCss, '.page-container', 'box-shadow')), wall, 1.2],
+    color(decl(appCss, '.sidebar-nav a.active', 'background'), sidebar), 4.5],
+  ['wordmark', decl(appCss, '.sidebar-nav .nav-logo', 'color'), sidebar, 4.5],
+  ['wordmark em', decl(appCss, '.nav-logo em', 'color'), sidebar, 4.5],
+  // Footer + AGPL §13 link — now on the ground
+  ['footer text', decl(appCss, '.app-footer', 'color'), ground, 4.5],
+  ['AGPL link', decl(appCss, '.app-footer a', 'color'), ground, 4.5],
+  // Muted text on the two grounds it actually sits on
+  ['muted on ground', tokens['--muted'], ground, 4.5],
+  ['muted on board', tokens['--muted'], board, 4.5],
+  // Pine marker (match/success word) as text
+  ['mark on ground', tokens['--mark'], ground, 4.5],
+  ['mark on board', tokens['--mark'], board, 4.5],
+  // Terracotta AS TEXT must use --accent-text (= --deadline), not the fill value
+  ['accent-text on ground', tokens['--accent-text'], ground, 4.5],
+  ['accent-text on board', tokens['--accent-text'], board, 4.5],
+  ['deadline on ground', tokens['--deadline'], ground, 4.5],
+  ['deadline on board', tokens['--deadline'], board, 4.5],
+  // Terracotta AS FILL: white label on the accent button
+  ['white on accent', tokens['--accent-ink'], accentFill, 4.5],
 ];
 
 let failed = 0;
@@ -102,7 +116,7 @@ for (const [name, expr, bg, min] of checks) {
   const r = ratio(color(expr, bg), bg);
   const ok = r >= min;
   if (!ok) failed++;
-  console.log(`${ok ? 'ok  ' : 'FAIL'}  ${name.padEnd(20)} ${r.toFixed(2)}:1  (needs ${min}:1)`);
+  console.log(`${ok ? 'ok  ' : 'FAIL'}  ${name.padEnd(22)} ${r.toFixed(2)}:1  (needs ${min}:1)`);
 }
 
 console.log(failed ? `\n${failed} shell contrast failure(s)` : '\nall shell pairs pass');

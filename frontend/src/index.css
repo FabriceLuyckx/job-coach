@@ -1,76 +1,80 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* ── Design tokens ───────────────────────────────────────────────────────────
-   Mid-century poster direction (Bauhaus/Swiss): cream ground, ink-black
-   hairlines and rules, one vermilion accent + teal counterpoint, bold
-   uppercase grotesque headings, hard edges — no rounded corners, no soft
-   shadows. Flat color blocks over tints wherever possible. */
+   Atelier / Stone: one drenched sage colour world (no cream, no dark wall),
+   depth by tone + hairline (not shadow), one tonal board (not cards), text
+   meta (not badges), rounded + roomy, system-sans body × mono data voice, one
+   rationed terracotta accent. See DESIGN.md. */
 :root {
-  /* Type — one grotesque family; headings are just heavier + uppercase */
-  --font-display: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-ui: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Type — system-sans for everything; mono is the data voice. Inter is the
+     self-hosted fallback (a plain sans), not a display face. */
+  --font-display: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter Variable', sans-serif;
+  --font-ui:      system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter Variable', sans-serif;
+  --data-font:    ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
 
-  /* Palette */
-  --paper:        #F2EFE4;   /* app background — poster cream */
-  --surface:      #FBFAF3;   /* cards — barely off the cream */
-  --surface-dim:  #ECE8D9;   /* nested panels, headers */
-  --border:       #1C1A16;   /* ink hairlines everywhere — the Swiss rule */
-  --border-strong:#1C1A16;
-  --ink:          #1C1A16;   /* body text */
-  --heading:      #141311;   /* headings, near-black */
-  /* Secondary text. Dark enough to clear WCAG AA (4.5:1) on every ground it
-     sits on, including the dimmest — --surface-dim: 4.96:1, --paper 5.29:1,
-     --surface 5.82:1. The old #6E6A5E failed at 4.40:1 on --surface-dim,
-     which .callout and decided rows both use. */
-  --muted:        #666256;
-  --accent:       #C8401F;   /* vermilion — primary actions, active nav */
-  --accent-hover: #A83415;
-  --accent-soft:  #F5DFD5;   /* accent tint backgrounds */
-  /* The accent as *text*. The brand vermilion is tuned as a fill (white on it
-     is 4.99:1), but as 13-14px text it fails AA on every cream ground it sits
-     on (--paper 4.33, --surface-dim 4.07). This darker cast clears all of them
-     (worst 4.94:1) while reading as the same colour. Fills keep --accent. */
-  --accent-text:  #AD3618;
-  /* Teal — one hue at three values, one job each:
-       --frame     the wall the cream sheet hangs on (app shell only)
-       --teal      content signals: AI, success
-       --teal-soft soft tint backgrounds
-     The wall was #6B8F91 (L≈58%) — a mid-tone that can hold neither ink nor
-     paper text: nav 2.58:1, footer 2.27:1, the AGPL §13 link 3.06:1, all
-     against 4.5:1. Even pure #FFFFFF on it reached 3.52:1, so no text-side
-     fix existed. At this value paper text clears AA with headroom (nav at
-     75% 6.74:1, footer at 80% 7.44:1, the AGPL link 10.62:1) and the cream
-     active tab still wins decisively at 15.09:1. */
-  --frame:        #1E3A38;
-  --teal:         #2F6B66;
-  --teal-soft:    #DDEAE7;
-  --success:      var(--teal);
-  --success-soft: var(--teal-soft);
+  /* Ground — one sage hue at three tonal values (base / panel / inset). */
+  --ground:       #CCD4CD;   /* app ground — content sits directly on this */
+  --board:        #D9E0DA;   /* raised panel — the listings board, callouts, menus */
+  --surface:      #E3E8E4;   /* inset — input/field fills, the lightest step */
+
+  /* Ink — deep pine */
+  --ink:          #1E332D;   /* body text */
+  --heading:      #14261F;   /* headings — a touch deeper */
+  --muted:        #3A4B43;   /* secondary text/labels/meta — AA on every ground (6.12:1 on --ground) */
+
+  /* Accent — terracotta. FILL vs TEXT are two tokens; do not collapse them. */
+  --accent:       #BC4A26;   /* fill only — white on it 5.07:1 */
+  --accent-hover: #A53E1E;
+  --accent-ink:   #FFFFFF;   /* text on the accent fill */
+  --accent-soft:  #E7CFC4;   /* accent tint backgrounds */
+  /* Terracotta as *text* (CTA link, deadline). --accent as small text on sage
+     is only 3.34:1 (ground) → FAILS AA; this value clears it (4.89:1 ground,
+     5.51:1 board, 5.97:1 surface). Never use --accent for text. */
+  --accent-text:  #963618;
+
+  /* Marker — pine green: match/success signal (replaces the whole teal ramp). */
+  --mark:         #1F5A44;
+  --deadline:     var(--accent-text);   /* deadline is always coloured text, never a fill */
+
+  /* Hairline — one low-contrast ink line for every border. No gray token, no
+     coloured side-stripe. */
+  --line:         color-mix(in srgb, var(--ink) 16%, transparent);
+
   --danger:       #8F2410;   /* deeper than the accent so they never read as one */
-  --danger-soft:  #F3DCD4;
-  --info-soft:    #ECE8D9;
-  /* Mustard — unsaved markers, nudges, warnings. Dark enough to clear AA as
-     13px text on every ground: --surface 5.92:1, --paper 5.38:1,
-     --surface-dim 5.05:1. The old #8F6B0C failed all three (4.69/4.27/4.00). */
-  --highlight:    #7C5C08;
-  --overlay:      rgba(20, 19, 17, 0.5);
+  --danger-soft:  color-mix(in srgb, var(--danger) 12%, var(--board));
+  --info-soft:    var(--board);
+  /* Mustard — unsaved markers, nudges, warnings. Darkened to clear AA as 13px
+     text on the sage grounds (5.02:1 on --ground). Never used for errors. */
+  --highlight:    #6E5406;
+  --overlay:      rgba(20, 38, 31, 0.5);
 
-  /* Compat aliases (older rules referenced these) */
-  --bg: var(--paper);
-  --text: var(--ink);
-  --accent-mid: var(--accent-hover);
+  /* Compat aliases (older rules/inline styles still reference these) */
+  --paper:        var(--surface);   /* was the cream sheet — now the light "text-on-dark-fill" tone */
+  --surface-dim:  color-mix(in srgb, var(--ink) 6%, var(--ground));  /* subtle inset (progress tracks, decided rows) */
+  --border:       var(--line);
+  --border-strong:color-mix(in srgb, var(--ink) 30%, transparent);
+  --success:      var(--mark);
+  --success-soft: color-mix(in srgb, var(--mark) 14%, var(--board));
+  --bg:           var(--ground);
+  --text:         var(--ink);
+  --accent-mid:   var(--accent-hover);
 
-  --radius: 0px;
-  --radius-sm: 0px;
-  --chip-radius: 2px;  /* badges/tags/pills — squared, not pill */
-  /* Hard offset shadows — one per ground, since a shadow has to be visible
-     against what it actually falls on. --shadow-pop is for elements floating
-     above the cream sheet (menus, modals: 1.44:1). On the teal wall that same
-     ink-at-18% computes to 1.08:1 — invisible — so the page sheet uses
-     --shadow-pop-wall (1.47:1 on --frame), matching the weight the modal
-     shadow has on cream. */
-  --shadow-pop: 6px 6px 0 rgba(20, 19, 17, 0.18);
-  --shadow-pop-wall: 6px 6px 0 #0D1918;
+  /* Radius scale — pill controls, round panels, round frame. */
+  --r-btn:        999px;
+  --r-field:      999px;
+  --r-nav:        999px;
+  --r-panel:      22px;
+  --r-frame:      30px;
+  --radius:       var(--r-panel);   /* alias: cards/callouts/modals/menus */
+  --radius-sm:    12px;             /* alias: small radius (code blocks, list items) */
+  --chip-radius:  999px;            /* badges/tags/chips — pills now */
+
+  /* Depth is tonal; the ONE soft float shadow is for overlays only (modal,
+     menu, toast). No resting in-content surface reuses it. */
+  --shadow-float: 0 10px 30px -8px rgba(20, 38, 31, 0.28);
+  /* Legacy aliases — old rules referenced these; point them at the one float. */
+  --shadow-pop:      var(--shadow-float);
+  --shadow-pop-wall: var(--shadow-float);
 
   /* Spacing scale — use these, not ad-hoc pixel values */
   --space-1: 4px;
@@ -96,18 +100,19 @@ body {
   font-family: var(--font-ui);
   font-size: var(--fs-base);
   color: var(--ink);
-  background: var(--frame);
+  background: var(--ground);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
 
+/* Headings are weight-based and mixed case — the blanket uppercase transform is
+   gone (it survives only on the mono match word + small utility labels). */
 h1, h2, h3, .section-title, .page-title,
 .modal-title, .empty-state-title, .collapsible-title, .nav-logo {
   font-family: var(--font-display);
   color: var(--heading);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 /* Links are ink + underline, not accent. This rule used to paint every <a> in
@@ -129,63 +134,64 @@ button {
   font-family: inherit;
   font-size: var(--fs-base);
   border: none;
-  border-radius: var(--radius-sm);
-  padding: 8px 15px;
+  border-radius: var(--r-btn);
+  padding: 9px 18px;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 button:disabled { cursor: not-allowed; }
 
-/* Labeled action buttons get the poster treatment; content-wrapping buttons
-   (collapsible toggles, menu options) keep normal case. */
+/* Labeled action buttons — pill, mixed case, weight-based (no uppercase). */
 .btn-primary, .btn-secondary, .btn-danger, .btn-ghost, .btn-saved {
   font-size: var(--fs-sm);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-weight: 600;
+  border-radius: var(--r-btn);
 }
 
 .btn-primary {
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-ink);
 }
 .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+.btn-primary:active:not(:disabled) { background: color-mix(in srgb, var(--accent-hover) 88%, black); }
 /* A link that IS a primary action (Preferences' end card) — one tab stop rather
    than a <Link> wrapping a <button>. Anchors don't get the `button` element
    rule above, so the box is restated here, and the global link underline and
    accent colour are cancelled. */
 a.btn-primary {
   display: inline-block;
-  padding: 8px 15px;
-  color: #fff;
+  padding: 9px 18px;
+  color: var(--accent-ink);
   text-decoration: none;
   transition: background 0.15s;
 }
 a.btn-primary:hover { text-decoration: none; }
-/* Disabled keeps full label contrast (the old washed-out grey read as broken). */
-.btn-primary:disabled { background: color-mix(in srgb, var(--accent) 38%, var(--paper)); color: #fff; }
+/* Disabled keeps full label contrast (a washed-out grey read as broken). */
+.btn-primary:disabled { background: color-mix(in srgb, var(--accent) 45%, var(--board)); color: var(--accent-ink); }
 
-/* Poster inversion: ink outline that fills to ink on hover. */
+/* Hairline outline that fills to a tonal step on hover. */
 .btn-secondary {
   background: transparent;
   color: var(--ink);
-  border: 1.5px solid var(--ink);
-  padding: 7px 14px; /* compensate the border */
+  border: 1px solid var(--line);
+  padding: 8px 17px; /* compensate the border */
 }
-.btn-secondary:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
-.btn-secondary:disabled { color: color-mix(in srgb, var(--ink) 45%, var(--paper)); border-color: color-mix(in srgb, var(--ink) 45%, var(--paper)); }
+.btn-secondary:hover:not(:disabled) { background: var(--surface); border-color: var(--ink); }
+.btn-secondary:active:not(:disabled) { background: var(--board); }
+.btn-secondary:disabled { color: var(--muted); border-color: var(--line); opacity: 0.55; }
 
 .btn-danger {
   background: var(--danger);
   color: #fff;
 }
 .btn-danger:hover:not(:disabled) { background: color-mix(in srgb, var(--danger) 85%, black); }
-.btn-danger:disabled { background: color-mix(in srgb, var(--danger) 38%, var(--paper)); color: #fff; }
+.btn-danger:disabled { background: color-mix(in srgb, var(--danger) 45%, var(--board)); color: #fff; }
 
 .btn-ghost {
   background: transparent;
   color: var(--muted);
 }
 .btn-ghost:hover:not(:disabled) { background: var(--accent-soft); color: var(--ink); }
+.btn-ghost:active:not(:disabled) { background: color-mix(in srgb, var(--accent-soft) 80%, var(--ink)); }
 .btn-ghost:disabled { color: color-mix(in srgb, var(--muted) 50%, transparent); }
 
 /* Square icon-only button. Destructive intent shows on hover only —
@@ -215,14 +221,16 @@ input[type="text"], input[type="email"], input[type="tel"], input[type="url"],
 input[type="number"], input[type="password"], select, textarea {
   font-family: inherit;
   font-size: var(--fs-base);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-field);
+  padding: 8px 14px;
   width: 100%;
   background: var(--surface);
   color: var(--ink);
   transition: border-color 0.15s;
 }
+/* Multiline fields take the panel radius — a pill on a tall box looks wrong. */
+textarea { border-radius: var(--r-panel); }
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--accent);
@@ -256,14 +264,34 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 .field:last-child { margin-bottom: 0; }
 .field-hint { font-size: var(--fs-sm); color: var(--muted); margin-top: 5px; line-height: 1.4; }
 
-/* ── Cards & sections ───────────────────────────────────────────────────── */
+/* ── Panels & sections ──────────────────────────────────────────────────── */
+/* A single tonal panel — raised one step off the ground by tone + a hairline,
+   never a shadow. (Listings use .board/.board-row below, not a stack of .card.) */
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  background: var(--board);
+  border: 1px solid var(--line);
+  border-radius: var(--r-panel);
   padding: var(--space-5);
   margin-bottom: var(--space-4);
 }
+
+/* ── Listings — one tonal board split by hairlines (no cards) ────────────── */
+.board {
+  background: var(--board);
+  border: 1px solid var(--line);
+  border-radius: var(--r-panel);
+  overflow: hidden;   /* clip row hairlines to the rounded corners */
+}
+.board-row {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--line);
+}
+.board-row:last-child { border-bottom: none; }
+/* De-emphasis is tonal, never opacity — fading a row also fades the AI's stated
+   reason, the one thing that must stay readable. */
+.board-row.decided { background: color-mix(in srgb, var(--ink) 5%, var(--board)); }
 
 .section-header {
   display: flex;
@@ -336,13 +364,13 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 /* Compact rows (CV history slots) keep UI font */
 .collapsible-title-sm { font-weight: 550; font-size: var(--fs-base); color: var(--ink); }
 
-/* ── Badges ─────────────────────────────────────────────────────────────── */
+/* ── Badges — categorical labels only (a row's own fields are text; see .meta) */
 .badge {
   font-size: var(--fs-xs);
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: var(--chip-radius);
   white-space: nowrap;
   flex-shrink: 0;
@@ -350,15 +378,53 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   align-items: center;
   gap: 4px;
 }
-.badge-cv      { background: var(--accent); color: var(--paper); }
-.badge-ai      { background: var(--teal); color: var(--paper); }
-.badge-jobs    { background: var(--ink); color: var(--paper); }
-.badge-lang    { background: transparent; color: var(--ink); border: 1px solid var(--border); }
-.badge-neutral { background: transparent; color: var(--muted); border: 1px solid color-mix(in srgb, var(--ink) 45%, transparent); }
+.badge-cv      { background: var(--accent); color: var(--accent-ink); }
+.badge-ai      { background: var(--mark); color: var(--surface); }
+.badge-jobs    { background: var(--ink); color: var(--surface); }
+.badge-lang    { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.badge-neutral { background: transparent; color: var(--muted); border: 1px solid var(--line); }
 /* "Needs an answer" — mustard, matching the other --highlight nudges. Not the
-   accent (the section already carries a vermilion CV badge, and two in one row
+   accent (the section already carries a terracotta CV badge, and two in one row
    breaks the rationing) and not --danger (unanswered is not an error). */
 .badge-required { background: transparent; color: var(--highlight); border: 1px solid var(--highlight); }
+
+/* ── De-badged listing meta/status (text, not chips) ─────────────────────── */
+/* One inline mono line, fields joined by a middot — reads as a discrete field
+   list without pills. */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin-top: var(--space-2);
+  font-family: var(--data-font);
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+.meta > span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+/* Middot between fields (not after the last). */
+.meta > span:not(:last-child)::after { content: '·'; margin-left: 10px; color: var(--line); }
+/* The deadline field carries the accent as coloured mono text (never a chip). */
+.meta .meta-deadline { color: var(--deadline); font-weight: 600; }
+/* Match = a small square marker + a plain uppercase mono word in the pine mark. */
+.match-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--data-font);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mark);
+}
+.match-flag::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  background: var(--mark);
+  flex-shrink: 0;
+}
 
 /* ── Preferences questionnaire ──────────────────────────────────────────── */
 /* Unnumbered on purpose: ordinals imply a wizard with progress and an end, and
@@ -392,24 +458,27 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 .q-title label { font: inherit; color: inherit; display: block; margin: 0; cursor: pointer; }
 .q-sub { font-size: var(--fs-sm); color: var(--muted); line-height: 1.55; margin: 0 0 var(--space-4); }
 
-/* Squared segmented control (single choice) — ink fill marks the active option. */
-.seg { display: inline-flex; border: 1px solid var(--ink); width: fit-content; }
+/* Pill segmented control (single choice) — ink fill marks the active option
+   (a tonal selection signal, so it doesn't spend the rationed accent). */
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--r-btn); width: fit-content; overflow: hidden; }
 .seg button {
-  padding: 6px 14px;
+  padding: 7px 16px;
   background: transparent;
   border: none;
-  border-right: 1px solid var(--ink);
+  border-right: 1px solid var(--line);
+  border-radius: 0;
   font: inherit;
   font-size: var(--fs-sm);
   color: var(--ink);
   cursor: pointer;
 }
 .seg button:last-child { border-right: none; }
+.seg button:hover:not([aria-pressed="true"]):not([aria-checked="true"]) { background: var(--surface); }
 /* aria-pressed: toggle-style .seg (Applications' CV|Letter tabs).
    aria-checked: radiogroup-style .seg (Preferences' working style). Same
    affordance, same visual: ink fill = chosen. */
 .seg button[aria-pressed="true"], .seg button[aria-checked="true"] {
-  background: var(--ink); color: var(--paper); font-weight: 600;
+  background: var(--ink); color: var(--surface); font-weight: 600;
 }
 
 /* ── Engine chooser (Settings) ──────────────────────────────────────────── */
@@ -699,7 +768,7 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 /* Bordered checkbox chip — CV section toggles. */
 .chip-check {
   display: inline-flex; align-items: center; gap: var(--space-2);
-  border: 1px solid var(--border); padding: 4px 10px;
+  border: 1px solid var(--line); border-radius: var(--r-btn); padding: 5px 12px;
   cursor: pointer; font-size: var(--fs-sm); color: var(--ink);
   font-weight: 400; margin-bottom: 0;
 }
@@ -722,12 +791,12 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 10px 14px;
-  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--r-panel);
   font-size: var(--fs-sm);
   line-height: 1.5;
-  border: 1px solid var(--border);
-  background: var(--surface-dim);
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--accent) 10%, var(--board));
 }
 .callout-highlight {
   background: color-mix(in srgb, var(--highlight) 7%, var(--surface));
@@ -794,15 +863,15 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   align-items: center;
   gap: var(--space-3);
   background: var(--heading);
-  color: var(--paper);
-  border-radius: var(--radius);
-  padding: 11px 14px;
+  color: var(--surface);
+  border-radius: var(--r-panel);
+  padding: 12px 16px;
   /* Body size, not caption size: this is the app's only channel for "did that
      work?", and it is read once, in passing, from across the page. */
   font-size: var(--fs-base);
-  /* No offset shadow. --shadow-pop lifts the page sheet and modals off the wall;
-     on a small ink block over cream the contrast already does that, and 6px of
-     hard offset on a strip this size read as a second, misaligned border. */
+  /* An overlay: it floats above arbitrary content, so it gets the one sanctioned
+     soft float shadow (the same value modals and menus use). */
+  box-shadow: var(--shadow-float);
   animation: toast-in 0.18s ease-out;
 }
 @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
@@ -879,7 +948,7 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 /* ── Empty states ───────────────────────────────────────────────────────── */
 .empty-state {
   border: 1px dashed var(--border-strong);
-  border-radius: var(--radius);
+  border-radius: var(--r-panel);
   padding: var(--space-8) var(--space-6);
   text-align: center;
   color: var(--muted);
@@ -887,7 +956,7 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   flex-direction: column;
   align-items: center;
   gap: var(--space-2);
-  background: var(--surface-dim);
+  background: color-mix(in srgb, var(--accent) 10%, var(--board));
 }
 .empty-state-title { font-size: var(--fs-lg); }
 .empty-state-body { font-size: var(--fs-sm); max-width: 420px; line-height: 1.6; }

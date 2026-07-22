@@ -36,24 +36,26 @@ function host(url: string): string {
 function Digest({ digest }: { digest: JobDigest | null }) {
   const { t } = useTranslation()
   if (!digest) return null
-  // The icon is decorative, so each chip carries a screen-reader-only label —
-  // without it a chip reads as a bare "Ghent" with no hint it's a location.
-  const chips: [LucideIcon, string | undefined, string][] = [
-    [Building2, digest.employer, 'employer'],
-    [MapPin, digest.location, 'location'],
-    [Laptop, digest.remote && digest.remote !== 'unknown' ? digest.remote : undefined, 'remote'],
-    [FileText, digest.contract, 'contract'],
-    [CalendarClock, digest.deadline, 'deadline'],
+  // De-badged: fields are one inline mono line (middot-separated), not pills.
+  // The icon is decorative, so each field carries a screen-reader-only label —
+  // without it a field reads as a bare "Ghent" with no hint it's a location.
+  // The deadline is coloured mono text (--deadline), never a chip.
+  const fields: [LucideIcon, string | undefined, string, boolean][] = [
+    [Building2, digest.employer, 'employer', false],
+    [MapPin, digest.location, 'location', false],
+    [Laptop, digest.remote && digest.remote !== 'unknown' ? digest.remote : undefined, 'remote', false],
+    [FileText, digest.contract, 'contract', false],
+    [CalendarClock, digest.deadline, 'deadline', true],
   ]
-  const shown = chips.filter(([, v]) => v)
+  const shown = fields.filter(([, v]) => v)
   if (!shown.length && !digest.summary) return null
   return (
     <>
       {shown.length > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', marginTop: 'var(--space-2)' }}>
-          {shown.map(([Icon, v, key], i) => (
-            <span key={i} className="badge badge-neutral">
-              <Icon size={12} style={{ marginRight: 4, verticalAlign: -2 }} aria-hidden />
+        <div className="meta">
+          {shown.map(([Icon, v, key, isDeadline], i) => (
+            <span key={i} className={isDeadline ? 'meta-deadline' : undefined}>
+              <Icon size={12} aria-hidden />
               <span className="sr-only">{t(`jobs.digest.${key}`)}: </span>{v}
             </span>
           ))}
@@ -579,14 +581,19 @@ export default function JobsPage() {
               : sources.length === 0 ? t('jobs.noSuggestionsNoSources') : t('jobs.noSuggestionsHasSources')}
           </EmptyState>
         </div>
-      ) : suggested.map(o => (
-        <div key={o.id} className="card" style={{ marginBottom: 'var(--space-2)', display: 'flex', gap: 'var(--space-4)' }}>
+      ) : (
+        <div className="board" style={{ marginBottom: 'var(--space-5)' }}>
+        {suggested.map(o => (
+        <div key={o.id} className="board-row">
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
               <a href={o.url} target="_blank" rel="noreferrer">{o.title || host(o.url)}</a>
               <Badge variant="lang">{o.lang}</Badge>
             </div>
-            <div className="muted-sm">{host(o.source_url)}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap', marginTop: 2 }}>
+              <span className="match-flag">{t('jobs.match')}</span>
+              <span className="muted-sm">{host(o.source_url)}</span>
+            </div>
             {o.reason && <div style={{ fontSize: 'var(--fs-sm)', marginTop: 'var(--space-2)' }}>{o.reason}</div>}
             <Digest digest={o.digest} />
           </div>
@@ -619,7 +626,9 @@ export default function JobsPage() {
             )}
           </div>
         </div>
-      ))}
+        ))}
+        </div>
+      )}
 
 
       {(sources.length > 0 || filtered.total > 0) && (
@@ -638,8 +647,10 @@ export default function JobsPage() {
             {filtered.total === 0 && (
               <p className="muted-sm" style={{ marginBottom: 'var(--space-3)' }}>{t('jobs.filteredOutNone')}</p>
             )}
+            {filtered.items.length > 0 && (
+            <div className="board" style={{ marginBottom: 'var(--space-3)' }}>
             {filtered.items.map(o => (
-              <div key={o.id} className="card card-decided" style={{ marginBottom: 'var(--space-2)', display: 'flex', alignItems: 'flex-start', gap: 'var(--space-4)' }}>
+              <div key={o.id} className="board-row decided" style={{ alignItems: 'flex-start' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <Filter size={14} color="var(--muted)" aria-hidden />
@@ -663,6 +674,8 @@ export default function JobsPage() {
                 </Button>
               </div>
             ))}
+            </div>
+            )}
             <Pager page={filtered.page} pageCount={Math.ceil(filtered.total / PAGE_LIMIT)}
               onChange={p => loadGroup('filtered', p)} />
           </Collapsible>
@@ -692,16 +705,17 @@ export default function JobsPage() {
       {history.total > 0 && (
         <>
           <h2 className="section-title" style={{ marginTop: 'var(--space-6)', marginBottom: 'var(--space-3)' }}>{t('jobs.history')}</h2>
+          <div className="board" style={{ marginBottom: 'var(--space-3)' }}>
           {history.items.map(o => {
             const rejected = o.status === 'rejected'
             return (
-              <div key={o.id} className={`card${rejected ? ' card-decided' : ''}`}
-                style={{ marginBottom: 'var(--space-2)', display: 'flex', alignItems: 'flex-start', gap: 'var(--space-4)' }}>
+              <div key={o.id} className={`board-row${rejected ? ' decided' : ''}`}
+                style={{ alignItems: 'flex-start' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
                     {rejected
                       ? <X size={14} color="var(--muted)" aria-hidden />
-                      : <Check size={14} color="var(--success)" aria-hidden />}
+                      : <Check size={14} color="var(--mark)" aria-hidden />}
                     <a href={o.url} target="_blank" rel="noreferrer">{o.title || host(o.url)}</a>
                   </div>
                   <div className="muted-sm">
@@ -733,6 +747,7 @@ export default function JobsPage() {
               </div>
             )
           })}
+          </div>
           <Pager page={history.page} pageCount={Math.ceil(history.total / PAGE_LIMIT)}
             onChange={p => loadGroup('history', p)} />
         </>
