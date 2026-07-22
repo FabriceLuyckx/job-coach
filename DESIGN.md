@@ -1,6 +1,6 @@
 ---
 name: Job Coach
-description: The Atelier / Stone system — one drenched sage colour world, rationed terracotta, calm register, for a local-first career-application tool.
+description: The Atelier / Stone system — one drenched sage colour world, a purposeful (not decorative) terracotta accent, calm register, for a local-first career-application tool.
 colors:
   ground: "#CCD4CD"
   board: "#D9E0DA"
@@ -12,9 +12,9 @@ colors:
   accent-hover: "#A53E1E"
   accent-ink: "#FFFFFF"
   accent-soft: "#E7CFC4"
-  accent-text: "#963618"
+  accent-text: "#8D3317"
   mark: "#1F5A44"
-  deadline: "#963618"
+  deadline: "#8D3317"
   line: "rgba(30, 51, 45, 0.16)"
   deep-red: "#8F2410"
   deep-red-soft: "#EAD9CF"
@@ -41,6 +41,8 @@ rounded:
   nav: "999px"
   panel: "22px"
   frame: "30px"
+  sm: "12px"
+  xs: "4px"
 spacing:
   1: "4px"
   2: "8px"
@@ -97,20 +99,23 @@ floating on a contrasting wall. There is no cream and no dark wall: the ground i
 (`--ground`), the sidebar is a tonal *step* of that same ground, and content sits
 directly on it. Depth comes from tone, not shadow; a list is one tonal board split by
 hairlines, not a grid of bordered cards; meta and status are read as text, not stamped
-into pill badges. One warm terracotta accent is rationed to the primary signal.
+into pill badges. One warm terracotta accent carries every real signal moment.
 
 That calm is structural. Job Coach's brand personality is calm, trustworthy,
 reassuring — job hunting is stressful enough — so the confidence lives in the drenched
-ground and the rounded, roomy form, while colour, motion, and copy stay restrained.
-Terracotta is warm by hue, but it is rationed to one thing at a time: the primary
-action, the current selection, the deadline signal. This explicitly rejects the
+ground and the rounded, roomy form, while colour, motion, and copy stay purposeful rather
+than loud. Terracotta is warm by hue and, since 2026-07-22, spent generously wherever it
+means something: the primary/submit action (every occurrence, not just one per screen),
+the current selection, the deadline signal, and a small wayfinding touch (the active nav
+item — its label and icon — and the wordmark). It still never marks decoration or a
+merely-repeated element with no state behind it. This explicitly rejects the
 **generic SaaS dashboard** (soft-shadowed cards, blue-gradient chrome, pastel status
 pills), **corporate job-board chrome** (LinkedIn/Indeed dense blue, stock-photo
 emptiness), and the **AI-assistant chat-bot look** (bubbles, glowing orbs, sparkle
 iconography) — the AI in this app does quiet background work, it never performs as a
 character. "Not generic" is earned by *execution* — the mono data voice on every field,
-tonal-only depth, and the one rationed accent — not by asserting it, and not by the
-absence of radius or depth.
+tonal-only depth, and a purposeful (not decorative) accent — not by asserting it, and not
+by the absence of radius or depth.
 
 **Key Characteristics:**
 - One drenched sage ground at three tonal values (`ground`/`board`/`surface`); no cream,
@@ -121,7 +126,8 @@ absence of radius or depth.
 - Rounded, roomy: pill controls, round panels/frame, generous spacing
 - System-sans body paired with a mono data voice for every data line; mixed-case,
   weight-based headings — no blanket uppercase
-- A single terracotta accent, rationed to the primary signal
+- One terracotta accent, spent on every real action/selection/deadline signal — not on
+  decoration, and not capped at one occurrence per screen
 
 ## 2. Colors
 
@@ -153,12 +159,13 @@ floating sheet) and no dark wall (`--frame`).
 - **Terracotta fill** (`--accent` `#BC4A26`, hover `--accent-hover` `#A53E1E`, on-accent
   text `--accent-ink` `#FFFFFF`, tint `--accent-soft` `#E7CFC4`): the primary action, the
   current selection. Tuned as a **fill** — white on it is 5.07:1.
-- **Terracotta text** (`--accent-text` `#963618`): any terracotta *rendered as text* — a
-  call-to-action link, the deadline signal. `--accent` as small text on the sage grounds
-  is only 3.34:1 (ground) / 3.77:1 (board) and **fails AA**; `--accent-text` clears it
-  (4.89:1 on ground, 5.51:1 on board, 5.97:1 on surface). The sage ground is darker than
-  the old cream (L≈0.83), so this text value is darkened past the cream-era value to keep
-  the same AA headroom.
+- **Terracotta text** (`--accent-text` `#8D3317`): any terracotta *rendered as text* — a
+  call-to-action link, the deadline signal, the "Coach" half of the sidebar wordmark.
+  `--accent` as small text on the sage grounds is only 3.34:1 (ground) / 3.77:1 (board) and
+  **fails AA**; `--accent-text` clears it everywhere it's used (5.30:1 on ground, 5.97:1 on
+  board, 6.47:1 on surface). Darkened again 2026-07-22 (from `#963618`) once the wordmark
+  put it on the sidebar's tonal step (`color-mix(ink 8%, ground)`) — the darkest surface in
+  the system — where the older value only cleared 4.28:1.
 - **Deadline** (`--deadline` = `--accent-text`): a deadline is always coloured text,
   never a fill, so it *is* the text token.
 
@@ -184,9 +191,21 @@ build; they change only the ground values, never the accent or the structure.
 (`color-mix(--ink 16%, transparent)`) — a low-contrast ink line, never a separate gray
 token and never a coloured side-stripe.
 
-**The Rationed Accent Rule.** Terracotta marks *one* primary thing per view: the default
-action, the current selection, the deadline signal. If two elements on a screen both want
-terracotta, one of them is wrong. Fills use `--accent`; text uses `--accent-text`.
+**The Rationed Accent Rule.** Terracotta is not decoration and never marks two competing
+things in the same spot — but it is not capped at one occurrence per screen either
+(2026-07-22 loosened this: the first cut of the rule read as monotonous rather than
+restrained, because genuine state — a chosen option, a submit action repeated once per
+row — was being pushed to ink instead of spending the accent it was named for). It marks:
+the default/submit action (every instance of it, including once per row in a list of
+identical actions — e.g. Accept on every job suggestion), the current selection (segmented
+controls, the engine/model pickers — accent fill, not ink), and the deadline signal. It
+does **not** mark decoration, categorical badges, or a *repeated but non-actionable*
+element (a numbered step badge, a colour-picker's own selection ring, which stays neutral
+so it doesn't fight the swatch colour it's ringing). Fills use `--accent`; terracotta
+*text* (and any accent icon sitting beside it, e.g. the active nav item) uses
+`--accent-text`, which clears AA on every ground including the sidebar's tonal step — an
+icon on its own may use the brighter `--accent` where nothing else constrains it, since
+icons only need 3:1, not 4.5:1.
 
 ## 3. Typography
 
@@ -223,7 +242,7 @@ uppercase a sentence the user reads as prose, and never blanket-uppercase headin
 match verdict — is set in `--data-font`. This is what carries at-a-glance scannability
 now that meta is text, not badges.
 
-## 4. Depth
+## 4. Elevation: Depth is Tonal
 
 Depth is tonal, not shadow. In-content surfaces separate by the
 `ground`/`board`/`surface` tonal steps plus low-contrast hairlines (`--line`). Nothing in
@@ -287,15 +306,21 @@ of them. A hard offset shadow on a resting card is the banned pattern.
 - A fixed sidebar filled with the sage tonal step (`color-mix(--ink 8%, --ground)`),
   holding the wordmark and icon+label links (Lucide icons). Inactive links are `--muted`
   ink; hover brightens to `--ink` over a faint tonal wash. The **active** route is a
-  `--board` fill **pill** (`--r-nav`) with `--heading` text — no accent, no side-stripe.
-  The pill carries "you are here" tonally; contrast is verified against the sidebar sage.
-- **Wordmark:** "Job **Coach**" separates its words by weight, mixed case, `--heading`.
+  `--board` fill **pill** (`--r-nav`) whose **label and icon** are both `--accent-text`
+  (the icon inherits `currentColor`) — the pill itself stays tonal (no side-stripe, no
+  accent fill on the pill), so "you are here" is carried by tone *and* named in terracotta,
+  one small permanent wayfinding pop rather than a second competing fill. `--accent-text`,
+  not the fill `--accent`, so the label clears AA on the board pill (5.97:1).
+- **Wordmark:** "Job **Coach**" separates its words by weight *and* hue — `--muted` then
+  `--accent-text` on "Coach". It never changes state, so it reads as identity rather than
+  spending the accent's "current signal" meaning.
 
 ### Segmented control (`.seg`)
 - A pill-outlined button row (`--r-btn`, `--line` border) with hairline dividers — no gaps,
-  no individual pills. The selected option fills to `--ink` with light text — a *tonal*
-  selection signal (the same "ink fill = chosen" the engine/model pickers use), so it reads
-  as selected everywhere without spending the rationed accent.
+  no individual pills. The selected option fills to `--accent` with `--accent-ink` text —
+  the same accent-fill selection signal the engine/model pickers use (2026-07-22: this was
+  ink-fill; the Rationed Accent Rule names "the current selection" as an accent role, so a
+  chosen option now spends it).
 
 ### Overlays
 - Modal/menu/toast use `--r-panel` (or `--r-btn` for small controls within them) and the
@@ -312,8 +337,9 @@ of them. A hard offset shadow on a resting card is the banned pattern.
   of bordered cards.
 - **Do** set every data line in `--data-font`; meta is a mono middot line, match is a
   marker + `--mark` word, deadline is `--deadline` mono text.
-- **Do** ration terracotta to one primary signal per view; use `--accent` for fills and
-  `--accent-text` for any terracotta text.
+- **Do** spend terracotta on every real action/selection/deadline signal — including once
+  per row in a list of identical actions; use `--accent` for fills and `--accent-text` for
+  any terracotta text.
 - **Do** style in-content links as `--ink` with an underline; the underline is the
   affordance, not the colour. `--accent-text` is reserved for a link that *is* the view's
   next action.
@@ -326,8 +352,10 @@ of them. A hard offset shadow on a resting card is the banned pattern.
   no coloured side-stripe.
 - **Don't** stamp a row's own fields into pill badges; meta/status are text. Badge is only
   for categorical labels.
-- **Don't** paint an element terracotta by *type* (a rule like `a { color: accent }`); the
-  accent is spent per-view, deliberately.
+- **Don't** paint an element terracotta by *type* (a rule like `a { color: accent }`) —
+  every terracotta use still has to be a real action, selection, or deadline, not a
+  blanket style; decorative or merely-repeated elements (step badges, a colour-picker's
+  own selection ring) stay neutral.
 - **Don't** blanket-uppercase headings, or set a data line in the body sans.
 - **Don't** read as a **generic SaaS dashboard**, **corporate job-board chrome**, or an
   **AI chat-bot persona**.

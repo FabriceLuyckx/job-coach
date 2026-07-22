@@ -47,8 +47,9 @@ and language stay plain-spoken and unhurried rather than loud.
 ## Anti-references
 
 "Not generic SaaS" is defined **positively** — the drenched Stone sage ground, one
-rationed terracotta accent, and a calm register — not as the absence of radius or depth,
-and not the old cream/Bauhaus print system (which itself became a tell). See DESIGN.md.
+terracotta accent spent purposefully (every action/selection/deadline, not decoration),
+and a calm register — not as the absence of radius or depth, and not the old
+cream/Bauhaus print system (which itself became a tell). See DESIGN.md.
 
 - **Generic SaaS dashboard** — the explicit slop list: bordered/soft-shadowed **cards**,
   **cream** or near-white grounds, **soft drop-shadows** on resting UI, **side-stripe**

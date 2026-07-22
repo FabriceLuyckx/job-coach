@@ -613,7 +613,7 @@ export default function JobsPage() {
               </>
             ) : (
               <>
-                <Button variant="secondary" onClick={() => accept(o)} busy={busy === o.id}
+                <Button variant="primary" onClick={() => accept(o)} busy={busy === o.id}
                   title={t('jobs.acceptTitle')}>
                   <Check size={14} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
                   {t('jobs.acceptGenerate')}

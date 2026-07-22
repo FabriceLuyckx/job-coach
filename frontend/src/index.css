@@ -27,10 +27,12 @@
   --accent-hover: #A53E1E;
   --accent-ink:   #FFFFFF;   /* text on the accent fill */
   --accent-soft:  #E7CFC4;   /* accent tint backgrounds */
-  /* Terracotta as *text* (CTA link, deadline). --accent as small text on sage
-     is only 3.34:1 (ground) → FAILS AA; this value clears it (4.89:1 ground,
-     5.51:1 board, 5.97:1 surface). Never use --accent for text. */
-  --accent-text:  #963618;
+  /* Terracotta as *text* (CTA link, deadline, wordmark). --accent as small text
+     on sage is only 3.34:1 (ground) → FAILS AA. Darkened 2026-07-22 (was
+     #963618, 4.89:1 ground) so the wordmark clears AA on the sidebar's tonal
+     step too (color-mix(ink 8%, ground), the darkest surface in the system) —
+     5.30:1 ground, 5.97:1 board, 6.47:1 surface. Never use --accent for text. */
+  --accent-text:  #8D3317;
 
   /* Marker — pine green: match/success signal (replaces the whole teal ramp). */
   --mark:         #1F5A44;
@@ -67,6 +69,7 @@
   --r-frame:      30px;
   --radius:       var(--r-panel);   /* alias: cards/callouts/modals/menus */
   --radius-sm:    12px;             /* alias: small radius (code blocks, list items) */
+  --radius-xs:    4px;              /* micro-radius: native form-control corners (colour swatch, tag ×) */
   --chip-radius:  999px;            /* badges/tags/chips — pills now */
 
   /* Depth is tonal; the ONE soft float shadow is for overlays only (modal,
@@ -203,7 +206,7 @@ a.btn-primary:hover { text-decoration: none; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: var(--fs-lg);
   line-height: 1;
   flex-shrink: 0;
 }
@@ -223,7 +226,10 @@ input[type="number"], input[type="password"], select, textarea {
   font-size: var(--fs-base);
   border: 1px solid var(--line);
   border-radius: var(--r-field);
-  padding: 8px 14px;
+  /* Pill fields: the cap radius (~18px) curves the left/right edge inward, so
+     the text must clear it to read centred in the pill, not shoved against the
+     left curve. 20px starts it comfortably past the cap on the flat run. */
+  padding: 8px 20px;
   width: 100%;
   background: var(--surface);
   color: var(--ink);
@@ -231,6 +237,22 @@ input[type="number"], input[type="password"], select, textarea {
 }
 /* Multiline fields take the panel radius — a pill on a tall box looks wrong. */
 textarea { border-radius: var(--r-panel); }
+
+/* Native <select>: the UA arrow renders hard against the pill's rounded cap.
+   Swap it for a chevron inset from the cap, with room to its right. */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231E332D' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 18px center;
+  padding-right: 42px;
+}
+
+/* Native colour input paints a swatch inside a UA wrapper that has its own
+   padding + border — a second frame inside ours. Strip both so the colour fills
+   our rounded box. */
+input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+input[type="color"]::-webkit-color-swatch { border: none; border-radius: var(--radius-xs); }
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--accent);
@@ -292,6 +314,9 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 /* De-emphasis is tonal, never opacity — fading a row also fades the AI's stated
    reason, the one thing that must stay readable. */
 .board-row.decided { background: color-mix(in srgb, var(--ink) 5%, var(--board)); }
+/* Hover introduces colour only on interaction, never at rest — a faint warm
+   wash, not a fill, so it never competes with Accept/Reject inside the row. */
+.board-row:not(.decided):hover { background: color-mix(in srgb, var(--accent) 5%, var(--board)); }
 
 .section-header {
   display: flex;
@@ -458,8 +483,9 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 .q-title label { font: inherit; color: inherit; display: block; margin: 0; cursor: pointer; }
 .q-sub { font-size: var(--fs-sm); color: var(--muted); line-height: 1.55; margin: 0 0 var(--space-4); }
 
-/* Pill segmented control (single choice) — ink fill marks the active option
-   (a tonal selection signal, so it doesn't spend the rationed accent). */
+/* Pill segmented control (single choice) — accent fill marks the active option:
+   "current selection" is one of the three things the Rationed Accent Rule
+   names, and a chosen option is exactly that signal. */
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--r-btn); width: fit-content; overflow: hidden; }
 .seg button {
   padding: 7px 16px;
@@ -473,12 +499,17 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   cursor: pointer;
 }
 .seg button:last-child { border-right: none; }
+/* End segments sit inside the pill's rounded cap. Symmetric padding leaves the
+   label optically shoved against the curve, so the outer side gets extra room to
+   re-centre it within the visible rounded cell. */
+.seg button:first-child { padding-left: 22px; }
+.seg button:last-child { padding-right: 22px; }
 .seg button:hover:not([aria-pressed="true"]):not([aria-checked="true"]) { background: var(--surface); }
 /* aria-pressed: toggle-style .seg (Applications' CV|Letter tabs).
    aria-checked: radiogroup-style .seg (Preferences' working style). Same
-   affordance, same visual: ink fill = chosen. */
+   affordance, same visual: accent fill = chosen. */
 .seg button[aria-pressed="true"], .seg button[aria-checked="true"] {
-  background: var(--ink); color: var(--surface); font-weight: 600;
+  background: var(--accent); color: var(--accent-ink); font-weight: 600;
 }
 
 /* ── Engine chooser (Settings) ──────────────────────────────────────────── */
@@ -493,38 +524,46 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   display: flex;
   flex-direction: column;
   text-align: left;
-  padding: var(--space-3);
+  padding: var(--space-4);
   background: var(--surface);
   border: 1px solid var(--ink);
+  /* These are <button>s; without this they inherit the global 999px pill radius
+     and bulge into super-ellipse blobs. A panel is a rounded rectangle. */
+  border-radius: var(--r-panel);
   color: var(--ink);
 }
 .engine-card-desc { font-size: var(--fs-sm); color: var(--muted); }
-/* Same signal as .seg: ink fill = chosen. Not a border tint — colour alone
+/* Same signal as .seg: accent fill = chosen. Not a border tint — colour alone
    can't carry the state of the app's most consequential setting. */
-.engine-card[data-selected] { background: var(--ink); color: var(--paper); }
-.engine-card[data-selected] .engine-card-desc { color: var(--paper); opacity: 0.82; }
+.engine-card[data-selected] { background: var(--accent); color: var(--accent-ink); }
+.engine-card[data-selected] .engine-card-desc { color: var(--accent-ink); opacity: 0.85; }
 .engine-card:not([data-selected]):hover { background: var(--surface-dim); }
 
 /* Models are homogeneous: the same attributes (size, RAM, state) compared across
    every option. A ruled list reads them in one vertical scan; the card grid made
    the eye re-find each attribute inside every tile, and wrapped into ragged rows
    as soon as a custom model was added. Same ink-fill selection as above. */
-.model-list { border: 1px solid var(--ink); background: var(--surface); }
+/* Rounded frame that clips its rows — so a selected (accent-filled) end row
+   follows the corner instead of poking a rectangle past it. */
+.model-list { border: 1px solid var(--ink); border-radius: var(--r-panel); overflow: hidden; background: var(--surface); }
 .model-row {
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
   width: 100%;
   text-align: left;
-  padding: var(--space-3);
+  padding: var(--space-4);
   background: transparent;
   border: 0;
+  /* Reset the global button 999px: rows are straight-edged bands inside the
+     frame; the frame owns the rounding. */
+  border-radius: 0;
   border-top: 1px solid var(--border);
   color: var(--ink);
 }
 .model-row:first-child { border-top: 0; }
-.model-row[data-selected] { background: var(--ink); color: var(--paper); }
-.model-row[data-selected] .model-row-desc { color: var(--paper); opacity: 0.82; }
+.model-row[data-selected] { background: var(--accent); color: var(--accent-ink); }
+.model-row[data-selected] .model-row-desc { color: var(--accent-ink); opacity: 0.85; }
 .model-row:not([data-selected]):hover { background: var(--surface-dim); }
 .model-row-main { flex: 1; min-width: 0; }
 .model-row-desc { display: block; font-size: var(--fs-sm); color: var(--muted); }
@@ -613,9 +652,9 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   padding: 0;
-  font-size: 13px;
+  font-size: var(--fs-sm);
   line-height: 1;
   cursor: pointer;
   opacity: 0.7;
@@ -629,7 +668,7 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   background: none;
   border: none;
   padding: 0 1px;
-  font-size: 20px;
+  font-size: var(--fs-xl);
   line-height: 1;
   cursor: pointer;
   color: var(--muted);
@@ -719,7 +758,7 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
      notice ("you might be missing this"), the same role DESIGN.md assigns
      --highlight elsewhere (low-credit chip, profile-changed nudge) — not a
      decorative label. */
-  font-size: 11px; color: var(--highlight); border: 1px solid var(--highlight);
+  font-size: var(--fs-xs); color: var(--highlight); border: 1px solid var(--highlight);
   border-radius: var(--chip-radius); padding: 1px 7px;
 }
 .add-section-menu-desc { display: block; font-size: var(--fs-sm); color: var(--muted); margin-top: 3px; line-height: 1.4; }

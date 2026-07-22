@@ -805,7 +805,7 @@ export default function ApplicationsPage() {
         <div className="page-head-actions">
           <CreditChip />
           {!slotOpen && (
-            <Button variant="secondary" onClick={() => setShowNew(true)}>
+            <Button variant="primary" onClick={() => setShowNew(true)}>
               <Plus size={15} style={{ marginRight: 5, verticalAlign: -2 }} aria-hidden />
               {t('applications.new')}
             </Button>

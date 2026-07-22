@@ -21,15 +21,17 @@
 }
 
 .nav-logo {
-  font-size: 19px;
+  font-size: var(--fs-xl);
   padding: 0 var(--space-3) var(--space-6);
 }
-/* "Job Coach" separates its two words by weight, not hue — muted + heading ink,
-   both AA on the sage sidebar. */
+/* "Job Coach" separates its two words by weight and hue — muted ink, then
+   accent-text on "Coach". A permanent, low-key brand mark on every page (not
+   a competing signal: it never moves, so it reads as identity, not action).
+   accent-text clears AA on the sidebar's sage tint same as on --ground. */
 .sidebar-nav .nav-logo { color: var(--muted); }
 .nav-logo em {
   font-style: normal;
-  color: var(--heading);
+  color: var(--accent-text);
 }
 
 .sidebar-nav a {
@@ -52,10 +54,12 @@
   text-decoration: none;
 }
 
-/* Active route: a --board fill pill with heading ink — tonal, no accent, no
-   side-stripe. */
+/* Active route: a --board fill pill, tonal, no side-stripe — "you are here" is
+   the tonal pill; the accent-text label + icon (lucide inherits currentColor)
+   name it in terracotta, the same wayfinding pop the wordmark uses. accent-text,
+   not the fill --accent, so the label clears AA on the board pill (5.97:1). */
 .sidebar-nav a.active {
-  color: var(--heading);
+  color: var(--accent-text);
   background: var(--board);
   font-weight: 600;
 }

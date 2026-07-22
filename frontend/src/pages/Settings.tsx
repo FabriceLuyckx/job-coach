@@ -100,7 +100,7 @@ function ColorRow({ name, value, onChange }: {
           value={HEX_RE.test(value) ? value : '#000000'}
           onChange={e => onChange(e.target.value)}
           aria-label={t('settings.template.colors.pickerLabel', { slot: name })}
-          style={{ width: 34, height: 26, padding: 0, border: '1px solid var(--border)', cursor: 'pointer', background: 'none' }}
+          style={{ width: 34, height: 26, padding: 0, border: '1px solid var(--border)', borderRadius: 6, cursor: 'pointer', background: 'none' }}
         />
         <input
           type="text"
@@ -421,11 +421,15 @@ export default function SettingsPage() {
                   onClick={() => setDesign({ template: id })}
                   style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-2)',
-                    background: 'none', padding: 'var(--space-2)', cursor: 'pointer',
+                    background: 'none', padding: 'var(--space-3)', cursor: 'pointer',
                     // Ink, not vermilion: the engine cards and .seg already say
                     // ink = chosen, and one page must not hold two selection
                     // vocabularies. Vermilion stays for actions.
                     border: `2px solid ${isSel ? 'var(--ink)' : 'transparent'}`,
+                    // Reset the global button 999px (which ovals the frame). A tight
+                    // radius (--radius-sm), not --r-panel: at 22px the round corners
+                    // pull far off the square thumbnail and the margin reads uneven.
+                    borderRadius: 'var(--radius-sm)',
                   }}
                 >
                   <TemplateThumb layout={id} palette={thumbPalette} selected={isSel} />
@@ -456,6 +460,11 @@ export default function SettingsPage() {
                 style={{
                   display: 'flex', width: 44, height: 26, padding: 0, cursor: 'pointer',
                   border: `2px solid ${activePalette === pal.id ? 'var(--ink)' : 'var(--border)'}`,
+                  // Reset the global button pill + clip the colour spans to the
+                  // rounded frame — otherwise the swatch is a stadium and the
+                  // square colour blocks poke past its ends. 6px, not --radius-sm:
+                  // on a 26px chip 12px is still nearly a full pill.
+                  borderRadius: 6, overflow: 'hidden',
                 }}
               >
                 {/* the palette's slots, in the proportion the CV uses them */}

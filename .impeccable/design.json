@@ -1,197 +1,35 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-07-17T00:00:00Z",
+  "generatedAt": "2026-07-22T00:00:00Z",
   "title": "Design System: Job Coach",
   "extensions": {
     "colorMeta": {
-      "paper": {
-        "role": "neutral",
-        "displayName": "Cream",
-        "canonical": "oklch(95.6% 0.014 88)",
-        "tonalRamp": [
-          "oklch(18% 0.01 88)",
-          "oklch(30% 0.012 88)",
-          "oklch(45% 0.013 88)",
-          "oklch(60% 0.013 88)",
-          "oklch(75% 0.014 88)",
-          "oklch(85% 0.014 88)",
-          "oklch(92% 0.014 88)",
-          "oklch(97% 0.012 88)"
-        ]
-      },
-      "surface": {
-        "role": "neutral",
-        "displayName": "Card White",
-        "canonical": "oklch(97.8% 0.009 90)",
-        "tonalRamp": [
-          "oklch(18% 0.006 90)",
-          "oklch(30% 0.007 90)",
-          "oklch(45% 0.008 90)",
-          "oklch(60% 0.008 90)",
-          "oklch(75% 0.009 90)",
-          "oklch(88% 0.009 90)",
-          "oklch(94% 0.009 90)",
-          "oklch(98% 0.008 90)"
-        ]
-      },
-      "surface-dim": {
-        "role": "neutral",
-        "displayName": "Panel Cream",
-        "canonical": "oklch(92.3% 0.017 92)",
-        "tonalRamp": [
-          "oklch(17% 0.012 92)",
-          "oklch(28% 0.014 92)",
-          "oklch(42% 0.015 92)",
-          "oklch(56% 0.016 92)",
-          "oklch(70% 0.017 92)",
-          "oklch(82% 0.017 92)",
-          "oklch(89% 0.017 92)",
-          "oklch(94% 0.016 92)"
-        ]
-      },
-      "ink": {
-        "role": "neutral",
-        "displayName": "Ink",
-        "canonical": "oklch(19.8% 0.006 80)",
-        "tonalRamp": [
-          "oklch(12% 0.004 80)",
-          "oklch(20% 0.005 80)",
-          "oklch(32% 0.006 80)",
-          "oklch(46% 0.007 80)",
-          "oklch(60% 0.007 80)",
-          "oklch(74% 0.007 80)",
-          "oklch(87% 0.006 80)",
-          "oklch(95% 0.005 80)"
-        ]
-      },
-      "muted": {
-        "role": "neutral",
-        "displayName": "Muted",
-        "canonical": "oklch(45.9% 0.013 90)",
-        "tonalRamp": [
-          "oklch(20% 0.01 90)",
-          "oklch(32% 0.012 90)",
-          "oklch(42% 0.013 90)",
-          "oklch(52% 0.014 90)",
-          "oklch(62% 0.014 90)",
-          "oklch(74% 0.013 90)",
-          "oklch(85% 0.012 90)",
-          "oklch(93% 0.01 90)"
-        ]
-      },
-      "accent": {
-        "role": "primary",
-        "displayName": "Vermilion",
-        "canonical": "oklch(53.4% 0.183 34)",
-        "tonalRamp": [
-          "oklch(18% 0.09 34)",
-          "oklch(28% 0.13 34)",
-          "oklch(38% 0.16 34)",
-          "oklch(48% 0.18 34)",
-          "oklch(58% 0.18 34)",
-          "oklch(70% 0.15 34)",
-          "oklch(82% 0.1 34)",
-          "oklch(92% 0.05 34)"
-        ]
-      },
-      "accent-hover": {
-        "role": "primary",
-        "displayName": "Vermilion (hover)",
-        "canonical": "oklch(44.7% 0.17 32)",
-        "tonalRamp": []
-      },
-      "accent-soft": {
-        "role": "primary",
-        "displayName": "Vermilion tint",
-        "canonical": "oklch(90.7% 0.038 30)",
-        "tonalRamp": []
-      },
-      "teal": {
-        "role": "secondary",
-        "displayName": "Teal",
-        "canonical": "oklch(44.8% 0.055 190)",
-        "tonalRamp": [
-          "oklch(15% 0.03 190)",
-          "oklch(24% 0.04 190)",
-          "oklch(33% 0.05 190)",
-          "oklch(42% 0.055 190)",
-          "oklch(52% 0.055 190)",
-          "oklch(65% 0.05 190)",
-          "oklch(78% 0.04 190)",
-          "oklch(90% 0.025 190)"
-        ]
-      },
-      "wall-teal": {
-        "role": "tertiary",
-        "displayName": "Wall Teal",
-        "canonical": "oklch(60.1% 0.038 200)",
-        "tonalRamp": [
-          "oklch(22% 0.02 200)",
-          "oklch(34% 0.028 200)",
-          "oklch(46% 0.034 200)",
-          "oklch(56% 0.038 200)",
-          "oklch(66% 0.038 200)",
-          "oklch(76% 0.032 200)",
-          "oklch(86% 0.024 200)",
-          "oklch(94% 0.014 200)"
-        ]
-      },
-      "mustard": {
-        "role": "semantic",
-        "displayName": "Mustard",
-        "canonical": "oklch(45.2% 0.096 78)",
-        "tonalRamp": []
-      },
-      "deep-red": {
-        "role": "semantic",
-        "displayName": "Deep Red",
-        "canonical": "oklch(35.6% 0.135 28)",
-        "tonalRamp": []
-      },
-      "accent-text": {
-        "role": "primary",
-        "displayName": "Vermilion (text)",
-        "canonical": "oklch(47.8% 0.163 33)",
-        "tonalRamp": []
-      }
+      "ground": { "role": "neutral", "displayName": "Ground", "canonical": "oklch(86.2% 0.013 149)", "tonalRamp": ["oklch(15% 0.013 149)", "oklch(25% 0.013 149)", "oklch(35% 0.013 149)", "oklch(45% 0.013 149)", "oklch(58% 0.013 149)", "oklch(70% 0.013 149)", "oklch(82% 0.013 149)", "oklch(93% 0.013 149)"] },
+      "board": { "role": "neutral", "displayName": "Board", "canonical": "oklch(90.0% 0.011 150)", "tonalRamp": ["oklch(15% 0.011 150)", "oklch(25% 0.011 150)", "oklch(35% 0.011 150)", "oklch(45% 0.011 150)", "oklch(58% 0.011 150)", "oklch(70% 0.011 150)", "oklch(82% 0.011 150)", "oklch(93% 0.011 150)"] },
+      "surface": { "role": "neutral", "displayName": "Surface", "canonical": "oklch(92.6% 0.008 152)", "tonalRamp": ["oklch(15% 0.008 152)", "oklch(25% 0.008 152)", "oklch(35% 0.008 152)", "oklch(45% 0.008 152)", "oklch(58% 0.008 152)", "oklch(70% 0.008 152)", "oklch(82% 0.008 152)", "oklch(93% 0.008 152)"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "oklch(30.1% 0.029 174)", "tonalRamp": ["oklch(15% 0.029 174)", "oklch(25% 0.029 174)", "oklch(35% 0.029 174)", "oklch(45% 0.029 174)", "oklch(58% 0.029 174)", "oklch(70% 0.029 174)", "oklch(82% 0.029 174)", "oklch(93% 0.029 174)"] },
+      "heading": { "role": "neutral", "displayName": "Heading Ink", "canonical": "oklch(25.0% 0.028 168)", "tonalRamp": ["oklch(15% 0.028 168)", "oklch(25% 0.028 168)", "oklch(35% 0.028 168)", "oklch(45% 0.028 168)", "oklch(58% 0.028 168)", "oklch(70% 0.028 168)", "oklch(82% 0.028 168)", "oklch(93% 0.028 168)"] },
+      "muted": { "role": "neutral", "displayName": "Muted", "canonical": "oklch(39.6% 0.025 165)", "tonalRamp": ["oklch(15% 0.025 165)", "oklch(25% 0.025 165)", "oklch(35% 0.025 165)", "oklch(45% 0.025 165)", "oklch(58% 0.025 165)", "oklch(70% 0.025 165)", "oklch(82% 0.025 165)", "oklch(93% 0.025 165)"] },
+      "accent": { "role": "primary", "displayName": "Terracotta Fill", "canonical": "oklch(55.7% 0.155 37)", "tonalRamp": ["oklch(15% 0.155 37)", "oklch(25% 0.155 37)", "oklch(35% 0.155 37)", "oklch(45% 0.155 37)", "oklch(58% 0.155 37)", "oklch(70% 0.155 37)", "oklch(82% 0.155 37)", "oklch(93% 0.155 37)"] },
+      "accent-hover": { "role": "primary", "displayName": "Terracotta Fill (hover)", "canonical": "oklch(50.2% 0.143 37)", "tonalRamp": ["oklch(15% 0.143 37)", "oklch(25% 0.143 37)", "oklch(35% 0.143 37)", "oklch(45% 0.143 37)", "oklch(58% 0.143 37)", "oklch(70% 0.143 37)", "oklch(82% 0.143 37)", "oklch(93% 0.143 37)"] },
+      "accent-soft": { "role": "primary", "displayName": "Terracotta Tint", "canonical": "oklch(87.1% 0.031 46)", "tonalRamp": ["oklch(15% 0.031 46)", "oklch(25% 0.031 46)", "oklch(35% 0.031 46)", "oklch(45% 0.031 46)", "oklch(58% 0.031 46)", "oklch(70% 0.031 46)", "oklch(82% 0.031 46)", "oklch(93% 0.031 46)"] },
+      "accent-text": { "role": "primary", "displayName": "Terracotta Text", "canonical": "oklch(44.7% 0.129 37)", "tonalRamp": ["oklch(15% 0.129 37)", "oklch(25% 0.129 37)", "oklch(35% 0.129 37)", "oklch(45% 0.129 37)", "oklch(58% 0.129 37)", "oklch(70% 0.129 37)", "oklch(82% 0.129 37)", "oklch(93% 0.129 37)"] },
+      "mark": { "role": "secondary", "displayName": "Pine Mark", "canonical": "oklch(42.2% 0.072 165)", "tonalRamp": ["oklch(15% 0.072 165)", "oklch(25% 0.072 165)", "oklch(35% 0.072 165)", "oklch(45% 0.072 165)", "oklch(58% 0.072 165)", "oklch(70% 0.072 165)", "oklch(82% 0.072 165)", "oklch(93% 0.072 165)"] },
+      "deep-red": { "role": "tertiary", "displayName": "Deep Red", "canonical": "oklch(43.2% 0.146 33)", "tonalRamp": ["oklch(15% 0.146 33)", "oklch(25% 0.146 33)", "oklch(35% 0.146 33)", "oklch(45% 0.146 33)", "oklch(58% 0.146 33)", "oklch(70% 0.146 33)", "oklch(82% 0.146 33)", "oklch(93% 0.146 33)"] },
+      "deep-red-soft": { "role": "tertiary", "displayName": "Deep Red Tint", "canonical": "oklch(89.6% 0.023 53)", "tonalRamp": ["oklch(15% 0.023 53)", "oklch(25% 0.023 53)", "oklch(35% 0.023 53)", "oklch(45% 0.023 53)", "oklch(58% 0.023 53)", "oklch(70% 0.023 53)", "oklch(82% 0.023 53)", "oklch(93% 0.023 53)"] },
+      "mustard": { "role": "tertiary", "displayName": "Mustard", "canonical": "oklch(46.0% 0.092 87)", "tonalRamp": ["oklch(15% 0.092 87)", "oklch(25% 0.092 87)", "oklch(35% 0.092 87)", "oklch(45% 0.092 87)", "oklch(58% 0.092 87)", "oklch(70% 0.092 87)", "oklch(82% 0.092 87)", "oklch(93% 0.092 87)"] }
     },
     "typographyMeta": {
-      "display": {
-        "displayName": "Display / Page & Section Titles",
-        "purpose": "Page titles (with the 4px ink rule), section/collapsible/modal headings. Always 800 weight, uppercase, 0.02em tracking."
-      },
-      "body": {
-        "displayName": "Body",
-        "purpose": "All prose and form values. Never uppercase, never bold beyond ~600."
-      },
-      "label": {
-        "displayName": "Label",
-        "purpose": "Button text and badges — uppercase, 700 weight, tracked. Names an action or category, never a sentence."
-      }
+      "display": { "displayName": "Display / Headings", "purpose": "Page titles, section headers, modal/collapsible titles — mixed case, weight-based, never blanket uppercase." },
+      "body": { "displayName": "Body", "purpose": "All prose and form values, 14px/1.55, capped at 65-75ch." },
+      "data": { "displayName": "Data Voice", "purpose": "Every data line — dates, meta, counts, the match-marker word — set in the mono stack, middot-separated." }
     },
     "shadows": [
-      {
-        "name": "poster-pop",
-        "value": "6px 6px 0 rgba(20, 19, 17, 0.18)",
-        "purpose": "The one shadow in the system. Hard offset, no blur — for the page sheet, modals, dropdown menus, and toasts only. Never on resting cards, buttons, or inputs."
-      }
+      { "name": "float", "value": "0 10px 30px -8px rgba(20, 38, 31, 0.28)", "purpose": "The one soft shadow in the system. Overlays only (modal, dropdown/add-section menu, toast) — no resting in-content surface reuses it." }
     ],
     "motion": [
-      {
-        "name": "state-transition",
-        "value": "background 0.15s, color 0.15s, border-color 0.15s",
-        "purpose": "Default easing for buttons/inputs/nav hover and focus state changes."
-      },
-      {
-        "name": "toast-in",
-        "value": "opacity 0 → 1, translateY(8px → 0), 0.18s ease-out",
-        "purpose": "Toast entrance."
-      },
-      {
-        "name": "chevron-rotate",
-        "value": "transform 0.15s, rotate 0 → 90deg",
-        "purpose": "Collapsible chevron open/close."
-      }
+      { "name": "state-transition", "value": "0.15s ease", "purpose": "Default hover/focus/border-color transition on buttons, inputs, rows, links." },
+      { "name": "toast-in", "value": "0.18s ease-out", "purpose": "Toast entrance (opacity + translateY(8px)). Cut to an instant fade under prefers-reduced-motion, alongside every other transition in the app." }
     ]
   },
   "components": [
@@ -199,113 +37,104 @@
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The default call-to-action. Vermilion fill, white uppercase label, zero radius.",
-      "html": "<button class=\"ds-btn ds-btn-primary\">Generate CV</button>",
-      "css": ".ds-btn { font-family: 'Inter', sans-serif; cursor: pointer; border: none; border-radius: 0; padding: 8px 15px; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; transition: background 0.15s, color 0.15s, border-color 0.15s; } .ds-btn-primary { background: #C8401F; color: #fff; } .ds-btn-primary:hover { background: #A83415; } .ds-btn-primary:focus-visible { outline: 2px solid #1C1A16; outline-offset: 2px; } .ds-btn-primary:disabled { background: color-mix(in srgb, #C8401F 38%, #F2EFE4); cursor: not-allowed; }"
+      "description": "The default/submit action — terracotta fill. Spent on every real instance (once per row in a list of identical actions, e.g. Accept on every job suggestion), never capped at one per screen.",
+      "html": "<button class=\"ds-btn-primary\">Accept</button>",
+      "css": ".ds-btn-primary { font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; border: none; border-radius: 999px; padding: 9px 18px; background: var(--accent, #BC4A26); color: var(--accent-ink, #FFFFFF); transition: background 0.15s; } .ds-btn-primary:hover { background: var(--accent-hover, #A53E1E); } .ds-btn-primary:active { background: color-mix(in srgb, var(--accent-hover, #A53E1E) 88%, black); } .ds-btn-primary:focus-visible { outline: 2px solid var(--accent, #BC4A26); outline-offset: 2px; } .ds-btn-primary:disabled { cursor: not-allowed; background: color-mix(in srgb, var(--accent, #BC4A26) 45%, var(--board, #D9E0DA)); }"
     },
     {
       "name": "Secondary Button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Poster inversion: ink outline that fills solid on hover.",
-      "html": "<button class=\"ds-btn ds-btn-secondary\">Cancel</button>",
-      "css": ".ds-btn-secondary { background: transparent; color: #1C1A16; border: 1.5px solid #1C1A16; padding: 7px 14px; border-radius: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; transition: background 0.15s, color 0.15s; } .ds-btn-secondary:hover { background: #1C1A16; color: #F2EFE4; } .ds-btn-secondary:focus-visible { outline: 2px solid #C8401F; outline-offset: 2px; }"
+      "description": "Hairline-outlined, transparent fill — the non-primary action beside a primary one.",
+      "html": "<button class=\"ds-btn-secondary\">Cancel</button>",
+      "css": ".ds-btn-secondary { font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; background: transparent; color: var(--ink, #1E332D); border: 1px solid var(--line, rgba(30,51,45,0.16)); border-radius: 999px; padding: 8px 17px; transition: background 0.15s, border-color 0.15s; } .ds-btn-secondary:hover { background: var(--surface, #E3E8E4); border-color: var(--ink, #1E332D); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--accent, #BC4A26); outline-offset: 2px; }"
     },
     {
       "name": "Danger Button",
       "kind": "button",
       "refersTo": "button-danger",
-      "description": "Destructive actions — a distinct deep-red hue so it never reads as a primary action.",
-      "html": "<button class=\"ds-btn ds-btn-danger\">Reject</button>",
-      "css": ".ds-btn-danger { background: #8F2410; color: #fff; border: none; border-radius: 0; padding: 8px 15px; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; } .ds-btn-danger:hover { background: color-mix(in srgb, #8F2410 85%, black); }"
+      "description": "Deep-red fill — a distinct hue from terracotta so a destructive action is never misread as the primary one (Reject beside Accept).",
+      "html": "<button class=\"ds-btn-danger\">Reject</button>",
+      "css": ".ds-btn-danger { font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; border: none; border-radius: 999px; padding: 9px 18px; background: var(--danger, #8F2410); color: #fff; transition: background 0.15s; } .ds-btn-danger:hover { background: color-mix(in srgb, var(--danger, #8F2410) 85%, black); } .ds-btn-danger:focus-visible { outline: 2px solid var(--danger, #8F2410); outline-offset: 2px; }"
     },
     {
-      "name": "Filled Badge",
-      "kind": "chip",
-      "refersTo": "badge-cv",
-      "description": "Small squared status/category chip, filled, uppercase, tracked.",
-      "html": "<span class=\"ds-badge\">CV</span>",
-      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 8px; border-radius: 2px; background: #C8401F; color: #F2EFE4; white-space: nowrap; }"
-    },
-    {
-      "name": "Card",
+      "name": "Listing Board",
       "kind": "card",
-      "refersTo": "card",
-      "description": "The base container: cream-white fill, ink hairline border, zero radius, no shadow.",
-      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Section title</div><p>Card body text sits here at 14px.</p></div>",
-      "css": ".ds-card { background: #FBFAF3; border: 1px solid #1C1A16; border-radius: 0; padding: 20px; } .ds-card-title { font-family: 'Inter', sans-serif; font-weight: 800; text-transform: uppercase; letter-spacing: 0.02em; font-size: 17px; color: #141311; margin-bottom: 16px; }"
+      "refersTo": "board",
+      "description": "A list is one tonal board split by hairlines, never a grid of bordered cards. Meta is a mono middot line, not chips; match is a square marker + a plain pine word.",
+      "html": "<div class=\"ds-board\"><div class=\"ds-board-row\"><div><strong class=\"ds-row-title\">Data Scientist</strong><div class=\"ds-meta\"><span>Ghent</span><span>Hybrid</span><span class=\"ds-meta-deadline\">Deadline 12 Aug</span></div><div class=\"ds-match\"><span class=\"ds-match-dot\"></span>MATCH</div></div></div><div class=\"ds-board-row\"><div><strong class=\"ds-row-title\">ML Engineer</strong><div class=\"ds-meta\"><span>Brussels</span><span>Remote</span></div></div></div></div>",
+      "css": ".ds-board { background: var(--board, #D9E0DA); border: 1px solid var(--line, rgba(30,51,45,0.16)); border-radius: 22px; overflow: hidden; font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; } .ds-board-row { padding: 16px 20px; border-bottom: 1px solid var(--line, rgba(30,51,45,0.16)); } .ds-board-row:last-child { border-bottom: none; } .ds-row-title { color: var(--heading, #14261F); font-weight: 700; } .ds-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 8px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; color: var(--muted, #3A4B43); } .ds-meta > span:not(:last-child)::after { content: '\\00b7'; margin-left: 10px; color: var(--line, rgba(30,51,45,0.16)); } .ds-meta-deadline { color: var(--accent-text, #8D3317); font-weight: 600; } .ds-match { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mark, #1F5A44); } .ds-match-dot { width: 7px; height: 7px; background: var(--mark, #1F5A44); }"
     },
     {
-      "name": "Text Input",
-      "kind": "input",
-      "refersTo": "input",
-      "description": "Ink-bordered field; focus swaps the border to vermilion, no glow ring.",
-      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Job title\" />",
-      "css": ".ds-input { font-family: 'Inter', sans-serif; font-size: 14px; border: 1px solid #1C1A16; border-radius: 0; padding: 7px 10px; width: 100%; background: #FBFAF3; color: #1C1A16; transition: border-color 0.15s; } .ds-input:focus { outline: none; border-color: #C8401F; }"
-    },
-    {
-      "name": "Active Nav Item",
-      "kind": "nav",
-      "refersTo": "sidebar-nav-active",
-      "description": "The active sidebar link reads as a cream tab cut from the poster sheet against the teal wall.",
-      "html": "<a class=\"ds-nav-item ds-nav-item-active\" href=\"#\">Profile</a>",
-      "css": ".ds-nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 20px; font-size: 14px; font-weight: 500; text-decoration: none; border-left: 3px solid transparent; color: color-mix(in srgb, #F2EFE4 82%, transparent); transition: background 0.15s, color 0.15s; } .ds-nav-item-active { color: #1C1A16; border-left-color: #C8401F; background: #F2EFE4; font-weight: 600; }"
+      "name": "Language Badge",
+      "kind": "chip",
+      "refersTo": "badge-lang",
+      "description": "Reserved for genuine categorical labels (a language level, a section's destination) — never used to restate a row's own fields, which stay plain mono text.",
+      "html": "<span class=\"ds-badge-lang\">English &middot; C1</span>",
+      "css": ".ds-badge-lang { display: inline-flex; align-items: center; font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; background: transparent; color: var(--ink, #1E332D); border: 1px solid var(--line, rgba(30,51,45,0.16)); }"
     },
     {
       "name": "Segmented Control",
       "kind": "custom",
       "refersTo": "seg",
-      "description": "Squared single-choice control; the ink-fill selected state mirrors the secondary-button hover treatment app-wide.",
-      "html": "<div class=\"ds-seg\"><button class=\"ds-seg-btn ds-seg-active\">Remote</button><button class=\"ds-seg-btn\">Hybrid</button><button class=\"ds-seg-btn\">On-site</button></div>",
-      "css": ".ds-seg { display: inline-flex; border: 1px solid #1C1A16; width: fit-content; } .ds-seg-btn { padding: 6px 14px; background: transparent; border: none; border-right: 1px solid #1C1A16; font-size: 13px; color: #1C1A16; cursor: pointer; } .ds-seg-btn:last-child { border-right: none; } .ds-seg-active { background: #1C1A16; color: #F2EFE4; font-weight: 600; }"
+      "description": "A hairline-outlined pill row (radiogroup or toggle) — no gaps between options, hairline dividers instead. The selected option fills to terracotta with white text: the same 'current selection' signal as the engine/model pickers.",
+      "html": "<div class=\"ds-seg\" role=\"radiogroup\" aria-label=\"Working style\"><button role=\"radio\" aria-checked=\"true\">Hybrid</button><button role=\"radio\" aria-checked=\"false\">Remote</button><button role=\"radio\" aria-checked=\"false\">On-site</button></div>",
+      "css": ".ds-seg { display: inline-flex; border: 1px solid var(--line, rgba(30,51,45,0.16)); border-radius: 999px; width: fit-content; overflow: hidden; } .ds-seg button { padding: 7px 16px; background: transparent; border: none; border-right: 1px solid var(--line, rgba(30,51,45,0.16)); font: inherit; font-size: 13px; color: var(--ink, #1E332D); cursor: pointer; } .ds-seg button:last-child { border-right: none; } .ds-seg button:hover:not([aria-checked='true']) { background: var(--surface, #E3E8E4); } .ds-seg button:focus-visible { outline: 2px solid var(--accent, #BC4A26); outline-offset: -2px; } .ds-seg button[aria-checked='true'] { background: var(--accent, #BC4A26); color: var(--accent-ink, #FFFFFF); font-weight: 600; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Pill single-line input, surface fill, hairline border. Padding clears the pill's own end-caps so text reads centred, not shoved against the curve.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"e.g. Ghent, Brussels\" />",
+      "css": ".ds-input { font-family: inherit; font-size: 14px; border: 1px solid var(--line, rgba(30,51,45,0.16)); border-radius: 999px; padding: 8px 20px; width: 100%; background: var(--surface, #E3E8E4); color: var(--ink, #1E332D); transition: border-color 0.15s; } .ds-input:focus { outline: none; border-color: var(--accent, #BC4A26); } .ds-input:focus-visible { outline: 2px solid var(--accent, #BC4A26); outline-offset: 1px; } .ds-input::placeholder { color: var(--muted, #3A4B43); opacity: 1; }"
+    },
+    {
+      "name": "Toast",
+      "kind": "custom",
+      "refersTo": "toast-success",
+      "description": "A full 1px perimeter border carries the success/error/info signal — never a left colour stripe, the single most recognisable AI-slop tell. Dark heading fill, one soft float shadow (the only surface allowed to use it besides modals/menus).",
+      "html": "<div class=\"ds-toast\"><span>Profile saved</span><button class=\"ds-toast-close\" aria-label=\"Dismiss\">&times;</button></div>",
+      "css": ".ds-toast { display: flex; align-items: center; gap: 12px; background: var(--heading, #14261F); color: var(--surface, #E3E8E4); border-radius: 22px; padding: 12px 16px; font-size: 14px; box-shadow: 0 10px 30px -8px rgba(20, 38, 31, 0.28); border: 1px solid var(--mark, #1F5A44); } .ds-toast-close { background: none; border: none; color: color-mix(in srgb, var(--surface, #E3E8E4) 65%, transparent); padding: 2px; cursor: pointer; } .ds-toast-close:hover { color: var(--surface, #E3E8E4); } .ds-toast-close:focus-visible { outline: 2px solid var(--surface, #E3E8E4); outline-offset: 2px; }"
     }
   ],
   "narrative": {
-    "northStar": "The Print Shop",
-    "overview": "Job Coach reads as something printed, not something rendered: ink-black hairline rules, flat color blocks instead of gradients, hard offset shadows instead of soft blurs, and squared corners everywhere. Each page is a cream poster sheet laid on a muted teal gallery wall (the app shell behind the fixed sidebar) — the sheet gets a hard drop shadow, the wall doesn't. Headings are one grotesque family (Inter), always bold and uppercase; there is no second display font pretending to be more decorative than the first. That printed confidence is structural, not emotional. Job Coach's brand personality is calm, trustworthy, reassuring — job hunting is stressful enough — so the boldness lives in geometry and typography, while color usage, motion, and copy stay restrained. Vermilion is loud by hue, but it is rationed to one thing at a time.",
+    "northStar": "Atelier / Stone",
+    "overview": "Job Coach owns a colour instead of hiding in neutral. The whole app lives in one drenched, lighter colour world — a de-yellowed sage — rather than a light sheet floating on a contrasting wall. There is no cream and no dark wall: the ground is sage (--ground), the sidebar is a tonal step of that same ground, and content sits directly on it. Depth comes from tone, not shadow; a list is one tonal board split by hairlines, not a grid of bordered cards; meta and status are read as text, not stamped into pill badges. One warm terracotta accent carries every real signal moment.\n\nThat calm is structural. Job Coach's brand personality is calm, trustworthy, reassuring — job hunting is stressful enough — so the confidence lives in the drenched ground and the rounded, roomy form, while colour, motion, and copy stay purposeful rather than loud. Terracotta is warm by hue and, since 2026-07-22, spent generously wherever it means something: the primary/submit action (every occurrence, not just one per screen), the current selection, the deadline signal, and a small wayfinding touch (the active nav item — its label and icon — and the wordmark). It still never marks decoration or a merely-repeated element with no state behind it. This explicitly rejects the generic SaaS dashboard (soft-shadowed cards, blue-gradient chrome, pastel status pills), corporate job-board chrome (LinkedIn/Indeed dense blue, stock-photo emptiness), and the AI-assistant chat-bot look (bubbles, glowing orbs, sparkle iconography) — the AI in this app does quiet background work, it never performs as a character. \"Not generic\" is earned by execution — the mono data voice on every field, tonal-only depth, and a purposeful (not decorative) accent — not by asserting it, and not by the absence of radius or depth.",
     "keyCharacteristics": [
-      "Flat ink-on-cream print system: zero border-radius, hairline borders, no gradients",
-      "One grotesque type family; hierarchy is weight/case/size, not font-switching",
-      "A single accent (vermilion) used sparingly, rationed to primary actions and state",
-      "A teal counterpoint used specifically for AI/\"good\" signals (success, AI badges)",
-      "Hard offset shadows reserved for things that float: modals, menus, toasts, the page sheet itself"
+      "One drenched sage ground at three tonal values (ground/board/surface); no cream, no dark shell wall",
+      "Depth is tonal + hairline; no resting drop-shadow, no side-stripe accent, no cards",
+      "Listings are one tonal board split by hairlines",
+      "Meta/status are text (mono line, coloured marker/deadline), not pill badges",
+      "Rounded, roomy: pill controls, round panels/frame, generous spacing",
+      "System-sans body paired with a mono data voice for every data line; mixed-case, weight-based headings — no blanket uppercase",
+      "One terracotta accent, spent on every real action/selection/deadline signal — not on decoration, and not capped at one occurrence per screen"
     ],
     "rules": [
-      {
-        "name": "The One Ink Rule",
-        "body": "Every border, hairline, and rule in the system is --ink (#1C1A16) at full or mixed opacity — never a separate mid-gray border color.",
-        "section": "colors"
-      },
-      {
-        "name": "The Rationed Accent Rule",
-        "body": "Vermilion marks one primary thing per view: the default action, the active tab, or the single most important chip. If two elements both want vermilion, one of them is wrong.",
-        "section": "colors"
-      },
-      {
-        "name": "The Case Signal Rule",
-        "body": "Uppercase means \"this labels an action or category.\" Sentence case means \"this is content.\" Never uppercase a sentence the user is meant to read as prose.",
-        "section": "typography"
-      },
-      {
-        "name": "The Flat-At-Rest Rule",
-        "body": "Nothing in normal document flow gets a shadow. Shadows are reserved for elements that visually detach from the page (overlays, floating menus, the page sheet against the wall).",
-        "section": "elevation"
-      }
+      { "name": "The One Line Rule", "body": "Every hairline in the system is --line (color-mix(--ink 16%, transparent)) — a low-contrast ink line, never a separate gray token and never a coloured side-stripe.", "section": "colors" },
+      { "name": "The Rationed Accent Rule", "body": "Terracotta is not decoration and never marks two competing things in the same spot — but it is not capped at one occurrence per screen either. It marks: the default/submit action (every instance, including once per row in a list of identical actions), the current selection (segmented controls, engine/model pickers — accent fill, not ink), and the deadline signal. It does not mark decoration, categorical badges, or a repeated but non-actionable element. Fills use --accent; terracotta text (and any accent icon beside it) uses --accent-text, which clears AA on every ground including the sidebar's tonal step.", "section": "colors" },
+      { "name": "The Case Signal Rule", "body": "Mixed case is the default — headings included. Uppercase is reserved for the mono match-marker word and small utility/category labels. Never uppercase a sentence the user reads as prose, and never blanket-uppercase headings.", "section": "typography" },
+      { "name": "The Data Voice Rule", "body": "Anything that is data — a date, a count, a listing's fields, a match verdict — is set in --data-font. This is what carries at-a-glance scannability now that meta is text, not badges.", "section": "typography" },
+      { "name": "The Tonal-Depth Rule", "body": "A resting panel, board, row, or callout is distinguished by its surface tone and a hairline — never a shadow, never a side-stripe (a coloured left/right border). If an element needs to feel raised, step its tone up (--board/--surface), not add a shadow.", "section": "elevation" },
+      { "name": "The Float Rule", "body": "Only overlays get --shadow-float, and it is one soft value for all of them. A hard offset shadow on a resting card is the banned pattern.", "section": "elevation" }
     ],
     "dos": [
-      "Do keep every border and rule at --ink; never introduce a separate gray border token.",
-      "Do ration vermilion to one primary signal per screen.",
-      "Do keep hard, offset, blur-free shadows exclusive to floating elements.",
-      "Do keep uppercase reserved for actions/labels/headings and sentence case for content.",
-      "Do keep copy and motion calm even where the geometry is bold."
+      "Do keep the app one drenched sage ground; the sidebar is a tonal step of it, content sits directly on --ground, no floating sheet.",
+      "Do keep every hairline at --line; separate depth by tone, never by a shadow or a side-stripe.",
+      "Do render a listing as one --board panel with hairline-divided rows — not a grid of bordered cards.",
+      "Do set every data line in --data-font; meta is a mono middot line, match is a marker + --mark word, deadline is --deadline mono text.",
+      "Do spend terracotta on every real action/selection/deadline signal — including once per row in a list of identical actions; use --accent for fills and --accent-text for any terracotta text.",
+      "Do style in-content links as --ink with an underline; the underline is the affordance, not the colour. --accent-text is reserved for a link that is the view's next action.",
+      "Do keep controls pill-shaped and spacing roomy; copy and motion calm."
     ],
     "donts": [
-      "Don't round any corner — border-radius is 0px everywhere except the 2px chip radius.",
-      "Don't build a generic SaaS dashboard: no soft card shadows, no blue-and-white gradients, no pastel status pills.",
-      "Don't read as corporate job-board chrome: avoid dense blue UI chrome or stock-photo emptiness.",
-      "Don't give the AI a chat-bot persona: no chat bubbles, no glowing gradient orbs, no sparkle/magic-wand iconography.",
-      "Don't use a second display typeface for decorative contrast — Inter carries the whole hierarchy alone.",
-      "Don't soften the vermilion into a lighter tint for primary actions — softness lives in copy and motion, not in desaturating the accent."
+      "Don't reintroduce cream, a dark wall, or a floating page sheet — the world is one sage ground.",
+      "Don't build cards: no per-item border + shadow, no soft card shadow on resting UI, no coloured side-stripe.",
+      "Don't stamp a row's own fields into pill badges; meta/status are text. Badge is only for categorical labels.",
+      "Don't paint an element terracotta by type (a rule like a { color: accent }) — every terracotta use still has to be a real action, selection, or deadline, not a blanket style; decorative or merely-repeated elements stay neutral.",
+      "Don't blanket-uppercase headings, or set a data line in the body sans.",
+      "Don't read as a generic SaaS dashboard, corporate job-board chrome, or an AI chat-bot persona.",
+      "Don't soften terracotta into a friendlier tint for primary actions — use the full value; softness lives in copy, motion, and the roomy form, not in desaturating the accent."
     ]
   }
 }
