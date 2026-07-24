@@ -19,7 +19,7 @@ async def lifespan(_app: FastAPI):
     yield
 
 
-app = FastAPI(title="Job Coach", lifespan=lifespan)
+app = FastAPI(title="MyJobCoach", lifespan=lifespan)
 
 # CORS only matters for the Vite dev server (cross-origin on :5173). The packaged
 # app serves the frontend same-origin, where CORS is irrelevant.

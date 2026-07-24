@@ -2,7 +2,7 @@
   "templates": ["default", "classic", "banner", "compact", "minimal"],
   "palettes": [
     { "id": "navy",     "accent_color": "#1B3A6B", "colors": { "ink": "#1E1E1E", "paper": "#FFFFFF" } },
-    { "id": "jobcoach", "accent_color": "#C8401F", "colors": { "ink": "#1C1A16", "paper": "#F2EFE4" } },
+    { "id": "myjobcoach", "accent_color": "#C8401F", "colors": { "ink": "#1C1A16", "paper": "#F2EFE4" } },
     { "id": "forest",   "accent_color": "#1F5F3F", "colors": { "ink": "#1F2A22", "paper": "#F7F8F4" } },
     { "id": "burgundy", "accent_color": "#7A2233", "colors": { "ink": "#2B1D20", "paper": "#FBF7F2" } },
     { "id": "teal",     "accent_color": "#14555A", "colors": { "ink": "#16292B", "paper": "#F2F6F5" } },

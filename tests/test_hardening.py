@@ -52,7 +52,7 @@ def _zip_bytes(entries: dict[str, bytes], manifest: bool = True) -> bytes:
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w") as zf:
         if manifest:
-            zf.writestr("manifest.json", json.dumps({"marker": "job-coach-backup"}))
+            zf.writestr("manifest.json", json.dumps({"marker": "myjobcoach-backup"}))
         for name, data in entries.items():
             zf.writestr(name, data)
     return buf.getvalue()

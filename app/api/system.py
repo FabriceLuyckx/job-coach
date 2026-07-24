@@ -27,7 +27,7 @@ router = APIRouter(prefix="/api", tags=["system"])
 def app_version() -> str:
     """Running app version: installed package metadata → pyproject.toml → unknown."""
     try:
-        return _pkg_version("job-coach")
+        return _pkg_version("myjobcoach")
     except PackageNotFoundError:
         pass
     try:

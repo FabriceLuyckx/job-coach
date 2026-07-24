@@ -1,10 +1,10 @@
-# PyInstaller spec — builds the Job Coach double-click desktop bundle.
+# PyInstaller spec — builds the MyJobCoach double-click desktop bundle.
 #
 # Prerequisite: build the frontend first so frontend/dist exists to bundle:
 #     cd frontend && npm run build
 #
-# Build:  pyinstaller packaging/jobcoach.spec
-# Output: dist/JobCoach/  (onedir)  and, on macOS, dist/JobCoach.app
+# Build:  pyinstaller packaging/myjobcoach.spec
+# Output: dist/MyJobCoach/  (onedir)  and, on macOS, dist/MyJobCoach.app
 
 import sys
 from pathlib import Path
@@ -71,20 +71,20 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name="JobCoach",
+    name="MyJobCoach",
     console=True,  # Windows: the "keep open / close to quit" window
     icon=None,
 )
-coll = COLLECT(exe, a.binaries, a.datas, name="JobCoach")
+coll = COLLECT(exe, a.binaries, a.datas, name="MyJobCoach")
 
 if sys.platform == "darwin":
     app = BUNDLE(
         coll,
-        name="JobCoach.app",
+        name="MyJobCoach.app",
         icon=None,
-        bundle_identifier="com.jobcoach.app",
+        bundle_identifier="com.myjobcoach.app",
         info_plist={
-            "CFBundleName": "Job Coach",
+            "CFBundleName": "MyJobCoach",
             "NSHighResolutionCapable": True,
         },
     )

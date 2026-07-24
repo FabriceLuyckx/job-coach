@@ -1,7 +1,7 @@
 {
   "nav": {
-    "brand": "Job",
-    "brandEm": "Coach",
+    "brand": "JobCoach",
+    "brandEm": "My",
     "profile": "Profile",
     "preferences": "Job Preferences",
     "applications": "Applications",
@@ -13,7 +13,7 @@
     "credit": "Created for you by <a>Fabrice Luyckx</a> — free software under the <lic>GNU AGPL v3</lic>"
   },
   "about": {
-    "title": "About Job Coach",
+    "title": "About MyJobCoach",
     "description": "An AI-powered assistant that builds tailored CVs and cover-letter guides and surfaces matching job openings.",
     "version": "Version {{version}}",
     "copyright": "© 2026 Fabrice Luyckx",
@@ -88,7 +88,7 @@
     "saving": "Saving…"
   },
   "onboarding": {
-    "welcome": "Welcome to Job Coach",
+    "welcome": "Welcome to MyJobCoach",
     "intro": "Two quick choices and you're set. You can change both later in Settings.",
     "back": "Back",
     "next": "Next",
@@ -112,7 +112,7 @@
     "engineGetKey": "Get a key at openrouter.ai",
     "doneTitle": "You're all set",
     "doneBody": "Next: build your Profile (import an existing CV to start fast), then add job sources under Job Suggestions.",
-    "finish": "Start using Job Coach"
+    "finish": "Start using MyJobCoach"
   },
   "banner": {
     "engineNotReady": "Welcome! To generate CVs and scan job listings, set up an AI engine in <settings>Settings</settings> — download the free local model, or add an OpenRouter API key.",
@@ -159,7 +159,7 @@
     },
     "backup": {
       "title": "Backup & Restore",
-      "help": "Move to a new computer or keep a safe copy of your work. <b>Export</b> downloads a single <code>.zip</code> containing your profile & photo, settings, job sources & history, and every generated CV. On the new machine, install Job Coach and use <b>Restore</b> to load that file.",
+      "help": "Move to a new computer or keep a safe copy of your work. <b>Export</b> downloads a single <code>.zip</code> containing your profile & photo, settings, job sources & history, and every generated CV. On the new machine, install MyJobCoach and use <b>Restore</b> to load that file.",
       "export": "Export backup (.zip)",
       "restore": "Restore from backup…",
       "confirmRestore": "This replaces your profile, settings, job history and generated CVs on this computer with the contents of the backup. Your API key is kept. This cannot be undone.",
@@ -213,7 +213,7 @@
       },
       "palettes": {
         "navy": "Navy",
-        "jobcoach": "Job Coach",
+        "myjobcoach": "MyJobCoach",
         "forest": "Forest",
         "burgundy": "Burgundy",
         "teal": "Teal",
@@ -408,7 +408,7 @@
   },
   "preferences": {
     "title": "Job Preferences",
-    "help": "Answer what you can — the Job Coach reads every new job posting against these. Nothing here ever appears on your CV; it is sent to your AI engine each time it reads a posting.",
+    "help": "Answer what you can — the MyJobCoach reads every new job posting against these. Nothing here ever appears on your CV; it is sent to your AI engine each time it reads a posting.",
     "q": {
       "roles": "Which job titles should we watch for?",
       "rolesSub": "Add every title you'd actually apply to, including variants and translations. This is the first thing the scanner checks against a listing.",
@@ -463,7 +463,7 @@
     "loadError": "Couldn't load your preferences: {{error}}",
     "doneAction": "Add a page to watch",
     "suggestLabel": "Common dealbreakers — tap one to add it",
-    "doneSubReady": "That's enough to start scanning. Next, tell Job Coach where to look — add a careers page to watch.",
+    "doneSubReady": "That's enough to start scanning. Next, tell MyJobCoach where to look — add a careers page to watch.",
     "doneSubNoRoles": "Add at least one job title in the first question — it's what every listing gets checked against first, so scanning without it finds little.",
     "great": {
       "impact": "Work with a clear social or environmental impact",

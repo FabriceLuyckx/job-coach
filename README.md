@@ -1,4 +1,4 @@
-# Job Coach
+# MyJobCoach
 
 AI-powered career assistant — generate tailored CVs and (in future phases) discover and filter job openings.
 
@@ -11,10 +11,10 @@ Free software under the [GNU AGPL v3 or later](LICENSE) — see [License](#licen
 For non-technical users. Grab the latest build from the
 [Releases](../../releases) page:
 
-- **macOS** — download `JobCoach-macos.dmg`, open it, drag **Job Coach** into
+- **macOS** — download `MyJobCoach-macos.dmg`, open it, drag **MyJobCoach** into
   Applications, then launch it.
-- **Windows** — download `JobCoach-windows.zip`, unzip it anywhere, and run
-  `JobCoach.exe` (keep the small window it opens — closing it quits the app).
+- **Windows** — download `MyJobCoach-windows.zip`, unzip it anywhere, and run
+  `MyJobCoach.exe` (keep the small window it opens — closing it quits the app).
 
 The app opens in your default browser. On **first launch** it downloads a PDF
 engine one time (~150 MB) — a banner shows the progress and everything except
@@ -29,8 +29,8 @@ Then pick how the AI runs (Settings → **AI Engine**, or the first-run prompt):
   quality (pay a few cents per CV).
 
 All your data stays on your machine, in a standard per-user folder:
-- macOS: `~/Library/Application Support/JobCoach/`
-- Windows: `%APPDATA%\JobCoach\`
+- macOS: `~/Library/Application Support/MyJobCoach/`
+- Windows: `%APPDATA%\MyJobCoach\`
 
 ### Moving to a new computer (backup & restore)
 
@@ -39,7 +39,7 @@ All your data stays on your machine, in a standard per-user folder:
 - **Export backup** downloads a single `.zip` with your profile and photo, settings,
   job sources and history, and every generated CV. Your OpenRouter API key is **not**
   included, so the file is safe to email or store in the cloud.
-- On the new machine, install Job Coach, open **Settings → Backup & Restore**,
+- On the new machine, install MyJobCoach, open **Settings → Backup & Restore**,
   **Restore from backup** — pick that `.zip` — then re-enter your API key.
 
 Restoring **replaces** your profile, job history and generated CVs on the new machine
@@ -47,7 +47,7 @@ Restoring **replaces** your profile, job history and generated CVs on the new ma
 
 > **First-launch security warning (unsigned app):** because the app isn't code-signed
 > yet, the OS will warn the first time. On **macOS**, right-click the app → **Open** →
-> **Open** (or run `xattr -dr com.apple.quarantine "/Applications/Job Coach.app"`).
+> **Open** (or run `xattr -dr com.apple.quarantine "/Applications/MyJobCoach.app"`).
 > On **Windows**, click **More info** → **Run anyway** on the SmartScreen prompt.
 
 The **About** button in the sidebar footer opens a dialog with the app version,
@@ -290,7 +290,7 @@ credits, and every change applies to **all** your CVs — open one under
   serif header), **Banner** (full-width colour band), **Compact** (right sidebar,
   denser — for long CVs), and **Minimal** (typographic, nothing filled in — the
   friendliest to a black-and-white office printer).
-- **Colour palette** — curated palettes (including one in Job Coach's own
+- **Colour palette** — curated palettes (including one in MyJobCoach's own
   colours); tapping one recolours the previews straight away.
 - **Colours** — the selected palette's accent, text, and background colours,
   each shown with an editable colour picker and hex box. Overwrite any of them
@@ -490,7 +490,7 @@ when done.
 ## Building a desktop release (maintainers)
 
 The downloadable apps are built with [PyInstaller](https://pyinstaller.org) from
-`packaging/jobcoach.spec`, which bundles the FastAPI backend, the built frontend,
+`packaging/myjobcoach.spec`, which bundles the FastAPI backend, the built frontend,
 and the Playwright driver into a single double-click app. Chromium itself is
 downloaded on the user's first launch to keep the installer small.
 
@@ -510,12 +510,12 @@ tag by hand.
   triggers `.github/workflows/release.yml`, which builds both platforms and attaches
   the `.dmg`/`.zip` to that same release.
 
-**Local build** (produces `dist/JobCoach.app` on macOS, `dist/JobCoach/` on Windows):
+**Local build** (produces `dist/MyJobCoach.app` on macOS, `dist/MyJobCoach/` on Windows):
 
 ```bash
 cd frontend && npm run build && cd ..   # build the frontend into frontend/dist
 uv sync --extra package                 # installs PyInstaller
-uv run pyinstaller packaging/jobcoach.spec
+uv run pyinstaller packaging/myjobcoach.spec
 ```
 
 You can also run the packaged launcher directly during development — it starts the

@@ -19,7 +19,7 @@ later phase.
 
 ## Product Purpose
 
-Job Coach exists to carry a person's career data through the entire application
+MyJobCoach exists to carry a person's career data through the entire application
 process — not just generate one CV once. A structured profile (experience, skills,
 preferences) is entered once and reused: to tailor CVs per opening, to draft
 cover-letter writing guides, and to filter watched job boards for new matches. Success
@@ -31,7 +31,7 @@ nothing has to be re-entered or re-explained to the AI.
 ## Positioning
 
 One profile, many tailored outputs. Where a generic AI resume builder makes you refill
-a form per job, Job Coach tailors from a single structured source of truth — the same
+a form per job, MyJobCoach tailors from a single structured source of truth — the same
 career data drives every CV, letter, and match judgment, and that data is designed to
 outlive any one job search.
 
@@ -54,10 +54,10 @@ cream/Bauhaus print system (which itself became a tell). See DESIGN.md.
 - **Generic SaaS dashboard** — the explicit slop list: bordered/soft-shadowed **cards**,
   **cream** or near-white grounds, **soft drop-shadows** on resting UI, **side-stripe**
   accents (a coloured left/right border), **glassmorphism**, and **pill badges** stamped
-  onto a row's own fields. Job Coach separates depth by tone, renders listings as one
+  onto a row's own fields. MyJobCoach separates depth by tone, renders listings as one
   board, and reads meta as text.
 - **Corporate job-board chrome** — LinkedIn/Indeed-style dense blue UI and
-  stock-photo emptiness. Job Coach should never read as "another job board."
+  stock-photo emptiness. MyJobCoach should never read as "another job board."
 - **AI-assistant chat-bot look** — chat bubbles, glowing gradient orbs, sparkle
   iconography. The AI is a quiet tool operating on the profile, not a persona the
   user converses with.

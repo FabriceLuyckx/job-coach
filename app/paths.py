@@ -37,9 +37,9 @@ EXAMPLE_PROFILE = RESOURCE_DIR / "profile" / "profile.example.json"
 UI_LOCALES_SRC = RESOURCE_DIR / "frontend" / "src" / "locales"
 
 # --- Writable user data ------------------------------------------------------
-# Frozen: ~/Library/Application Support/JobCoach (mac), %APPDATA%\JobCoach (win).
+# Frozen: ~/Library/Application Support/MyJobCoach (mac), %APPDATA%\MyJobCoach (win).
 # Source checkout: the repo root, so data stays exactly where it does today.
-DATA_DIR = Path(user_data_dir("JobCoach", "JobCoach")) if FROZEN else RESOURCE_DIR
+DATA_DIR = Path(user_data_dir("MyJobCoach", "MyJobCoach")) if FROZEN else RESOURCE_DIR
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 CONFIG_PATH = DATA_DIR / "config.json"

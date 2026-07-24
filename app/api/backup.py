@@ -35,7 +35,7 @@ from app.services.cv_renderer import PHOTO_EXTS
 router = APIRouter(prefix="/api/backup", tags=["backup"])
 
 MANIFEST_NAME = "manifest.json"
-BACKUP_MARKER = "job-coach-backup"
+BACKUP_MARKER = "myjobcoach-backup"
 # Top-level archive entries we recognise; anything else is ignored on import.
 ALLOWED_TOP = {"config.json", "profile", "jobs", "output", "locales", MANIFEST_NAME}
 
@@ -89,7 +89,7 @@ def export_backup():
             json.dumps(
                 {
                     "marker": BACKUP_MARKER,
-                    "app": "Job Coach",
+                    "app": "MyJobCoach",
                     "version": 1,
                     "exported_at": datetime.now(timezone.utc).isoformat(),
                 },
@@ -105,7 +105,7 @@ def export_backup():
     return Response(
         content=buf.getvalue(),
         media_type="application/zip",
-        headers={"Content-Disposition": f'attachment; filename="job-coach-backup-{stamp}.zip"'},
+        headers={"Content-Disposition": f'attachment; filename="myjobcoach-backup-{stamp}.zip"'},
     )
 
 
@@ -141,13 +141,13 @@ def import_backup(file: UploadFile = File(...)):
 
     with zf:
         if MANIFEST_NAME not in zf.namelist():
-            raise HTTPException(400, "This zip isn't a Job Coach backup (no manifest).")
+            raise HTTPException(400, "This zip isn't a MyJobCoach backup (no manifest).")
         try:
             manifest = json.loads(zf.read(MANIFEST_NAME))
         except Exception:
             manifest = {}
         if manifest.get("marker") != BACKUP_MARKER:
-            raise HTTPException(400, "This zip isn't a Job Coach backup.")
+            raise HTTPException(400, "This zip isn't a MyJobCoach backup.")
 
         members = _safe_members(zf)
 

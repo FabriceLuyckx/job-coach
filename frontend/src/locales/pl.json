@@ -1,7 +1,7 @@
 {
   "nav": {
-    "brand": "Job",
-    "brandEm": "Coach",
+    "brand": "JobCoach",
+    "brandEm": "Moje",
     "profile": "Profil",
     "preferences": "Preferencje pracy",
     "jobs": "Propozycje pracy",
@@ -33,7 +33,7 @@
     "saving": "Zapisywanie…"
   },
   "onboarding": {
-    "welcome": "Witaj w Job Coach",
+    "welcome": "Witaj w MyJobCoach",
     "intro": "Dwa szybkie wybory i gotowe. Oba możesz zmienić później w Ustawieniach.",
     "back": "Wstecz",
     "next": "Dalej",
@@ -53,7 +53,7 @@
     "engineGetKey": "Uzyskaj klucz na openrouter.ai",
     "doneTitle": "Wszystko gotowe",
     "doneBody": "Co dalej: uzupełnij swój Profil (zaimportuj istniejące CV, aby zacząć szybciej), a następnie dodaj źródła ofert w sekcji Sugestie Pracy.",
-    "finish": "Zacznij korzystać z Job Coach",
+    "finish": "Zacznij korzystać z MyJobCoach",
     "langOtherPlaceholder": "sv, ja, ar…",
     "langOtherDoneNote": "Przetwarzamy interfejs w tle — możesz śledzić postęp w Ustawieniach.",
     "langTranslateFailed": "Nie udało się rozpocząć tłumaczenia interfejsu — możesz spróbować ponownie w Ustawieniach.",
@@ -104,7 +104,7 @@
     },
     "backup": {
       "title": "Kopia zapasowa i przywracanie",
-      "help": "Przenieś dane na nowy komputer lub zachowaj bezpieczną kopię swojej pracy. <b>Eksport</b> pobiera pojedynczy plik <code>.zip</code> zawierający profil i zdjęcie, ustawienia, źródła ofert i historię oraz wszystkie wygenerowane CV. Na nowym komputerze zainstaluj Job Coach i użyj opcji <b>Przywróć</b>, aby wczytać ten plik.",
+      "help": "Przenieś się na nowy komputer lub zapisz kopię swojej pracy. <b>Ekspportuj</b> pobiera plik <code>.zip</code> zawierający profil i zdjęcie, ustawienia, źródła i historię stanowisk, oraz wszystkie wygenerowane CV. Na nowym komputerze zainstaluj MyJobCoach i użyj <b>Wczytaj</b> do załadowania tego pliku.",
       "export": "Eksportuj kopię zapasową (.zip)",
       "restore": "Przywróć z kopii zapasowej…",
       "confirmRestore": "To zastępuje Twój profil, ustawienia, historię zlecenia i wygenerowane CV na tym komputerze zawartością zapisu zabezpieczającego. Klucz API zostaje zachowany. To nie może być odwrócone.",
@@ -158,7 +158,7 @@
       },
       "palettes": {
         "navy": "Granatowy",
-        "jobcoach": "Job Coach",
+        "myjobcoach": "MyJobCoach",
         "forest": "Las",
         "burgundy": "Bordowy",
         "teal": "Morski",
@@ -353,7 +353,7 @@
   },
   "preferences": {
     "title": "Preferencje pracy",
-    "help": "Odpowiedz na to, co możesz — Job Coach porównuje nowe ogłoszenia z tymi odpowiedziami. Nic z tego nie pojawia się na Twoim CV; dane są przesyłane do Twojego silnika AI podczas analizy ogłoszeń.",
+    "help": "Odpowiedz na pytania, które możesz odpowiedzieć — MyJobCoach porównuje nowe ogłoszenia z tymi odpowiedziami. Nic z tego nie pojawia się na Twoim CV; dane są wysyłane do Twojego silnika AI podczas analizy ogłoszeń.",
     "q": {
       "roles": "Które tytuły stanowisk powinny być śledzone?",
       "rolesSub": "Dodaj każdy tytuł, do którego naprawdę byś się zastosował, w tym warianty i tłumaczenia. To pierwsze, co sprawdza analizator w ofercie.",
@@ -393,7 +393,7 @@
     "loadError": "Nie udało się wczytać preferencji: {{error}}",
     "doneAction": "Dodaj stronę do obserwacji",
     "suggestLabel": "Powszechne kryteria wykluczenia — naciśnij jeden, aby dodać",
-    "doneSubReady": "To wystarcza, aby rozpocząć analizę. Następnie powiedz Job Coach, gdzie szukać — dodaj stronę z karierą do obserwacji.",
+    "doneSubReady": "To wystarczy, aby rozpocząć analizę. Następnie powiedz MyJobCoach, gdzie szukać — dodaj stronę z karierą do monitorowania.",
     "doneSubNoRoles": "Dodaj przynajmniej jedno stanowisko w pierwszym pytaniu — to jest to, na czym wszystkie ogłoszenia są sprawdzane, więc bez tego analiza nie znajduje nic.",
     "great": {
       "impact": "Praca z jasnym wpływem społecznym lub środowiskowym",
@@ -815,7 +815,7 @@
     "page": "Strona {{n}}"
   },
   "about": {
-    "title": "O Job Coach",
+    "title": "O MyJobCoach",
     "description": "Asystent AI, który tworzy dostosowane CV i porady dotyczące listów zatrudnienia oraz pokazuje dopasowane oferty pracy.",
     "version": "Wersja {{version}}",
     "copyright": "© 2026 Fabrice Luyckx",

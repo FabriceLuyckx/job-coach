@@ -1,7 +1,7 @@
 {
   "nav": {
-    "brand": "Job",
-    "brandEm": "Coach",
+    "brand": "JobCoach",
+    "brandEm": "Il mio",
     "profile": "Profilo",
     "preferences": "Preferenze lavoro",
     "jobs": "Suggerimenti di lavoro",
@@ -33,7 +33,7 @@
     "saving": "Salvataggio in corso…"
   },
   "onboarding": {
-    "welcome": "Benvenuto in Job Coach",
+    "welcome": "Benvenuto in MyJobCoach",
     "intro": "Due scelte rapide e sei pronto. Puoi modificarle entrambe in seguito nelle Impostazioni.",
     "back": "Indietro",
     "next": "Avanti",
@@ -53,7 +53,7 @@
     "engineGetKey": "Ottieni una chiave su openrouter.ai",
     "doneTitle": "Sei pronto",
     "doneBody": "Prossimo passo: crea il tuo Profilo (importa un CV esistente per iniziare rapidamente), poi aggiungi fonti di lavoro in Suggerimenti di lavoro.",
-    "finish": "Inizia a usare Job Coach",
+    "finish": "Inizia a utilizzare MyJobCoach",
     "langOtherPlaceholder": "sv, ja, ar…",
     "langOtherDoneNote": "Stiamo traducendo l'interfaccia in background — puoi tracciare il progresso nelle Impostazioni.",
     "langTranslateFailed": "Impossibile avviare la traduzione dell'interfaccia — puoi riprovarci nelle Impostazioni.",
@@ -104,7 +104,7 @@
     },
     "backup": {
       "title": "Backup e ripristino",
-      "help": "Passa a un nuovo computer o conserva una copia sicura del tuo lavoro. <b>Esporta</b> scarica un singolo file <code>.zip</code> contenente profilo e foto, impostazioni, fonti e cronologia offerte e tutti i CV generati. Sul nuovo computer, installa Job Coach e usa <b>Ripristina</b> per caricare il file.",
+      "help": "Passa a un nuovo computer o conserva una copia sicura del tuo lavoro. <b>Esporta</b> scarica un singolo <code>.zip</code> contenente il tuo profilo e la foto, le impostazioni, le fonti di lavoro e la storia, e tutti i CV generati. Sul nuovo computer, installa MyJobCoach e usa <b>Ripristina</b> per caricare quel file.",
       "export": "Esporta backup (.zip)",
       "restore": "Ripristina da backup…",
       "confirmRestore": "Questo sostituirà il tuo profilo, le impostazioni, la storia dei lavori e i CV generati su questo computer con il contenuto del backup. La tua chiave API rimarrà invariata. Questa operazione non può essere annullata.",
@@ -158,7 +158,7 @@
       },
       "palettes": {
         "navy": "Blu marino",
-        "jobcoach": "Job Coach",
+        "myjobcoach": "MyJobCoach",
         "forest": "Verde bosco",
         "burgundy": "Bordeaux",
         "teal": "Verde petrolio",
@@ -353,7 +353,7 @@
   },
   "preferences": {
     "title": "Preferenze lavoro",
-    "help": "Rispondi alle domande che ti sono possibili — il Job Coach analizza ogni nuovo annuncio in base a queste informazioni. Niente di ciò che hai inserito appare sul tuo CV; viene inviato al tuo motore AI ogni volta che viene letto un annuncio.",
+    "help": "Rispondi a ciò che puoi — MyJobCoach confronta ogni nuovo annuncio con queste informazioni. Niente di ciò qui appare sul tuo CV; viene inviato al tuo motore AI ogni volta che legge un annuncio.",
     "q": {
       "roles": "Quali titoli di lavoro dovremmo monitorare?",
       "rolesSub": "Aggiungi ogni titolo a cui ti candideresti davvero, incluse varianti e traduzioni. È il primo elemento che il filtro verifica su un annuncio.",
@@ -393,7 +393,7 @@
     "loadError": "Impossibile caricare le tue preferenze: {{error}}",
     "doneAction": "Aggiungi una pagina da monitorare",
     "suggestLabel": "Dei criteri comuni di rifiuto — tocca uno per aggiungerlo",
-    "doneSubReady": "È sufficiente per iniziare a scansare. Successivamente, indica al Job Coach dove cercare — aggiungi una pagina dei posti di lavoro da monitorare.",
+    "doneSubReady": "Questo è sufficiente per iniziare a scansare. Successivamente, indica a MyJobCoach dove cercare — aggiungi una pagina carriera da monitorare.",
     "doneSubNoRoles": "Aggiungi almeno un titolo di lavoro nella prima domanda — è ciò su cui ogni annuncio viene verificato per primo, quindi senza di esso il sistema trova pochi risultati.",
     "great": {
       "impact": "Lavorare con un impatto sociale o ambientale chiaro",
@@ -815,7 +815,7 @@
     "page": "Pagina {{n}}"
   },
   "about": {
-    "title": "Chi è Job Coach",
+    "title": "Informazioni su MyJobCoach",
     "description": "Un assistente alimentato dall'intelligenza artificiale che crea CV personalizzati e guide per lettere di presentazione e mostra offerte di lavoro corrispondenti.",
     "version": "Versione {{version}}",
     "copyright": "© 2026 Fabrice Luyckx",

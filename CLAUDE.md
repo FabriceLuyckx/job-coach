@@ -1,4 +1,4 @@
-# Job Coach — Project Plan & Documentation
+# MyJobCoach — Project Plan & Documentation
 
 ## Overview
 
@@ -422,7 +422,7 @@ without a way to remove it, and a new one needs no frontend change beyond a
 other optional section) un-removable until 2026-07.
 `manifest.json` is the registry — `{templates: [ids], palettes: [...]}` with **one
 shared palette list** (same set and order for every template, so the swatch row
-never reorders when switching templates; includes a `jobcoach` palette echoing the
+never reorders when switching templates; includes a `myjobcoach` palette echoing the
 app's own cream/ink/vermilion) — served verbatim by `GET /api/cv/templates` and
 used as the server-side allowlist; display names are i18n keys
 (`settings.template.names.<id>`), never manifest strings. A **palette** sets

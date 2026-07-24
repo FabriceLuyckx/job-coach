@@ -1,7 +1,7 @@
 schema: spec-driven
 
 context: |
-  Job Coach — local-first AI career assistant (tailored CVs + AI-filtered job
+  MyJobCoach — local-first AI career assistant (tailored CVs + AI-filtered job
   suggestions). Full architecture, phase plan, data formats, and development
   rules live in CLAUDE.md at the repo root — read it before planning.
 

@@ -23,7 +23,7 @@ export const LANGUAGE_NAMES: Record<string, string> = {
   es: 'Español', it: 'Italiano', pt: 'Português', pl: 'Polski',
 }
 
-const STORAGE_KEY = 'jobcoach_lang'
+const STORAGE_KEY = 'myjobcoach_lang'
 
 i18n.use(initReactI18next).init({
   resources: { en: { translation: en } },

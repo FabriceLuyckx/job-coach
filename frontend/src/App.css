@@ -24,10 +24,14 @@
   font-size: var(--fs-xl);
   padding: 0 var(--space-3) var(--space-6);
 }
-/* "Job Coach" separates its two words by weight and hue — muted ink, then
-   accent-text on "Coach". A permanent, low-key brand mark on every page (not
-   a competing signal: it never moves, so it reads as identity, not action).
-   accent-text clears AA on the sidebar's sage tint same as on --ground. */
+/* "MyJobCoach" splits by weight and hue on "My" — accent-text on the personal,
+   local-first "My", muted ink on "JobCoach". Accenting "Coach" instead once read
+   as the AI performing a persona, which the product deliberately avoids (see
+   PRODUCT.md anti-references); "My" also ties the one spent accent to a real
+   product fact (your data, your machine) rather than an arbitrary word-split.
+   A permanent, low-key brand mark on every page (not a competing signal: it
+   never moves, so it reads as identity, not action). accent-text clears AA on
+   the sidebar's sage tint same as on --ground. */
 .sidebar-nav .nav-logo { color: var(--muted); }
 .nav-logo em {
   font-style: normal;

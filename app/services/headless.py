@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 import httpx
 from bs4 import BeautifulSoup
 
-_UA = "Mozilla/5.0 (compatible; job-coach/1.0)"
+_UA = "Mozilla/5.0 (compatible; myjobcoach/1.0)"
 
 # Below this many characters we assume a page was JS-rendered and re-fetch it
 # with a headless browser.

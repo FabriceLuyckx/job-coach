@@ -1,7 +1,7 @@
 {
   "nav": {
-    "brand": "Job",
-    "brandEm": "Coach",
+    "brand": "JobCoach",
+    "brandEm": "Mijn",
     "profile": "Profiel",
     "preferences": "Jobvoorkeuren",
     "jobs": "Vacaturesuggesties",
@@ -33,7 +33,7 @@
     "saving": "Bewaar…"
   },
   "onboarding": {
-    "welcome": "Welkom bij Job Coach",
+    "welcome": "Welkom bij MijnJobCoach",
     "intro": "Twee snelle keuzes en je bent klaar. Je kunt beide later wijzigen via Instellingen.",
     "back": "Terug",
     "next": "Volgende",
@@ -53,7 +53,7 @@
     "engineGetKey": "Vraag een sleutel aan op openrouter.ai",
     "doneTitle": "Je bent helemaal klaar",
     "doneBody": "Volgende stap: maak je Profiel aan (importeer een bestaand cv om snel te beginnen) en voeg vacaturebronnen toe via Vacaturesuggesties.",
-    "finish": "Job Coach starten",
+    "finish": "Begin nu met MijnJobCoach",
     "langOtherPlaceholder": "sv, ja, ar…",
     "langOtherDoneNote": "We're translating the interface in the background — you can track it in Settings.",
     "langTranslateFailed": "Couldn't start translating the interface — you can retry in Settings.",
@@ -104,7 +104,7 @@
     },
     "backup": {
       "title": "Back-up en herstel",
-      "help": "Verhuis naar een nieuwe computer of bewaar een veilige kopie van je werk. <b>Exporteren</b> downloadt een enkel <code>.zip</code>-bestand met je profiel & foto, instellingen, vacaturebronnen & geschiedenis en alle gegenereerde cv's. Installeer Job Coach op de nieuwe computer en gebruik <b>Herstellen</b> om het bestand te laden.",
+      "help": "Verplaats naar een nieuwe computer of sla een veilige kopie van je werk op. <b>Export</b> downloadt een enkele <code>.zip</code> die je profiel en foto, instellingen, werkgeversbronnen en geschiedenis en elk gegenereerd CV bevat. Op de nieuwe computer installeer je MijnJobCoach en gebruik je <b>Restore</b> om die bestand te laden.",
       "export": "Back-up exporteren (.zip)",
       "restore": "Herstellen vanuit back-up…",
       "confirmRestore": "Dit vervangt uw profiel, instellingen, baanhistorie en gegenereerde CV's op dit apparaat met de inhoud van de backup. Uw API-sleutel wordt behouden. Dit kan niet ongedaan gemaakt worden.",
@@ -158,7 +158,7 @@
       },
       "palettes": {
         "navy": "Marineblauw",
-        "jobcoach": "Job Coach",
+        "myjobcoach": "MijnJobCoach",
         "forest": "Bos",
         "burgundy": "Bordeauxrood",
         "teal": "Petrolblauw",
@@ -353,7 +353,7 @@
   },
   "preferences": {
     "title": "Jobvoorkeuren",
-    "help": "Antwoord op wat je kunt — de Job Coach vergelijkt elke nieuwe functieaanbod tegen deze instellingen. Niets hier verschijnt op je CV; het wordt elke keer dat een aanbod wordt gelezen, gestuurd naar je AI-engine.",
+    "help": "Antwoord op wat je kunt — MijnJobCoach vergelijkt elke nieuwe functieaanbod tegen deze instellingen. Niets hier verschijnt op je CV; het wordt elke keer dat een functieaanbod wordt gelezen, gestuurd naar je AI-engine.",
     "q": {
       "roles": "Welke functietitels moeten we volgen?",
       "rolesSub": "Voeg elke titel toe die je daadwerkelijk zou aanvragen, inclusief varianten en vertalingen. Dit is het eerste wat de scanner controleert tegen een aanbod.",
@@ -393,7 +393,7 @@
     "loadError": "Kon je voorkeuren niet laden: {{error}}",
     "doneAction": "Voeg een pagina toe om te volgen",
     "suggestLabel": "Algemene afwijzingen — tik er één op om het toe te voegen",
-    "doneSubReady": "Dat is voldoende om te beginnen met scannen. Volgende stap: vertel Job Coach waar te kijken — voeg een carrièrepagina toe om te volgen.",
+    "doneSubReady": "Dat is genoeg om te beginnen met scannen. Volgende, vertel MijnJobCoach waar je naar moet kijken — voeg een carrièrespagina toe om te volgen.",
     "doneSubNoRoles": "Voeg ten minste één functietitel toe in de eerste vraag — dat is wat elk aanbod eerst wordt gecontroleerd, dus zonder het vindt de scan weinig.",
     "great": {
       "impact": "Werk met een duidelijke sociale of ecologische impact",
@@ -815,7 +815,7 @@
     "page": "Pagina {{n}}"
   },
   "about": {
-    "title": "Over Job Coach",
+    "title": "Over MijnJobCoach",
     "description": "Een AI-gebaseerde assistent die opmaakte CV's en cover-letterhandleidingen en passende vacatures blootstelt.",
     "version": "Versie {{version}}",
     "copyright": "© 2026 Fabrice Luyckx",

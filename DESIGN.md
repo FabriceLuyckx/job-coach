@@ -1,5 +1,5 @@
 ---
-name: Job Coach
+name: MyJobCoach
 description: The Atelier / Stone system — one drenched sage colour world, a purposeful (not decorative) terracotta accent, calm register, for a local-first career-application tool.
 colors:
   ground: "#CCD4CD"
@@ -87,13 +87,13 @@ components:
     rounded: "{rounded.btn}"
 ---
 
-# Design System: Job Coach
+# Design System: MyJobCoach
 
 ## 1. Overview
 
 **Creative North Star: "Atelier / Stone"**
 
-Job Coach owns a colour instead of hiding in neutral. The whole app lives in one
+MyJobCoach owns a colour instead of hiding in neutral. The whole app lives in one
 drenched, *lighter* colour world — a de-yellowed sage — rather than a light sheet
 floating on a contrasting wall. There is no cream and no dark wall: the ground is sage
 (`--ground`), the sidebar is a tonal *step* of that same ground, and content sits
@@ -101,7 +101,7 @@ directly on it. Depth comes from tone, not shadow; a list is one tonal board spl
 hairlines, not a grid of bordered cards; meta and status are read as text, not stamped
 into pill badges. One warm terracotta accent carries every real signal moment.
 
-That calm is structural. Job Coach's brand personality is calm, trustworthy,
+That calm is structural. MyJobCoach's brand personality is calm, trustworthy,
 reassuring — job hunting is stressful enough — so the confidence lives in the drenched
 ground and the rounded, roomy form, while colour, motion, and copy stay purposeful rather
 than loud. Terracotta is warm by hue and, since 2026-07-22, spent generously wherever it

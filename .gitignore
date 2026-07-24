@@ -229,7 +229,7 @@ docs/plans/
 
 # The `*.spec` rule above ignores auto-generated PyInstaller specs, but our
 # packaging spec is hand-written and must be committed.
-!packaging/jobcoach.spec
+!packaging/myjobcoach.spec
 
 # Local config and personal profile data (seeded from the *.example files).
 # Ignore everything in profile/ EXCEPT the committed sample. Note: use

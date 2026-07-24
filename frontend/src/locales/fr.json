@@ -1,7 +1,7 @@
 {
   "nav": {
-    "brand": "Job",
-    "brandEm": "Coach",
+    "brand": "JobCoach",
+    "brandEm": "Mon",
     "profile": "Profil",
     "preferences": "Préférences d'emploi",
     "jobs": "Suggestions d'emploi",
@@ -33,7 +33,7 @@
     "saving": "Enregistrement…"
   },
   "onboarding": {
-    "welcome": "Bienvenue sur Job Coach",
+    "welcome": "Bienvenue sur MyJobCoach",
     "intro": "Deux choix rapides et c'est parti. Vous pourrez les modifier plus tard dans les Paramètres.",
     "back": "Retour",
     "next": "Suivant",
@@ -53,7 +53,7 @@
     "engineGetKey": "Obtenir une clé sur openrouter.ai",
     "doneTitle": "Tout est prêt",
     "doneBody": "Ensuite : complétez votre Profil (importez un CV existant pour démarrer rapidement), puis ajoutez des sources d'emploi dans Suggestions d'emploi.",
-    "finish": "Commencer à utiliser Job Coach",
+    "finish": "Commencez à utiliser MyJobCoach",
     "langOtherPlaceholder": "sv, ja, ar…",
     "langOtherDoneNote": "Nous traduisons l'interface en arrière-plan — vous pouvez la suivre dans Paramètres.",
     "langTranslateFailed": "Impossible de démarrer la traduction de l'interface — vous pouvez la réessayer dans Paramètres.",
@@ -104,7 +104,7 @@
     },
     "backup": {
       "title": "Sauvegarde & Restauration",
-      "help": "Migrez vers un nouvel ordinateur ou conservez une copie sécurisée de votre travail. <b>Exporter</b> télécharge un fichier <code>.zip</code> unique contenant votre profil & photo, vos paramètres, vos sources d'offres & historique, et tous vos CV générés. Sur le nouvel ordinateur, installez Job Coach et utilisez <b>Restaurer</b> pour charger ce fichier.",
+      "help": "Déplacez-vous sur un nouveau ordinateur ou enregistrez une copie de sécurité de vos données. <b>Exporter</b> télécharge un seul <code>.zip</code> contenant votre profil et votre photo, vos paramètres, vos sources d'offres d'emploi et votre historique, ainsi que tous les CV générés. Sur la nouvelle machine, installez MyJobCoach et utilisez <b>Restaurer</b> pour charger ce fichier.",
       "export": "Exporter la sauvegarde (.zip)",
       "restore": "Restaurer depuis une sauvegarde…",
       "confirmRestore": "Cela remplace votre profil, vos paramètres, votre historique de poste et vos CV générés sur cet ordinateur par le contenu du sauvegarde. Votre clé API est conservée. Cette action ne peut pas être annulée.",
@@ -158,7 +158,7 @@
       },
       "palettes": {
         "navy": "Marine",
-        "jobcoach": "Job Coach",
+        "myjobcoach": "MyJobCoach",
         "forest": "Forêt",
         "burgundy": "Bordeaux",
         "teal": "Sarcelle",
@@ -353,7 +353,7 @@
   },
   "preferences": {
     "title": "Préférences d'emploi",
-    "help": "Répondez à vos capacités — le Job Coach compare chaque nouveau poste de travail à ces informations. Rien de ce qui est indiqué ici ne figure sur votre CV ; ces données sont envoyées à votre moteur d'IA chaque fois qu'il lit un nouveau poste.",
+    "help": "Répondez à ce que vous pouvez — MyJobCoach compare chaque nouvelle offre d'emploi à ces informations. Rien de ce qui est indiqué ici ne figure sur votre CV ; ces données sont envoyées à votre moteur d'IA chaque fois qu'il lit une offre.",
     "q": {
       "roles": "Quels titres de poste devons-nous surveiller ?",
       "rolesSub": "Ajoutez chaque titre que vous seriez prêt à postuler, y compris les variantes et les traductions. C'est la première chose que le lecteur vérifie dans une offre.",
@@ -393,7 +393,7 @@
     "loadError": "Impossible de charger vos préférences : {{error}}",
     "doneAction": "Ajouter une page à surveiller",
     "suggestLabel": "Critères fréquents — touchez-en un pour l'ajouter",
-    "doneSubReady": "Cela suffit pour commencer à scanner. Ensuite, dites à Job Coach où il doit chercher — ajoutez une page de carrière à surveiller.",
+    "doneSubReady": "Cela suffit pour commencer à scanner. Ensuite, dites à MyJobCoach où il doit chercher — ajoutez une page de carrière à surveiller.",
     "doneSubNoRoles": "Ajoutez au moins un titre de poste dans la première question — c'est ce que chaque annonce vérifie en premier, donc sans cela, le scan ne trouve presque rien.",
     "great": {
       "impact": "Travailler avec un impact social ou environnemental clair",
@@ -815,7 +815,7 @@
     "page": "Page {{n}}"
   },
   "about": {
-    "title": "À propos de Job Coach",
+    "title": "À propos de MyJobCoach",
     "description": "Un assistant alimenté par l'IA qui crée des CV et des guides de lettres de motivation sur mesure et affiche des offres d'emploi correspondantes.",
     "version": "Version {{version}}",
     "copyright": "© 2026 Fabrice Luyckx",

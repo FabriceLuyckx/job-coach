@@ -1,5 +1,5 @@
 [project]
-name = "job-coach"
+name = "myjobcoach"
 version = "0.1.0"
 description = "AI-powered career assistant: tailored CV generation and job matching"
 license = "AGPL-3.0-or-later"
@@ -37,7 +37,7 @@ local = [
 [project.scripts]
 generate-cv = "scripts.generate_cv:main"
 tailor-cv   = "scripts.tailor_cv:main"
-job-coach   = "app.desktop:main"
+myjobcoach  = "app.desktop:main"
 
 [build-system]
 requires = ["hatchling"]

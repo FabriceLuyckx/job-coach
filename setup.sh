@@ -3,7 +3,7 @@
 # Copyright (C) 2026 Fabrice Luyckx
 
 #
-# One-command dev setup for Job Coach (macOS).
+# One-command dev setup for MyJobCoach (macOS).
 #
 # Installs everything a fresh clone needs: Homebrew, uv, Node, all backend and
 # frontend dependencies, the headless browser for PDF export, and seeds the

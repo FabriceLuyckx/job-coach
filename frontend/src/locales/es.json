@@ -1,7 +1,7 @@
 {
   "nav": {
-    "brand": "Job",
-    "brandEm": "Coach",
+    "brand": "JobCoach",
+    "brandEm": "Mi",
     "profile": "Perfil",
     "preferences": "Preferencias de empleo",
     "jobs": "Sugerencias de empleo",
@@ -33,7 +33,7 @@
     "saving": "Guardando…"
   },
   "onboarding": {
-    "welcome": "Bienvenido a Job Coach",
+    "welcome": "Bienvenido a MyJobCoach",
     "intro": "Dos elecciones rápidas y listo. Puedes cambiar ambas más tarde en Configuración.",
     "back": "Atrás",
     "next": "Siguiente",
@@ -53,7 +53,7 @@
     "engineGetKey": "Obtén una clave en openrouter.ai",
     "doneTitle": "Todo listo",
     "doneBody": "A continuación: crea tu Perfil (importa un CV existente para empezar rápido) y luego añade fuentes de empleo en Sugerencias de empleo.",
-    "finish": "Empezar a usar Job Coach",
+    "finish": "Empieza a usar MyJobCoach",
     "langOtherPlaceholder": "sv, ja, ar…",
     "langOtherDoneNote": "Estamos traduciendo la interfaz en segundo plano — puedes seguir el progreso en Configuración.",
     "langTranslateFailed": "No se pudo iniciar la traducción de la interfaz — puedes intentarlo de nuevo en Configuración.",
@@ -104,7 +104,7 @@
     },
     "backup": {
       "title": "Copia de seguridad y restauración",
-      "help": "Cambia de ordenador o guarda una copia segura de tu trabajo. <b>Exportar</b> descarga un archivo <code>.zip</code> con tu perfil y foto, ajustes, fuentes e historial de empleo, y todos los CVs generados. En el nuevo equipo, instala Job Coach y usa <b>Restaurar</b> para cargar ese archivo.",
+      "help": "Muevete a una nueva computadora o guarda una copia segura de tu trabajo. <b>Exportar</b> descarga un solo <code>.zip</code> que contiene tu perfil y foto, configuraciones, fuentes de empleo y historial, y cada CV generado. En la nueva máquina, instala MyJobCoach y utiliza <b>Restaurar</b> para cargar ese archivo.",
       "export": "Exportar copia de seguridad (.zip)",
       "restore": "Restaurar desde copia de seguridad…",
       "confirmRestore": "Este reemplaza su perfil, configuraciones, historial de empleos y CVs generados en este ordenador con el contenido del respaldo. Su clave API se mantiene. Esto no se puede deshacer.",
@@ -158,7 +158,7 @@
       },
       "palettes": {
         "navy": "Azul marino",
-        "jobcoach": "Job Coach",
+        "myjobcoach": "MyJobCoach",
         "forest": "Bosque",
         "burgundy": "Burdeos",
         "teal": "Verde azulado",
@@ -353,7 +353,7 @@
   },
   "preferences": {
     "title": "Preferencias de empleo",
-    "help": "Responde lo que puedas — el Coach de Empleo revisa cada nuevo anuncio contra estos. Nada de esto aparece en tu CV; se envía a tu motor de IA cada vez que lee un anuncio.",
+    "help": "Responde lo que puedas — MyJobCoach compara cada nueva oferta de empleo contra estas. Nada de esto aparece en tu CV; se envía a tu motor de inteligencia artificial cada vez que lee una oferta.",
     "q": {
       "roles": "¿Qué títulos de empleo deberíamos monitorear?",
       "rolesSub": "Añade cada título en el que realmente aplicarías, incluyendo variantes y traducciones. Este es el primer elemento que revisa el escáner contra un anuncio.",
@@ -393,7 +393,7 @@
     "loadError": "No se pudieron cargar tus preferencias: {{error}}",
     "doneAction": "Añade una página para seguir",
     "suggestLabel": "Dealbreakers comunes — toca uno para añadirlo",
-    "doneSubReady": "Eso es suficiente para comenzar a escanear. A continuación, dile al Coach de Empleo dónde buscar — añade una página de empleos para seguir.",
+    "doneSubReady": "Eso es suficiente para comenzar a escanear. A continuación, dile a MyJobCoach dónde buscar — añade una página de carreras para monitorear.",
     "doneSubNoRoles": "Añade al menos un título de puesto en la primera pregunta — es lo que se compara en cada anuncio, así que sin él, el escaneo encuentra poco.",
     "great": {
       "impact": "Trabajar con un impacto social o ambiental claro",
@@ -815,7 +815,7 @@
     "page": "Página {{n}}"
   },
   "about": {
-    "title": "Acerca de Job Coach",
+    "title": "Sobre MyJobCoach",
     "description": "Un asistente de inteligencia artificial que crea CVs personalizados y guías para cartas de presentación y muestra ofertas de empleo compatibles.",
     "version": "Versión {{version}}",
     "copyright": "© 2026 Fabrice Luyckx",

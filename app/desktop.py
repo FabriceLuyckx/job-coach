@@ -77,8 +77,8 @@ def main() -> None:
 
     threading.Thread(target=_open_when_ready, args=(port,), daemon=True).start()
 
-    print(f"Job Coach is running at http://{HOST}:{port}")
-    print("Keep this window open. Close it to quit Job Coach.")
+    print(f"MyJobCoach is running at http://{HOST}:{port}")
+    print("Keep this window open. Close it to quit MyJobCoach.")
     uvicorn.run(app, host=HOST, port=port, log_level="warning")
 
 

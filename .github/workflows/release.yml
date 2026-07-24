@@ -20,9 +20,9 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            artifact: JobCoach-macos
+            artifact: MyJobCoach-macos
           - os: windows-latest
-            artifact: JobCoach-windows
+            artifact: MyJobCoach-windows
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -45,21 +45,21 @@ jobs:
         run: pip install ".[package]"
 
       - name: Build app bundle
-        run: pyinstaller packaging/jobcoach.spec
+        run: pyinstaller packaging/myjobcoach.spec
 
       # To ship a warning-free app later, add code-signing/notarization here:
       #  - macOS: codesign the .app, then `xcrun notarytool submit` + `stapler`.
-      #  - Windows: signtool / Azure Trusted Signing on dist/JobCoach/JobCoach.exe.
+      #  - Windows: signtool / Azure Trusted Signing on dist/MyJobCoach/MyJobCoach.exe.
 
       - name: Package (macOS .dmg)
         if: runner.os == 'macOS'
         run: >
-          hdiutil create -volname "Job Coach" -srcfolder "dist/JobCoach.app"
-          -ov -format UDZO "dist/JobCoach-macos.dmg"
+          hdiutil create -volname "MyJobCoach" -srcfolder "dist/MyJobCoach.app"
+          -ov -format UDZO "dist/MyJobCoach-macos.dmg"
 
       - name: Package (Windows .zip)
         if: runner.os == 'Windows'
-        run: Compress-Archive -Path dist/JobCoach/* -DestinationPath dist/JobCoach-windows.zip
+        run: Compress-Archive -Path dist/MyJobCoach/* -DestinationPath dist/MyJobCoach-windows.zip
 
       - uses: actions/upload-artifact@v4
         with:

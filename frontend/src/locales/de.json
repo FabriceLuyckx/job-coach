@@ -1,7 +1,7 @@
 {
   "nav": {
-    "brand": "Job",
-    "brandEm": "Coach",
+    "brand": "JobCoach",
+    "brandEm": "Mein",
     "profile": "Profil",
     "preferences": "Job Präferenzen",
     "jobs": "Jobvorschläge",
@@ -33,7 +33,7 @@
     "saving": "Speicherung..."
   },
   "onboarding": {
-    "welcome": "Willkommen bei Job Coach",
+    "welcome": "Willkommen bei MyJobCoach",
     "intro": "Zwei kurze Einstellungen, und schon sind Sie startklar. Beides können Sie später in den Einstellungen ändern.",
     "back": "Zurück",
     "next": "Weiter",
@@ -53,7 +53,7 @@
     "engineGetKey": "Schlüssel auf openrouter.ai holen",
     "doneTitle": "Alles erledigt",
     "doneBody": "Weiter: Erstellen Sie Ihr Profil (importieren Sie einen vorhandenen Lebenslauf für einen schnellen Start) und fügen Sie dann Jobquellen unter Jobvorschläge hinzu.",
-    "finish": "Job Coach verwenden",
+    "finish": "Beginnen Sie mit MyJobCoach",
     "langOtherPlaceholder": "sv, ja, ar…",
     "langOtherDoneNote": "Wir übersetzen das Interface im Hintergrund — du kannst es in den Einstellungen verfolgen.",
     "langTranslateFailed": "Die Übersetzung des Interfaces konnte nicht gestartet werden — du kannst es in den Einstellungen erneut versuchen.",
@@ -104,7 +104,7 @@
     },
     "backup": {
       "title": "Sicherung & Wiederherstellung",
-      "help": "Wechseln Sie den Computer, oder erstellen Sie eine sichere Kopie Ihrer Daten. <b>Exportieren</b> lädt eine <code>.zip</code>-Datei herunter, die Ihr Profil & Foto, Einstellungen, Jobquellen & -verlauf sowie alle generierten Lebensläufe enthält. Installieren Sie auf dem neuen Gerät Job Coach und nutzen Sie <b>Wiederherstellen</b>, um die Datei zu laden.",
+      "help": "Wechseln Sie auf ein neues Rechner oder speichern Sie eine sichere Kopie Ihrer Arbeit. <b>Exportieren</b> erstellt eine einzelne <code>.zip</code>-Datei mit Ihrem Profil und Foto, Einstellungen, Stellenanzeigenquellen und -geschichte sowie allen generierten Lebensläufen. Auf dem neuen Rechner installieren Sie MyJobCoach und verwenden <b>Wiederherstellen</b>, um diese Datei zu laden.",
       "export": "Sicherung exportieren (.zip)",
       "restore": "Aus Sicherung wiederherstellen…",
       "confirmRestore": "Dies ersetzt Ihr Profil, Einstellungen, Arbeitsgeschichte und generierte CVs auf diesem Computer durch den Inhalt der Sicherung. Ihr API-Schlüssel bleibt erhalten. Dies kann nicht rückgängig gemacht werden.",
@@ -158,7 +158,7 @@
       },
       "palettes": {
         "navy": "Navy",
-        "jobcoach": "Job Coach",
+        "myjobcoach": "MyJobCoach",
         "forest": "Wald",
         "burgundy": "Burgund",
         "teal": "Teal",
@@ -353,7 +353,7 @@
   },
   "preferences": {
     "title": "Job Präferenzen",
-    "help": "Antworte auf das, was du kannst — der Job-Coach vergleicht jede neue Stellenanzeige mit diesen Angaben. Dinge hier erscheinen nie auf deinem Lebenslauf; sie werden jedes Mal, wenn der Job-Coach eine Anzeige liest, an deine KI-Engine gesendet.",
+    "help": "Antworten Sie auf das, was Sie können – MyJobCoach vergleicht jede neue Stellenanzeige mit diesen Angaben. Dinge hier erscheinen nie auf Ihrem Lebenslauf; sie werden jedes Mal an Ihre KI-Engine gesendet, wenn eine Stellenanzeige gelesen wird.",
     "q": {
       "roles": "Welche Berufsbezeichnungen sollen wir beobachten?",
       "rolesSub": "Fügen Sie alle Titel hinzu, an die Sie tatsächlich bewerben würden, einschließlich Varianten und Übersetzungen. Dies ist das erste, was der Scanner mit einer Stellenanzeige vergleicht.",
@@ -393,7 +393,7 @@
     "loadError": "Deine Einstellungen konnten nicht geladen werden: {{error}}",
     "doneAction": "Eine Seite hinzufügen, die überwacht wird",
     "suggestLabel": "Gängige Ausschlusskriterien — tippe eine aus, um sie hinzuzufügen",
-    "doneSubReady": "Das ist genug, um zu scannen. Nächste Schritt: Erkläre Job Coach, wo er suchen soll — füge eine Karriere-Page hinzu, die überwacht wird.",
+    "doneSubReady": "Das reicht, um zu scannen zu beginnen. Nächste Schritt: Erklären Sie MyJobCoach, wo es suchen soll – fügen Sie eine Karriere-Seite hinzu, die Sie beobachten möchten.",
     "doneSubNoRoles": "Füge mindestens einen Berufsbezeichnung in der ersten Frage hinzu — das ist das, was jede Stellenanzeige zuerst abgeglichen wird, daher findet ein Scan ohne es wenig heraus.",
     "great": {
       "impact": "Arbeit mit einem klaren sozialen oder ökologischen Einfluss",
@@ -815,7 +815,7 @@
     "page": "Seite {{n}}"
   },
   "about": {
-    "title": "Über Job Coach",
+    "title": "Über MyJobCoach",
     "description": "Ein künstliche Intelligenz-basierter Assistent, der maßgeschneiderte Lebenslauf- und Bewerbungsschreiben-Anleitungen erstellt und passende Stellenangebote enthält.",
     "version": "Version {{version}}",
     "copyright": "© 2026 Fabrice Luyckx",
