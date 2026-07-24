@@ -6,7 +6,8 @@
     "preferences": "Préférences d'emploi",
     "jobs": "Suggestions d'emploi",
     "settings": "Paramètres",
-    "applications": "Candidatures"
+    "applications": "Candidatures",
+    "about": "À propos"
   },
   "common": {
     "loading": "Chargement…",
@@ -512,7 +513,6 @@
     "fetchingListing": "Récupération de l'offre d'emploi…",
     "tailoring": "Personnalisation du CV avec l'IA…",
     "starting": "Démarrage…",
-    "listing": "Offre",
     "deleteCv": "Supprimer le CV pour {{title}}",
     "deletedToast": "CV supprimé pour « {{title}} »",
     "noCvForJob": "Aucun CV trouvé pour ce poste — sa génération a peut-être échoué. Utilisez « Regénérer le CV » sur la page Suggestions d'emplois pour réessayer.",
@@ -813,5 +813,12 @@
     "prev": "Page précédente",
     "next": "Page suivante",
     "page": "Page {{n}}"
+  },
+  "about": {
+    "title": "À propos de Job Coach",
+    "description": "Un assistant alimenté par l'IA qui crée des CV et des guides de lettres de motivation sur mesure et affiche des offres d'emploi correspondantes.",
+    "version": "Version {{version}}",
+    "copyright": "© 2026 Fabrice Luyckx",
+    "license": "Logiciel libre sous la <lic>GNU AGPL v3</lic>. <src>Voir le code source</src>."
   }
 }

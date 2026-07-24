@@ -105,7 +105,7 @@ job-coach/
 │       │   └── Settings.tsx      # OpenRouter API key, model, photo; Advanced → AI prompts
 │       ├── components/           # Shared UI: Button/SaveButton/RemoveButton, Toast,
 │       │   │                     #   Modal, Collapsible, Badge, EmptyState, ErrorBoundary,
-│       │   │                     #   KeyStatus (API-key onboarding), CreditChip
+│       │   │                     #   KeyStatus (API-key onboarding), CreditChip, About
 │       │   ├── cv/CVEditor.tsx   # Per-CV editor panel (preview, Update-CV modal, plan edits)
 │       │   ├── letters/GuideView.tsx # Renders one cover-letter guide (+ Copy as Markdown); reused by future Application view
 │       │   ├── ProfileSection.tsx # Section/Field primitives shared by Profile + Preferences
@@ -315,7 +315,15 @@ GET  /api/letters/history      Generated guides, newest first (guide JSON parsed
 DELETE /api/letters/history/{id} Delete a guide
 GET  /api/backup/export        Download a .zip of user data (config sans secrets, profile, photo, jobs.db, output)
 POST /api/backup/import        Restore a backup .zip (full replace, API key preserved) → re-runs db migrations
+GET  /api/version              Running app version {version} (system router; pyproject metadata → tomllib → "unknown") — feeds the About modal
 ```
+
+**About modal** (`frontend/src/components/About.tsx`): an "About" `<button>` in the
+sidebar-footer app-menu cluster (beside the Settings `NavLink`, `.nav-item` class,
+lucide `Info`) opens the shared `Modal` showing app name, version (fetched from
+`GET /api/version` on open), description, copyright, and AGPL-3.0/source links (same
+URLs as the footer). `app_version()` lives on the `system` router. The cluster is the
+home for future app-level actions (e.g. "Check for updates…").
 
 **Cover Letter** (`app/api/letters.py`, `app/services/letter_guide.py`): given a
 posting URL, one forced-tool LLM call (`letter_guide`) returns a lean *writing
@@ -618,6 +626,24 @@ button on that count rather than guessing from the 50 `seen` rows it can see. Sc
 
 ### Phase 7 — Cloud Deployment
 
+**Release versioning** (`add-release-versioning`): the app version lives in exactly
+one place — `pyproject.toml` — which `add-about-modal`'s `GET /api/version`
+(`app_version()`) reads at runtime, and it is **bumped automatically**, never by
+hand. **`main`** is the development branch; **`stable`** is the sole release/build
+source (no release is cut from `main`). Merging `main` → `stable` triggers
+`.github/workflows/release-please.yml` (`googleapis/release-please-action`,
+`release-type: python` via `release-please-config.json` +
+`.release-please-manifest.json`), which reads the [Conventional
+Commits](https://www.conventionalcommits.org) since the last release, computes the
+SemVer bump (`feat:`→minor, `fix:`/`chore:`→patch, `!`/`BREAKING CHANGE:`→major),
+and maintains a rolling **release PR** that bumps `pyproject.toml` + `CHANGELOG.md`.
+Merging that PR tags `vX.Y.Z` and creates the GitHub Release with notes; the tag
+then triggers the **binaries-only** `release.yml` (unchanged, `v*`-triggered), whose
+`action-gh-release` step **upserts** the `.dmg`/`.zip` onto that same release (no
+duplicate). A `commit-msg` hook (`scripts/hooks/`, under the existing
+`core.hooksPath`) **warns but never blocks** on non-conventional subjects so the
+bump signal stays healthy.
+
 **Goal**: Deploy so non-technical users can access the app from any browser.
 
 **Stack**:
@@ -832,6 +858,7 @@ scanner reads the page directly.
 ## Development Rules
 
 - **Always update `README.md`** when making changes that affect how the project is run or used — new CLI flags, new setup steps, new usable phases. Do this as part of the same change, not as a follow-up.
+- **Write Conventional Commit subjects** (`type(scope)?: subject` — `feat:`, `fix:`, `chore:`, `docs:`, …; `!`/`BREAKING CHANGE:` for majors). This is the version-bump signal release-please reads on merge to `stable` (see Phase 7 — Release versioning). The `commit-msg` hook warns on non-conventional subjects but never blocks.
 - **Plan non-trivial changes with OpenSpec** (`openspec/` + the `/opsx:*` slash commands / `openspec-*` skills): `/opsx:propose` to draft proposal/design/tasks, `/opsx:apply` to implement, `/opsx:archive` when done. Project context for artifact generation lives in `openspec/config.yaml`. Small fixes don't need a change — go straight to code.
 - **Archive OpenSpec changes proactively, but only once truly done**: once a
   change's tasks are complete *and* the work has been reviewed/tested and

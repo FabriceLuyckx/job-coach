@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, NavLink, Routes, Route, Navigate } from 'react-router-dom'
 import { Trans, useTranslation } from 'react-i18next'
-import { UserRound, SlidersHorizontal, FileText, Briefcase, Settings } from 'lucide-react'
+import { UserRound, SlidersHorizontal, FileText, Briefcase, Settings, Info } from 'lucide-react'
 import ProfilePage from './pages/Profile'
 import PreferencesPage from './pages/Preferences'
 import ApplicationsPage from './pages/Applications'
@@ -13,6 +13,7 @@ import SettingsPage from './pages/Settings'
 import SetupBanner from './components/SetupBanner'
 import ErrorBoundary from './components/ErrorBoundary'
 import Onboarding from './components/Onboarding'
+import About from './components/About'
 import { ToastProvider } from './components/Toast'
 import { ApiKeyBanner, KeyStatusProvider } from './components/KeyStatus'
 import { api } from './api'
@@ -31,6 +32,7 @@ export default function App() {
   const { t } = useTranslation()
   // null = still checking; true = show the first-run wizard.
   const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null)
+  const [showAbout, setShowAbout] = useState(false)
 
   // Reconcile the UI language with the server preference and decide whether the
   // first-run wizard should appear (engine not ready AND not previously skipped).
@@ -62,8 +64,14 @@ export default function App() {
                 <NavLink to="/jobs"><Briefcase size={17} aria-hidden />{t('nav.jobs')}</NavLink>
                 <NavLink to="/applications"><FileText size={17} aria-hidden />{t('nav.applications')}</NavLink>
                 <div className="nav-spacer" />
+                {/* App-menu cluster: page-nav-styled entries that aren't routes.
+                    "Check for updates…" becomes a second button here later. */}
                 <NavLink to="/settings"><Settings size={17} aria-hidden />{t('nav.settings')}</NavLink>
+                <button type="button" className="nav-item" onClick={() => setShowAbout(true)}>
+                  <Info size={17} aria-hidden />{t('nav.about')}
+                </button>
               </nav>
+              {showAbout && <About onClose={() => setShowAbout(false)} />}
               <main className="app-content">
                 <div className="page-container">
                   <SetupBanner />

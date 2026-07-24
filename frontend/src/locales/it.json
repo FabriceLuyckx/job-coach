@@ -6,7 +6,8 @@
     "preferences": "Preferenze lavoro",
     "jobs": "Suggerimenti di lavoro",
     "settings": "Impostazioni",
-    "applications": "Applicazioni"
+    "applications": "Applicazioni",
+    "about": "Chi siamo"
   },
   "common": {
     "loading": "Caricamento…",
@@ -512,7 +513,6 @@
     "fetchingListing": "Recupero dell'offerta di lavoro…",
     "tailoring": "Personalizzazione del CV con IA…",
     "starting": "Avvio in corso…",
-    "listing": "Annuncio",
     "deleteCv": "Elimina CV per {{title}}",
     "deletedToast": "CV eliminato per “{{title}}”",
     "noCvForJob": "Nessun CV trovato per questa offerta — la generazione potrebbe essere fallita. Usa \"Rigenera CV\" nella pagina Suggerimenti di lavoro per riprovare.",
@@ -813,5 +813,12 @@
     "prev": "Pagina precedente",
     "next": "Pagina successiva",
     "page": "Pagina {{n}}"
+  },
+  "about": {
+    "title": "Chi è Job Coach",
+    "description": "Un assistente alimentato dall'intelligenza artificiale che crea CV personalizzati e guide per lettere di presentazione e mostra offerte di lavoro corrispondenti.",
+    "version": "Versione {{version}}",
+    "copyright": "© 2026 Fabrice Luyckx",
+    "license": "Software gratuito sotto la <lic>GNU AGPL v3</lic>. <src>Visualizza il codice sorgente</src>."
   }
 }

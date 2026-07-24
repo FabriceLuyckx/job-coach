@@ -13,6 +13,8 @@ import os
 import subprocess
 import sys
 import threading
+import tomllib
+from importlib.metadata import PackageNotFoundError, version as _pkg_version
 from pathlib import Path
 
 from fastapi import APIRouter
@@ -20,6 +22,21 @@ from fastapi import APIRouter
 from app import paths
 
 router = APIRouter(prefix="/api", tags=["system"])
+
+
+def app_version() -> str:
+    """Running app version: installed package metadata → pyproject.toml → unknown."""
+    try:
+        return _pkg_version("job-coach")
+    except PackageNotFoundError:
+        pass
+    try:
+        pyproject = Path(__file__).resolve().parents[2] / "pyproject.toml"
+        return tomllib.loads(pyproject.read_text())["project"]["version"]
+    except Exception:
+        # ponytail: "unknown" only in a frozen app with no metadata and no
+        # pyproject; Phase 7 packaging can inject the version at build time.
+        return "unknown"
 
 _setup = {"chromium_ready": False, "installing": False, "error": None}
 _lock = threading.Lock()
@@ -95,6 +112,11 @@ def ensure_chromium() -> None:
 @router.get("/health")
 def health():
     return {"ok": True}
+
+
+@router.get("/version")
+def version():
+    return {"version": app_version()}
 
 
 @router.get("/setup/status")

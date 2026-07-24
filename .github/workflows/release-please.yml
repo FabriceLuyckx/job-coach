@@ -1,0 +1,24 @@
+name: Release Please
+
+# Owns versioning: on merge to `stable`, release-please reads the Conventional
+# Commits since the last release, computes the SemVer bump, and maintains a
+# rolling release PR that bumps pyproject.toml + CHANGELOG.md. Merging that PR
+# tags vX.Y.Z and creates the GitHub Release with notes. release.yml then
+# attaches the binaries to that tag's release.
+
+on:
+  push:
+    branches: ["stable"]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

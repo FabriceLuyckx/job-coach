@@ -50,6 +50,9 @@ Restoring **replaces** your profile, job history and generated CVs on the new ma
 > **Open** (or run `xattr -dr com.apple.quarantine "/Applications/Job Coach.app"`).
 > On **Windows**, click **More info** → **Run anyway** on the SmartScreen prompt.
 
+The **About** button in the sidebar footer opens a dialog with the app version,
+license, and a link to the source code.
+
 ---
 
 ## Requirements (for development)
@@ -491,12 +494,21 @@ The downloadable apps are built with [PyInstaller](https://pyinstaller.org) from
 and the Playwright driver into a single double-click app. Chromium itself is
 downloaded on the user's first launch to keep the installer small.
 
-**Automated (recommended):** push a version tag and GitHub Actions builds both
-platforms and attaches them to a Release:
+**Automated (recommended):** releases are cut from a dedicated `stable` branch and
+the version is computed automatically — you never bump `pyproject.toml` or push a
+tag by hand.
 
-```bash
-git tag v0.1.0 && git push --tags   # see .github/workflows/release.yml
-```
+- **`main`** is the development branch; **`stable`** is the sole release/build source.
+- Write [Conventional Commit](https://www.conventionalcommits.org) subjects
+  (`feat:`, `fix:`, `chore:`, `feat!:`/`BREAKING CHANGE:` …). A `commit-msg` hook
+  warns (never blocks) on a non-conventional subject.
+- To cut a release, merge `main` → `stable`. On that push,
+  [release-please](https://github.com/googleapis/release-please)
+  (`.github/workflows/release-please.yml`) reads the commits, computes the SemVer
+  bump, and opens a **release PR** that updates `pyproject.toml` + `CHANGELOG.md`.
+- Merging the release PR tags `vX.Y.Z` and creates the GitHub Release; the tag then
+  triggers `.github/workflows/release.yml`, which builds both platforms and attaches
+  the `.dmg`/`.zip` to that same release.
 
 **Local build** (produces `dist/JobCoach.app` on macOS, `dist/JobCoach/` on Windows):
 

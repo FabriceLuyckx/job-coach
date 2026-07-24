@@ -34,7 +34,10 @@
   color: var(--accent-text);
 }
 
-.sidebar-nav a {
+/* .nav-item shares the page-nav link look for footer buttons that open a modal
+   instead of routing (About; "Check for updates…" joins it later). */
+.sidebar-nav a,
+.sidebar-nav .nav-item {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -46,9 +49,19 @@
   text-decoration: none;
   transition: background 0.15s, color 0.15s;
 }
-.sidebar-nav a svg { flex-shrink: 0; }
+.sidebar-nav .nav-item {
+  width: 100%;
+  background: none;
+  border: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.sidebar-nav a svg,
+.sidebar-nav .nav-item svg { flex-shrink: 0; }
 
-.sidebar-nav a:hover {
+.sidebar-nav a:hover,
+.sidebar-nav .nav-item:hover {
   color: var(--ink);
   background: color-mix(in srgb, var(--ink) 6%, transparent);
   text-decoration: none;

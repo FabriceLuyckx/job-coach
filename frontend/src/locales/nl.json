@@ -6,7 +6,8 @@
     "preferences": "Jobvoorkeuren",
     "jobs": "Vacaturesuggesties",
     "settings": "Instellingen",
-    "applications": "Sollicitaties"
+    "applications": "Sollicitaties",
+    "about": "Over"
   },
   "common": {
     "loading": "Laden…",
@@ -512,7 +513,6 @@
     "fetchingListing": "Vacature ophalen…",
     "tailoring": "CV aanpassen met AI…",
     "starting": "Bezig met starten…",
-    "listing": "Overzicht",
     "deleteCv": "CV verwijderen voor {{title}}",
     "deletedToast": "Cv verwijderd voor ‘{{title}}’",
     "noCvForJob": "Geen cv gevonden voor die vacature — de generatie ervan is mogelijk mislukt. Gebruik ‘CV opnieuw genereren’ op de pagina Vacaturesuggesties om het opnieuw te proberen.",
@@ -813,5 +813,12 @@
     "prev": "Vorige pagina",
     "next": "Volgende pagina",
     "page": "Pagina {{n}}"
+  },
+  "about": {
+    "title": "Over Job Coach",
+    "description": "Een AI-gebaseerde assistent die opmaakte CV's en cover-letterhandleidingen en passende vacatures blootstelt.",
+    "version": "Versie {{version}}",
+    "copyright": "© 2026 Fabrice Luyckx",
+    "license": "Vrije software onder de <lic>GNU AGPL v3</lic>. <src>Broncode bekijken</src>."
   }
 }

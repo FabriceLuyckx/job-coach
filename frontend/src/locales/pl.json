@@ -6,7 +6,8 @@
     "preferences": "Preferencje pracy",
     "jobs": "Propozycje pracy",
     "settings": "Ustawienia",
-    "applications": "Aplikacje"
+    "applications": "Aplikacje",
+    "about": "O nas"
   },
   "common": {
     "loading": "Ładowanie…",
@@ -512,7 +513,6 @@
     "fetchingListing": "Pobieranie oferty pracy…",
     "tailoring": "Dostosowywanie CV z AI…",
     "starting": "Uruchamianie…",
-    "listing": "Lista",
     "deleteCv": "Usuń CV dla {{title}}",
     "deletedToast": "Usunięto CV dla „{{title}}”",
     "noCvForJob": "Nie znaleziono CV dla tego stanowiska — jego generowanie mogło się nie powieść. Użyj „Wygeneruj ponownie CV” na stronie Sugestii ofert pracy, aby spróbować ponownie.",
@@ -813,5 +813,12 @@
     "prev": "Poprzednia strona",
     "next": "Następna strona",
     "page": "Strona {{n}}"
+  },
+  "about": {
+    "title": "O Job Coach",
+    "description": "Asystent AI, który tworzy dostosowane CV i porady dotyczące listów zatrudnienia oraz pokazuje dopasowane oferty pracy.",
+    "version": "Wersja {{version}}",
+    "copyright": "© 2026 Fabrice Luyckx",
+    "license": "Oprogramowanie wolne pod licencją <lic>GNU AGPL v3</lic>. <src>Wyświetl kod źródłowy</src>."
   }
 }

@@ -6,7 +6,8 @@
     "preferences": "Job Präferenzen",
     "jobs": "Jobvorschläge",
     "settings": "Einstellungen",
-    "applications": "Bewerbungen"
+    "applications": "Bewerbungen",
+    "about": "Über"
   },
   "common": {
     "loading": "Wird geladen…",
@@ -512,7 +513,6 @@
     "fetchingListing": "Stellenanzeige wird abgerufen…",
     "tailoring": "Lebenslauf wird mit KI angepasst…",
     "starting": "Wird gestartet…",
-    "listing": "Auflistung",
     "deleteCv": "Lebenslauf für {{title}} löschen",
     "deletedToast": "Lebenslauf für „{{title}}“ gelöscht",
     "noCvForJob": "Für diese Stelle wurde noch kein Lebenslauf gefunden – die Erstellung ist möglicherweise fehlgeschlagen. Verwenden Sie „Lebenslauf neu erstellen“ auf der Seite „Jobvorschläge“, um es erneut zu versuchen.",
@@ -813,5 +813,12 @@
     "prev": "Vorherige Seite",
     "next": "Nächste Seite",
     "page": "Seite {{n}}"
+  },
+  "about": {
+    "title": "Über Job Coach",
+    "description": "Ein künstliche Intelligenz-basierter Assistent, der maßgeschneiderte Lebenslauf- und Bewerbungsschreiben-Anleitungen erstellt und passende Stellenangebote enthält.",
+    "version": "Version {{version}}",
+    "copyright": "© 2026 Fabrice Luyckx",
+    "license": "Freie Software unter der <lic>GNU AGPL v3</lic>. <src>Quellcode ansehen</src>."
   }
 }

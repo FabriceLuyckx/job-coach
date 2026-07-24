@@ -6,10 +6,18 @@
     "preferences": "Job Preferences",
     "applications": "Applications",
     "jobs": "Job Suggestions",
-    "settings": "Settings"
+    "settings": "Settings",
+    "about": "About"
   },
   "footer": {
     "credit": "Created for you by <a>Fabrice Luyckx</a> — free software under the <lic>GNU AGPL v3</lic>"
+  },
+  "about": {
+    "title": "About Job Coach",
+    "description": "An AI-powered assistant that builds tailored CVs and cover-letter guides and surfaces matching job openings.",
+    "version": "Version {{version}}",
+    "copyright": "© 2026 Fabrice Luyckx",
+    "license": "Free software under the <lic>GNU AGPL v3</lic>. <src>View the source code</src>."
   },
   "applications": {
     "title": "Applications",

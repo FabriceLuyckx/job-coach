@@ -3,6 +3,10 @@ name: Release
 # Builds the double-click desktop bundles. Push a version tag (e.g. v0.1.0) to
 # cut a release; the Mac .dmg and Windows .zip are attached to the GitHub Release.
 # Trigger a dry run any time from the Actions tab (workflow_dispatch).
+#
+# release-please.yml owns the tag + GitHub Release (from Conventional Commits on
+# `stable`); this workflow only attaches binaries — action-gh-release upserts onto
+# the existing release for that tag, so no duplicate release is created.
 
 on:
   push:

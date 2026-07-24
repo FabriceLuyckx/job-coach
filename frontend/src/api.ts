@@ -356,6 +356,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     }),
+  getVersion: () => request<{ version: string }>('/version'),
   getOpenrouterUsage: () =>
     request<{ balance: number | null; usage: number | null; remaining: number | null; is_free_tier: boolean | null }>('/settings/openrouter-usage'),
 

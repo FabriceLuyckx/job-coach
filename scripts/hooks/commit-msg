@@ -1,0 +1,21 @@
+#!/bin/sh
+# Warns (never blocks) when a commit subject isn't a Conventional Commit, so
+# release-please keeps a healthy version-bump signal. Runs under core.hooksPath
+# alongside pre-commit. Skip for one commit with `git commit --no-verify`.
+
+subject=$(sed -n '1p' "$1")
+
+# Ignore machine-generated subjects that are never authored by hand.
+case "$subject" in
+  Merge\ *|Revert\ *|fixup!\ *|squash!\ *) exit 0 ;;
+esac
+
+# type(scope)?!?: subject  — the Conventional Commits shape release-please reads.
+if printf '%s' "$subject" | grep -Eq '^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert)(\([^)]+\))?!?: .+'; then
+  exit 0
+fi
+
+echo "⚠  Non-conventional commit subject: \"$subject\"" >&2
+echo "   Expected: type(scope)?: subject  (e.g. feat: add X, fix!: drop Y)" >&2
+echo "   release-please won't bump the version from this commit. Committed anyway." >&2
+exit 0
