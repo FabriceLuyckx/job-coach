@@ -112,6 +112,7 @@ export interface JobOpening {
   source_url: string
   status: 'suggested' | 'accepted' | 'rejected' | 'seen' // 'seen' = filtered out
   reason: string | null
+  user_note: string | null // the user's own free-text reject reason, if given
   lang: string
   digest: JobDigest | null // structured fields read from the posting (Phase 6)
   created_at: string

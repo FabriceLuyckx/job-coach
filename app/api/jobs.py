@@ -32,11 +32,11 @@ _FETCH_CAVEAT = "Matched by title — couldn't read the posting page."
 
 def _opening_dict(r: dict) -> dict:
     """Shape a job_openings row for the client: parse the digest JSON, drop the
-    bulky posting_text cache (server-only)."""
+    bulky posting_text cache (server-only). user_note (the user's own reject
+    reason) is kept — shown in History next to the AI's verdict reason."""
     d = dict(r)
     pj = d.pop("posting_json", None)
     d.pop("posting_text", None)
-    d.pop("user_note", None)  # server-only: feeds the preference memo, not shown
     d["digest"] = json.loads(pj) if pj else None
     return d
 

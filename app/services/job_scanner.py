@@ -72,9 +72,13 @@ Decide whether it genuinely matches their goals, role type, location, language a
 practical preferences in their profile — what they're looking for, what to avoid, their
 remote/on-site preference, and the notes covering contract, schedule, salary and travel.
 Weigh preferences.target_roles heavily. Set match=true only for a genuine fit.
-Give the posting's language as an ISO 639-1 code ('en', 'nl', 'fr', …) and a one-line reason.
+Give the posting's language as an ISO 639-1 code ('en', 'nl', 'fr', …).
+'reason' and 'summary' are DIFFERENT things: 'summary' neutrally describes what the job
+is (at most 3 sentences); 'reason' is one sentence of your own judgement — the specific
+preference, title, location or dealbreaker that decided the verdict. Never let 'reason'
+just restate the posting.
 Also extract a short digest from the posting text: employer, location, remote type, contract,
-salary, application deadline, a ~50-word neutral summary, and up to 5 key requirements.
+salary, application deadline, that summary, and up to 5 key requirements.
 Omit any digest field the posting does not state — never invent one."""
 
 # Distils the user's whole accept/reject history into a short standing memo,
@@ -157,7 +161,7 @@ _REVIEW_TOOL = {
             "required": ["match", "reason", "lang"],
             "properties": {
                 "match": {"type": "boolean", "description": "True only if the posting genuinely fits the candidate's profile and preferences"},
-                "reason": {"type": "string", "description": "One-line reason for the verdict"},
+                "reason": {"type": "string", "description": "One sentence of YOUR JUDGEMENT on the verdict — name the specific preference/title/location/dealbreaker that decided it. Not a restatement of the job (that's 'summary')."},
                 "lang": {"type": "string", "description": "ISO 639-1 code (e.g. 'en', 'nl', 'fr') of the language the posting is written in"},
                 "employer": {"type": "string", "description": "Hiring employer / organisation (omit if not stated)"},
                 "location": {"type": "string", "description": "Job location (omit if not stated)"},
@@ -165,7 +169,7 @@ _REVIEW_TOOL = {
                 "contract": {"type": "string", "description": "Contract type, e.g. permanent / fixed-term / part-time (omit if not stated)"},
                 "salary": {"type": "string", "description": "Salary or pay range (omit if not stated)"},
                 "deadline": {"type": "string", "description": "Application deadline (omit if not stated)"},
-                "summary": {"type": "string", "description": "~50-word neutral summary of the role"},
+                "summary": {"type": "string", "description": "Neutral description of the role only, at most 3 sentences — what the job is, not why it matches or was rejected"},
                 "requirements": {"type": "array", "items": {"type": "string"}, "description": "Up to 5 key requirements"},
             },
         },

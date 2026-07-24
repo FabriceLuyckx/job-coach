@@ -665,6 +665,7 @@
     "rejectModalPlaceholder": "e.g. too senior, wrong location, not enough hands-on work…",
     "rejectedToast": "Rejected “{{title}}”",
     "rejectedKeptArtifacts": "Rejected “{{title}}” — its CV and letter stay on Applications",
+    "reasonLabel": "Reason:",
     "undo": "Undo",
     "history": "History",
     "accepted": "Accepted",

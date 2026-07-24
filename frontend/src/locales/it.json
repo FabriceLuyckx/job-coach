@@ -620,7 +620,8 @@
     "rejectModalHelp": "Opzionalmente, indica al assistente il motivo. Utilizza i tuoi rifiuti per filtrare meglio le future offerte — ma puoi semplicemente rifiutare.",
     "rejectModalLabel": "Perché la stai rifiutando? (opzionale)",
     "rejectModalPlaceholder": "ad es. troppo esperto, località sbagliata, poco lavoro pratico…",
-    "match": "Corrispondenza"
+    "match": "Corrispondenza",
+    "reasonLabel": "Motivo:"
   },
   "cveditor": {
     "sections": {

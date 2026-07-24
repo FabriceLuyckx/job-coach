@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Fabrice Luyckx
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Trans, useTranslation } from 'react-i18next'
 import { Search, Inbox, RotateCcw, ExternalLink, Check, X, RefreshCw, Link2, Filter,
@@ -31,24 +31,40 @@ function host(url: string): string {
   try { return new URL(url).hostname.replace('www.', '') } catch { return url }
 }
 
-// Structured fields read from the posting. Shown as squared neutral chips under
-// the title; the ~50-word summary as muted text.
-function Digest({ digest }: { digest: JobDigest | null }) {
+// Structured fields read from the posting (squared neutral chips), the
+// posting's own ~3-sentence description, and — separately — the one-sentence
+// verdict reason (why it was matched/filtered), explicitly labelled so the two
+// are never confused. `userNote` (the user's own reject reason) takes priority
+// over the AI's `reason` when both exist; `fallbackReason` covers openings the
+// title prescreen dropped before the posting was ever read.
+function Verdict({ digest, reason, userNote, fallbackReason }: {
+  digest: JobDigest | null
+  reason?: string | null
+  userNote?: string | null
+  fallbackReason?: string
+}) {
   const { t } = useTranslation()
-  if (!digest) return null
   // De-badged: fields are one inline mono line (middot-separated), not pills.
   // The icon is decorative, so each field carries a screen-reader-only label —
   // without it a field reads as a bare "Ghent" with no hint it's a location.
   // The deadline is coloured mono text (--deadline), never a chip.
   const fields: [LucideIcon, string | undefined, string, boolean][] = [
-    [Building2, digest.employer, 'employer', false],
-    [MapPin, digest.location, 'location', false],
-    [Laptop, digest.remote && digest.remote !== 'unknown' ? digest.remote : undefined, 'remote', false],
-    [FileText, digest.contract, 'contract', false],
-    [CalendarClock, digest.deadline, 'deadline', true],
+    [Building2, digest?.employer, 'employer', false],
+    [MapPin, digest?.location, 'location', false],
+    [Laptop, digest?.remote && digest.remote !== 'unknown' ? digest.remote : undefined, 'remote', false],
+    [FileText, digest?.contract, 'contract', false],
+    [CalendarClock, digest?.deadline, 'deadline', true],
   ]
   const shown = fields.filter(([, v]) => v)
-  if (!shown.length && !digest.summary) return null
+  // A handful of legacy rows carry a bare 2-letter code (e.g. "en") in `reason`
+  // from before the lang/reason split — too short to be a real sentence, so
+  // treat it as no input rather than render it as a reason.
+  const real = (s?: string | null) => (s && s.trim().length > 4 ? s.trim() : undefined)
+  // fallbackReason claims the posting was never read — only true when there's
+  // no digest either. A digest is proof the posting WAS fetched and reviewed,
+  // even if that same review returned a blank/short `reason` string.
+  const reasonText = real(userNote) || real(reason) || (!digest && fallbackReason) || undefined
+  if (!shown.length && !digest?.summary && !reasonText) return null
   return (
     <>
       {shown.length > 0 && (
@@ -61,8 +77,13 @@ function Digest({ digest }: { digest: JobDigest | null }) {
           ))}
         </div>
       )}
-      {digest.summary && (
+      {digest?.summary && (
         <div className="muted-sm" style={{ marginTop: 'var(--space-2)' }}>{digest.summary}</div>
+      )}
+      {reasonText && (
+        <div style={{ fontSize: 'var(--fs-sm)', marginTop: 'var(--space-1)' }}>
+          <strong style={{ color: 'var(--accent-text)' }}>{t('jobs.reasonLabel')}</strong> {reasonText}
+        </div>
       )}
     </>
   )
@@ -106,6 +127,11 @@ export default function JobsPage() {
   const [query, setQuery] = useState('')
   const [sourceFilter, setSourceFilter] = useState('')
   const poller = usePoller()
+  // Anchors for the top of each paged section, so a page-number click scrolls
+  // there instead of leaving the browser to reflow-scroll wherever it likes
+  // (most visible on the last, shortest page, which could jump near the bottom).
+  const filteredTopRef = useRef<HTMLDivElement>(null)
+  const historyTopRef = useRef<HTMLHeadingElement>(null)
 
   // Load one page of an archival list. If the page came back empty and it wasn't
   // the first (its last row was just acted on), step back to the now-last page.
@@ -594,8 +620,7 @@ export default function JobsPage() {
               <span className="match-flag">{t('jobs.match')}</span>
               <span className="muted-sm">{host(o.source_url)}</span>
             </div>
-            {o.reason && <div style={{ fontSize: 'var(--fs-sm)', marginTop: 'var(--space-2)' }}>{o.reason}</div>}
-            <Digest digest={o.digest} />
+            <Verdict digest={o.digest} reason={o.reason} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'var(--space-2)', flexShrink: 0 }}>
             {accepted[o.id] ? (
@@ -632,7 +657,7 @@ export default function JobsPage() {
 
 
       {(sources.length > 0 || filtered.total > 0) && (
-        <div style={{ marginTop: 'var(--space-5)' }}>
+        <div ref={filteredTopRef} style={{ marginTop: 'var(--space-5)' }}>
           {/* Outside the drawer, and never gated: the promise that nothing is
               discarded has to be readable *before* you open the drawer, which is
               when the user wonders where their missing job went. Inside a
@@ -657,15 +682,13 @@ export default function JobsPage() {
                     <a href={o.url} target="_blank" rel="noreferrer">{o.title || host(o.url)}</a>
                   </div>
                   <div className="muted-sm">{host(o.source_url)} · {t('jobs.filteredOutLabel')}</div>
-                  {/* No reason means the title prescreen dropped it before the
-                      posting was ever fetched — say so, rather than leaving the
-                      row silent under help text that promises a reason. */}
-                  <div style={{ fontSize: 'var(--fs-sm)', marginTop: 'var(--space-2)' }}>
-                    {o.reason || t('jobs.filteredByTitle')}
-                  </div>
                   {/* Same evidence as a suggestion: you're being asked to
-                      second-guess this row, so don't give it less to go on. */}
-                  <Digest digest={o.digest} />
+                      second-guess this row, so don't give it less to go on.
+                      A missing reason means the title prescreen dropped it
+                      before the posting was ever fetched — fallbackReason
+                      says so, rather than leaving the row silent under help
+                      text that promises a reason. */}
+                  <Verdict digest={o.digest} reason={o.reason} fallbackReason={t('jobs.filteredByTitle')} />
                 </div>
                 <Button variant="ghost" onClick={() => suggestAnyway(o)} disabled={busy === o.id}
                   title={t('jobs.suggestAnywayTitle')} style={{ flexShrink: 0 }}>
@@ -677,7 +700,7 @@ export default function JobsPage() {
             </div>
             )}
             <Pager page={filtered.page} pageCount={Math.ceil(filtered.total / PAGE_LIMIT)}
-              onChange={p => loadGroup('filtered', p)} />
+              onChange={p => { loadGroup('filtered', p); filteredTopRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }) }} />
           </Collapsible>
           <div style={{ marginTop: 'var(--space-2)', display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
             <Button variant="secondary" onClick={recheck}
@@ -704,7 +727,7 @@ export default function JobsPage() {
 
       {history.total > 0 && (
         <>
-          <h2 className="section-title" style={{ marginTop: 'var(--space-6)', marginBottom: 'var(--space-3)' }}>{t('jobs.history')}</h2>
+          <h2 ref={historyTopRef} className="section-title" style={{ marginTop: 'var(--space-6)', marginBottom: 'var(--space-3)' }}>{t('jobs.history')}</h2>
           <div className="board" style={{ marginBottom: 'var(--space-3)' }}>
           {history.items.map(o => {
             const rejected = o.status === 'rejected'
@@ -721,8 +744,9 @@ export default function JobsPage() {
                   <div className="muted-sm">
                     {host(o.source_url)} · {rejected ? t('jobs.rejected') : t('jobs.accepted')}
                   </div>
-                  {o.reason && <div style={{ fontSize: 'var(--fs-sm)', marginTop: 'var(--space-2)' }}>{o.reason}</div>}
-                  <Digest digest={o.digest} />
+                  {/* The user's own reject reason (when given) is why THEY
+                      decided, and takes priority over the AI's verdict reason. */}
+                  <Verdict digest={o.digest} reason={o.reason} userNote={rejected ? o.user_note : null} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', flexShrink: 0 }}>
                   {rejected ? (
@@ -749,7 +773,7 @@ export default function JobsPage() {
           })}
           </div>
           <Pager page={history.page} pageCount={Math.ceil(history.total / PAGE_LIMIT)}
-            onChange={p => loadGroup('history', p)} />
+            onChange={p => { loadGroup('history', p); historyTopRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }) }} />
         </>
       )}
     </div>

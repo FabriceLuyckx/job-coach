@@ -620,7 +620,8 @@
     "rejectModalHelp": "Opcionalmente, diga ao assistente por que está rejeitando. Ele usa suas aceitações e rejeições para filtrar melhor as vagas futuras — mas você pode simplesmente rejeitar.",
     "rejectModalLabel": "Por que está rejeitando? (opcional)",
     "rejectModalPlaceholder": "por exemplo: demasiado senário, localização errada, pouca atividade prática...",
-    "match": "Correspondência"
+    "match": "Correspondência",
+    "reasonLabel": "Motivo:"
   },
   "cveditor": {
     "sections": {

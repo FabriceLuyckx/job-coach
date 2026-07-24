@@ -620,7 +620,8 @@
     "rejectModalHelp": "Opcionalmente, indica por qué. El asistente utiliza tus aceptaciones y rechazos para filtrar mejor las ofertas futuras — pero puedes rechazar directamente.",
     "rejectModalLabel": "¿Por qué la estás rechazando? (opcional)",
     "rejectModalPlaceholder": "por ejemplo: demasiado senior, ubicación incorrecta, poca actividad práctica…",
-    "match": "Coincidencia"
+    "match": "Coincidencia",
+    "reasonLabel": "Razón:"
   },
   "cveditor": {
     "sections": {

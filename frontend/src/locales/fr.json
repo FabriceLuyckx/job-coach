@@ -620,7 +620,8 @@
     "rejectModalHelp": "Optionnellement, indiquez pourquoi. L'assistant utilise vos acceptations et rejets pour filtrer de meilleures offres à l'avenir — mais vous pouvez simplement rejeter.",
     "rejectModalLabel": "Pourquoi la rejetez-vous ? (optionnel)",
     "rejectModalPlaceholder": "par exemple : trop senior, mauvaise localisation, pas assez de travail en pratique…",
-    "match": "Correspondance"
+    "match": "Correspondance",
+    "reasonLabel": "Motif :"
   },
   "cveditor": {
     "sections": {
