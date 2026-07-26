@@ -42,7 +42,10 @@ jobs:
           npm run build
 
       - name: Install Python deps
-        run: pip install ".[package]"
+        # [local] bundles the free in-process AI engine (llama-cpp-python) that
+        # onboarding offers — without it the "download the free local model" path
+        # is dead in the shipped app and every user needs an OpenRouter key.
+        run: pip install ".[package,local]"
 
       - name: Build app bundle
         run: pyinstaller packaging/myjobcoach.spec

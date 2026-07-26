@@ -9,7 +9,7 @@
 import sys
 from pathlib import Path
 
-from PyInstaller.utils.hooks import collect_all, collect_submodules
+from PyInstaller.utils.hooks import collect_all, collect_submodules, copy_metadata
 
 ROOT = Path(SPECPATH).resolve().parent
 
@@ -25,6 +25,11 @@ datas = [
     # to generate Tier-2 languages (app/api/i18n.py, UI_LOCALES_SRC).
     (str(ROOT / "frontend" / "src" / "locales"), "frontend/src/locales"),
 ]
+# Bundle the package dist-info so importlib.metadata.version("myjobcoach") — the
+# first branch of system.app_version() — resolves inside the frozen app; without
+# it /api/version and the About modal read "unknown" (source of __file__ is the
+# PYZ archive, so the pyproject.toml fallback can't work when frozen).
+datas += copy_metadata("myjobcoach")
 binaries = []
 
 # uvicorn's auto-selected loop/protocol impls are imported lazily, so name them.
