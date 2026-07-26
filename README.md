@@ -1,6 +1,6 @@
 # MyJobCoach
 
-AI-powered career assistant — generate tailored CVs and (in future phases) discover and filter job openings.
+AI-powered career assistant — generate tailored CVs, and discover, filter, and apply to job openings.
 
 Free software under the [GNU AGPL v3 or later](LICENSE) — see [License](#license).
 
@@ -22,7 +22,7 @@ PDF export works while it finishes.
 
 Then pick how the AI runs (Settings → **AI Engine**, or the first-run prompt):
 
-- **Free local model** — download a model (2.5–9 GB, your choice) that runs on your own
+- **Free local model** — download a model (2.5–5 GB, your choice) that runs on your own
   computer. No account, no cost, fully private/offline. Good results; on a slower machine
   a CV can take a few minutes.
 - **OpenRouter** — paste an [OpenRouter](https://openrouter.ai) API key for the best
@@ -154,10 +154,12 @@ Italian, Portuguese, Polish) ship translated and reviewed. Job postings themselv
 never translated: the AI reads them in whatever language they're in and writes your CV in
 the language you ask for. Some backend error messages remain in English.
 
-> **Maintainers:** UI strings live in `frontend/src/locales/en.json`. After changing them,
-> refresh the shipped translations with `uv run python scripts/translate_locales.py` (it
-> only re-translates new or changed keys). CV section headings are translated separately in
-> `app/i18n/cv_labels.json`.
+> **Maintainers:** UI strings live in `frontend/src/locales/en.json`. A pre-commit hook
+> (`scripts/hooks/pre-commit`, wired up by `setup.sh`) auto-translates any new or changed
+> keys into the shipped locales whenever `en.json` is part of the commit — just edit and
+> commit, nothing to run by hand. (`uv run python scripts/translate_locales.py --full`
+> exists for an out-of-band full re-translation.) CV section headings are translated
+> separately in `app/i18n/cv_labels.json`.
 
 ### Customise the AI prompts (advanced)
 
@@ -457,10 +459,13 @@ editor. The guide prompt is editable under **Settings → Advanced — AI prompt
 uv run pytest
 ```
 
-Covers the backend hardening: upload validation (size caps, image magic bytes),
-backup-import safety (zip bombs, path traversal, manifest checks), slug
-sanitisation, LLM-config and AI-response guards, and profile/prompt validation.
-All tests exercise rejection paths only, so they never touch your local data.
+Covers backend hardening (upload validation, backup-import safety, slug
+sanitisation, LLM-config and AI-response guards, profile/prompt validation) plus
+functional coverage across the app — CV template rendering, profile schema
+migration, the job scanner (link-hash skip, cancellation, concurrency guards),
+i18n, cover-letter guides, and the local/OpenRouter engines. Tests isolate
+their own files via `tmp_path`/monkeypatching, so they never touch your local
+`profile.json` or `jobs.db`.
 
 The frontend has two standalone checks (no test framework needed):
 
@@ -529,17 +534,6 @@ uv run python -m app.desktop
 Builds are unsigned for now; see the first-launch security note above. To ship a
 warning-free app, add code-signing/notarization to the CI workflow (macOS
 notarytool, Windows signtool / Azure Trusted Signing).
-
----
-
-## Project roadmap
-
-See `CLAUDE.md` for the full plan. Upcoming phases:
-
-| Phase | Description |
-|-------|-------------|
-| 6 | Job matching — Claude scores and ranks jobs against your profile |
-| 7 | Desktop packaging — downloadable Mac/Windows apps (in progress) + optional cloud deployment |
 
 ---
 
