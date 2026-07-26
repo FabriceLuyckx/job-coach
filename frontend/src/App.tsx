@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, NavLink, Routes, Route, Navigate } from 'react-router-dom'
 import { Trans, useTranslation } from 'react-i18next'
-import { UserRound, SlidersHorizontal, FileText, Briefcase, Settings, Info } from 'lucide-react'
+import { UserRound, SlidersHorizontal, FileText, Briefcase, Settings, Info, RefreshCw } from 'lucide-react'
 import ProfilePage from './pages/Profile'
 import PreferencesPage from './pages/Preferences'
 import ApplicationsPage from './pages/Applications'
@@ -14,6 +14,7 @@ import SetupBanner from './components/SetupBanner'
 import ErrorBoundary from './components/ErrorBoundary'
 import Onboarding from './components/Onboarding'
 import About from './components/About'
+import { UpdateBanner, UpdateDialog } from './components/Updater'
 import { ToastProvider } from './components/Toast'
 import { ApiKeyBanner, KeyStatusProvider } from './components/KeyStatus'
 import { api } from './api'
@@ -33,6 +34,9 @@ export default function App() {
   // null = still checking; true = show the first-run wizard.
   const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null)
   const [showAbout, setShowAbout] = useState(false)
+  const [showUpdate, setShowUpdate] = useState(false)
+  // Gates the banner's automatic check; the sidebar button always checks.
+  const [autoUpdateCheck, setAutoUpdateCheck] = useState(false)
 
   // Reconcile the UI language with the server preference and decide whether the
   // first-run wizard should appear (engine not ready AND not previously skipped).
@@ -41,6 +45,7 @@ export default function App() {
     Promise.all([api.getSettings(), api.getEngine()])
       .then(([s, e]) => {
         if (s.app_language) void loadLanguage(s.app_language)
+        setAutoUpdateCheck(s.auto_update_check)
         // Both conditions matter. `onboarding_done` is written only on
         // completion, so an install that quit mid-setup gets the wizard back
         // rather than a half-configured app; `ready` means a user who later
@@ -64,18 +69,22 @@ export default function App() {
                 <NavLink to="/jobs"><Briefcase size={17} aria-hidden />{t('nav.jobs')}</NavLink>
                 <NavLink to="/applications"><FileText size={17} aria-hidden />{t('nav.applications')}</NavLink>
                 <div className="nav-spacer" />
-                {/* App-menu cluster: page-nav-styled entries that aren't routes.
-                    "Check for updates…" becomes a second button here later. */}
+                {/* App-menu cluster: page-nav-styled entries that aren't routes. */}
                 <NavLink to="/settings"><Settings size={17} aria-hidden />{t('nav.settings')}</NavLink>
+                <button type="button" className="nav-item" onClick={() => setShowUpdate(true)}>
+                  <RefreshCw size={17} aria-hidden />{t('nav.checkUpdates')}
+                </button>
                 <button type="button" className="nav-item" onClick={() => setShowAbout(true)}>
                   <Info size={17} aria-hidden />{t('nav.about')}
                 </button>
               </nav>
               {showAbout && <About onClose={() => setShowAbout(false)} />}
+              {showUpdate && <UpdateDialog onClose={() => setShowUpdate(false)} />}
               <main className="app-content">
                 <div className="page-container">
                   <SetupBanner />
                   <ApiKeyBanner />
+                  <UpdateBanner enabled={autoUpdateCheck} onUpdate={() => setShowUpdate(true)} />
                   <Routes>
                     <Route path="/" element={<Navigate to="/profile" replace />} />
                     <Route path="/profile" element={<ProfilePage />} />

@@ -7,7 +7,8 @@
     "jobs": "Jobvorschläge",
     "settings": "Einstellungen",
     "applications": "Bewerbungen",
-    "about": "Über"
+    "about": "Über",
+    "checkUpdates": "Aktualisierungen prüfen…"
   },
   "common": {
     "loading": "Wird geladen…",
@@ -175,6 +176,11 @@
         "hexLabel": "{{slot}} — Hex-Wert",
         "badHex": "Das ist kein Farbcode. Verwenden Sie sechs Zeichen nach dem #, wie z. B. #2F6B66."
       }
+    },
+    "updates": {
+      "title": "Aktualisierungen",
+      "autoCheck": "Aktualisierungen beim Start der App prüfen",
+      "help": "Wenn eine neue Version veröffentlicht wird, erscheint eine Mitteilung in der App. Kein Download oder Install wird ohne Ihre Zustimmung durchgeführt. Sie können jederzeit manuell über „Aktualisierungen prüfen…“ in der Seitenleiste prüfen."
     }
   },
   "profile": {
@@ -821,5 +827,30 @@
     "version": "Version {{version}}",
     "copyright": "© 2026 Fabrice Luyckx",
     "license": "Freie Software unter der <lic>GNU AGPL v3</lic>. <src>Quellcode ansehen</src>."
+  },
+  "updates": {
+    "banner": {
+      "available": "MyJobCoach {{version}} ist verfügbar.",
+      "notes": "Neuigkeiten anzeigen",
+      "updateNow": "Jetzt aktualisieren",
+      "dismiss": "Aktualisierungsmitteilung ignorieren"
+    },
+    "dialog": {
+      "title": "Software-Update",
+      "checking": "Aktualisierungen prüfen…",
+      "upToDate": "Sie sind bereits auf dem neuesten Stand (Version {{version}}).",
+      "available": "Version {{latest}} ist verfügbar — Sie haben {{current}}.",
+      "notesLink": "Release-Notizen",
+      "installHint": "Die App wird neu gestartet, um das Update abzuschließen. Ihr Profil, CVs, Stellenangebote und Einstellungen werden beibehalten.",
+      "install": "Herunterladen und installieren",
+      "downloading": "Herunterladen… {{done}} / {{total}} MB",
+      "staging": "Das Update vorbereiten…",
+      "restarting": "Neustart, um das Update abzuschließen… Die App öffnet sich automatisch erneut.",
+      "checkFailed": "Die Prüfung auf Aktualisierungen ist fehlgeschlagen: {{reason}}",
+      "notInstallable": "Diese Version ist für Ihre Plattform noch nicht verfügbar.",
+      "refused": "Dieses Update kann sich nicht selbst aktualisieren: {{reason}}",
+      "error": "Das Update ist fehlgeschlagen: {{error}} Keine Änderungen wurden vorgenommen — die installierte App funktioniert weiterhin.",
+      "manualFallback": "Sie können <a>die neue Version manuell herunterladen</a> statt."
+    }
   }
 }

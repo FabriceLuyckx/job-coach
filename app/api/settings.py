@@ -48,6 +48,7 @@ class SettingsIn(BaseModel):
     local_model_id: str | None = None
     app_language: str | None = None
     onboarding_done: bool | None = None
+    auto_update_check: bool | None = None
 
 
 @router.get("")
@@ -70,6 +71,7 @@ def get_settings():
         "local_model_id": cfg.get("local_model_id") or config.DEFAULT_LOCAL_MODEL,
         "app_language": cfg.get("app_language") or "en",
         "onboarding_done": bool(cfg.get("onboarding_done")),
+        "auto_update_check": bool(cfg.get("auto_update_check", True)),
     }
 
 

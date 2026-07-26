@@ -7,7 +7,8 @@
     "jobs": "Sugerencias de empleo",
     "settings": "Configuración",
     "applications": "Aplicaciones",
-    "about": "Acerca de"
+    "about": "Acerca de",
+    "checkUpdates": "Buscar actualizaciones…"
   },
   "common": {
     "loading": "Cargando…",
@@ -175,6 +176,11 @@
         "hexLabel": "{{slot}} — valor hexadecimal",
         "badHex": "Eso no es un código de color. Use seis caracteres después del #, como #2F6B66."
       }
+    },
+    "updates": {
+      "title": "Actualizaciones",
+      "autoCheck": "Buscar actualizaciones cuando inicie la aplicación",
+      "help": "Cuando se publique una versión nueva, aparece un aviso en la aplicación — nada se descarga ni instala sin tu permiso. Siempre puedes revisarlo manualmente mediante \"Buscar actualizaciones…\" en el panel lateral."
     }
   },
   "profile": {
@@ -821,5 +827,30 @@
     "version": "Versión {{version}}",
     "copyright": "© 2026 Fabrice Luyckx",
     "license": "Software libre bajo la <lic>GNU AGPL v3</lic>. <src>Ver el código fuente</src>."
+  },
+  "updates": {
+    "banner": {
+      "available": "MyJobCoach {{version}} está disponible.",
+      "notes": "Ver lo nuevo",
+      "updateNow": "Actualizar ahora",
+      "dismiss": "Omitir aviso de actualización"
+    },
+    "dialog": {
+      "title": "Actualización del software",
+      "checking": "Buscando actualizaciones…",
+      "upToDate": "Estás actualizado (versión {{version}}).",
+      "available": "La versión {{latest}} está disponible — tienes {{current}}.",
+      "notesLink": "Notas de lanzamiento",
+      "installHint": "La aplicación se reinicia para finalizar la actualización. Tu perfil, CVs, empleos y configuraciones se mantienen intactos.",
+      "install": "Descargar e instalar",
+      "downloading": "Descargando… {{done}} / {{total}} MB",
+      "staging": "Preparando la actualización…",
+      "restarting": "Reiniciando para finalizar la actualización… La aplicación se abrirá por sí misma.",
+      "checkFailed": "La comprobación de actualizaciones no funcionó: {{reason}}",
+      "notInstallable": "Esta versión aún no tiene descarga para tu plataforma.",
+      "refused": "Esta instalación no puede actualizarse por sí misma: {{reason}}",
+      "error": "La actualización falló: {{error}} Nada fue modificado — la aplicación instalada sigue funcionando.",
+      "manualFallback": "Puedes <a>descargar la versión nueva manualmente</a> en su lugar."
+    }
   }
 }

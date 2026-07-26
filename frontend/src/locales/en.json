@@ -7,6 +7,7 @@
     "applications": "Applications",
     "jobs": "Job Suggestions",
     "settings": "Settings",
+    "checkUpdates": "Check for updates…",
     "about": "About"
   },
   "footer": {
@@ -119,6 +120,31 @@
     "setupInstalling": "Setting up the PDF engine (one-time, ~150 MB). Everything except PDF export works while this finishes.",
     "setupError": "The PDF engine couldn't be set up: {{error}}. PDF export won't work until this is resolved."
   },
+  "updates": {
+    "banner": {
+      "available": "MyJobCoach {{version}} is available.",
+      "notes": "See what's new",
+      "updateNow": "Update now",
+      "dismiss": "Dismiss update notice"
+    },
+    "dialog": {
+      "title": "Software update",
+      "checking": "Checking for updates…",
+      "upToDate": "You're up to date (version {{version}}).",
+      "available": "Version {{latest}} is available — you have {{current}}.",
+      "notesLink": "Release notes",
+      "installHint": "The app restarts to finish the update. Your profile, CVs, jobs and settings are all kept.",
+      "install": "Download and install",
+      "downloading": "Downloading… {{done}} / {{total}} MB",
+      "staging": "Preparing the update…",
+      "restarting": "Restarting to finish the update… The app will reopen by itself.",
+      "checkFailed": "The update check didn't work: {{reason}}",
+      "notInstallable": "This release has no download for your platform yet.",
+      "refused": "This install can't update itself: {{reason}}",
+      "error": "The update failed: {{error}} Nothing was changed — the installed app still works.",
+      "manualFallback": "You can <a>download the new version manually</a> instead."
+    }
+  },
   "settings": {
     "title": "Settings",
     "loadError": "Couldn't load settings: {{error}}",
@@ -156,6 +182,11 @@
     },
     "visual": {
       "title": "CV Appearance"
+    },
+    "updates": {
+      "title": "Updates",
+      "autoCheck": "Check for updates when the app starts",
+      "help": "When a newer version is published, a notice appears in the app — nothing is ever downloaded or installed without your say-so. You can always check manually via “Check for updates…” in the sidebar."
     },
     "backup": {
       "title": "Backup & Restore",

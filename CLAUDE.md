@@ -316,6 +316,10 @@ DELETE /api/letters/history/{id} Delete a guide
 GET  /api/backup/export        Download a .zip of user data (config sans secrets, profile, photo, jobs.db, output)
 POST /api/backup/import        Restore a backup .zip (full replace, API key preserved) → re-runs db migrations
 GET  /api/version              Running app version {version} (system router; pyproject metadata → tomllib → "unknown") — feeds the About modal
+GET  /api/update/check         Latest GitHub Release vs running version → {available, current, latest, notes_url, installable, reason}
+POST /api/update/install       Start the guarded self-update (202); 400 with the blocker reason, 409 when one is already in flight
+GET  /api/update/status        Update progress {state, bytes_done, bytes_total, error}
+POST /api/update/cancel        Abort the in-flight download (installation left untouched)
 ```
 
 **About modal** (`frontend/src/components/About.tsx`): an "About" `<button>` in the
@@ -645,6 +649,30 @@ duplicate). A `commit-msg` hook (`scripts/hooks/`, under the existing
 `core.hooksPath`) **warns but never blocks** on non-conventional subjects so the
 bump signal stays healthy.
 
+**App self-update** (`add-app-updater`, `app/services/updater.py`): the packaged
+app checks `api.github.com/repos/FabriceLuyckx/job-coach/releases/latest` (strict
+`vX.Y.Z` 3-tuple compare; "unknown" ⇒ no update), selects the platform asset by
+its **stable, versionless name** (`MyJobCoach-macos.dmg` / `MyJobCoach-windows.zip`
+— the release-versioning naming contract) and, on explicit approval, streams it to
+`DATA_DIR/updates/`, verifies the byte size, stages it (macOS `hdiutil`+`ditto`,
+Windows `unpack_archive`), then launches a detached helper script that waits for
+the app's PID, moves the install aside (never deletes first), copies the staged
+bundle in, restores on failure, clears macOS quarantine, and relaunches; the app
+exits via a delayed `os._exit(0)`. Download URLs are pinned to
+`https://github.com/FabriceLuyckx/job-coach/releases/download/` — never followed
+on trust from release JSON. `install_blocker()` refuses **before any download**:
+source checkout (not `FROZEN` — which also makes the endpoints inert on any
+server deployment), unresolvable install root, non-writable parent dir, or a
+macOS translocated/`/Volumes/` path — each with a readable reason and the release
+page as fallback. One update in flight ever (module-level state dict, no id
+keying, mirroring `engine.py`'s download tracking). Frontend:
+`components/Updater.tsx` (`UpdateBanner` — automatic on-mount check gated on the
+`auto_update_check` setting, dismissible per session; `UpdateDialog` — shared by
+the banner and the sidebar's always-checking "Check for updates…" button in
+`App.tsx`'s app-menu cluster). Settings → Updates holds the auto-check toggle.
+The swap itself is verified manually against real builds; `tests/test_updater.py`
+covers version compare, asset selection, URL pinning, and every refusal.
+
 **Goal**: Deploy so non-technical users can access the app from any browser.
 
 **Stack**:
@@ -669,6 +697,9 @@ bump signal stays healthy.
 The app is currently localhost-only, where these are low-risk; on a public host
 they are exploitable:
 1. **Authentication on every `/api/*` route.** All endpoints are open today.
+   This explicitly includes the `/api/update/*` endpoints — they trigger code
+   download/execution. (They are already inert on a server via the `FROZEN`
+   guard, but must still be auth-gated.)
 2. **SSRF protection on user-supplied URLs.** `fetch_job_description()`
    (`app/services/cv_generator.py`, **incl. its Playwright fallback**) and
    `fetch_listing_links()` (`app/services/job_scanner.py`, incl. the Playwright
@@ -751,6 +782,7 @@ language is generated on-device by the engine (Phase D).
 | `local_custom_models` | User-added local models by URL, `{id: registry entry}` — merged over the curated set by `registry.all_models()` | `{}` |
 | `app_language` | UI language (ISO 639-1); `en` is the native source language | `en` |
 | `onboarding_done` | First-run wizard completion marker | `false` |
+| `auto_update_check` | Check GitHub Releases for a newer version on app start (the banner); the sidebar's manual check ignores this | `true` |
 | `job_preference_memo` | Cached learned-preferences memo distilled from accept/reject history; injected into the job-review prompt | `""` |
 | `job_preference_memo_sig` | Signature (decision count + latest `decided_at`) gating memo rebuilds | absent |
 

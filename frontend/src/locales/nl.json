@@ -7,7 +7,8 @@
     "jobs": "Vacaturesuggesties",
     "settings": "Instellingen",
     "applications": "Sollicitaties",
-    "about": "Over"
+    "about": "Over",
+    "checkUpdates": "Controleer op updates..."
   },
   "common": {
     "loading": "Laden…",
@@ -175,6 +176,11 @@
         "hexLabel": "{{slot}} — hex waarde",
         "badHex": "Dat is geen kleurcode. Gebruik zes tekens na het #, zoals #2F6B66."
       }
+    },
+    "updates": {
+      "title": "Updates",
+      "autoCheck": "Controleer op updates wanneer de app start",
+      "help": "Wanneer een nieuwere versie wordt gepubliceerd, verschijnt een melding in de app — niets wordt ooit gedownload of geïnstalleerd zonder uw toestemming. U kunt altijd handmatig controleren via 'Controleer op updates...' in de zijbalk."
     }
   },
   "profile": {
@@ -821,5 +827,30 @@
     "version": "Versie {{version}}",
     "copyright": "© 2026 Fabrice Luyckx",
     "license": "Vrije software onder de <lic>GNU AGPL v3</lic>. <src>Broncode bekijken</src>."
+  },
+  "updates": {
+    "banner": {
+      "available": "MyJobCoach {{version}} is beschikbaar.",
+      "notes": "Bekijk wat er nieuw is",
+      "updateNow": "Update nu",
+      "dismiss": "Verwijder updatemelding"
+    },
+    "dialog": {
+      "title": "Softwareupdate",
+      "checking": "Controleren op updates...",
+      "upToDate": "U bent op de laatste versie (versie {{version}}).",
+      "available": "Versie {{latest}} is beschikbaar — u heeft {{current}}.",
+      "notesLink": "Release notes",
+      "installHint": "De app herstart om de update te voltooien. Uw profiel, CV's, vacatures en instellingen worden behouden.",
+      "install": "Downloaden en installeren",
+      "downloading": "Downloaden... {{done}} / {{total}} MB",
+      "staging": "Voorbereiden van de update...",
+      "restarting": "Herstarten om de update te voltooien... De app zal automatisch opnieuw openen.",
+      "checkFailed": "De updatecontrole is mislukt: {{reason}}",
+      "notInstallable": "Deze release heeft nog geen download voor uw platform.",
+      "refused": "Deze installatie kan zichzelf niet updaten: {{reason}}",
+      "error": "De update is mislukt: {{error}} Geen wijzigingen gedaan — de geïnstalleerde app werkt nog steeds.",
+      "manualFallback": "U kunt <a>de nieuwe versie handmatig downloaden</a> in plaats daarvan."
+    }
   }
 }

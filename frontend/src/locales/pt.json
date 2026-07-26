@@ -7,7 +7,8 @@
     "jobs": "Sugestões de Emprego",
     "settings": "Configurações",
     "applications": "Candidaturas",
-    "about": "Sobre"
+    "about": "Sobre",
+    "checkUpdates": "Verificar atualizações…"
   },
   "common": {
     "loading": "A carregar…",
@@ -175,6 +176,11 @@
         "hexLabel": "{{slot}} — valor hexadecimal",
         "badHex": "Isso não é um código de cor. Use seis caracteres após o #, como #2F6B66."
       }
+    },
+    "updates": {
+      "title": "Atualizações",
+      "autoCheck": "Verificar atualizações quando o aplicativo iniciar",
+      "help": "Quando uma nova versão for lançada, aparece uma notificação no aplicativo — nada é baixado ou instalado sem sua autorização. Você pode verificar manualmente através de \"Verificar atualizações...\" na barra lateral."
     }
   },
   "profile": {
@@ -821,5 +827,30 @@
     "version": "Versão {{version}}",
     "copyright": "© 2026 Fabrice Luyckx",
     "license": "Software livre sob a <lic>GNU AGPL v3</lic>. <src>Veja o código fonte</src>."
+  },
+  "updates": {
+    "banner": {
+      "available": "MyJobCoach {{version}} está disponível.",
+      "notes": "Veja o que há de novo",
+      "updateNow": "Atualizar agora",
+      "dismiss": "Descartar aviso de atualização"
+    },
+    "dialog": {
+      "title": "Atualização do software",
+      "checking": "Verificando atualizações…",
+      "upToDate": "Você está atualizado (versão {{version}}).",
+      "available": "A versão {{latest}} está disponível — você tem {{current}}.",
+      "notesLink": "Notas de lançamento",
+      "installHint": "O aplicativo reinicia para finalizar a atualização. Seu perfil, CVs, empregos e configurações são todos preservados.",
+      "install": "Baixar e instalar",
+      "downloading": "Baixando… {{done}} / {{total}} MB",
+      "staging": "Preparando a atualização…",
+      "restarting": "Reiniciando para finalizar a atualização… O aplicativo se abrirá por si só.",
+      "checkFailed": "A verificação de atualização não funcionou: {{reason}}",
+      "notInstallable": "Esta versão não tem download para sua plataforma ainda.",
+      "refused": "Esta instalação não pode atualizar a si mesma: {{reason}}",
+      "error": "A atualização falhou: {{error}} Nada foi alterado — o aplicativo instalado continua funcionando.",
+      "manualFallback": "Você pode <a>baixar a nova versão manualmente</a> em vez disso."
+    }
   }
 }

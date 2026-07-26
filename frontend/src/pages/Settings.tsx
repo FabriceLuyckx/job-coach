@@ -144,6 +144,7 @@ export default function SettingsPage() {
     local_model_id: string
     app_language: string
     onboarding_done: boolean
+    auto_update_check: boolean
   } | null>(null)
   const [provider, setProvider] = useState<EngineProvider>('openrouter')
   const [photo, setPhoto] = useState<{ exists: boolean; data_uri: string | null } | null>(null)
@@ -226,6 +227,20 @@ export default function SettingsPage() {
     }
     await api.putSettings(data)
     setSettings(await api.getSettings())
+  }
+
+  // Optimistic like changeProvider: the checkbox flips immediately, a refused
+  // save rolls it back so the control never claims a preference the server lost.
+  async function saveAutoUpdate(v: boolean) {
+    if (!settings) return
+    const previous = settings.auto_update_check
+    setSettings({ ...settings, auto_update_check: v })
+    try {
+      await api.putSettings({ auto_update_check: v })
+    } catch (e) {
+      setSettings(s => (s ? { ...s, auto_update_check: previous } : s))
+      toast.error(errMsg(e))
+    }
   }
 
   /** Patch design prefs — autosaved like any other profile edit. */
@@ -569,6 +584,22 @@ export default function SettingsPage() {
 
       {/* UI language */}
       <LanguageSettings current={settings.app_language} />
+
+      {/* Updates */}
+      <div className="card">
+        <h2 className="section-title" style={{ margin: '0 0 var(--space-4)' }}>{t('settings.updates.title')}</h2>
+        <label className="checkbox-row">
+          <input
+            type="checkbox"
+            checked={settings.auto_update_check}
+            onChange={e => { void saveAutoUpdate(e.target.checked) }}
+          />
+          {t('settings.updates.autoCheck')}
+        </label>
+        <p className="help-text" style={{ marginTop: 'var(--space-3)', marginBottom: 0 }}>
+          {t('settings.updates.help')}
+        </p>
+      </div>
 
       {/* Backup & restore */}
       <div className="card">

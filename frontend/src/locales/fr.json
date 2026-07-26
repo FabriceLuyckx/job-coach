@@ -7,7 +7,8 @@
     "jobs": "Suggestions d'emploi",
     "settings": "Paramètres",
     "applications": "Candidatures",
-    "about": "À propos"
+    "about": "À propos",
+    "checkUpdates": "Vérifier les mises à jour…"
   },
   "common": {
     "loading": "Chargement…",
@@ -175,6 +176,11 @@
         "hexLabel": "{{slot}} — valeur hexadécimale",
         "badHex": "Ce n'est pas un code de couleur. Utilisez six caractères après le #, comme #2F6B66."
       }
+    },
+    "updates": {
+      "title": "Mises à jour",
+      "autoCheck": "Vérifier les mises à jour quand l'application démarre",
+      "help": "Quand une version plus récente est publiée, un message apparaît dans l'application — rien n'est jamais téléchargé ou installé sans votre accord. Vous pouvez toujours vérifier manuellement via « Vérifier les mises à jour… » dans le panneau latéral."
     }
   },
   "profile": {
@@ -821,5 +827,30 @@
     "version": "Version {{version}}",
     "copyright": "© 2026 Fabrice Luyckx",
     "license": "Logiciel libre sous la <lic>GNU AGPL v3</lic>. <src>Voir le code source</src>."
+  },
+  "updates": {
+    "banner": {
+      "available": "MyJobCoach {{version}} est disponible.",
+      "notes": "Voir les nouveautés",
+      "updateNow": "Mettre à jour maintenant",
+      "dismiss": "Fermer la notification de mise à jour"
+    },
+    "dialog": {
+      "title": "Mise à jour du logiciel",
+      "checking": "Vérification des mises à jour…",
+      "upToDate": "Vous êtes à jour (version {{version}}).",
+      "available": "La version {{latest}} est disponible — vous avez {{current}}.",
+      "notesLink": "Notes de sortie",
+      "installHint": "L'application redémarre pour finaliser la mise à jour. Votre profil, vos CV, vos emplois et vos paramètres sont conservés.",
+      "install": "Télécharger et installer",
+      "downloading": "Téléchargement… {{done}} / {{total}} MB",
+      "staging": "Préparation de la mise à jour…",
+      "restarting": "Redémarrage pour finaliser la mise à jour… L'application se réouvre automatiquement.",
+      "checkFailed": "La vérification de la mise à jour n'a pas fonctionné : {{reason}}",
+      "notInstallable": "Cette version n'est pas disponible pour votre plateforme.",
+      "refused": "Cette installation ne peut pas se mettre à jour elle-même : {{reason}}",
+      "error": "La mise à jour a échoué : {{error}} Rien n'a été modifié — l'application installée fonctionne toujours.",
+      "manualFallback": "Vous pouvez <a>télécharger la nouvelle version manuellement</a> au lieu de cela."
+    }
   }
 }

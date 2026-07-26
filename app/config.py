@@ -29,6 +29,8 @@ _DEFAULTS = {
     "app_language": "en",
     # First-run onboarding wizard completion marker.
     "onboarding_done": False,
+    # Check GitHub Releases for a newer version when the app starts.
+    "auto_update_check": True,
 }
 
 _lock = threading.Lock()

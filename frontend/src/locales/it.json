@@ -7,7 +7,8 @@
     "jobs": "Suggerimenti di lavoro",
     "settings": "Impostazioni",
     "applications": "Applicazioni",
-    "about": "Chi siamo"
+    "about": "Chi siamo",
+    "checkUpdates": "Controlla aggiornamenti…"
   },
   "common": {
     "loading": "Caricamento…",
@@ -175,6 +176,11 @@
         "hexLabel": "{{slot}} — valore esadecimale",
         "badHex": "Quello non è un codice colore. Usa sei caratteri dopo il #, come #2F6B66."
       }
+    },
+    "updates": {
+      "title": "Aggiornamenti",
+      "autoCheck": "Controlla gli aggiornamenti quando l'applicazione si avvia",
+      "help": "Quando viene pubblicata una nuova versione, appare una notifica nell'app — nulla viene mai scaricato o installato senza il tuo consenso. Puoi sempre controllare manualmente tramite \"Controlla aggiornamenti…\" nel menu laterale."
     }
   },
   "profile": {
@@ -821,5 +827,30 @@
     "version": "Versione {{version}}",
     "copyright": "© 2026 Fabrice Luyckx",
     "license": "Software gratuito sotto la <lic>GNU AGPL v3</lic>. <src>Visualizza il codice sorgente</src>."
+  },
+  "updates": {
+    "banner": {
+      "available": "MyJobCoach {{version}} è disponibile.",
+      "notes": "Vedi cosa è nuovo",
+      "updateNow": "Aggiorna ora",
+      "dismiss": "Chiudi notifica aggiornamento"
+    },
+    "dialog": {
+      "title": "Aggiornamento software",
+      "checking": "Sto controllando gli aggiornamenti…",
+      "upToDate": "Sei aggiornato (versione {{version}}).",
+      "available": "È disponibile la versione {{latest}} — hai {{current}}.",
+      "notesLink": "Note della versione",
+      "installHint": "L'applicazione si riavvierà per completare l'aggiornamento. Il tuo profilo, i CV, i lavori e le impostazioni saranno tutti conservati.",
+      "install": "Scarica e installa",
+      "downloading": "Sto scaricando… {{done}} / {{total}} MB",
+      "staging": "Sto preparando l'aggiornamento…",
+      "restarting": "Riavvio per completare l'aggiornamento… L'applicazione si riaprirà da sola.",
+      "checkFailed": "Il controllo aggiornamento non è riuscito: {{reason}}",
+      "notInstallable": "Questa versione non ha ancora un file scaricabile per la tua piattaforma.",
+      "refused": "Questo installatore non può aggiornarsi da solo: {{reason}}",
+      "error": "L'aggiornamento è fallito: {{error}} Niente è stato modificato — l'applicazione installata funziona com'è.",
+      "manualFallback": "Puoi <a>scaricare manualmente la nuova versione</a> invece."
+    }
   }
 }

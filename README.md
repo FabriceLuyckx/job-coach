@@ -32,6 +32,28 @@ All your data stays on your machine, in a standard per-user folder:
 - macOS: `~/Library/Application Support/MyJobCoach/`
 - Windows: `%APPDATA%\MyJobCoach\`
 
+### Updating
+
+The packaged app keeps itself up to date:
+
+- **Automatic check** — on start-up the app asks GitHub whether a newer release
+  exists (one small request; nothing is downloaded). If there is one, a banner
+  appears with an **Update now** button and a link to the release notes. Turn
+  the automatic check off in **Settings → Updates**.
+- **Manual check** — **Check for updates…** in the sidebar works any time,
+  regardless of that setting.
+- Nothing installs without your approval. When you confirm, the app downloads
+  the new version with visible progress (cancellable), swaps it into place, and
+  restarts itself. Your profile, CVs, job history and settings all live outside
+  the app and are untouched.
+
+Because the binaries are unsigned, **Windows** antivirus/SmartScreen may warn
+about the newly replaced `MyJobCoach.exe` — same caveat as a fresh install (see
+below). If the app can't update itself (for example it's running straight from
+the macOS disk image, or its folder isn't writable), it says why and links the
+[Releases](../../releases) page so you can download and install the new version
+manually instead.
+
 ### Moving to a new computer (backup & restore)
 
 **Settings → Backup & Restore** lets you carry everything over in one file:

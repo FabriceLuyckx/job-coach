@@ -7,7 +7,8 @@
     "jobs": "Sugestie ofert pracy",
     "settings": "Ustawienia",
     "applications": "Aplikacje",
-    "about": "O nas"
+    "about": "O nas",
+    "checkUpdates": "Sprawdź aktualizacje…"
   },
   "common": {
     "loading": "Ładowanie…",
@@ -175,6 +176,11 @@
         "hexLabel": "{{slot}} — wartość heksadecymalna",
         "badHex": "To nie jest kod koloru. Użyj sześciu znaków po znaku #, np. #2F6B66."
       }
+    },
+    "updates": {
+      "title": "Aktualizacje",
+      "autoCheck": "Sprawdzaj aktualizacje przy uruchamianiu aplikacji",
+      "help": "Gdy wydano nowszą wersję, pojawia się powiadomienie w aplikacji — nic nie jest pobierane ani instalowane bez Twojej zgody. Zawsze możesz sprawdzić ręcznie przez „Sprawdź aktualizacje…” w panelu boczny."
     }
   },
   "profile": {
@@ -821,5 +827,30 @@
     "version": "Wersja {{version}}",
     "copyright": "© 2026 Fabrice Luyckx",
     "license": "Oprogramowanie wolne pod licencją <lic>GNU AGPL v3</lic>. <src>Wyświetl kod źródłowy</src>."
+  },
+  "updates": {
+    "banner": {
+      "available": "Dostępna wersja MyJobCoach {{version}}.",
+      "notes": "Zobacz nowości",
+      "updateNow": "Zaktualizuj teraz",
+      "dismiss": "Odrzuć powiadomienie o aktualizacji"
+    },
+    "dialog": {
+      "title": "Aktualizacja oprogramowania",
+      "checking": "Sprawdzanie aktualizacji…",
+      "upToDate": "Jesteś na najnowszej wersji (wersja {{version}}).",
+      "available": "Dostępna wersja {{latest}} — masz {{current}}.",
+      "notesLink": "Notatki wydania",
+      "installHint": "Aplikacja ponownie uruchamia się, aby zakończyć aktualizację. Twój profil, CV, prace i ustawienia są zachowane.",
+      "install": "Pobierz i zainstaluj",
+      "downloading": "Pobieranie… {{done}} / {{total}} MB",
+      "staging": "Przygotowanie aktualizacji…",
+      "restarting": "Uruchamianie ponownie, aby zakończyć aktualizację… Aplikacja automatycznie się ponownie otworzy.",
+      "checkFailed": "Sprawdzenie aktualizacji nie działało: {{reason}}",
+      "notInstallable": "W tej wersji brak pobierania dla Twojego systemu.",
+      "refused": "Ta instalacja nie może samodzielnie aktualizować się: {{reason}}",
+      "error": "Aktualizacja nie powiodła się: {{error}} Nic nie zostało zmienione — aplikacja nadal działa.",
+      "manualFallback": "Możesz <a>pobierać nową wersję ręcznie</a> zamiast tego."
+    }
   }
 }

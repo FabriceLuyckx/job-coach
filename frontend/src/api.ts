@@ -163,6 +163,22 @@ export interface CVTemplateRegistry {
 
 export interface ScanStart { scan_id: string; kind: 'scan' | 'recheck'; already_running: boolean }
 
+export interface UpdateCheck {
+  available: boolean
+  current: string
+  latest: string | null
+  notes_url: string | null
+  installable: boolean
+  reason: string | null
+}
+
+export interface UpdateStatus {
+  state: 'idle' | 'downloading' | 'staging' | 'restarting' | 'error' | 'cancelled'
+  bytes_done: number
+  bytes_total: number
+  error: string | null
+}
+
 export const api = {
   // Built-in CV template ids + the shared palettes. Display names are i18n keys
   // (settings.template.names.<id> / .palettes.<id>), never server strings.
@@ -350,14 +366,21 @@ export const api = {
       local_model_id: string
       app_language: string
       onboarding_done: boolean
+      auto_update_check: boolean
     }>('/settings'),
-  putSettings: (data: { openrouter_api_key?: string; openrouter_model?: string; cv_prompt?: string; letter_prompt?: string; scan_extract_prompt?: string; scan_filter_prompt?: string; llm_provider?: EngineProvider; local_model_id?: string; app_language?: string; onboarding_done?: boolean }) =>
+  putSettings: (data: { openrouter_api_key?: string; openrouter_model?: string; cv_prompt?: string; letter_prompt?: string; scan_extract_prompt?: string; scan_filter_prompt?: string; llm_provider?: EngineProvider; local_model_id?: string; app_language?: string; onboarding_done?: boolean; auto_update_check?: boolean }) =>
     request<{ ok: boolean }>('/settings', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     }),
   getVersion: () => request<{ version: string }>('/version'),
+
+  // App self-update (packaged builds)
+  checkUpdate: () => request<UpdateCheck>('/update/check'),
+  startUpdate: () => request<{ ok: boolean }>('/update/install', { method: 'POST' }),
+  getUpdateStatus: () => request<UpdateStatus>('/update/status'),
+  cancelUpdate: () => request<{ ok: boolean }>('/update/cancel', { method: 'POST' }),
   getOpenrouterUsage: () =>
     request<{ balance: number | null; usage: number | null; remaining: number | null; is_free_tier: boolean | null }>('/settings/openrouter-usage'),
 

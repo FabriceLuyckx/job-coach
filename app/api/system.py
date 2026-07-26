@@ -17,9 +17,10 @@ import tomllib
 from importlib.metadata import PackageNotFoundError, version as _pkg_version
 from pathlib import Path
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from app import paths
+from app.services import updater
 
 router = APIRouter(prefix="/api", tags=["system"])
 
@@ -125,3 +126,31 @@ def setup_status():
         if not _setup["chromium_ready"] and not _setup["installing"] and chromium_ready():
             _setup["chromium_ready"] = True
         return dict(_setup)
+
+
+@router.get("/update/check")
+def update_check():
+    return updater.check_for_update()
+
+
+@router.post("/update/install", status_code=202)
+def update_install():
+    # Refusals are checked before any download, so they cost no bytes.
+    blocker = updater.install_blocker()
+    if blocker:
+        raise HTTPException(400, blocker)
+    if not updater.start_install():
+        raise HTTPException(409, "An update is already in progress.")
+    return {"ok": True}
+
+
+@router.get("/update/status")
+def update_status():
+    return updater.status()
+
+
+@router.post("/update/cancel")
+def update_cancel():
+    # Sets the cancel event; the worker cleans up and leaves the install untouched.
+    updater.cancel()
+    return {"ok": True}
