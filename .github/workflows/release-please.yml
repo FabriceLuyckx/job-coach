@@ -11,6 +11,10 @@ name: Release Please
 on:
   push:
     branches: ["stable"]
+  # Dispatched by this same workflow after it auto-merges the release PR — that
+  # merge is made with GITHUB_TOKEN, which never fires the `push` trigger above,
+  # so the tagging pass has to be kicked off explicitly. See the merge step.
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -41,7 +45,20 @@ jobs:
           gh workflow run release.yml --repo "$GITHUB_REPOSITORY" \
             --ref "${{ steps.release.outputs.tag_name }}"
 
-      - name: Auto-merge the release PR
+      - name: Merge the release PR, then re-run to tag it
+        # Two GITHUB_TOKEN traps here, both of which silently swallowed v0.4.0.
+        #
+        # 1. Merging with the token does not fire this workflow's `push`
+        #    trigger, so the pass that actually creates the tag + Release never
+        #    ran. Hence the explicit self-dispatch (workflow_dispatch is exempt).
+        # 2. `--auto` merges asynchronously, so dispatching straight after it
+        #    races the merge: the new run can start before the bump commit
+        #    lands and find nothing to release. `stable` has no required checks,
+        #    so a plain `--merge` is immediate and ordered.
+        #
+        # The dispatch sits inside the `if` deliberately: the run it starts
+        # finds no open release PR and so does not dispatch again. That is what
+        # terminates the cycle.
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -49,7 +66,8 @@ jobs:
             --head release-please--branches--stable --state open \
             --json number --jq '.[0].number')
           if [ -n "$pr" ]; then
-            gh pr merge "$pr" --repo "$GITHUB_REPOSITORY" --auto --merge
+            gh pr merge "$pr" --repo "$GITHUB_REPOSITORY" --merge
+            gh workflow run release-please.yml --repo "$GITHUB_REPOSITORY" --ref stable
           fi
 
       - name: Sync the version bump back to main
