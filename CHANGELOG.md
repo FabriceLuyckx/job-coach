@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/FabriceLuyckx/job-coach/compare/v0.3.0...v0.3.1) (2026-07-26)
+
+
+### Performance Improvements
+
+* **ci:** build frontend once and use uv for Python deps in release builds ([513aa1c](https://github.com/FabriceLuyckx/job-coach/commit/513aa1c2b8a01cce987eb71a4ad482d0fef55181))
+
 ## [0.3.0](https://github.com/FabriceLuyckx/job-coach/compare/v0.2.0...v0.3.0) (2026-07-26)
 
 
