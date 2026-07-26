@@ -14,7 +14,32 @@ on:
   workflow_dispatch:
 
 jobs:
+  frontend:
+    # Static output is OS-independent — build it once here instead of once
+    # per matrix job below.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
   build:
+    needs: frontend
     strategy:
       fail-fast: false
       matrix:
@@ -27,28 +52,24 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v6
+      - uses: actions/download-artifact@v5
         with:
+          name: frontend-dist
+          path: frontend/dist
+
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
           python-version: "3.11"
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version: "20"
-
-      - name: Build frontend
-        working-directory: frontend
-        run: |
-          npm ci
-          npm run build
 
       - name: Install Python deps
         # [local] bundles the free in-process AI engine (llama-cpp-python) that
         # onboarding offers — without it the "download the free local model" path
         # is dead in the shipped app and every user needs an OpenRouter key.
-        run: pip install ".[package,local]"
+        run: uv sync --extra package --extra local
 
       - name: Build app bundle
-        run: pyinstaller packaging/myjobcoach.spec
+        run: uv run pyinstaller packaging/myjobcoach.spec
 
       # To ship a warning-free app later, add code-signing/notarization here:
       #  - macOS: codesign the .app, then `xcrun notarytool submit` + `stapler`.
@@ -80,6 +101,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v5
         with:
+          pattern: MyJobCoach-*
           path: artifacts
       - uses: softprops/action-gh-release@v2
         with:
