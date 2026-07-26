@@ -58,7 +58,7 @@ export default function App() {
             {showOnboarding && <Onboarding onDone={() => setShowOnboarding(false)} />}
             <div className="app-shell">
               <nav className="sidebar-nav">
-                <div className="nav-logo"><em>{t('nav.brandEm')}</em>{t('nav.brand')}</div>
+                <div className="nav-logo"><em>{t('nav.brandEm')}</em><span className="nav-logo-job">Job</span>Coach</div>
                 <NavLink to="/profile"><UserRound size={17} aria-hidden />{t('nav.profile')}</NavLink>
                 <NavLink to="/preferences"><SlidersHorizontal size={17} aria-hidden />{t('nav.preferences')}</NavLink>
                 <NavLink to="/jobs"><Briefcase size={17} aria-hidden />{t('nav.jobs')}</NavLink>

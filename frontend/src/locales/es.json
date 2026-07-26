@@ -20,7 +20,7 @@
     "edit": "Editar",
     "download": "Descargar",
     "unsavedChange": "cambio sin guardar",
-    "proficiency": "Proficiencia",
+    "proficiency": "Competencia",
     "nOfM": "{{n}} de {{max}}",
     "reorderHint": "Arrastrar, o enfocar y usar ↑ / ↓ para reordenar",
     "reorderItem": "Reordenar el elemento {{n}} de {{total}}",
@@ -93,7 +93,7 @@
       "removed": "Foto eliminada",
       "includeByDefault": "Incluir foto en nuevos CVs por defecto",
       "adjustTitle": "Ajustar foto",
-      "adjustHelp": "Arrastre la imagen (o use las teclas de flecha) para reubicarla, y utilice el deslizador, el desplazamiento o + / − para acercar o alejar. Su archivo original nunca se modifica.",
+      "adjustHelp": "Arrastra la imagen (o usa las teclas de flecha) para reubicarla, y usa el deslizador, el desplazamiento o + / − para acercar o alejar. Tu archivo original nunca se modifica.",
       "zoom": "Zoom",
       "resetCrop": "Restablecer encuadre",
       "alt": "Tu foto de perfil",
@@ -104,13 +104,13 @@
     },
     "backup": {
       "title": "Copia de seguridad y restauración",
-      "help": "Muevete a una nueva computadora o guarda una copia segura de tu trabajo. <b>Exportar</b> descarga un solo <code>.zip</code> que contiene tu perfil y foto, configuraciones, fuentes de empleo y historial, y cada CV generado. En la nueva máquina, instala MyJobCoach y utiliza <b>Restaurar</b> para cargar ese archivo.",
+      "help": "Múdate a una nueva computadora o guarda una copia segura de tu trabajo. <b>Exportar</b> descarga un solo <code>.zip</code> que contiene tu perfil y foto, configuraciones, fuentes de empleo y historial, y cada CV generado. En la nueva máquina, instala MyJobCoach y utiliza <b>Restaurar</b> para cargar ese archivo.",
       "export": "Exportar copia de seguridad (.zip)",
       "restore": "Restaurar desde copia de seguridad…",
-      "confirmRestore": "Este reemplaza su perfil, configuraciones, historial de empleos y CVs generados en este ordenador con el contenido del respaldo. Su clave API se mantiene. Esto no se puede deshacer.",
+      "confirmRestore": "Esto reemplaza tu perfil, configuraciones, historial de empleos y CVs generados en esta computadora con el contenido de la copia de seguridad. Tu clave API se mantiene. Esto no se puede deshacer.",
       "restored": "Copia restaurada — recargando…",
       "note": "Restaurar <b>reemplaza</b> tu perfil, historial de empleo y CVs generados con el contenido de la copia — no realiza una fusión. Tu clave API de OpenRouter nunca se incluye en la exportación y no se modifica al restaurar.",
-      "confirmTitle": "Restaurar desde respaldo?",
+      "confirmTitle": "¿Restaurar desde respaldo?",
       "confirmButton": "Reemplazar mis datos"
     },
     "language": {
@@ -125,7 +125,7 @@
       "generated": "Interfaz traducida a {{lang}}.",
       "experimental": "Traducido por IA — puede contener imperfecciones.",
       "needEngineFirst": "Configura un motor de IA antes de añadir un nuevo idioma.",
-      "badCode": "No reconocemos ese idioma. Inténtelo con su nombre en inglés, o un código de 2 letras como sv, ja o ar.",
+      "badCode": "No reconocemos ese idioma. Inténtalo con su nombre en inglés, o un código de 2 letras como sv, ja o ar.",
       "genFailed": "La traducción falló — por favor, inténtalo de nuevo.",
       "otherLabel": "Idioma"
     },
@@ -304,13 +304,13 @@
       "addSkillPlaceholder": "Añade una habilidad y pulsa Intro",
       "languagePlaceholder": "Idioma",
       "scaleLegend": "★ A1 Principiante · ★★ A2 Elemental · ★★★ B1 Intermedio · ★★★★ B2/C1 Avanzado · ★★★★★ C2 Nativo/Fluido",
-      "proficiencyIn": "Proficiencia en {{language}}",
+      "proficiencyIn": "Competencia en {{language}}",
       "cefr": {
         "1": "Principiante",
         "2": "Elemental",
         "3": "Intermedio",
         "4": "Avanzado",
-        "5": "Nativo / Fluent"
+        "5": "Nativo / Fluido"
       }
     },
     "work": {
@@ -381,7 +381,7 @@
       "availability": "Disponibilidad",
       "availabilityPlaceholder": "por ejemplo: desde septiembre, o un mes de aviso",
       "travel": "Viajes",
-      "anythingElse": "Cualquier otra cosa?",
+      "anythingElse": "¿Cualquier otra cosa?",
       "anythingElsePlaceholder": "por ejemplo: sin llamadas de emergencia, prefiere una semana de cuatro días, necesita un lugar de estacionamiento"
     },
     "suggest": {
@@ -392,7 +392,7 @@
     },
     "loadError": "No se pudieron cargar tus preferencias: {{error}}",
     "doneAction": "Añade una página para seguir",
-    "suggestLabel": "Dealbreakers comunes — toca uno para añadirlo",
+    "suggestLabel": "Motivos de descarte comunes — toca uno para añadirlo",
     "doneSubReady": "Eso es suficiente para comenzar a escanear. A continuación, dile a MyJobCoach dónde buscar — añade una página de carreras para monitorear.",
     "doneSubNoRoles": "Añade al menos un título de puesto en la primera pregunta — es lo que se compara en cada anuncio, así que sin él, el escaneo encuentra poco.",
     "great": {
@@ -658,7 +658,7 @@
     "addPhotoLink": "Añade una foto en Configuración",
     "addPhotoSuffix": "para activarla.",
     "editContent": "Editar contenido generado",
-    "editHelp": "Los cambios a continuación se guardan automáticamente. Seleccione texto y presione <b>⌘/Ctrl+B</b> o <b>⌘/Ctrl+I</b> para hacerlo negrita o cursiva. Arrastre el control para reordenar las listas.",
+    "editHelp": "Los cambios a continuación se guardan automáticamente. Selecciona texto y presiona <b>⌘/Ctrl+B</b> o <b>⌘/Ctrl+I</b> para hacerlo negrita o cursiva. Arrastra el control para reordenar las listas.",
     "professionalSummary": "Resumen profesional",
     "aiSummaryTooltip": "Pide a la IA que redacte un nuevo resumen basado en tu perfil y esta oferta",
     "generatingSummary": "Generando…",
@@ -688,7 +688,7 @@
     "help": "Elige cómo la app ejecuta su IA (adaptar CVs, analizar ofertas). Puedes cambiarlo en cualquier momento.",
     "local": {
       "title": "Modelo local gratuito",
-      "desc": "Gratuito y privado — se ejecuta en tu ordenador. Buenos resultados; no requiere cuenta.",
+      "desc": "Gratuito y privado — se ejecuta en tu computadora. Buenos resultados; no requiere cuenta.",
       "deleteModel": "Eliminar modelo",
       "download": "Descargar modelo",
       "downloading": "Descargando… {{done}} / {{total}} ({{pct}}%)",
@@ -698,7 +698,7 @@
       "deleted": "{{model}} eliminado de tu computadora.",
       "confirmDelete": "¿Eliminar {{model}}? Esto elimina el archivo {{size}} de tu computadora. Puedes descargarlo de nuevo más tarde.",
       "confirmForce": "{{msg}}",
-      "forceTitle": "No hay suficiente memoria?",
+      "forceTitle": "¿No hay suficiente memoria?",
       "downloadAnyway": "Descargar de todos modos",
       "pickModel": "Elige un modelo",
       "inUse": "En uso",
@@ -757,7 +757,7 @@
     "deletedToast": "Eliminada la aplicación para \"{{title}}\"",
     "noneForJob": "No se encontró nada para ese puesto todavía — su generación puede haber fallado. Inténtalo de nuevo desde la página de sugerencias de puestos.",
     "emptyTitle": "Aún no hay aplicaciones",
-    "emptyBody": "Pega la URL de un anuncio de empleo y el sistema generará un CV adaptado y una guía para escribir tu carta de presentación — listo para previsualizar, editar y descargar.",
+    "emptyBody": "Pega la URL de un anuncio de empleo y la IA generará un CV adaptado y una guía para escribir tu carta de presentación — listo para previsualizar, editar y descargar.",
     "searchPlaceholder": "Busca tus aplicaciones…",
     "noMatches": "No hay aplicaciones que coincidan con tu búsqueda.",
     "loadError": "No se pudieron cargar tus aplicaciones: {{error}}",
@@ -765,13 +765,13 @@
     "slowLocalHint": "En el modelo local gratuito esto puede tardar unos minutos. Cancelar detiene la generación y libera la IA para otras tareas.",
     "tabExists": "{{name}} — creado",
     "tabMissing": "{{name}} — aún no creado",
-    "changeLangTitle": "Cambiar el idioma?",
-    "changeLangBody": "Esto regenera la guía de carta de presentación en <b>{{lang}}</b> y reemplaza la actual, y reajusta tu CV (sus ediciones se mantienen).",
+    "changeLangTitle": "¿Cambiar el idioma?",
+    "changeLangBody": "Esto regenera la guía de carta de presentación en <b>{{lang}}</b> y reemplaza la actual, y reajusta tu CV (tus ediciones se mantienen).",
     "changeLangConfirm": "Cambiar el idioma",
     "generic": {
       "title": "Solicitud genérica",
-      "subtitle": "sin lista específica",
-      "explainer": "Una guía de CV y carta de presentación dirigida a los puestos que estás buscando, cuando no tienes una lista específica en mano — para redes, un enfoque especulativo o algo que poder entregar. Un clic crea ambos.",
+      "subtitle": "sin oferta específica",
+      "explainer": "Un CV y una guía de carta de presentación dirigidos a los puestos que estás buscando, para cuando no tienes una oferta concreta en mano — para hacer contactos, un enfoque especulativo o algo que entregar. Un clic crea ambos.",
       "create": "Crear solicitud genérica",
       "needs": "Para crear esto, primero añade ",
       "and": " y ",
@@ -792,7 +792,7 @@
     "emptyBody": "Pega la URL de un anuncio de empleo arriba para obtener un plan personalizado para escribir tu carta.",
     "deletedToast": "Eliminada la guía para \"{{title}}\"",
     "explainer": {
-      "headline": "Esta herramienta no escribe tu carta — eso es el punto.",
+      "headline": "Esta herramienta no escribe tu carta por ti — de eso se trata.",
       "body": "Una carta de presentación solo funciona si está escrita en tus propias palabras; los reclutadores descartan cada vez más las escritas por IA. En su lugar, obtienes un plan personalizado: qué decir, en qué orden y qué partes de tu perfil usar como evidencia. El texto permanece tuyo.",
       "tips": [
         "Dirígete a una persona real — busca el nombre del gerente de contratación; de lo contrario, escribe \"Estimado equipo de contratación\".",

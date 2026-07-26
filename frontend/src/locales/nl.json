@@ -29,8 +29,8 @@
     "tagLengthHint": "Houd entries kort (max {{max}} tekens).",
     "removedNamed": "Verwijderd {{name}}",
     "tagLimit": "Dat is de {{max}}-item limiet — {{dropped}} meer zijn niet toegevoegd.",
-    "saved": "Gesaved",
-    "saving": "Bewaar…"
+    "saved": "Opgeslagen",
+    "saving": "Opslaan…"
   },
   "onboarding": {
     "welcome": "Welkom bij MijnJobCoach",
@@ -93,21 +93,21 @@
       "removed": "Foto verwijderd",
       "includeByDefault": "Foto inclusief in nieuwe CV's standaard",
       "adjustTitle": "Foto aanpassen",
-      "adjustHelp": "Sleep de foto (of gebruik de pijltoetsen) om haar positie te veranderen, en gebruik de schuifbalk, scrollen of + / − om te vergroten. De oorspronkelijke upload wordt nooit gewijzigd.",
+      "adjustHelp": "Sleep de foto (of gebruik de pijltoetsen) om de positie ervan te veranderen, en gebruik de schuifbalk, scrollen of + / − om te vergroten. De oorspronkelijke upload wordt nooit gewijzigd.",
       "zoom": "Vergroten",
       "resetCrop": "Kadrering herstellen",
-      "alt": "Uw profielfoto",
-      "frameLabel": "Foto bevelen — sleep of gebruik de pijltoetsen om de positie te veranderen"
+      "alt": "Je profielfoto",
+      "frameLabel": "Fotokadrering — sleep of gebruik de pijltoetsen om de positie te veranderen"
     },
     "visual": {
       "title": "CV Uiterlijk"
     },
     "backup": {
       "title": "Back-up en herstel",
-      "help": "Verplaats naar een nieuwe computer of sla een veilige kopie van je werk op. <b>Export</b> downloadt een enkele <code>.zip</code> die je profiel en foto, instellingen, werkgeversbronnen en geschiedenis en elk gegenereerd CV bevat. Op de nieuwe computer installeer je MijnJobCoach en gebruik je <b>Restore</b> om die bestand te laden.",
+      "help": "Verplaats naar een nieuwe computer of sla een veilige kopie van je werk op. <b>Export</b> downloadt een enkele <code>.zip</code> die je profiel en foto, instellingen, vacaturebronnen en -geschiedenis en elk gegenereerd cv bevat. Op de nieuwe computer installeer je MijnJobCoach en gebruik je <b>Herstellen</b> om dat bestand te laden.",
       "export": "Back-up exporteren (.zip)",
       "restore": "Herstellen vanuit back-up…",
-      "confirmRestore": "Dit vervangt uw profiel, instellingen, baanhistorie en gegenereerde CV's op dit apparaat met de inhoud van de backup. Uw API-sleutel wordt behouden. Dit kan niet ongedaan gemaakt worden.",
+      "confirmRestore": "Dit vervangt je profiel, instellingen, vacaturegeschiedenis en gegenereerde cv's op dit apparaat met de inhoud van de backup. Je API-sleutel wordt behouden. Dit kan niet ongedaan gemaakt worden.",
       "restored": "Back-up hersteld — opnieuw laden…",
       "note": "Herstellen <b>vervangt</b> je profiel, vacaturegeschiedenis en gegenereerde cv's door de inhoud van de back-up — er wordt niet samengevoegd. Je OpenRouter API-sleutel wordt nooit meegenomen in de export en blijft bij herstel onaangeroerd.",
       "confirmTitle": "Herstellen uit backup?",
@@ -118,7 +118,7 @@
       "help": "De taal van de app-interface. Engels is de oorspronkelijke taal; andere talen worden vertaald door je AI-engine.",
       "label": "App-taal",
       "other": "Andere taal…",
-      "otherHelp": "Typ een taalnaam (of haar 2-lettercode). Het wordt op locatie vertaald door uw AI-engine — resultaten kunnen onvolkomen zijn.",
+      "otherHelp": "Typ een taalnaam (of haar 2-lettercode). Het wordt op je apparaat vertaald door je AI-engine — resultaten kunnen onvolkomen zijn.",
       "otherPlaceholder": "bijv. Zweeds, Vietnamees, Grieks",
       "generate": "Deze taal gebruiken",
       "generating": "Interface vertalen… {{pct}}%",
@@ -140,7 +140,7 @@
       "extractTitle": "Vacaturesuggesties — linkextractieprompt",
       "extractHelp": "Bepaalt welke links op een pagina echte vacatures zijn. De lijst met gevonden links op de pagina wordt er automatisch onder toegevoegd.",
       "filterTitle": "Vacaturesuggesties — relevantiefilterprompt",
-      "filterHelp": "Beoordeelt elke nieuwe functie door de volledige aanbieding te lezen: bepaalt of het past bij u en haalt een korte samenvatting (bedrijf, locatie, salaris, deadline, eisen) op. De relevante delen van uw profiel worden automatisch hieronder toegevoegd.",
+      "filterHelp": "Beoordeelt elke nieuwe functie door de volledige aanbieding te lezen: bepaalt of het past bij je en haalt een korte samenvatting (bedrijf, locatie, salaris, deadline, eisen) op. De relevante delen van je profiel worden automatisch hieronder toegevoegd.",
       "letterTitle": "Brief — gidsprompt",
       "letterHelp": "Verzonden bij het maken van een handleiding voor een sollicitatiebrief. Je profiel en de functieaanbieding worden automatisch toegevoegd hieronder. Dit produceert een schrijfskelet (3–5 secties met feiten uit je profiel om te citeren) — de brief wordt nooit volledig geschreven. <code>{lang_name}</code> wordt vervangen door de uitvoerende taal — het moet in de prompt blijven."
     },
@@ -148,7 +148,7 @@
       "label": "CV sjabloon",
       "help": "Kies een layout. De voorbeelden tonen je geselecteerde kleuren.",
       "palette": "Kleurenpalet",
-      "appliesToAll": "Ontwerpveranderingen worden toegepast op elk CV — open een CV onder Toepassingen om het te zien.",
+      "appliesToAll": "Ontwerpveranderingen worden toegepast op elk cv — open een cv onder Sollicitaties om het te zien.",
       "names": {
         "default": "Zijbalk",
         "classic": "Klassiek",
@@ -310,7 +310,7 @@
         "2": "Elementair",
         "3": "Gemiddeld",
         "4": "Geavanceerd",
-        "5": "Natuurlijk / Gevoelig"
+        "5": "Moedertaal / Vloeiend"
       }
     },
     "work": {
@@ -379,10 +379,10 @@
       "salary": "Salariereeks",
       "salaryPlaceholder": "bijv. minimaal €3.500 per maand",
       "availability": "Beschikbaarheid",
-      "availabilityPlaceholder": "bijv. van september, of een maand voorwaar",
+      "availabilityPlaceholder": "bijv. van september, of een maand opzegtermijn",
       "travel": "Reis",
       "anythingElse": "En nog iets?",
-      "anythingElsePlaceholder": "bijv. geen op-calling, voorkeur voor een vierdaagse week, behoefte aan een parkeerplaats"
+      "anythingElsePlaceholder": "bijv. geen bereikbaarheidsdienst, voorkeur voor een vierdaagse week, behoefte aan een parkeerplaats"
     },
     "suggest": {
       "admin": "Uitsluitend administratief werk",
@@ -411,18 +411,18 @@
       "needProfile": "Voeg eerst je functietitel of werkervaring op je profiel toe."
     },
     "employment": {
-      "permanent": "Permanente functie",
-      "fixedTerm": "Vaste termijn",
+      "permanent": "Vast contract",
+      "fixedTerm": "Tijdelijk contract",
       "freelance": "Freelance",
       "internship": "Stage"
     },
     "hours": {
-      "full": "Volledige tijd",
-      "part": "Deeltyd"
+      "full": "Voltijds",
+      "part": "Deeltijd"
     },
     "travel": {
       "none": "Geen",
-      "occasional": "Gebruikte",
+      "occasional": "Af en toe",
       "frequent": "Vaak"
     }
   },
@@ -493,7 +493,7 @@
     },
     "languages": {
       "label": "Talen",
-      "description": "De talen die u spreekt, met behoefte aan vaardigheid."
+      "description": "De talen die je spreekt, met een niveau van vaardigheid."
     }
   },
   "cv": {
@@ -520,10 +520,10 @@
     "stage": {
       "fetching": "Het lezen van de functieaanbieding…",
       "thinking": "Aanpassen met AI…",
-      "rendering": "Uw CV bouwen…"
+      "rendering": "Je cv bouwen…"
     },
-    "searchPlaceholder": "Zoek in uw CVs…",
-    "noMatches": "Geen CV's passen bij uw zoekopdracht.",
+    "searchPlaceholder": "Zoek in je cv's…",
+    "noMatches": "Geen cv's passen bij je zoekopdracht.",
     "autoDetect": "Taal automatisch detecteren",
     "detectingLang": "Taal detecteren..."
   },
@@ -671,7 +671,7 @@
     "rebuildFromUrl": "Bouw bewerkbare CV van aanbieding",
     "preparingPdf": "PDF voorbereiden…",
     "pdfError": "Kan de PDF niet bouwen: {{error}}",
-    "refreshPreviewTip": "Laad de voorbeeldweergave opnieuw met uw laatste profiel en ontwerp",
+    "refreshPreviewTip": "Laad de voorbeeldweergave opnieuw met je laatste profiel en ontwerp",
     "sectionsTitle": "Secties",
     "aiLeftOut": "Door AI weggelaten",
     "restoreTip": "Plaats deze sectie terug op het CV",
@@ -735,7 +735,7 @@
     }
   },
   "footer": {
-    "credit": "Gemaakt voor u door <a>Fabrice Luyckx</a> — vrije software onder de <lic>GNU AGPL v3</lic>"
+    "credit": "Gemaakt voor jou door <a>Fabrice Luyckx</a> — vrije software onder de <lic>GNU AGPL v3</lic>"
   },
   "applications": {
     "title": "Sollicitaties",
@@ -766,7 +766,7 @@
     "tabExists": "{{name}} — gemaakt",
     "tabMissing": "{{name}} — nog niet gemaakt",
     "changeLangTitle": "Taal wijzigen?",
-    "changeLangBody": "Dit hermaakt de handleiding voor het sollicitatiebrief in <b>{{lang}}</b> en vervangt de huidige, en herpast je CV (je bewerkingen worden behouden).",
+    "changeLangBody": "Dit genereert de briefgids opnieuw in <b>{{lang}}</b> en vervangt de huidige, en past je cv opnieuw aan (je bewerkingen blijven behouden).",
     "changeLangConfirm": "Taal wijzigen",
     "generic": {
       "title": "Algemene aanvraag",
@@ -776,7 +776,7 @@
       "needs": "Om dit te bouwen, voeg eerst toe ",
       "and": " en ",
       "missing": {
-        "target_roles": "de functies die je doelstelling hebt",
+        "target_roles": "de functies die je nastreeft",
         "experience": "minstens één functie uit je werkgeschiedenis"
       }
     },
@@ -795,10 +795,10 @@
       "headline": "Dit hulpprogramma schrijft niet jouw brief — dat is het doel.",
       "body": "Een brief werkt alleen als hij in je eigen woorden is geschreven; recruiters wijzen AI-geschreven brieven steeds vaker af. In plaats daarvan krijg je een aangepast plan: wat te zeggen, in welke volgorde, en welke delen van je profiel je als bewijs kunt gebruiken. Het schrijven blijft van jou.",
       "tips": [
-        "Adres een echte persoon — zoek de naam van de huidige functiehouder; anders \"Beste Recruiteringsteam\".",
-        "Quantificeer de impact: noem het concreet resultaat, niet alleen de taak.",
+        "Richt je tot een echte persoon — zoek de naam van de wervende manager op; anders \"Beste Recruiteringsteam\".",
+        "Kwantificeer de impact: noem het concrete resultaat, niet alleen de taak.",
         "Houd het op ~250–350 woorden op één pagina.",
-        "Pas het toonpatroon van de werkgever aan en schrijf in de taal van de aanbieding."
+        "Sluit aan bij de toon van de werkgever, en schrijf in de taal van de vacature."
       ]
     },
     "guide": {
@@ -817,7 +817,7 @@
   },
   "about": {
     "title": "Over MijnJobCoach",
-    "description": "Een AI-gebaseerde assistent die opmaakte CV's en cover-letterhandleidingen en passende vacatures blootstelt.",
+    "description": "Een AI-assistent die aangepaste cv's en briefgidsen opstelt en bijpassende vacatures laat zien.",
     "version": "Versie {{version}}",
     "copyright": "© 2026 Fabrice Luyckx",
     "license": "Vrije software onder de <lic>GNU AGPL v3</lic>. <src>Broncode bekijken</src>."

@@ -20,9 +20,9 @@
     "edit": "Modifica",
     "download": "Scarica",
     "unsavedChange": "modifica non salvata",
-    "proficiency": "Proficienza",
+    "proficiency": "Competenza",
     "nOfM": "{{n}} di {{max}}",
-    "reorderHint": "Trascina, o focalizza e usa ↑ / ↓ per riordinare",
+    "reorderHint": "Trascina, oppure seleziona l'elemento e usa ↑ / ↓ per riordinare",
     "reorderItem": "Riordina l'elemento {{n}} su {{total}}",
     "add": "+ Aggiungi",
     "removeNamed": "Rimuovi {{name}}",
@@ -93,7 +93,7 @@
       "removed": "Foto rimossa",
       "includeByDefault": "Includi la foto nei nuovi CV per impostazione predefinita",
       "adjustTitle": "Regola la foto",
-      "adjustHelp": "Trascina l'immagine (o usa le frecce) per riposizionarla, e usa lo slider, il scroll o + / − per ingrandire o ridurre. L'originale caricato non viene mai modificato.",
+      "adjustHelp": "Trascina l'immagine (o usa le frecce) per riposizionarla, e usa lo slider, lo scroll o + / − per ingrandire o ridurre. L'originale caricato non viene mai modificato.",
       "zoom": "Ingrandisci",
       "resetCrop": "Ripristina inquadratura",
       "alt": "La tua foto di profilo",
@@ -304,7 +304,7 @@
       "addSkillPlaceholder": "Aggiungi una competenza e premi Invio",
       "languagePlaceholder": "Lingua",
       "scaleLegend": "★ A1 Principiante · ★★ A2 Elementare · ★★★ B1 Intermedio · ★★★★ B2/C1 Avanzato · ★★★★★ C2 Madrelingua/Fluente",
-      "proficiencyIn": "Proficienza in {{language}}",
+      "proficiencyIn": "Competenza in {{language}}",
       "cefr": {
         "1": "Iniziale",
         "2": "Elementare",
@@ -371,7 +371,7 @@
       "dealbreakersSub": "Anche quando il titolo corrisponde. Gli annunci che soddisfano anche solo uno di questi punti vengono scartati.",
       "dealbreakersPlaceholder": "es. Lavoro puramente amministrativo, vendite a freddo, turni nel weekend",
       "practical": "C'è qualcosa di pratico da verificare?",
-      "practicalSub": "I piccoli dettagli da leggere prima di leggere un annuncio da solo. Lascia vuoti tutto ciò che non si applica.",
+      "practicalSub": "I piccoli dettagli da verificare prima ancora di leggere l'annuncio per conto tuo. Lascia vuoto tutto ciò che non si applica.",
       "languagesEmpty": "Nessuna lingua sul tuo profilo ancora — aggiungi quelle in cui sei in grado di lavorare in modo che i posti di lavoro in altre lingue vengano filtrati.",
       "languagesEdit": "Modifica le lingue sul tuo Profilo",
       "employmentType": "Tipo di contratto",
@@ -398,12 +398,12 @@
     "great": {
       "impact": "Lavorare con un impatto sociale o ambientale chiaro",
       "autonomy": "Autonomia sull'approccio del lavoro",
-      "building": "Costruire qualcosa da zero a fine, non solo consigliare",
+      "building": "Costruire qualcosa dall'inizio alla fine, non solo consigliare",
       "learning": "Un team da cui imparare costantemente"
     },
     "greatLabel": "Motivi comuni per cui un lavoro è attraente — tocca uno per aggiungerlo",
     "suggestTitles": {
-      "action": "Propone titoli dal mio profilo",
+      "action": "Suggerisci titoli dal mio profilo",
       "groupLabel": "Titoli suggeriti — tocca uno per aggiungerlo",
       "arrived": "{{count}} titolo suggerito",
       "arrived_other": "{{count}} titoli suggeriti",
@@ -436,7 +436,7 @@
       "description": "Nome, contatti e link."
     },
     "summary": {
-      "label": "Sommario professionale",
+      "label": "Riepilogo professionale",
       "description": "Una breve presentazione mostrata in cima al tuo CV."
     },
     "experience": {
@@ -598,7 +598,7 @@
     "acceptedToast": "Accettato “{{title}}” — stai creando il tuo CV e la guida per la lettera di presentazione",
     "acceptedQueued": "Accettato — vedi nel riepilogo delle candidature",
     "filteredByTitle": "Filtrato per il titolo — il post non è stato letto.",
-    "recheckNothing": "Niente qui può essere ri-controllato — sono stati filtrati per titolo, quindi non c'è testo del post salvato per riprendere la valutazione.",
+    "recheckNothing": "Niente qui può essere ricontrollato — sono stati filtrati per titolo, quindi non c'è testo dell'annuncio salvato per rivalutare.",
     "recheckNoneYet": "Niente è stato ancora filtrato, quindi niente da controllare.",
     "rejectedKeptArtifacts": "Rifiutato “{{title}}” — il CV e la lettera restano nelle candidature",
     "digest": {
@@ -609,15 +609,15 @@
       "salary": "Stipendio",
       "deadline": "Scadenza"
     },
-    "aiCaveat": "Scritto da AI dal messaggio — leggi l'originale prima di decidere.",
+    "aiCaveat": "Scritto dall'IA a partire dall'annuncio — leggi l'originale prima di decidere.",
     "phase": {
       "links": "Legge i risultati da {{source}}…",
       "openings": "Cerca offerte su {{source}}…",
       "filter": "Seleziona i candidati da {{source}}…"
     },
-    "cancelling": "Annulla…",
+    "cancelling": "Annullamento in corso…",
     "rejectModalTitle": "Rifiuta questa offerta",
-    "rejectModalHelp": "Opzionalmente, indica al assistente il motivo. Utilizza i tuoi rifiuti per filtrare meglio le future offerte — ma puoi semplicemente rifiutare.",
+    "rejectModalHelp": "Facoltativamente, indica all'assistente il motivo. Usa i tuoi consensi e rifiuti per filtrare meglio le offerte future — ma puoi anche semplicemente rifiutare.",
     "rejectModalLabel": "Perché la stai rifiutando? (opzionale)",
     "rejectModalPlaceholder": "ad es. troppo esperto, località sbagliata, poco lavoro pratico…",
     "match": "Corrispondenza",
@@ -681,7 +681,7 @@
     "saveError": "Impossibile salvare",
     "aiNeedsUrl": "Nessun URL del lavoro salvato, quindi l'IA non può rileggere l'annuncio per questo CV",
     "sectionsShownCount": "{{shown}} di {{total}} mostrati",
-    "aiCaveat": "Questo è stato scritto da AI in base al tuo profilo. Controlla ogni riga prima di inviarlo — può esagerare o inventare cose."
+    "aiCaveat": "Questo è stato scritto dall'IA in base al tuo profilo. Controlla ogni riga prima di inviarlo — può esagerare o inventare cose."
   },
   "engine": {
     "title": "Motore IA",
@@ -796,7 +796,7 @@
       "body": "Una lettera di presentazione funziona solo se è scritta con parole tue; i recruiter scartano sempre più spesso le lettere scritte dall'IA. Invece, ottieni un piano personalizzato: cosa dire, in quale ordine e quali parti del tuo profilo usare come prova. La scrittura rimane tua.",
       "tips": [
         "Indirizza una persona reale — trova il nome del responsabile della selezione; altrimenti \"Cari membri del team di assunzione\".",
-        "Quantifica l'impatto: indica il risultato concreto, non solo la missione.",
+        "Quantifica l'impatto: indica il risultato concreto, non solo il compito svolto.",
         "Mantieni il testo intorno a 250–350 parole su una sola pagina.",
         "Adatta il tono all'azienda e scrivi nel linguaggio dell'annuncio."
       ]

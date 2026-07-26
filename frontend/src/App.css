@@ -37,6 +37,9 @@
   font-style: normal;
   color: var(--accent-text);
 }
+.nav-logo-job {
+  font-style: italic;
+}
 
 /* .nav-item shares the page-nav link look for footer buttons that open a modal
    instead of routing (About; "Check for updates…" joins it later). */

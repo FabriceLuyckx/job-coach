@@ -73,7 +73,7 @@ exe = EXE(
     exclude_binaries=True,
     name="MyJobCoach",
     console=True,  # Windows: the "keep open / close to quit" window
-    icon=None,
+    icon=str(ROOT / "packaging" / "icon.ico") if sys.platform == "win32" else None,
 )
 coll = COLLECT(exe, a.binaries, a.datas, name="MyJobCoach")
 
@@ -81,7 +81,7 @@ if sys.platform == "darwin":
     app = BUNDLE(
         coll,
         name="MyJobCoach.app",
-        icon=None,
+        icon=str(ROOT / "packaging" / "icon.icns"),
         bundle_identifier="com.myjobcoach.app",
         info_plist={
             "CFBundleName": "MyJobCoach",

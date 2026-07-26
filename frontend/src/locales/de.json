@@ -20,21 +20,21 @@
     "edit": "Bearbeiten",
     "download": "Herunterladen",
     "unsavedChange": "nicht gespeicherte Änderung",
-    "proficiency": "Proficiency",
+    "proficiency": "Sprachniveau",
     "nOfM": "{{n}} von {{max}}",
-    "reorderHint": "Ziehen oder Fokus setzen und ↑ / ↓ verwenden, um zu reorden",
+    "reorderHint": "Ziehen oder fokussieren und ↑ / ↓ verwenden, um die Reihenfolge zu ändern",
     "reorderItem": "Element {{n}} von {{total}} verschieben",
     "add": "+ Hinzufügen",
-    "removeNamed": "Entfernen {{name}}",
-    "tagLengthHint": "Halte Einträge kurz (max. {{max}} Zeichen).",
+    "removeNamed": "{{name}} entfernen",
+    "tagLengthHint": "Halten Sie Einträge kurz (max. {{max}} Zeichen).",
     "removedNamed": "{{name}} entfernt",
     "tagLimit": "Das ist die {{max}}-Eintragsbegrenzung — {{dropped}} weitere wurden nicht hinzugefügt.",
     "saved": "Gespeichert",
-    "saving": "Speicherung..."
+    "saving": "Wird gespeichert…"
   },
   "onboarding": {
     "welcome": "Willkommen bei MyJobCoach",
-    "intro": "Zwei kurze Einstellungen, und schon sind Sie startklar. Beides können Sie später in den Einstellungen ändern.",
+    "intro": "Zwei kurze Entscheidungen, und schon sind Sie startklar. Beides können Sie später in den Einstellungen ändern.",
     "back": "Zurück",
     "next": "Weiter",
     "done": "Fertig",
@@ -55,8 +55,8 @@
     "doneBody": "Weiter: Erstellen Sie Ihr Profil (importieren Sie einen vorhandenen Lebenslauf für einen schnellen Start) und fügen Sie dann Jobquellen unter Jobvorschläge hinzu.",
     "finish": "Beginnen Sie mit MyJobCoach",
     "langOtherPlaceholder": "sv, ja, ar…",
-    "langOtherDoneNote": "Wir übersetzen das Interface im Hintergrund — du kannst es in den Einstellungen verfolgen.",
-    "langTranslateFailed": "Die Übersetzung des Interfaces konnte nicht gestartet werden — du kannst es in den Einstellungen erneut versuchen.",
+    "langOtherDoneNote": "Wir übersetzen das Interface im Hintergrund — Sie können es in den Einstellungen verfolgen.",
+    "langTranslateFailed": "Die Übersetzung des Interfaces konnte nicht gestartet werden — Sie können es in den Einstellungen erneut versuchen.",
     "engineDownloadWait": "Das kann einige Minuten dauern."
   },
   "banner": {
@@ -96,18 +96,18 @@
       "adjustHelp": "Ziehen Sie das Foto (oder verwenden Sie die Pfeiltasten), um es neu zu positionieren, und verwenden Sie den Slider, die Scrollleiste oder + / −, um es zu vergrößern oder zu verkleinern. Ihr ursprüngliches Hochladen wird nie verändert.",
       "zoom": "Vergrößern",
       "resetCrop": "Framing zurücksetzen",
-      "alt": "Ihre Profilfoto",
+      "alt": "Ihr Profilfoto",
       "frameLabel": "Fotorahmen — ziehen Sie es oder verwenden Sie die Pfeiltasten, um es neu zu positionieren"
     },
     "visual": {
-      "title": "CV-Aussehen"
+      "title": "Lebenslauf-Aussehen"
     },
     "backup": {
       "title": "Sicherung & Wiederherstellung",
-      "help": "Wechseln Sie auf ein neues Rechner oder speichern Sie eine sichere Kopie Ihrer Arbeit. <b>Exportieren</b> erstellt eine einzelne <code>.zip</code>-Datei mit Ihrem Profil und Foto, Einstellungen, Stellenanzeigenquellen und -geschichte sowie allen generierten Lebensläufen. Auf dem neuen Rechner installieren Sie MyJobCoach und verwenden <b>Wiederherstellen</b>, um diese Datei zu laden.",
+      "help": "Wechseln Sie auf einen neuen Rechner oder speichern Sie eine sichere Kopie Ihrer Arbeit. <b>Exportieren</b> erstellt eine einzelne <code>.zip</code>-Datei mit Ihrem Profil und Foto, Einstellungen, Stellenanzeigenquellen und -verlauf sowie allen generierten Lebensläufen. Auf dem neuen Rechner installieren Sie MyJobCoach und verwenden <b>Wiederherstellen</b>, um diese Datei zu laden.",
       "export": "Sicherung exportieren (.zip)",
       "restore": "Aus Sicherung wiederherstellen…",
-      "confirmRestore": "Dies ersetzt Ihr Profil, Einstellungen, Arbeitsgeschichte und generierte CVs auf diesem Computer durch den Inhalt der Sicherung. Ihr API-Schlüssel bleibt erhalten. Dies kann nicht rückgängig gemacht werden.",
+      "confirmRestore": "Dies ersetzt Ihr Profil, Ihre Einstellungen, Ihren Jobverlauf und Ihre generierten Lebensläufe auf diesem Computer durch den Inhalt der Sicherung. Ihr API-Schlüssel bleibt erhalten. Dies kann nicht rückgängig gemacht werden.",
       "restored": "Sicherung wiederhergestellt – wird neu geladen…",
       "note": "Das Wiederherstellen <b>ersetzt</b> Ihr Profil, den Jobverlauf und die generierten Lebensläufe durch den Inhalt der Sicherung – es findet keine Zusammenführung statt. Ihr OpenRouter-API-Schlüssel wird nie in den Export einbezogen und beim Wiederherstellen nicht verändert.",
       "confirmTitle": "Von Sicherung wiederherstellen?",
@@ -140,9 +140,9 @@
       "extractTitle": "Jobvorschläge – Link-Extraktions-Prompt",
       "extractHelp": "Wählt aus, welche Links einer Seite echte Stellenangebote sind. Die auf der Seite gefundenen Links werden automatisch darunter eingefügt.",
       "filterTitle": "Jobvorschläge – Relevanzfilter-Prompt",
-      "filterHelp": "Beurteilt jedes neue Stellenausschreibung, indem es den vollständigen Text liest: entscheidet, ob es zu Ihnen passt und extrahiert eine kurze Zusammenfassung (Unternehmen, Ort, Lohn, Frist, Anforderungen). Die relevanten Teile Ihres Profils werden automatisch unterhalb angezeigt.",
-      "letterTitle": "Brief — Anleitungsprompt",
-      "letterHelp": "Wird beim Erstellen eines Leitfadens für eine Bewerbungsemail gesendet. Ihr Profil und die Stellenausschreibung werden automatisch unterhalb dieses Textes hinzugefügt. Dadurch entsteht ein Schablonenrahmen (3–5 Abschnitte mit den Profile-Fakten, die zitiert werden) — kein vollständiger Brieftext. <code>{lang_name}</code> wird durch die Ausgabesprache ersetzt — es muss im Prompt erhalten bleiben."
+      "filterHelp": "Beurteilt jede neue Stellenausschreibung, indem es den vollständigen Text liest: entscheidet, ob sie zu Ihnen passt, und extrahiert eine kurze Zusammenfassung (Unternehmen, Ort, Gehalt, Frist, Anforderungen). Die relevanten Teile Ihres Profils werden automatisch unterhalb angezeigt.",
+      "letterTitle": "Brief — Anleitungs-Prompt",
+      "letterHelp": "Wird beim Erstellen einer Briefanleitung gesendet. Ihr Profil und die Stellenausschreibung werden automatisch unterhalb dieses Textes hinzugefügt. Dadurch entsteht ein Schreibgerüst (3–5 Abschnitte mit den Fakten aus Ihrem Profil, die zitiert werden sollen) — kein vollständiger Brieftext. <code>{lang_name}</code> wird durch die Ausgabesprache ersetzt — es muss im Prompt erhalten bleiben."
     },
     "template": {
       "label": "Lebenslaufvorlage",
@@ -258,8 +258,8 @@
       "years": "Jahre",
       "funderOptional": "Finanzierer (optional)",
       "amountOptional": "Betrag (optional)",
-      "linkLabel": "Link {{n}} Name",
-      "linkUrl": "Link {{n}} Adresse",
+      "linkLabel": "Name von Link {{n}}",
+      "linkUrl": "Adresse von Link {{n}}",
       "monthPlaceholder": "JJJJ-MM"
     },
     "help": {
@@ -278,7 +278,7 @@
       "publications": "Für akademische/Forschungsstellen. Fügen Sie die vollständige APA-Zitation ein; die KI kann diesen Abschnitt für nicht-akademische Stellen weglassen.",
       "grants": "Für akademische/Forschungsstellen – erscheinen in der Seitenleiste des Lebenslaufs.",
       "customSections": "Fügen Sie beliebige Abschnitte für Ihr Fachgebiet hinzu – jeder wird als eigener Titelblock in Ihrem Lebenslauf dargestellt.",
-      "teaching": "Druckt sich auf Ihr CV als Liste Ihrer Lehraufgaben; die KI lässt es bei Rollen weg, bei denen es nicht relevant ist.",
+      "teaching": "Wird auf Ihrem Lebenslauf als Liste Ihrer Lehraufgaben angezeigt; die KI lässt es bei Rollen weg, bei denen es nicht relevant ist.",
       "languages": "Die Sprachen, die Sie sprechen, und wie gut — angezeigt in der Seitenleiste Ihres Lebenslaufs."
     },
     "add": {
@@ -304,13 +304,13 @@
       "addSkillPlaceholder": "Fähigkeit eingeben und Enter drücken",
       "languagePlaceholder": "Sprache",
       "scaleLegend": "★ A1 Anfänger · ★★ A2 Grundkenntnisse · ★★★ B1 Mittelstufe · ★★★★ B2/C1 Fortgeschritten · ★★★★★ C2 Muttersprache/Fließend",
-      "proficiencyIn": "Proficiency in {{language}}",
+      "proficiencyIn": "Sprachniveau in {{language}}",
       "cefr": {
         "1": "Anfänger",
         "2": "Elementar",
-        "3": "Fortgeschritten",
+        "3": "Mittelstufe",
         "4": "Fortgeschritten",
-        "5": "Heimisch / Fließend"
+        "5": "Muttersprache / Fließend"
       }
     },
     "work": {
@@ -348,8 +348,8 @@
         "other": "Andere"
       }
     },
-    "saveFailedToast": "Dein Profil konnte nicht gespeichert werden: {{error}}",
-    "needsAnswer": "Bedarf einer Antwort"
+    "saveFailedToast": "Ihr Profil konnte nicht gespeichert werden: {{error}}",
+    "needsAnswer": "Antwort erforderlich"
   },
   "preferences": {
     "title": "Job Präferenzen",
@@ -372,17 +372,17 @@
       "dealbreakersPlaceholder": "z. B. Rein administrative Arbeit, Kaltakquise, Wochenendarbeit",
       "practical": "Ist noch etwas praktisches zu überprüfen?",
       "practicalSub": "Die kleinen Details, die Sie vor dem Lesen eines Eintrags selbst beachten sollten. Lassen Sie alles, was nicht zutrifft, leer.",
-      "languagesEmpty": "Keine Sprachen auf deinem Profil noch vorhanden — füge die hinzu, in denen du arbeiten kannst, damit Stellen in anderen Sprachen ausgeschlossen werden.",
-      "languagesEdit": "Sprachen auf deinem Profil bearbeiten",
+      "languagesEmpty": "Noch keine Sprachen in Ihrem Profil vorhanden — fügen Sie die hinzu, in denen Sie arbeiten können, damit Stellen in anderen Sprachen ausgeschlossen werden.",
+      "languagesEdit": "Sprachen in Ihrem Profil bearbeiten",
       "employmentType": "Arbeitsform",
       "hours": "Stunden",
       "salary": "Lohnerwartung",
       "salaryPlaceholder": "z. B. mindestens €3.500/Monat",
       "availability": "Verfügbarkeit",
-      "availabilityPlaceholder": "z. B. ab September oder eine Monatsmiete",
+      "availabilityPlaceholder": "z. B. ab September, oder eine Kündigungsfrist von einem Monat",
       "travel": "Reise",
       "anythingElse": "Noch etwas anderes?",
-      "anythingElsePlaceholder": "z. B. keine Notrufverpflichtung, bevorzugt eine vier-tägige Woche, benötigt einen Parkplatz"
+      "anythingElsePlaceholder": "z. B. keine Rufbereitschaft, bevorzugt eine Vier-Tage-Woche, benötigt einen Parkplatz"
     },
     "suggest": {
       "admin": "Rein administrativer Arbeit",
@@ -394,21 +394,21 @@
     "doneAction": "Eine Seite hinzufügen, die überwacht wird",
     "suggestLabel": "Gängige Ausschlusskriterien — tippe eine aus, um sie hinzuzufügen",
     "doneSubReady": "Das reicht, um zu scannen zu beginnen. Nächste Schritt: Erklären Sie MyJobCoach, wo es suchen soll – fügen Sie eine Karriere-Seite hinzu, die Sie beobachten möchten.",
-    "doneSubNoRoles": "Füge mindestens einen Berufsbezeichnung in der ersten Frage hinzu — das ist das, was jede Stellenanzeige zuerst abgeglichen wird, daher findet ein Scan ohne es wenig heraus.",
+    "doneSubNoRoles": "Fügen Sie mindestens eine Berufsbezeichnung in der ersten Frage hinzu — das ist das Erste, womit jede Stellenanzeige abgeglichen wird, daher bringt ein Scan ohne sie wenig.",
     "great": {
       "impact": "Arbeit mit einem klaren sozialen oder ökologischen Einfluss",
       "autonomy": "Autonomie bei der Durchführung der Arbeit",
-      "building": "Etwas von der Grundlage bis zum Ende bauen, nicht nur beraten",
+      "building": "Etwas von Anfang bis Ende aufbauen, nicht nur beratend begleiten",
       "learning": "Ein Team, aus dem ich lernen kann"
     },
     "greatLabel": "Häufige Gründe, warum eine Stelle attraktiv ist — tippe darauf, um sie hinzuzufügen",
     "suggestTitles": {
-      "action": "Jobtitel aus deinem Profil vorschlagen",
+      "action": "Jobtitel aus Ihrem Profil vorschlagen",
       "groupLabel": "Vorgeschlagene Jobtitel — tippe darauf, um ihn hinzuzufügen",
       "arrived": "{{count}} vorgeschlagener Jobtitel",
       "arrived_other": "{{count}} vorgeschlagene Jobtitel",
-      "none": "Keine Titel eingefallen — füge mehr Details zu deinem Berufserfahrung hinzu und versuche es erneut.",
-      "needProfile": "Füge zuerst deinen Jobtitel oder einige Berufserfahrungen auf deinem Profil hinzu."
+      "none": "Keine Titel eingefallen — fügen Sie mehr Details zu Ihrer Berufserfahrung hinzu und versuchen Sie es erneut.",
+      "needProfile": "Fügen Sie zuerst Ihren Jobtitel oder etwas Berufserfahrung in Ihrem Profil hinzu."
     },
     "employment": {
       "permanent": "Dauerhaft",
@@ -520,7 +520,7 @@
     "stage": {
       "fetching": "Lese die Stellenausschreibung…",
       "thinking": "Anpassung mit KI… ",
-      "rendering": "Erstelle dein CV…"
+      "rendering": "Erstelle Ihren Lebenslauf…"
     },
     "searchPlaceholder": "Suche in Ihren Lebensläufen…",
     "noMatches": "Keine Lebensläufe passen zu Ihrer Suche.",
@@ -554,7 +554,7 @@
     "noSuggestionsTitle": "Noch keine Vorschläge",
     "noSuggestionsNoSources": "Fügen Sie oben eine Stellenbörse hinzu und suchen Sie dann nach neuen Anzeigen – passende Stellen für Ihr Profil werden hier angezeigt.",
     "noSuggestionsHasSources": "Klicken Sie auf „Neue Stellenanzeigen finden“ — passende Angebote erscheinen hier mit einer kurzen Begründung.",
-    "acceptTitle": "Erstellt ein maßgeschneidertes CV und einen Briefvorschlag für diese Stelle",
+    "acceptTitle": "Erstellt einen maßgeschneiderten Lebenslauf und einen Briefvorschlag für diese Stelle",
     "acceptGenerate": "Akzeptieren",
     "reject": "Ablehnen",
     "rejectedToast": "„{{title}}“ abgelehnt",
@@ -592,15 +592,15 @@
     "cancelScan": "Scan abbrechen",
     "clearFilters": "Filter entfernen",
     "editPreferences": "Anpassen Sie Ihre Job Präferenzen →",
-    "acceptHint": "Die Annahme erstellt ein maßgeschneidertes CV und einen Briefvorschlag für diese Stelle – dies verbraucht AI-Kredit.",
+    "acceptHint": "Die Annahme erstellt einen maßgeschneiderten Lebenslauf und einen Briefvorschlag für diese Stelle – dies verbraucht KI-Guthaben.",
     "filteredOutLabel": "Gefiltert",
     "filteredOutNone": "Noch nichts wurde gefiltert.",
-    "acceptedToast": "„{{title}}“ akzeptiert – Ihr CV und Briefvorschlag werden erstellt",
-    "acceptedQueued": "Akzeptiert – im Bereich „Anträge“ anzeigen",
+    "acceptedToast": "„{{title}}“ akzeptiert – Ihr Lebenslauf und Briefvorschlag werden erstellt",
+    "acceptedQueued": "Akzeptiert – im Bereich „Bewerbungen“ anzeigen",
     "filteredByTitle": "Durch den Titel abgelehnt – die Stellenanzeige wurde nicht gelesen.",
     "recheckNothing": "Hier kann nichts erneut geprüft werden – diese Stellen wurden durch den Titel abgelehnt, daher gibt es keinen gespeicherten Text zur Wiederbeurteilung.",
     "recheckNoneYet": "Noch nichts wurde gefiltert, daher gibt es nichts zum Überprüfen.",
-    "rejectedKeptArtifacts": "„{{title}}“ abgelehnt – CV und Brief bleiben im Bereich „Anträge“",
+    "rejectedKeptArtifacts": "„{{title}}“ abgelehnt – Lebenslauf und Brief bleiben im Bereich „Bewerbungen“",
     "digest": {
       "employer": "Unternehmen",
       "location": "Ort",
@@ -609,7 +609,7 @@
       "salary": "Gehalt",
       "deadline": "Frist"
     },
-    "aiCaveat": "Von AI geschrieben — lesen Sie das Original, bevor Sie eine Entscheidung treffen.",
+    "aiCaveat": "Von der KI aus der Stellenanzeige geschrieben — lesen Sie das Original, bevor Sie sich entscheiden.",
     "phase": {
       "links": "Lesen von Einträgen aus {{source}}…",
       "openings": "Suchen nach Stellen auf {{source}}…",
@@ -617,7 +617,7 @@
     },
     "cancelling": "Abbrechen…",
     "rejectModalTitle": "Diesen Eintrag ablehnen",
-    "rejectModalHelp": "Optional: Erkläre dem Assistenten, warum. Er verwendet deine Akzeptanz- und Ablehnungsentscheidungen, um zukünftige Einträge besser zu filtern — aber du kannst einfach ablehnen.",
+    "rejectModalHelp": "Optional: Erklären Sie dem Assistenten, warum. Er verwendet Ihre Annahmen und Ablehnungen, um zukünftige Einträge besser zu filtern — Sie können aber auch einfach ablehnen.",
     "rejectModalLabel": "Warum lehnen Sie es ab? (optional)",
     "rejectModalPlaceholder": "z. B. zu senior, falsche Location, zu wenig praktische Arbeit…",
     "match": "Passen",
@@ -665,23 +665,23 @@
     "aiSummary": "KI-Zusammenfassung",
     "bulletsCount": "{{count}}/4 Stichpunkte",
     "bulletPlaceholder": "Stichpunkt…",
-    "editingUnavailable": "Dieses CV hat noch keinen editierbaren Plan – verwenden Sie <b>Editierbares CV aus Ausschreibung erstellen</b>, um einen zu erstellen.",
-    "regenDone": "CV neu angepasst.",
+    "editingUnavailable": "Dieser Lebenslauf hat noch keinen editierbaren Plan – verwenden Sie <b>Editierbaren Lebenslauf aus Ausschreibung erstellen</b>, um einen zu erstellen.",
+    "regenDone": "Lebenslauf neu angepasst.",
     "updateWithAi": "Mit KI aktualisieren…",
-    "rebuildFromUrl": "Editierbares CV aus Ausschreibung erstellen",
+    "rebuildFromUrl": "Editierbaren Lebenslauf aus Ausschreibung erstellen",
     "preparingPdf": "PDF vorbereiten…",
     "pdfError": "PDF konnte nicht erstellt werden: {{error}}",
     "refreshPreviewTip": "Lade die Voransicht neu mit Ihrem neuesten Profil und Design",
     "sectionsTitle": "Abschnitte",
     "aiLeftOut": "Von der KI ausgelassen",
     "restoreTip": "Diesen Abschnitt wieder im Lebenslauf anzeigen",
-    "emphasisedSkills": "Fähigkeiten, die vom AI hervorgehoben wurden",
+    "emphasisedSkills": "Fähigkeiten, die von der KI hervorgehoben wurden",
     "saving": "Speichere…",
     "saved": "Gespeichert",
     "saveError": "Speichern fehlgeschlagen",
     "aiNeedsUrl": "Keine Job-URL gespeichert, daher kann die KI den Job-Auszug nicht erneut lesen",
     "sectionsShownCount": "{{shown}} von {{total}} angezeigt",
-    "aiCaveat": "Dies wurde von AI aus Ihrem Profil erstellt. Prüfen Sie jede Zeile, bevor Sie es senden — es kann Dinge überbewerten oder erfunden haben."
+    "aiCaveat": "Dies wurde von der KI aus Ihrem Profil erstellt. Prüfen Sie jede Zeile, bevor Sie es senden — sie kann Dinge übertreiben oder erfinden."
   },
   "engine": {
     "title": "KI-Engine",
@@ -771,13 +771,13 @@
     "generic": {
       "title": "Allgemeine Bewerbung",
       "subtitle": "keine spezifische Aufstellung",
-      "explainer": "Ein Leitfaden für Lebenslauf und Zusage, der auf die Stellen abgestimmt ist, für die Sie keine konkrete Stellenausschreibung haben — zum Netzwerken, spekulativen Ansatz oder zum Ausgeben. Ein Klick erstellt beide.",
+      "explainer": "Ein Lebenslauf und eine Briefanleitung, zugeschnitten auf die Rollen, die Sie anstreben, für den Fall, dass Sie keine konkrete Stellenanzeige zur Hand haben — Networking, ein initiativer Ansatz oder etwas zum Weitergeben. Ein Klick erstellt beide.",
       "create": "Allgemeine Bewerbung erstellen",
       "needs": "Um dies zu erstellen, fügen Sie zuerst ",
       "and": " und ",
       "missing": {
-        "target_roles": "die Stellen, die Sie ansprechen möchten",
-        "experience": "mindestens eine Rolle aus Ihrer Berufsgeschichte"
+        "target_roles": "die Stellen, die Sie anstreben",
+        "experience": "mindestens eine Position in Ihrer Berufserfahrung"
       }
     },
     "regenLetter": "Leitfaden erneuern"
@@ -793,12 +793,12 @@
     "deletedToast": "Anleitung für „{{title}}“ gelöscht",
     "explainer": {
       "headline": "Dieses Tool schreibt Ihren Brief nicht — das ist der Punkt.",
-      "body": "Ein Brief funktioniert nur, wenn er in Ihren eigenen Worten geschrieben ist; von der KI verfasste Briefe werden von Recruitern zunehmend aussortiert.",
+      "body": "Ein Brief funktioniert nur, wenn er in Ihren eigenen Worten geschrieben ist; von der KI verfasste Briefe werden von Recruitern zunehmend aussortiert. Stattdessen erhalten Sie einen maßgeschneiderten Plan: was Sie sagen sollten, in welcher Reihenfolge, und welche Teile Ihres Profils Sie als Beleg nutzen können. Das Schreiben bleibt Ihre eigene Aufgabe.",
       "tips": [
-        "Adresse einen echten Person — finde den Namen des Personalmanagers; andernfalls: „Sehr geehrte Rekrutierungs-Team“.",
-        "Messen Sie den Einfluss: nennen Sie das konkrete Ergebnis, nicht nur die Aufgabe.",
+        "Wenden Sie sich an eine echte Person — finden Sie den Namen der Personalverantwortlichen heraus; andernfalls „Sehr geehrtes Recruiting-Team“.",
+        "Quantifizieren Sie Ihre Wirkung: Nennen Sie das konkrete Ergebnis, nicht nur die Aufgabe.",
         "Halten Sie es auf ca. 250–350 Wörter auf einer Seite.",
-        "Passen Sie dem Ton des Unternehmens an und schreiben Sie in der Sprache der Stellenausschreibung."
+        "Passen Sie sich dem Ton des Unternehmens an und schreiben Sie in der Sprache der Stellenausschreibung."
       ]
     },
     "guide": {
@@ -817,7 +817,7 @@
   },
   "about": {
     "title": "Über MyJobCoach",
-    "description": "Ein künstliche Intelligenz-basierter Assistent, der maßgeschneiderte Lebenslauf- und Bewerbungsschreiben-Anleitungen erstellt und passende Stellenangebote enthält.",
+    "description": "Ein KI-basierter Assistent, der maßgeschneiderte Lebensläufe und Anleitungen für Bewerbungsschreiben erstellt und passende Stellenangebote findet.",
     "version": "Version {{version}}",
     "copyright": "© 2026 Fabrice Luyckx",
     "license": "Freie Software unter der <lic>GNU AGPL v3</lic>. <src>Quellcode ansehen</src>."

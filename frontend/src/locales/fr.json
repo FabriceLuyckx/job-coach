@@ -104,13 +104,13 @@
     },
     "backup": {
       "title": "Sauvegarde & Restauration",
-      "help": "Déplacez-vous sur un nouveau ordinateur ou enregistrez une copie de sécurité de vos données. <b>Exporter</b> télécharge un seul <code>.zip</code> contenant votre profil et votre photo, vos paramètres, vos sources d'offres d'emploi et votre historique, ainsi que tous les CV générés. Sur la nouvelle machine, installez MyJobCoach et utilisez <b>Restaurer</b> pour charger ce fichier.",
+      "help": "Déplacez-vous sur un nouvel ordinateur ou enregistrez une copie de sécurité de vos données. <b>Exporter</b> télécharge un seul <code>.zip</code> contenant votre profil et votre photo, vos paramètres, vos sources d'offres d'emploi et votre historique, ainsi que tous les CV générés. Sur la nouvelle machine, installez MyJobCoach et utilisez <b>Restaurer</b> pour charger ce fichier.",
       "export": "Exporter la sauvegarde (.zip)",
       "restore": "Restaurer depuis une sauvegarde…",
-      "confirmRestore": "Cela remplace votre profil, vos paramètres, votre historique de poste et vos CV générés sur cet ordinateur par le contenu du sauvegarde. Votre clé API est conservée. Cette action ne peut pas être annulée.",
+      "confirmRestore": "Cela remplace votre profil, vos paramètres, votre historique de poste et vos CV générés sur cet ordinateur par le contenu de la sauvegarde. Votre clé API est conservée. Cette action ne peut pas être annulée.",
       "restored": "Sauvegarde restaurée — rechargement…",
       "note": "La restauration <b>remplace</b> votre profil, votre historique d'offres et vos CV générés par le contenu de la sauvegarde — sans fusion. Votre clé API OpenRouter n'est jamais incluse dans l'export et reste intacte lors de la restauration.",
-      "confirmTitle": "Restaurer à partir d'un sauvegarde ?",
+      "confirmTitle": "Restaurer à partir d'une sauvegarde ?",
       "confirmButton": "Remplacer mes données"
     },
     "language": {
@@ -256,10 +256,10 @@
       "educationDescriptionOptional": "Remarques (optionnelles)",
       "educationDescriptionPlaceholder": "Sujet de mémoire, spécialisation ou cours pertinent pour les postes que vous souhaitez",
       "years": "Années",
-      "funderOptional": "Financier (optionnel)",
+      "funderOptional": "Organisme financeur (optionnel)",
       "amountOptional": "Montant (optionnel)",
-      "linkLabel": "Lier le nom {{n}}",
-      "linkUrl": "Lier l'adresse {{n}}",
+      "linkLabel": "Nom du lien {{n}}",
+      "linkUrl": "Adresse du lien {{n}}",
       "monthPlaceholder": "YYYY-MM"
     },
     "help": {
@@ -356,7 +356,7 @@
     "help": "Répondez à ce que vous pouvez — MyJobCoach compare chaque nouvelle offre d'emploi à ces informations. Rien de ce qui est indiqué ici ne figure sur votre CV ; ces données sont envoyées à votre moteur d'IA chaque fois qu'il lit une offre.",
     "q": {
       "roles": "Quels titres de poste devons-nous surveiller ?",
-      "rolesSub": "Ajoutez chaque titre que vous seriez prêt à postuler, y compris les variantes et les traductions. C'est la première chose que le lecteur vérifie dans une offre.",
+      "rolesSub": "Ajoutez tout intitulé auquel vous postuleriez vraiment, y compris les variantes et les traductions. C'est la première chose que le scanner vérifie sur une offre.",
       "rolesPlaceholder": "ex. Data Scientist — appuyez sur Entrée pour l'ajouter",
       "where": "Où — et comment — souhaitez-vous travailler ?",
       "whereSub": "Les offres en dehors de ces lieux, langues ou styles de travail sont filtrées.",
@@ -369,17 +369,17 @@
       "greatPlaceholder": "ex. Un travail centré sur la recherche où je peux construire des produits de données de bout en bout, idéalement avec un impact social",
       "dealbreakers": "Quels critères éliminent un emploi ?",
       "dealbreakersSub": "Même si le titre correspond. Les offres qui touchent l'un de ces critères sont ignorées.",
-      "dealbreakersPlaceholder": "ex. Travail purement administratif, acquisition froide, shifts le week-end",
-      "practical": "N'oubliez pas les points pratiques à vérifier ?",
-      "practicalSub": "Les conditions spéciales à relire avant de lire un offre vous-même. Laissez les champs inactifs vides.",
+      "dealbreakersPlaceholder": "ex. Travail purement administratif, démarchage à froid, horaires de week-end",
+      "practical": "Y a-t-il des points pratiques à vérifier ?",
+      "practicalSub": "Les petits détails à repérer avant même de lire l'offre. Laissez vide ce qui ne s'applique pas.",
       "languagesEmpty": "Aucune langue sur votre profil encore — ajoutez les langues dans lesquelles vous pouvez travailler afin de filtrer les offres dans d'autres langues.",
       "languagesEdit": "Modifier les langues de votre Profil",
       "employmentType": "Type d'emploi",
       "hours": "Heures",
-      "salary": "Expectative salariale",
+      "salary": "Prétention salariale",
       "salaryPlaceholder": "par ex. au moins €3 500/mois",
       "availability": "Disponibilité",
-      "availabilityPlaceholder": "par ex. à partir de septembre, ou une mois de préavis",
+      "availabilityPlaceholder": "par ex. à partir de septembre, ou un mois de préavis",
       "travel": "Voyages",
       "anythingElse": "Autre chose ?",
       "anythingElsePlaceholder": "par ex. pas de garde de nuit, préfère un week-end de quatre jours, a besoin d'un parking"
@@ -399,7 +399,7 @@
       "impact": "Travailler avec un impact social ou environnemental clair",
       "autonomy": "Autonomie sur la manière de faire le travail",
       "building": "Construire quelque chose de bout en bout, et non pas seulement conseiller",
-      "learning": "Un équipe dont je peux continuer à apprendre"
+      "learning": "Une équipe dont je peux continuer à apprendre"
     },
     "greatLabel": "Raisons courantes pour lesquelles un poste attire — touchez-en une pour l'ajouter",
     "suggestTitles": {
@@ -407,7 +407,7 @@
       "groupLabel": "Titres suggérés — touchez-en un pour l'ajouter",
       "arrived": "{{count}} titre de poste suggéré",
       "arrived_other": "{{count}} titres de poste suggérés",
-      "none": "Je n'ai pas pu penser à aucun titre — ajoutez plus de détails sur votre expérience et réessayez.",
+      "none": "Aucun titre ne m'est venu à l'esprit — ajoutez plus de détails sur votre expérience et réessayez.",
       "needProfile": "Ajoutez d'abord votre titre de poste ou une expérience professionnelle sur votre Profil."
     },
     "employment": {
@@ -573,7 +573,7 @@
     "recheckNone": "Aucun emploi filtré ne correspond à vos préférences d'emploi actuelles",
     "profileChanged": "Votre profil a changé depuis la dernière recherche — vérifiez à nouveau les emplois filtrés pour l'appliquer.",
     "checkTitle": "Vérifier un emploi spécifique",
-    "checkHelp": "Vous avez trouvé un poste ailleurs ? Collez son URL pour le juger selon votre profil — comme une recherche automatique.",
+    "checkHelp": "Vous avez trouvé un poste ailleurs ? Collez son URL pour le juger selon votre profil — comme le ferait une analyse.",
     "checkAria": "URL du poste à vérifier",
     "check": "Vérifier ce poste",
     "checkMatch": "C'est un match — ajouté à vos suggestions.",
@@ -595,12 +595,12 @@
     "acceptHint": "L'acceptation crée un CV et un guide de lettre de motivation personnalisés pour ce poste — cela utilise des crédits AI.",
     "filteredOutLabel": "Filtré",
     "filteredOutNone": "Rien n'a encore été filtré.",
-    "acceptedToast": "Accepté «{{title}}» — création de votre CV et de votre guide de lettre de motivation",
+    "acceptedToast": "Accepté « {{title}} » — création de votre CV et de votre guide de lettre de motivation",
     "acceptedQueued": "Accepté — consultez-le dans les Candidatures",
     "filteredByTitle": "Écarté par son titre — le poste n'a pas été lu.",
     "recheckNothing": "Rien ici ne peut être réévalué — ces postes ont été écartés par titre, donc aucun texte du poste n'est enregistré pour être réexaminé.",
     "recheckNoneYet": "Rien n'a encore été filtré, il n'y a donc rien à réexaminer.",
-    "rejectedKeptArtifacts": "Rejeté «{{title}}» — son CV et sa lettre restent dans les Candidatures",
+    "rejectedKeptArtifacts": "Rejeté « {{title}} » — son CV et sa lettre restent dans les Candidatures",
     "digest": {
       "employer": "Entreprise",
       "location": "Lieu",
@@ -705,7 +705,7 @@
       "onDisk": "Téléchargé",
       "useModel": "Utiliser ce modèle",
       "nowUsing": "Utilisation actuelle de {{model}}.",
-      "sizeRam": "{{size}} téléchargement · {{ram}} GB de RAM",
+      "sizeRam": "{{size}} à télécharger · {{ram}} Go de RAM",
       "listFailed": "Impossible de charger la liste des modèles : {{error}}",
       "progressLabelFor": "Progression du téléchargement pour {{model}}",
       "customLabel": "Ajouter un modèle par URL",
@@ -795,7 +795,7 @@
       "headline": "Cet outil ne rédige pas votre lettre — et c'est voulu.",
       "body": "Une lettre de motivation ne fonctionne que si elle est écrite par vous-même ; les recruteurs rejettent de plus en plus les lettres générées par l'IA. Vous obtenez au contraire un plan adapté : ce qu'il faut dire, dans quel ordre, et quelles parties de votre profil utiliser comme preuves. L'écriture reste à vous.",
       "tips": [
-        "Adressez une personne réelle — trouvez le nom du responsable recrutement ; sinon, utilisez « Cher équipe recruteurs ». ",
+        "Adressez-vous à une personne réelle — trouvez le nom du responsable du recrutement ; sinon, « Madame, Monsieur, ».",
         "Quantifiez l'impact : nommez le résultat concret, et non seulement la tâche.",
         "Restez à environ 250 à 350 mots sur une seule page.",
         "Adaptez le ton de l'entreprise et rédigez dans le langage de l'offre."

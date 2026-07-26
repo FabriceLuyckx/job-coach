@@ -29,8 +29,8 @@
     "tagLengthHint": "Mantenha as entradas curtas ({{max}} caracteres máximo).",
     "removedNamed": "Removido {{name}}",
     "tagLimit": "É o limite de {{max}} entradas — {{dropped}} mais não foram adicionados.",
-    "saved": "Salvo",
-    "saving": "Salvando…"
+    "saved": "Guardado",
+    "saving": "A guardar…"
   },
   "onboarding": {
     "welcome": "Bem-vindo ao MyJobCoach",
@@ -93,11 +93,11 @@
       "removed": "Foto removida",
       "includeByDefault": "Incluir foto nos novos CVs por predefinição",
       "adjustTitle": "Ajustar foto",
-      "adjustHelp": "Arraste a foto (ou use as teclas de seta) para repositioná-la, e use o slide, rolagem ou + / − para zoom. A sua versão original não é alterada.",
+      "adjustHelp": "Arraste a foto (ou use as teclas de seta) para reposicioná-la, e use o cursor, roda do rato ou + / − para zoom. A sua versão original não é alterada.",
       "zoom": "Ampliação",
       "resetCrop": "Repor recorte",
       "alt": "Sua foto de perfil",
-      "frameLabel": "Ajuste da foto — arraste ou use as teclas de seta para repositionar"
+      "frameLabel": "Ajuste da foto — arraste ou use as teclas de seta para reposicionar"
     },
     "visual": {
       "title": "Aparência do CV"
@@ -142,7 +142,7 @@
       "filterTitle": "Sugestões de Emprego — prompt de filtro de relevância",
       "filterHelp": "Avalia cada novo anúncio lendo a publicação completa: decide se é adequado para si e extrai um resumo curto (empregador, localização, salário, prazo, requisitos). As partes relevantes do seu perfil são adicionadas automaticamente abaixo.",
       "letterTitle": "Carta de apresentação — prompt de guia",
-      "letterHelp": "Enviado quando se cria um guia para carta de apresentação. Seu perfil e o anúncio de emprego são adicionados automaticamente abaixo. Isso gera um esqueleto de escrita (3–5 seções com os fatos do perfil para citar) — a carta nunca é finalizada. <code>{lang_name}</code> é substituído pela linguagem de saída — deve permanecer no prompt."
+      "letterHelp": "Enviado quando se cria um guia para carta de apresentação. Seu perfil e o anúncio de emprego são adicionados automaticamente abaixo. Isso gera um esqueleto de escrita (3–5 secções com os factos do perfil para citar) — a carta nunca é finalizada. <code>{lang_name}</code> é substituído pela linguagem de saída — deve permanecer no prompt."
     },
     "template": {
       "label": "Modelo de CV",
@@ -348,7 +348,7 @@
         "other": "Outro"
       }
     },
-    "saveFailedToast": "Não foi possível salvar seu perfil: {{error}}",
+    "saveFailedToast": "Não foi possível guardar o seu perfil: {{error}}",
     "needsAnswer": "Precisa de uma resposta"
   },
   "preferences": {
@@ -440,7 +440,7 @@
       "description": "Uma breve apresentação exibida no topo do seu CV."
     },
     "experience": {
-      "label": "Carrer",
+      "label": "Percurso profissional",
       "description": "As suas funções e o que fez em cada uma."
     },
     "skills": {
@@ -511,7 +511,7 @@
     "generationFailed": "Geração falhou",
     "generationFailedRestart": "Geração falhou — o servidor pode ter reiniciado. Verifique a lista de histórico abaixo.",
     "fetchingListing": "A obter anúncio de emprego…",
-    "tailoring": "Adaptando CV com IA…",
+    "tailoring": "A adaptar o CV com IA…",
     "starting": "A iniciar…",
     "deleteCv": "Excluir CV de {{title}}",
     "deletedToast": "CV excluído para “{{title}}”",
@@ -519,13 +519,13 @@
     "undo": "Desfazer",
     "stage": {
       "fetching": "A ler a oferta de emprego…",
-      "thinking": "Ajustando com IA…",
+      "thinking": "A ajustar com IA…",
       "rendering": "A construir o seu CV…"
     },
     "searchPlaceholder": "Procure os seus CVs…",
     "noMatches": "Nenhum CV corresponde à sua busca.",
     "autoDetect": "Detecção automática",
-    "detectingLang": "Detectando idioma…"
+    "detectingLang": "A detetar idioma…"
   },
   "jobs": {
     "title": "Sugestões de Emprego",
@@ -560,7 +560,7 @@
     "rejectedToast": "\"{{title}}\" rejeitado",
     "undo": "Desfazer",
     "history": "Histórico",
-    "accepted": "Aceito",
+    "accepted": "Aceite",
     "rejected": "Rejeitado",
     "restore": "Restaurar",
     "openCv": "Abrir candidatura",
@@ -595,12 +595,12 @@
     "acceptHint": "Aceitar cria um CV personalizado e um guia de carta de apresentação para esse emprego — isso utiliza créditos de IA.",
     "filteredOutLabel": "Filtrado",
     "filteredOutNone": "Nada foi filtrado até agora.",
-    "acceptedToast": "Aceito “{{title}}” — está sendo construído seu CV e guia de carta de apresentação",
-    "acceptedQueued": "Aceito — veja no Aplicativos",
+    "acceptedToast": "Aceite “{{title}}” — está a ser construído o seu CV e guia de carta de apresentação",
+    "acceptedQueued": "Aceite — veja em Candidaturas",
     "filteredByTitle": "Filtrado por título — o anúncio não foi lido.",
-    "recheckNothing": "Nada aqui pode ser reavaliado — foram filtrados por título, então não há texto do anúncio salvo para reavaliar.",
+    "recheckNothing": "Nada aqui pode ser reavaliado — foram filtrados por título, então não há texto do anúncio guardado para reavaliar.",
     "recheckNoneYet": "Nada foi filtrado até agora, então não há nada para reavaliar.",
-    "rejectedKeptArtifacts": "Rejeitado “{{title}}” — seu CV e carta de apresentação permanecem nos Aplicativos",
+    "rejectedKeptArtifacts": "Rejeitado “{{title}}” — o seu CV e carta de apresentação continuam em Candidaturas",
     "digest": {
       "employer": "Empregador",
       "location": "Localização",
@@ -611,22 +611,22 @@
     },
     "aiCaveat": "Escrito por IA a partir do anúncio — leia o original antes de decidir.",
     "phase": {
-      "links": "Lendo listagens do {{source}}…",
-      "openings": "Encontrando vagas no {{source}}…",
-      "filter": "Selecionando candidatos do {{source}}…"
+      "links": "A ler listagens de {{source}}…",
+      "openings": "A encontrar vagas em {{source}}…",
+      "filter": "A selecionar candidatos de {{source}}…"
     },
-    "cancelling": "Cancelando…",
+    "cancelling": "A cancelar…",
     "rejectModalTitle": "Rejeitar esta vaga",
     "rejectModalHelp": "Opcionalmente, diga ao assistente por que está rejeitando. Ele usa suas aceitações e rejeições para filtrar melhor as vagas futuras — mas você pode simplesmente rejeitar.",
     "rejectModalLabel": "Por que está rejeitando? (opcional)",
-    "rejectModalPlaceholder": "por exemplo: demasiado senário, localização errada, pouca atividade prática...",
+    "rejectModalPlaceholder": "por exemplo: demasiado sénior, localização errada, pouca atividade prática…",
     "match": "Correspondência",
     "reasonLabel": "Motivo:"
   },
   "cveditor": {
     "sections": {
       "summary": "Resumo",
-      "experience": "Carrer",
+      "experience": "Percurso profissional",
       "publications": "Publicações",
       "links": "Links",
       "skills": "Competências",
@@ -641,7 +641,7 @@
       "awards": "Prémios",
       "memberships": "Associações",
       "volunteering": "Voluntariado",
-      "custom_sections": "Seções personalizadas"
+      "custom_sections": "Secções personalizadas"
     },
     "retailorTitle": "Readaptar com IA",
     "retailorPrompt": "Executar novamente a IA para a versão <b>{{lang}}</b>. Manter o resumo e os pontos editados, ou começar do zero?",
@@ -651,8 +651,8 @@
     "tailoringNotes": "Notas de Personalização",
     "openNewTab": "Abrir em nova aba",
     "cvPreview": "Pré-visualização do CV",
-    "regeneratingCv": "Regenerando CV…",
-    "reRunningNote": "Executando a IA novamente — isso leva cerca de 30 segundos.",
+    "regeneratingCv": "A regenerar CV…",
+    "reRunningNote": "A executar a IA novamente — isso leva cerca de 30 segundos.",
     "downloadPdf": "Transferir PDF",
     "photoDisabled": "A secção <b>Foto</b> está desativada porque nenhuma foto está cadastrada. ",
     "addPhotoLink": "Adicione uma foto nas Configurações",
@@ -669,10 +669,10 @@
     "regenDone": "CV reajustado.",
     "updateWithAi": "Atualizar com IA…",
     "rebuildFromUrl": "Construir CV editável a partir da vaga",
-    "preparingPdf": "Preparando PDF…",
+    "preparingPdf": "A preparar PDF…",
     "pdfError": "Não foi possível construir o PDF: {{error}}",
     "refreshPreviewTip": "Recarregue a pré-visualização com o seu perfil e design mais recentes",
-    "sectionsTitle": "Seções",
+    "sectionsTitle": "Secções",
     "aiLeftOut": "Omitido pela IA",
     "restoreTip": "Coloque esta secção de volta no CV",
     "emphasisedSkills": "Habilidades destacadas pelo IA",
@@ -699,10 +699,10 @@
       "confirmDelete": "Excluir {{model}}? Isso remove o arquivo {{size}} do seu computador. Você pode baixá-lo novamente mais tarde.",
       "confirmForce": "{{msg}}",
       "forceTitle": "Memória insuficiente?",
-      "downloadAnyway": "Baixar de qualquer forma",
+      "downloadAnyway": "Transferir de qualquer forma",
       "pickModel": "Escolha um modelo",
       "inUse": "Em uso",
-      "onDisk": "Baixado",
+      "onDisk": "Transferido",
       "useModel": "Use este modelo",
       "nowUsing": "Agora usando {{model}}.",
       "sizeRam": "{{size}} download · {{ram}} GB RAM",
@@ -751,7 +751,7 @@
     "noLetterYet": "Ainda não há guia de carta para este emprego.",
     "createCv": "Gerar CV",
     "createLetter": "Criar guia de carta",
-    "noUrl": "Este item não tem URL do emprego salvo, portanto nada mais pode ser gerado para ele.",
+    "noUrl": "Este item não tem URL do emprego guardado, portanto nada mais pode ser gerado para ele.",
     "deleteApp": "Excluir candidatura de {{title}}",
     "deleteLetter": "Excluir este guia de carta",
     "deletedToast": "Candidatura excluída para \"{{title}}\"",
@@ -761,7 +761,7 @@
     "searchPlaceholder": "Pesquisar as suas candidaturas…",
     "noMatches": "Nenhuma candidatura corresponde à sua pesquisa.",
     "loadError": "Não foi possível carregar as suas candidaturas: {{error}}",
-    "changingLang": "Mudando o idioma…",
+    "changingLang": "A mudar o idioma…",
     "slowLocalHint": "No modelo local gratuito isso pode levar alguns minutos. Cancelar interrompe a geração e libera a IA para outras tarefas.",
     "tabExists": "{{name}} — criado",
     "tabMissing": "{{name}} — ainda não criado",
