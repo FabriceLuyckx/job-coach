@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.3.0](https://github.com/FabriceLuyckx/job-coach/compare/v0.2.0...v0.3.0) (2026-07-26)
+
+
+### Features
+
+* add About modal and automated release versioning ([e60a2b2](https://github.com/FabriceLuyckx/job-coach/commit/e60a2b28c8d606d5c568ef91e80b95a00808fe95))
+* add app icon (favicon, macOS .icns, Windows .ico) and refine nav logo styling ([fa9be0f](https://github.com/FabriceLuyckx/job-coach/commit/fa9be0fe4b586b57a23f986fd9cb68eb9c4095c1))
+* **update:** add guarded in-app self-updater ([6e121f4](https://github.com/FabriceLuyckx/job-coach/commit/6e121f4da68d6f6cb0319756596f46caaec092f4))
+
+
+### Bug Fixes
+
+* **ci:** pin release-please target branch to stable ([61db502](https://github.com/FabriceLuyckx/job-coach/commit/61db502bc87d6996a661324c485d7d94830755e7))
+* **packaging:** bundle app version metadata and local AI engine in desktop build ([058f25e](https://github.com/FabriceLuyckx/job-coach/commit/058f25e378512e85025c282e36f5bbcf3556d974))
+* surface the user's own reject reason in Job Suggestions History, separate verdict reason from summary ([41f2217](https://github.com/FabriceLuyckx/job-coach/commit/41f2217a9203911d28a81bdeb7acde08e0a8075a))
+
+
+### Documentation
+
+* add contribution workflow, PR template, and bug report issue template ([994345e](https://github.com/FabriceLuyckx/job-coach/commit/994345e94292e13ed877575aa7cca7dfade13b3e))
+
 ## [0.2.0](https://github.com/FabriceLuyckx/job-coach/compare/v0.1.0...v0.2.0) (2026-07-26)
 
 
