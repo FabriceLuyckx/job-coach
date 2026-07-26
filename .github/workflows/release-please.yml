@@ -15,16 +15,31 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
       - uses: googleapis/release-please-action@v4
+        id: release
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
           target-branch: stable
+
+      - name: Build the binaries for the new tag
+        # The tag above is pushed with GITHUB_TOKEN, and GitHub never fires a
+        # `push` workflow trigger for token-made events — so release.yml's
+        # `on: push: tags` cannot see it (v0.3.1 shipped with no binaries this
+        # way). workflow_dispatch is one of the two events exempt from that
+        # rule, so dispatch it explicitly against the tag ref.
+        if: steps.release.outputs.release_created == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run release.yml --repo "$GITHUB_REPOSITORY" \
+            --ref "${{ steps.release.outputs.tag_name }}"
 
       - name: Auto-merge the release PR
         env:
@@ -36,3 +51,19 @@ jobs:
           if [ -n "$pr" ]; then
             gh pr merge "$pr" --repo "$GITHUB_REPOSITORY" --auto --merge
           fi
+
+      - name: Sync the version bump back to main
+        # release-please only ever bumps pyproject.toml on `stable`, and nothing
+        # carries that commit back — so `main` kept reporting the previous
+        # version from GET /api/version. Back-merge stable into main on every
+        # release. It goes through a PR because main is protection-gated;
+        # `gh pr create` fails harmlessly when last release's PR is still open.
+        if: steps.release.outputs.release_created == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr create --repo "$GITHUB_REPOSITORY" --base main --head stable \
+            --title "chore: sync ${{ steps.release.outputs.tag_name }} back to main" \
+            --body "Automated back-merge so \`main\` carries the released version." \
+            || echo "back-merge PR already open"
+          gh pr merge stable --repo "$GITHUB_REPOSITORY" --merge

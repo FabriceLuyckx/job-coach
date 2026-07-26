@@ -646,9 +646,19 @@ That PR **auto-merges itself** — a second step in the same workflow finds the 
 `release-please--branches--stable` PR and calls `gh pr merge --auto`, so promoting
 `main` → `stable` (still a manual, reviewed PR) is the only human step in the whole
 release; the version bump is never a separate click. Merging it tags `vX.Y.Z` and
-creates the GitHub Release with notes; the tag then triggers the **binaries-only**
-`release.yml` (unchanged, `v*`-triggered), whose `action-gh-release` step **upserts**
-the `.dmg`/`.zip` onto that same release (no duplicate). A `commit-msg` hook
+creates the GitHub Release with notes; release-please then **dispatches** the
+binaries-only `release.yml` against that tag, whose `action-gh-release` step
+**upserts** the `.dmg`/`.zip` onto that same release (no duplicate). The dispatch
+is not decoration: `release.yml`'s `on: push: tags` **cannot** fire here, because
+GitHub never triggers a `push` workflow for a tag pushed with `GITHUB_TOKEN` — so
+every automated release shipped with zero binaries until v0.3.1 made it obvious.
+`workflow_dispatch` is one of the two events exempt from that rule, hence
+`gh workflow run release.yml --ref <tag>` (the tag trigger stays for hand-pushed
+tags). A final step **back-merges `stable` → `main`** via PR, because
+release-please bumps `pyproject.toml` on `stable` only and nothing carried it
+back — leaving `main` (and its `GET /api/version`) a release behind. `uv.lock`'s
+root-package version is deliberately *not* synced by CI; uv re-locks it on the
+next `uv run`. A `commit-msg` hook
 (`scripts/hooks/`, under the existing
 `core.hooksPath`) **warns but never blocks** on non-conventional subjects so the
 bump signal stays healthy.
