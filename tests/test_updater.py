@@ -5,7 +5,9 @@
 download-URL pinning, and every install-refusal precondition. The swap itself is
 verified manually against real builds (see the change's design.md)."""
 
+import shutil
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -145,6 +147,22 @@ def test_no_blocker_for_writable_install(monkeypatch, tmp_path):
     monkeypatch.setattr(sys, "platform", "darwin")
     monkeypatch.setattr(sys, "executable", str(exe))
     assert updater.install_blocker() is None
+
+
+# --- _stage (Windows zip layout) -----------------------------------------------
+
+def test_stage_windows_unwraps_folder(monkeypatch, tmp_path):
+    # release.yml zips the MyJobCoach folder itself (not just its contents), so
+    # a fresh install and a self-update extract the same shape.
+    src = tmp_path / "MyJobCoach"
+    src.mkdir()
+    (src / "MyJobCoach.exe").write_text("exe")
+    archive = shutil.make_archive(str(tmp_path / "release"), "zip", root_dir=tmp_path, base_dir="MyJobCoach")
+
+    monkeypatch.setattr(sys, "platform", "win32")
+    monkeypatch.setattr(updater, "UPDATES_DIR", tmp_path / "updates")
+    staged = updater._stage(Path(archive))
+    assert (staged / "MyJobCoach.exe").exists()
 
 
 # --- check_for_update ---------------------------------------------------------

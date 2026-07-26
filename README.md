@@ -13,7 +13,8 @@ For non-technical users. Grab the latest build from the
 
 - **macOS** — download `MyJobCoach-macos.dmg`, open it, drag **MyJobCoach** into
   Applications, then launch it.
-- **Windows** — download `MyJobCoach-windows.zip`, unzip it anywhere, and run
+- **Windows** — download `MyJobCoach-windows.zip`, unzip it anywhere (you'll get a
+  `MyJobCoach` folder — keep it together), then open the folder and run
   `MyJobCoach.exe` (keep the small window it opens — closing it quits the app).
 
 The app opens in your default browser. On **first launch** it downloads a PDF
