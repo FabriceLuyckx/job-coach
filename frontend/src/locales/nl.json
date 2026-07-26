@@ -847,7 +847,7 @@
       "staging": "Voorbereiden van de update...",
       "restarting": "Herstarten om de update te voltooien... De app zal automatisch opnieuw openen.",
       "checkFailed": "De updatecontrole is mislukt: {{reason}}",
-      "notInstallable": "Deze release heeft nog geen download voor uw platform.",
+      "notInstallable": "De installer voor deze release wordt nog gebouwd — controleer opnieuw over een paar minuten.",
       "refused": "Deze installatie kan zichzelf niet updaten: {{reason}}",
       "error": "De update is mislukt: {{error}} Geen wijzigingen gedaan — de geïnstalleerde app werkt nog steeds.",
       "manualFallback": "U kunt <a>de nieuwe versie handmatig downloaden</a> in plaats daarvan."

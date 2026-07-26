@@ -164,10 +164,7 @@ export function UpdateDialog({ onClose }: { onClose: () => void }) {
             <Button onClick={() => { void install() }}>{t('updates.dialog.install')}</Button>
           </>
         ) : (
-          <>
-            <p className="help-text">{check.reason || t('updates.dialog.notInstallable')}</p>
-            {releaseLink}
-          </>
+          <p className="help-text">{check.reason || t('updates.dialog.notInstallable')}</p>
         )}
       </>
     )

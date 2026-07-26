@@ -337,8 +337,10 @@ export default function SettingsPage() {
           card out of five and contradicted the four beneath it. */}
       <h1 className="page-title">{t('settings.title')}</h1>
 
-      {/* AI engine — first, because nothing else in the app works without it.
-          The OpenRouter key/model live inside it: one decision, one card. */}
+      {/* UI language */}
+      <LanguageSettings current={settings.app_language} />
+
+      {/* AI engine. The OpenRouter key/model live inside it: one decision, one card. */}
       <EngineSettings provider={provider} onProviderChange={changeProvider}>
         {provider === 'openrouter' && (
           <div className="field" style={{ marginTop: 'var(--space-4)', marginBottom: 0 }}>
@@ -581,9 +583,6 @@ export default function SettingsPage() {
           onSave={async c => { setDesign({ photo_crop: c }); setCropping(false) }}
         />
       )}
-
-      {/* UI language */}
-      <LanguageSettings current={settings.app_language} />
 
       {/* Updates */}
       <div className="card">

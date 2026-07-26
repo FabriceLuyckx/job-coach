@@ -103,7 +103,7 @@ def check_for_update() -> dict:
     if asset is None:
         # Real window: release-please tags the release, binaries upload minutes
         # later. Available-but-not-installable, never an error.
-        out["reason"] = "This release has no download for this platform yet."
+        out["reason"] = "The installer for this release is still being built — check back in a few minutes."
         return out
     if not valid_download_url(asset.get("browser_download_url") or ""):
         out["reason"] = "The release asset is not hosted on the project's own releases."

@@ -847,7 +847,7 @@
       "staging": "Das Update vorbereiten…",
       "restarting": "Neustart, um das Update abzuschließen… Die App öffnet sich automatisch erneut.",
       "checkFailed": "Die Prüfung auf Aktualisierungen ist fehlgeschlagen: {{reason}}",
-      "notInstallable": "Diese Version ist für Ihre Plattform noch nicht verfügbar.",
+      "notInstallable": "Der Installer für diese Version wird noch gebaut — überprüfen Sie bitte in ein paar Minuten erneut.",
       "refused": "Dieses Update kann sich nicht selbst aktualisieren: {{reason}}",
       "error": "Das Update ist fehlgeschlagen: {{error}} Keine Änderungen wurden vorgenommen — die installierte App funktioniert weiterhin.",
       "manualFallback": "Sie können <a>die neue Version manuell herunterladen</a> statt."
