@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.4.0](https://github.com/FabriceLuyckx/job-coach/compare/v0.3.1...v0.4.0) (2026-07-26)
+
+
+### Features
+
+* **release:** auto-merge the release-please version-bump PR ([4cba174](https://github.com/FabriceLuyckx/job-coach/commit/4cba174c176a60d125befbe22a5347b567e97306))
+
+
+### Bug Fixes
+
+* **ci:** dispatch the binaries build and back-merge the version bump ([0222d6b](https://github.com/FabriceLuyckx/job-coach/commit/0222d6bd1db266e32e73e900a1cce7440d0b77c3))
+* **ci:** dispatch the binaries build and back-merge the version bump ([5a6a0c2](https://github.com/FabriceLuyckx/job-coach/commit/5a6a0c2a98c0397d4629d42c4998c845994b87d0))
+* **update:** serve real dist files before the SPA fallback, tweak update copy ([d17e596](https://github.com/FabriceLuyckx/job-coach/commit/d17e5962a0652a0dbc6ef451213e9fd2d2ac6d2d))
+
 ## [0.3.1](https://github.com/FabriceLuyckx/job-coach/compare/v0.3.0...v0.3.1) (2026-07-26)
 
 
