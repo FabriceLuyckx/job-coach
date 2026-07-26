@@ -2,9 +2,11 @@ name: Release Please
 
 # Owns versioning: on merge to `stable`, release-please reads the Conventional
 # Commits since the last release, computes the SemVer bump, and maintains a
-# rolling release PR that bumps pyproject.toml + CHANGELOG.md. Merging that PR
-# tags vX.Y.Z and creates the GitHub Release with notes. release.yml then
-# attaches the binaries to that tag's release.
+# rolling release PR that bumps pyproject.toml + CHANGELOG.md. That PR
+# auto-merges itself (below) as soon as it's mergeable, which tags vX.Y.Z and
+# creates the GitHub Release with notes. release.yml then attaches the
+# binaries to that tag's release. Promoting main -> stable stays a manual,
+# reviewed PR — only the version-bump bookkeeping PR is unattended.
 
 on:
   push:
@@ -23,3 +25,14 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
           target-branch: stable
+
+      - name: Auto-merge the release PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --base stable \
+            --head release-please--branches--stable --state open \
+            --json number --jq '.[0].number')
+          if [ -n "$pr" ]; then
+            gh pr merge "$pr" --repo "$GITHUB_REPOSITORY" --auto --merge
+          fi

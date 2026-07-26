@@ -642,10 +642,14 @@ source (no release is cut from `main`). Merging `main` → `stable` triggers
 Commits](https://www.conventionalcommits.org) since the last release, computes the
 SemVer bump (`feat:`→minor, `fix:`/`chore:`→patch, `!`/`BREAKING CHANGE:`→major),
 and maintains a rolling **release PR** that bumps `pyproject.toml` + `CHANGELOG.md`.
-Merging that PR tags `vX.Y.Z` and creates the GitHub Release with notes; the tag
-then triggers the **binaries-only** `release.yml` (unchanged, `v*`-triggered), whose
-`action-gh-release` step **upserts** the `.dmg`/`.zip` onto that same release (no
-duplicate). A `commit-msg` hook (`scripts/hooks/`, under the existing
+That PR **auto-merges itself** — a second step in the same workflow finds the open
+`release-please--branches--stable` PR and calls `gh pr merge --auto`, so promoting
+`main` → `stable` (still a manual, reviewed PR) is the only human step in the whole
+release; the version bump is never a separate click. Merging it tags `vX.Y.Z` and
+creates the GitHub Release with notes; the tag then triggers the **binaries-only**
+`release.yml` (unchanged, `v*`-triggered), whose `action-gh-release` step **upserts**
+the `.dmg`/`.zip` onto that same release (no duplicate). A `commit-msg` hook
+(`scripts/hooks/`, under the existing
 `core.hooksPath`) **warns but never blocks** on non-conventional subjects so the
 bump signal stays healthy.
 
