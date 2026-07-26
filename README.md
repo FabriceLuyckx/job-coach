@@ -98,8 +98,9 @@ cd job-coach
 
 `setup.sh` installs Homebrew, uv, and Node if they're missing, then installs all
 backend and frontend dependencies, the headless browser for PDF export, and
-seeds your local `profile/profile.json` and `config.json` from the committed
-`*.example` files. (Linux/Windows aren't scripted yet — use the manual steps below.)
+seeds your local `config.json` from the committed example. Your profile is
+deliberately *not* seeded — the app opens on an empty Profile you fill in
+yourself or import from an existing CV. (Linux/Windows aren't scripted yet — use the manual steps below.)
 
 **Manual setup (or non-macOS)** — what `setup.sh` does, step by step:
 
@@ -107,13 +108,14 @@ seeds your local `profile/profile.json` and `config.json` from the committed
 uv sync                              # backend deps (installs Python 3.11 too)
 uv run playwright install chromium   # one-time: headless browser for PDF export
 cd frontend && npm install && cd ..  # frontend deps
-cp profile/profile.example.json profile/profile.json   # starter profile
-cp config.json.example config.json                     # local config
+cp config.json.example config.json    # local config (the profile stays empty)
 ```
 
 > `profile/profile.json` and `config.json` are gitignored — they hold your
-> personal data and API key. Both are seeded from the committed
-> `*.example` templates above; edit them freely. See `CLAUDE.md` for the full
+> personal data and API key. `config.json` is seeded from the committed example;
+> `profile.json` is written the first time you edit your Profile in the app.
+> `profile/profile.example.json` is a schema reference only — copy it over your
+> profile if you want sample data to play with. See `CLAUDE.md` for the full
 > profile schema.
 
 ---
@@ -140,6 +142,27 @@ buttons that spend it.
 > **Local engine (development):** the local model runs via `llama-cpp-python`, a heavy
 > platform-specific dependency kept out of the default install. Enable it with
 > `uv sync --extra local`. Without it, use the OpenRouter engine.
+
+### Testing a fresh install (development)
+
+In a source checkout your data lives in the repo, so you always start with a
+configured app. To see what a new user sees — the onboarding wizard, an empty
+profile, every empty state — point the writable data dir somewhere else:
+
+```bash
+MYJOBCOACH_DATA_DIR=$(mktemp -d) uv run uvicorn app.main:app --reload
+```
+
+That directory gets its own `config.json`, `profile/`, `jobs/jobs.db`, `output/`,
+`models/` and `locales/`; your real data is untouched. Delete it to start over.
+Two things to know:
+
+- **The frontend keeps a little state in the browser** (chosen UI language,
+  suggested job titles, a pending hand-off from Job Suggestions). Use a private
+  window for a truly clean run.
+- **A downloaded local model lives under the data dir too**, so a fresh one means
+  downloading it again. To reuse the one you have:
+  `ln -s "$PWD/models" "$FRESH_DIR/models"` before starting.
 
 #### Choosing a local model
 

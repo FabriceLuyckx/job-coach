@@ -82,12 +82,10 @@ TEACHING_TYPES = (
     "workshop_training", "supervision", "other",
 )
 
-# Generic editable groups seeded when a profile has no skills data at all.
-DEFAULT_SKILL_GROUPS: list[dict] = [
-    {"label": "Technical skills", "items": []},
-    {"label": "Tools & software", "items": []},
-    {"label": "Soft skills", "items": []},
-]
+# One blank group seeded when a profile has no skills data at all — somewhere to
+# type, with no invented group names presented as the user's own answers (the
+# editor offers "Technical skills" & co. as placeholder + datalist suggestions).
+DEFAULT_SKILL_GROUPS: list[dict] = [{"label": "", "items": []}]
 
 
 def _groups_from_legacy(skills: dict) -> list[dict]:
@@ -312,7 +310,10 @@ def _migrate_work_preferences(wp: dict | None) -> dict:
                 "institution_type_preference", "research_vs_teaching", "leadership_interest"):
         w.pop(key, None)
     w.setdefault("commute_radius", [])
-    w.setdefault("remote_hybrid", "Hybrid")
+    # "" = unanswered, not "Hybrid": this default flows into preferences.remote,
+    # so every profile that never answered claimed a working style — shown as a
+    # selected option on Preferences and written into the job-matching brief.
+    w.setdefault("remote_hybrid", "")
     w.setdefault("schedule", "")
     w.setdefault("language_preferences", [])
     w.setdefault("relocation", "")
@@ -848,11 +849,14 @@ def blank_profile() -> dict:
         },
         "summary": "",
         "experience": [],
-        # One empty language row: languages are required, and an empty section
-        # would render as a void with nothing to type into.
+        # One empty row each: languages are required and skills need somewhere to
+        # type, but nothing is filled in for the user. A seeded group *label* or a
+        # star level is an answer they never gave — it reads as their own data
+        # (and a level for a language they haven't even named is meaningless).
+        # The UI shows the suggestions as placeholder/datalist text instead.
         "skills": {
             "groups": [dict(g) for g in DEFAULT_SKILL_GROUPS],
-            "languages": [{"language": "", "level": 3, "label": CEFR_LABELS[3]}],
+            "languages": [{"language": "", "level": 0, "label": ""}],
         },
         "cv_design_preferences": {
             "accent_color": "#1B3A6B", "include_photo": False,

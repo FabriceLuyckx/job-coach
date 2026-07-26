@@ -53,7 +53,7 @@ The app runs locally first, designed for easy cloud deployment. AI is powered vi
 ```
 job-coach/
 ├── profile/
-│   ├── profile.example.json      # Sanitized sample profile (committed; seeds profile.json)
+│   ├── profile.example.json      # Sanitized sample profile (committed; schema reference only — never seeded)
 │   ├── profile.json              # Career data source of truth (gitignored — personal)
 │   └── photo.jpg                 # Optional CV photo (jpg/jpeg/png/webp accepted)
 ├── templates/
