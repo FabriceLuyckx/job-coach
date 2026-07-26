@@ -724,7 +724,9 @@ export default function ProfilePage() {
           </div>
         ))}
         <div className="skill-scale-legend">{t('profile.skills.scaleLegend')}</div>
-        <Button variant="secondary" onClick={() => set('skills.languages', [...pf.skills.languages, { language: '', level: 3, label: CEFR_CODES[3] }])}>{t('profile.add.language')}</Button>
+        {/* level 0 = unrated: a new row must not claim B1 for a language the
+            user hasn't even named yet. */}
+        <Button variant="secondary" onClick={() => set('skills.languages', [...pf.skills.languages, { language: '', level: 0, label: '' }])}>{t('profile.add.language')}</Button>
       </Section>
 
       <Section title={t('sections.education.label')} count={pf.education.length} help={t('profile.help.education')}>
@@ -734,8 +736,10 @@ export default function ProfilePage() {
               onChange={updated => { const next = [...pf.education]; next[i] = updated; set('education', next) }}
               onRemove={() => removeItem(edu.degree || t('sections.education.label'), 'education', pf.education, i)} />
           )} />
+        {/* start_year null, not the current year — a prefilled year is a wrong
+            answer the user has to notice and correct, not a helpful default. */}
         <Button variant="secondary" onClick={() => set('education', [...pf.education, {
-          degree: '', field: '', institution: '', location: '', start_year: new Date().getFullYear(), end_year: null, distinction: null, description: '',
+          degree: '', field: '', institution: '', location: '', start_year: null, end_year: null, distinction: null, description: '',
         }])}>{t('profile.add.education')}</Button>
       </Section>
 

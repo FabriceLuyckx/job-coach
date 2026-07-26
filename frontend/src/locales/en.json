@@ -139,7 +139,7 @@
       "staging": "Preparing the update…",
       "restarting": "Restarting to finish the update… The app will reopen by itself.",
       "checkFailed": "The update check didn't work: {{reason}}",
-      "notInstallable": "This release has no download for your platform yet.",
+      "notInstallable": "The installer for this release is still being built — check back in a few minutes.",
       "refused": "This install can't update itself: {{reason}}",
       "error": "The update failed: {{error}} Nothing was changed — the installed app still works.",
       "manualFallback": "You can <a>download the new version manually</a> instead."

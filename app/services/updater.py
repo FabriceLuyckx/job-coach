@@ -103,7 +103,7 @@ def check_for_update() -> dict:
     if asset is None:
         # Real window: release-please tags the release, binaries upload minutes
         # later. Available-but-not-installable, never an error.
-        out["reason"] = "This release has no download for this platform yet."
+        out["reason"] = "The installer for this release is still being built — check back in a few minutes."
         return out
     if not valid_download_url(asset.get("browser_download_url") or ""):
         out["reason"] = "The release asset is not hosted on the project's own releases."
@@ -258,11 +258,15 @@ def _stage(archive: Path) -> Path:
         if not (target / "Contents" / "MacOS").is_dir():
             raise RuntimeError("The staged app bundle is incomplete — update abandoned.")
         return target
-    # Windows: the zip holds the install directory's *contents* (no wrapper folder).
+    # Windows: the zip wraps a single "MyJobCoach" folder (matches what a user
+    # unzipping the release manually gets — see release.yml).
     shutil.unpack_archive(str(archive), str(staged))
-    if not (staged / "MyJobCoach.exe").exists():
-        raise RuntimeError("The staged update is missing MyJobCoach.exe — update abandoned.")
-    return staged
+    if (staged / "MyJobCoach.exe").exists():
+        return staged
+    wrapped = staged / "MyJobCoach"
+    if (wrapped / "MyJobCoach.exe").exists():
+        return wrapped
+    raise RuntimeError("The staged update is missing MyJobCoach.exe — update abandoned.")
 
 
 def _launch_swap(staged: Path) -> None:

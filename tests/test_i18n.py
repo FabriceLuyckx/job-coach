@@ -7,23 +7,14 @@ parity (keys, {{placeholders}}, <tags>) against the English source."""
 import json
 from pathlib import Path
 
-from app.api.i18n import _placeholders_ok
+# The app's own flattener, not a copy: a second implementation here is what let
+# array values (letters.explainer.tips) slip past as unhandled non-strings.
+from app.api.i18n import _flatten as _flat, _placeholders_ok, _unflatten
 from app.services.cv_renderer import LABELS
 
 ROOT = Path(__file__).resolve().parent.parent
 LOCALES = ROOT / "frontend" / "src" / "locales"
 SHIPPED = ("nl", "fr", "de", "es", "it", "pt", "pl")
-
-
-def _flat(obj: dict, prefix: str = "") -> dict[str, str]:
-    out: dict[str, str] = {}
-    for k, v in obj.items():
-        key = f"{prefix}.{k}" if prefix else k
-        if isinstance(v, dict):
-            out.update(_flat(v, key))
-        else:
-            out[key] = v
-    return out
 
 
 def test_placeholder_and_tag_validation():
@@ -39,6 +30,18 @@ def test_cv_labels_cover_all_shipped_languages():
     en_keys = set(LABELS["en"])
     for lang in ("en",) + SHIPPED:
         assert set(LABELS.get(lang, {})) == en_keys, f"cv_labels.json incomplete for '{lang}'"
+
+
+def test_flatten_roundtrips_arrays():
+    """A generated catalog must come back with tips as an array, not a string —
+    the letters explainer reads it with returnObjects."""
+    src = {"letters": {"explainer": {"tips": ["one", "two"]}},
+           "profile": {"skills": {"cefr": {"1": "A1", "2": "A2"}}}}
+    flat = _flat(src)
+    assert flat["letters.explainer.tips[0]"] == "one"
+    # Digit *keys* stay an object — as an array, t('…cefr.1') would be off by one.
+    assert flat["profile.skills.cefr.1"] == "A1"
+    assert _unflatten(flat) == src
 
 
 def test_shipped_catalogs_match_english_keys_and_markup():

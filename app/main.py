@@ -47,4 +47,10 @@ if FRONTEND_DIST.exists():
 
     @app.get("/{full_path:path}", include_in_schema=False)
     def serve_spa(full_path: str):
+        # Real files at the dist root (favicon.png, robots.txt — anything Vite
+        # copies from public/) must win over the SPA fallback, or the browser
+        # gets index.html as text/html and shows no icon.
+        f = (FRONTEND_DIST / full_path).resolve()
+        if full_path and f.is_relative_to(FRONTEND_DIST.resolve()) and f.is_file():
+            return FileResponse(str(f))
         return FileResponse(str(FRONTEND_DIST / "index.html"))

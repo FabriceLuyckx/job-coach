@@ -60,21 +60,42 @@ _TOOL = {
 
 
 def _flatten(obj: dict, prefix: str = "") -> dict[str, str]:
+    """Catalog → {dotted key: string}. Array values (letters.explainer.tips) get
+    one key per item, `parent[i]` — left whole, a list reached the translator as
+    a JSON blob and the placeholder check as a non-string (TypeError).
+
+    The index is bracketed, not another dotted segment, because dotted digits are
+    already real object keys here (profile.skills.cefr.1–5) and must stay objects.
+    """
     out: dict[str, str] = {}
     for k, v in obj.items():
         key = f"{prefix}.{k}" if prefix else k
-        out.update(_flatten(v, key)) if isinstance(v, dict) else out.update({key: v})
+        if isinstance(v, dict):
+            out.update(_flatten(v, key))
+        elif isinstance(v, list):
+            out.update({f"{key}[{i}]": item for i, item in enumerate(v)})
+        else:
+            out[key] = v
     return out
 
 
 def _unflatten(flat: dict[str, str]) -> dict:
     root: dict = {}
     for key, val in flat.items():
+        key, _, idx = key.partition("[")
         parts = key.split(".")
         node = root
         for p in parts[:-1]:
             node = node.setdefault(p, {})
-        node[parts[-1]] = val
+        if not idx:
+            node[parts[-1]] = val
+            continue
+        # Rebuild the array. Items arrive in key order, but pad anyway so one
+        # dropped item shifts nothing.
+        lst = node.setdefault(parts[-1], [])
+        i = int(idx[:-1])
+        lst.extend([""] * (i + 1 - len(lst)))
+        lst[i] = val
     return root
 
 

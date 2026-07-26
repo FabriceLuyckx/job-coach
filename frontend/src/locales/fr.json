@@ -847,7 +847,7 @@
       "staging": "Préparation de la mise à jour…",
       "restarting": "Redémarrage pour finaliser la mise à jour… L'application se réouvre automatiquement.",
       "checkFailed": "La vérification de la mise à jour n'a pas fonctionné : {{reason}}",
-      "notInstallable": "Cette version n'est pas disponible pour votre plateforme.",
+      "notInstallable": "L'installeur de cette version est encore en cours de construction — vérifiez dans quelques minutes.",
       "refused": "Cette installation ne peut pas se mettre à jour elle-même : {{reason}}",
       "error": "La mise à jour a échoué : {{error}} Rien n'a été modifié — l'application installée fonctionne toujours.",
       "manualFallback": "Vous pouvez <a>télécharger la nouvelle version manuellement</a> au lieu de cela."

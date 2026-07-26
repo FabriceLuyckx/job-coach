@@ -21,12 +21,51 @@ def test_blank_profile_is_valid_v5():
     assert "headline" not in b["personal"]
     assert b["experience"] == []
     assert b["meta"]["enabled_sections"] == []
+    # Every preference is unanswered — a new install must not ship opinions the
+    # user never gave (a "Hybrid" working style used to be defaulted in here and
+    # went straight into the job-matching brief).
     assert b["preferences"] == {
         "target_roles": [], "looking_for": "", "avoid": "", "locations": [],
-        "remote": "Hybrid", "notes": "",
+        "remote": "", "notes": "", "employment_types": [],
+        "hours": "", "salary": "", "availability": "", "travel": "",
     }
-    # Languages are profile-owned and required: one empty row to fill in.
-    assert b["skills"]["languages"] == [{"language": "", "level": 3, "label": "B1 Intermediate"}]
+    # Languages are profile-owned and required: one empty, *unrated* row to fill in.
+    assert b["skills"]["languages"] == [{"language": "", "level": 0, "label": ""}]
+    # Same for skills: a group to type in, with no invented group name.
+    assert b["skills"]["groups"] == [{"label": "", "items": []}]
+
+
+def test_first_run_seeding_leaves_the_profile_empty(tmp_path, monkeypatch):
+    """A packaged first run used to copy profile.example.json into the data dir,
+    so a fresh install opened on a sample person's jobs, languages and enabled
+    sections presented as the user's own answers."""
+    from app import paths
+    monkeypatch.setattr(paths, "PROFILE_DIR", tmp_path / "profile")
+    monkeypatch.setattr(paths, "PROFILE_PATH", tmp_path / "profile" / "profile.json")
+    paths.seed_data_dir()
+    assert (tmp_path / "profile").is_dir()
+    assert not (tmp_path / "profile" / "profile.json").exists()
+
+
+def test_data_dir_env_override(tmp_path, monkeypatch):
+    """MYJOBCOACH_DATA_DIR is how a dev exercises a real first run. If it silently
+    stops being honoured, that check reads the repo's own config/profile/db and
+    "fresh install" tests nothing."""
+    import importlib
+
+    from app import paths
+
+    fresh = (tmp_path / "fresh").resolve()
+    monkeypatch.setenv("MYJOBCOACH_DATA_DIR", str(fresh))
+    try:
+        p = importlib.reload(paths)
+        assert p.DATA_DIR == fresh
+        assert p.CONFIG_PATH == fresh / "config.json"
+        assert p.PROFILE_PATH == fresh / "profile" / "profile.json"
+        assert p.DB_PATH == fresh / "jobs" / "jobs.db"
+    finally:
+        monkeypatch.delenv("MYJOBCOACH_DATA_DIR")
+        importlib.reload(paths)  # other modules bound their paths at import
 
 
 def test_pdf_to_text_rejects_non_pdf():

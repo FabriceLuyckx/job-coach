@@ -18,7 +18,6 @@ ROOT = Path(SPECPATH).resolve().parent
 datas = [
     (str(ROOT / "templates" / "cv"), "templates/cv"),
     (str(ROOT / "frontend" / "dist"), "frontend/dist"),
-    (str(ROOT / "profile" / "profile.example.json"), "profile"),
     # Reviewed CV section labels, read at runtime by cv_renderer.cv_labels().
     (str(ROOT / "app" / "i18n" / "cv_labels.json"), "app/i18n"),
     # English UI catalog + shipped locales — the on-device translator reads these

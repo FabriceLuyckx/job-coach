@@ -847,7 +847,7 @@
       "staging": "Preparando la actualización…",
       "restarting": "Reiniciando para finalizar la actualización… La aplicación se abrirá por sí misma.",
       "checkFailed": "La comprobación de actualizaciones no funcionó: {{reason}}",
-      "notInstallable": "Esta versión aún no tiene descarga para tu plataforma.",
+      "notInstallable": "El instalador de esta versión aún está siendo construido — revísalo en unos minutos.",
       "refused": "Esta instalación no puede actualizarse por sí misma: {{reason}}",
       "error": "La actualización falló: {{error}} Nada fue modificado — la aplicación instalada sigue funcionando.",
       "manualFallback": "Puedes <a>descargar la versión nueva manualmente</a> en su lugar."

@@ -76,14 +76,23 @@ jobs:
       #  - Windows: signtool / Azure Trusted Signing on dist/MyJobCoach/MyJobCoach.exe.
 
       - name: Package (macOS .dmg)
+        # Stage the .app next to an /Applications symlink so the mounted DMG
+        # shows both icons side by side — the standard drag-to-install cue,
+        # instead of a bare Finder window with just the app.
         if: runner.os == 'macOS'
-        run: >
-          hdiutil create -volname "MyJobCoach" -srcfolder "dist/MyJobCoach.app"
-          -ov -format UDZO "dist/MyJobCoach-macos.dmg"
+        run: |
+          mkdir dist/dmg-root
+          mv "dist/MyJobCoach.app" dist/dmg-root/
+          ln -s /Applications dist/dmg-root/Applications
+          hdiutil create -volname "MyJobCoach" -srcfolder dist/dmg-root \
+            -ov -format UDZO "dist/MyJobCoach-macos.dmg"
 
       - name: Package (Windows .zip)
+        # Zip the MyJobCoach folder itself (not just its contents) so
+        # extracting anywhere yields one clearly-named folder to keep, mirroring
+        # the macOS .app bundle instead of scattering loose files.
         if: runner.os == 'Windows'
-        run: Compress-Archive -Path dist/MyJobCoach/* -DestinationPath dist/MyJobCoach-windows.zip
+        run: Compress-Archive -Path dist/MyJobCoach -DestinationPath dist/MyJobCoach-windows.zip
 
       - uses: actions/upload-artifact@v5
         with:
