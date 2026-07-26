@@ -643,9 +643,16 @@ Commits](https://www.conventionalcommits.org) since the last release, computes t
 SemVer bump (`feat:`→minor, `fix:`/`chore:`→patch, `!`/`BREAKING CHANGE:`→major),
 and maintains a rolling **release PR** that bumps `pyproject.toml` + `CHANGELOG.md`.
 That PR **auto-merges itself** — a second step in the same workflow finds the open
-`release-please--branches--stable` PR and calls `gh pr merge --auto`, so promoting
-`main` → `stable` (still a manual, reviewed PR) is the only human step in the whole
-release; the version bump is never a separate click. Merging it tags `vX.Y.Z` and
+`release-please--branches--stable` PR, merges it, and then **dispatches this same
+workflow again** to do the tagging pass. So promoting `main` → `stable` (still a
+manual, reviewed PR) is the only human step in the whole release; the version bump
+is never a separate click. The self-dispatch is load-bearing for the same reason as
+the one below: a token-made merge doesn't fire the `push` trigger, so without it the
+tagging pass never runs and the release stalls half-done — merged bump, no tag
+(exactly how v0.4.0 stalled the first time auto-merge ran). It uses a plain
+`--merge`, not `--auto`, because an async merge races the dispatch; and it sits
+inside the "a PR was open" branch, which is what stops the workflow dispatching
+itself forever. That pass tags `vX.Y.Z` and
 creates the GitHub Release with notes; release-please then **dispatches** the
 binaries-only `release.yml` against that tag, whose `action-gh-release` step
 **upserts** the `.dmg`/`.zip` onto that same release (no duplicate). The dispatch
