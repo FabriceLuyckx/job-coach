@@ -571,7 +571,7 @@ wheels = [
 
 [[package]]
 name = "myjobcoach"
-version = "0.3.1"
+version = "0.4.1"
 source = { editable = "." }
 dependencies = [
     { name = "beautifulsoup4" },
