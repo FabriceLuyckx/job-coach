@@ -3,17 +3,22 @@
 
 """Desktop launcher — the packaged app's entry point.
 
-Starts the FastAPI app on a local port and opens the user's default browser to
-it. This is what the PyInstaller bundle runs when the user double-clicks the app;
-it needs no terminal, Python, or extra setup on the user's machine.
+Starts the FastAPI app on a local port in a background thread, then hosts the
+UI in a native application window (WKWebView on macOS, WebView2 on Windows,
+via pywebview) so the running app has its own Dock/taskbar icon and closing
+the window quits it. The GUI event loop must own the main thread — that is why
+the *server* is the one in a thread: ``webview.start()`` blocks until the last
+window closes, and when it returns, ``main()`` ends and the daemon server
+thread dies with the process. Closing the window *is* the quit path.
 
-Quit: close the window this prints to (Windows) or quit the app from the Dock
-(macOS). No native GUI toolkit is involved — the UI is just the local web app in
-whatever browser the user already has.
+If no web view backend is available (e.g. a missing WebView2 runtime), the
+launcher falls back to the old behaviour: open the user's default browser at
+the local address and keep the process alive until the user kills it.
 """
 
 import os
 import socket
+import sys
 import threading
 import time
 import webbrowser
@@ -23,6 +28,7 @@ from app import paths
 
 HOST = "127.0.0.1"
 PREFERRED_PORT = 8756
+WINDOW_TITLE = "MyJobCoach"
 
 
 def _port_in_use(port: int) -> bool:
@@ -46,13 +52,47 @@ def _is_our_app(port: int) -> bool:
         return False
 
 
-def _open_when_ready(port: int) -> None:
-    url = f"http://{HOST}:{port}"
+def _wait_ready(port: int) -> None:
     for _ in range(100):  # wait up to ~10s for the server to answer
         if _is_our_app(port):
-            break
+            return
         time.sleep(0.1)
+
+
+def _serve_forever() -> None:
+    threading.Event().wait()
+
+
+def _browser_fallback(url: str) -> None:
+    """No usable web view — today's pre-window behaviour: browser + a console."""
+    if sys.platform == "win32":
+        # ponytail: console=False removed the quit window; restore it only on
+        # this path, the one that still needs "close this window to quit".
+        import ctypes
+
+        ctypes.windll.kernel32.AllocConsole()
+        sys.stdout = sys.stderr = open("CONOUT$", "w")
+    print(f"MyJobCoach is running at {url}")
+    print("Keep this window open. Close it to quit MyJobCoach.")
     webbrowser.open(url)
+    _serve_forever()  # the server is a daemon thread; hold the process open
+
+
+def _open_ui(url: str) -> None:
+    try:
+        import webview
+
+        # pywebview defaults downloads off — they would silently do nothing.
+        webview.settings["ALLOW_DOWNLOADS"] = True
+        # Opens maximized (zoomed, not macOS full-screen); width/height are the
+        # size the window un-zooms back to.
+        webview.create_window(WINDOW_TITLE, url, width=1280, height=860,
+                              min_size=(900, 600), maximized=True)
+        # private_mode defaults to True, which discards localStorage between
+        # runs — and the SPA keeps its UI-language and suggested-titles caches there.
+        webview.start(private_mode=False, storage_path=str(paths.DATA_DIR / "webview"))
+    except Exception:
+        _browser_fallback(url)
 
 
 def main() -> None:
@@ -75,11 +115,14 @@ def main() -> None:
 
     system.ensure_chromium()  # one-time Chromium download in the background
 
-    threading.Thread(target=_open_when_ready, args=(port,), daemon=True).start()
-
-    print(f"MyJobCoach is running at http://{HOST}:{port}")
-    print("Keep this window open. Close it to quit MyJobCoach.")
-    uvicorn.run(app, host=HOST, port=port, log_level="warning")
+    threading.Thread(
+        target=uvicorn.run,
+        args=(app,),
+        kwargs={"host": HOST, "port": port, "log_level": "warning"},
+        daemon=True,
+    ).start()
+    _wait_ready(port)
+    _open_ui(f"http://{HOST}:{port}")
 
 
 if __name__ == "__main__":

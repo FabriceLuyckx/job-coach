@@ -36,7 +36,6 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
   const [previewKey, setPreviewKey] = useState(0)
   const [regenerating, setRegenerating] = useState(false)
   const [generating, setGenerating] = useState(false)
-  const [downloading, setDownloading] = useState(false)
   const [stage, setStage] = useState<CVJobStage | undefined>()
   const [showRegen, setShowRegen] = useState(false)
   const [error, setError] = useState('')
@@ -231,26 +230,6 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
     }
   }
 
-  async function downloadPDF() {
-    // preview_url is /api/cv/preview/<slug>/<lang>; the PDF route mirrors it.
-    setDownloading(true)
-    try {
-      const res = await fetch(result.preview_url.replace('/preview/', '/pdf/'))
-      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `cv_${result.slug}_${result.lang}.pdf`
-      document.body.appendChild(a); a.click(); a.remove()
-      URL.revokeObjectURL(url)
-    } catch (e) {
-      toast.error(t('cveditor.pdfError', { error: errMsg(e) }))
-    } finally {
-      setDownloading(false)
-    }
-  }
-
   const busyAI = regenerating
   const stageText = stage ? t(`cv.stage.${stage}`) : ''
   const hidden = new Set(plan?.hidden_sections ?? [])
@@ -354,10 +333,12 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
             {t('cveditor.rebuildFromUrl')}
           </Button>
         )}
-        <Button variant="secondary" onClick={downloadPDF} busy={downloading}>
-          {!downloading && <Download size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />}
-          {downloading ? t('cveditor.preparingPdf') : t('cveditor.downloadPdf')}
-        </Button>
+        {/* Plain link: the endpoint already replies Content-Disposition: attachment,
+            and platform web views can't download blob: URLs, so no fetch/blob dance. */}
+        <a className="btn-secondary" href={result.preview_url.replace('/preview/', '/pdf/')}>
+          <Download size={14} style={{ marginRight: 6, verticalAlign: -2 }} aria-hidden />
+          {t('cveditor.downloadPdf')}
+        </a>
         <Button variant="ghost" icon onClick={() => { setPreviewKey(k => k + 1) }}
           title={t('cveditor.refreshPreviewTip')} aria-label={t('cveditor.refreshPreviewTip')}>
           <RefreshCw size={15} aria-hidden />

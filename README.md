@@ -17,9 +17,13 @@ For non-technical users. Grab the latest build from the
   Mac*: a "Chip" starting with **Apple** means the first one.
 - **Windows** — download `MyJobCoach-windows.zip`, unzip it anywhere (you'll get a
   `MyJobCoach` folder — keep it together), then open the folder and run
-  `MyJobCoach.exe` (keep the small window it opens — closing it quits the app).
+  `MyJobCoach.exe`.
 
-The app opens in your default browser. On **first launch** it downloads a PDF
+The app opens in its own window — no console, no browser tab — and closing that
+window quits it. (If your machine has no usable web view — e.g. a very old
+Windows 10 without the WebView2 runtime — the app falls back to opening in your
+default browser instead, with a small window telling you where it's running and
+how to quit.) On **first launch** it downloads a PDF
 engine one time (~150 MB) — a banner shows the progress and everything except
 PDF export works while it finishes.
 
@@ -572,7 +576,8 @@ uv run pyinstaller packaging/myjobcoach.spec
 ```
 
 You can also run the packaged launcher directly during development — it starts the
-server and opens your browser, exactly as the bundle does:
+server and opens the app window (or your browser when pywebview isn't installed),
+exactly as the bundle does:
 
 ```bash
 cd frontend && npm run build && cd ..

@@ -179,7 +179,13 @@ a.btn-primary:hover { text-decoration: none; }
   border: 1px solid var(--line);
   padding: 8px 17px; /* compensate the border */
 }
-.btn-secondary:hover:not(:disabled) { background: var(--surface); border-color: var(--ink); }
+/* A link styled as a secondary action (the CV PDF download) — same restatement
+   as a.btn-primary above. */
+a.btn-secondary {
+  display: inline-block;
+  text-decoration: none;
+}
+.btn-secondary:hover:not(:disabled), a.btn-secondary:hover { background: var(--surface); border-color: var(--ink); }
 .btn-secondary:active:not(:disabled) { background: var(--board); }
 .btn-secondary:disabled { color: var(--muted); border-color: var(--line); opacity: 0.55; }
 

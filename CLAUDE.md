@@ -703,6 +703,21 @@ the banner and the sidebar's always-checking "Check for updates…" button in
 The swap itself is verified manually against real builds; `tests/test_updater.py`
 covers version compare, asset selection, URL pinning, and every refusal.
 
+**Desktop app window** (`add-native-app-window`, `app/desktop.py`): the packaged
+launcher hosts the SPA in a **native window** (WKWebView/WebView2 via `pywebview`,
+in the `package` extra) so the app owns its Dock/taskbar icon and closing the
+window quits it. uvicorn runs in a daemon thread; `webview.start()` owns the main
+thread (returning from it ends the process — that is the quit path).
+`ALLOW_DOWNLOADS=True`, `private_mode=False` + `storage_path` under `DATA_DIR`
+(the SPA's localStorage caches must survive restarts); `target="_blank"` links
+open in the real browser (pywebview default). Any webview import/start failure
+falls back to the old `webbrowser.open()` path (plus `AllocConsole` on Windows,
+where `console=False` removed the quit affordance); `tests/test_desktop.py`
+covers the fallback selection, the window is verified manually per release.
+CV **PDF download is a plain link** to `/api/cv/pdf/...` (already
+`Content-Disposition: attachment`) — never a blob/object URL, which platform web
+views can't download.
+
 **Goal**: Deploy so non-technical users can access the app from any browser.
 
 **Stack**:
