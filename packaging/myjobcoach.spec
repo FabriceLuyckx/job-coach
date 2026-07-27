@@ -7,6 +7,7 @@
 # Output: dist/MyJobCoach/  (onedir)  and, on macOS, dist/MyJobCoach.app
 
 import sys
+import tomllib
 from pathlib import Path
 
 from PyInstaller.utils.hooks import collect_all, collect_submodules, copy_metadata
@@ -57,6 +58,18 @@ try:
 except Exception:
     print("llama_cpp not installed — building without the local AI engine.")
 
+# Native app window (pywebview → WKWebView/WebView2). Skip cleanly if absent —
+# the launcher falls back to the browser at runtime the same way.
+try:
+    wv_datas, wv_binaries, wv_hidden = collect_all("webview")
+    datas += wv_datas
+    binaries += wv_binaries
+    hiddenimports += wv_hidden
+    if sys.platform == "win32":
+        hiddenimports += ["clr_loader", "pythonnet"]
+except Exception:
+    print("pywebview not installed — building with the browser launcher only.")
+
 a = Analysis(
     [str(ROOT / "app" / "desktop.py")],
     pathex=[str(ROOT)],
@@ -76,7 +89,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name="MyJobCoach",
-    console=True,  # Windows: the "keep open / close to quit" window
+    console=False,  # the app owns a native window now; no console on Windows
     icon=str(ROOT / "packaging" / "icon.ico") if sys.platform == "win32" else None,
 )
 coll = COLLECT(exe, a.binaries, a.datas, name="MyJobCoach")
@@ -89,6 +102,10 @@ if sys.platform == "darwin":
         bundle_identifier="com.myjobcoach.app",
         info_plist={
             "CFBundleName": "MyJobCoach",
+            # Shown by the native About panel (the app menu's own About item).
+            "CFBundleShortVersionString": tomllib.loads(
+                (ROOT / "pyproject.toml").read_text()
+            )["project"]["version"],
             "NSHighResolutionCapable": True,
         },
     )

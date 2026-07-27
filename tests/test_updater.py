@@ -46,16 +46,19 @@ def test_is_newer(latest, current, newer):
 
 _ASSETS = [
     {"name": "MyJobCoach-macos.dmg", "size": 1},
+    {"name": "MyJobCoach-macos-intel.dmg", "size": 3},
     {"name": "MyJobCoach-windows.zip", "size": 2},
 ]
 
 
-@pytest.mark.parametrize("platform,name", [
-    ("darwin", "MyJobCoach-macos.dmg"),
-    ("win32", "MyJobCoach-windows.zip"),
+@pytest.mark.parametrize("platform,machine,name", [
+    ("darwin", "arm64", "MyJobCoach-macos.dmg"),
+    ("darwin", "x86_64", "MyJobCoach-macos-intel.dmg"),
+    ("win32", "AMD64", "MyJobCoach-windows.zip"),
 ])
-def test_asset_for_platform(monkeypatch, platform, name):
+def test_asset_for_platform(monkeypatch, platform, machine, name):
     monkeypatch.setattr(sys, "platform", platform)
+    monkeypatch.setattr(updater.platform, "machine", lambda: machine)
     asset = updater.asset_for_platform(_ASSETS)
     assert asset and asset["name"] == name
 
@@ -67,7 +70,24 @@ def test_asset_for_unsupported_platform(monkeypatch):
 
 def test_asset_missing_from_release(monkeypatch):
     monkeypatch.setattr(sys, "platform", "darwin")
+    monkeypatch.setattr(updater.platform, "machine", lambda: "arm64")
     assert updater.asset_for_platform([{"name": "MyJobCoach-windows.zip"}]) is None
+
+
+def test_asset_names_match_what_the_release_workflow_publishes():
+    """The naming contract spans two files and nothing else enforces it.
+
+    Rename a matrix artifact and the updater silently stops finding assets; add a
+    build target without an updater entry and nobody can auto-update to it. Both
+    fail green — the established failure mode of this release chain. Compared as
+    sets so drift in *either* direction fails.
+    """
+    workflow = (Path(__file__).resolve().parent.parent
+                / ".github/workflows/release.yml").read_text()
+    published = {line.split("artifact:", 1)[1].strip()
+                 for line in workflow.splitlines() if line.strip().startswith("artifact:")}
+    expected = {Path(n).stem for n in (*updater.ASSET_NAMES.values(), updater.MACOS_INTEL_ASSET)}
+    assert published == expected
 
 
 # --- valid_download_url -------------------------------------------------------
@@ -188,6 +208,7 @@ def test_check_reports_not_installable_without_platform_asset(monkeypatch):
 
 def test_check_available_and_installable(monkeypatch):
     monkeypatch.setattr(sys, "platform", "darwin")
+    monkeypatch.setattr(updater.platform, "machine", lambda: "arm64")
     asset = {
         "name": "MyJobCoach-macos.dmg",
         "size": 123,

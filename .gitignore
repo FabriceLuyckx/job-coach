@@ -222,6 +222,7 @@ __marimo__/
 output/
 jobs/
 models/
+webview/
 .venv/
 
 # Planning docs are local-only — never pushed to GitHub.

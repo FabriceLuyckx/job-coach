@@ -14,6 +14,14 @@ GitHub Release and comparing its version tag against the running application
 version. The check SHALL report the newer version, a link to its release notes,
 and whether an installable asset exists for the current platform.
 
+The asset SHALL be selected by the platform **and architecture** the application is
+actually running as, matched against the release's stable asset names (see the
+`release-versioning` spec). An asset built for a different architecture of the same
+operating system SHALL NOT be treated as installable. Where a platform publishes
+several architectures, the application SHALL read its own running architecture
+rather than the host's nominal one, so a build running under an emulation or
+translation layer stays on the architecture it was compiled for.
+
 #### Scenario: A newer release exists
 
 - **WHEN** the latest published release's version is greater than the running version
@@ -36,6 +44,17 @@ and whether an installable asset exists for the current platform.
 - **WHEN** a newer release exists but publishes no installable asset for the running platform
 - **THEN** the check reports the update as available but not installable in place
 - **AND** it directs the user to the release page
+
+#### Scenario: A same-platform, wrong-architecture asset is not offered
+
+- **WHEN** a newer release publishes an asset for the running operating system but only for a different architecture
+- **THEN** the check reports the update as available but not installable in place, rather than downloading a build that cannot run
+- **AND** it directs the user to the release page
+
+#### Scenario: The correct architecture is chosen on a multi-architecture platform
+
+- **WHEN** a release publishes several architectures for the running operating system
+- **THEN** the asset matching the architecture the application itself is running as is the one selected
 
 #### Scenario: The check cannot reach the release host
 

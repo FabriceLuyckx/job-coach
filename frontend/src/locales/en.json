@@ -750,8 +750,6 @@
     "regeneratingCv": "Regenerating CV…",
     "reRunningNote": "Re-running the AI — this takes about 30 seconds.",
     "downloadPdf": "Download PDF",
-    "preparingPdf": "Preparing PDF…",
-    "pdfError": "Couldn't build the PDF: {{error}}",
     "refreshPreviewTip": "Reload the preview with your latest profile and design",
     "sectionsTitle": "Sections",
     "sectionsShownCount": "{{shown}} of {{total}} shown",

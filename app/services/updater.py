@@ -11,6 +11,7 @@ replacement is verified in place. See openspec/changes/add-app-updater/design.md
 """
 
 import os
+import platform
 import re
 import shutil
 import subprocess
@@ -28,7 +29,11 @@ LATEST_URL = f"https://api.github.com/repos/{REPO}/releases/latest"
 # is never followed on trust from release JSON: it must start with this prefix.
 DOWNLOAD_PREFIX = f"https://github.com/{REPO}/releases/download/"
 # Stable per-platform asset names (the release-versioning naming contract).
+# macOS ships two builds; the plain name stays **arm64** so apps already installed
+# on Apple Silicon keep matching it, and Intel gets the suffixed one. An x86_64
+# build running under Rosetta reports x86_64 and so correctly stays on Intel.
 ASSET_NAMES = {"darwin": "MyJobCoach-macos.dmg", "win32": "MyJobCoach-windows.zip"}
+MACOS_INTEL_ASSET = "MyJobCoach-macos-intel.dmg"
 _UA = "MyJobCoach-updater"
 
 UPDATES_DIR = paths.DATA_DIR / "updates"
@@ -48,9 +53,16 @@ def is_newer(latest: str, current: str) -> bool:
     return lv is not None and cv is not None and lv > cv
 
 
+def asset_name() -> str | None:
+    """Stable asset name for this platform+architecture, or None if unsupported."""
+    if sys.platform == "darwin" and platform.machine() == "x86_64":
+        return MACOS_INTEL_ASSET
+    return ASSET_NAMES.get(sys.platform)
+
+
 def asset_for_platform(assets: list[dict]) -> dict | None:
     """The release asset for this platform, selected by its stable name."""
-    wanted = ASSET_NAMES.get(sys.platform)
+    wanted = asset_name()
     if not wanted:
         return None
     return next((a for a in assets if a.get("name") == wanted), None)

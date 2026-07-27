@@ -646,7 +646,9 @@ That PR **auto-merges itself** — a second step in the same workflow finds the 
 `release-please--branches--stable` PR and merges it; that push re-runs the workflow,
 and *that* pass tags `vX.Y.Z` and creates the GitHub Release with notes. The tag
 triggers the binaries-only `release.yml`, whose `action-gh-release` step **upserts**
-the `.dmg`/`.zip` onto that same release (no duplicate). So promoting `main` →
+the three bundles (macOS arm64 + Intel `.dmg`, Windows `.zip`) onto that same
+release (no duplicate). The macOS jobs share one packaging step — the `.dmg` is
+named from `matrix.artifact`, so a target is one matrix entry, not a code path. So promoting `main` →
 `stable` (still a manual, reviewed PR) is the only human step in the whole release;
 the version bump is never a separate click.
 
@@ -677,8 +679,11 @@ bump signal stays healthy.
 **App self-update** (`add-app-updater`, `app/services/updater.py`): the packaged
 app checks `api.github.com/repos/FabriceLuyckx/job-coach/releases/latest` (strict
 `vX.Y.Z` 3-tuple compare; "unknown" ⇒ no update), selects the platform asset by
-its **stable, versionless name** (`MyJobCoach-macos.dmg` / `MyJobCoach-windows.zip`
-— the release-versioning naming contract) and, on explicit approval, streams it to
+its **stable, versionless name** (`asset_name()`: `MyJobCoach-macos.dmg` for Apple
+Silicon, `MyJobCoach-macos-intel.dmg` when `platform.machine() == "x86_64"`,
+`MyJobCoach-windows.zip` — the release-versioning naming contract; the plain macOS
+name stays arm64 so already-installed Apple Silicon apps keep matching it, and a
+Rosetta'd x86_64 build correctly stays on the Intel track) and, on explicit approval, streams it to
 `DATA_DIR/updates/`, verifies the byte size, stages it (macOS `hdiutil`+`ditto`,
 Windows `unpack_archive`), then launches a detached helper script that waits for
 the app's PID, moves the install aside (never deletes first), copies the staged
@@ -697,6 +702,21 @@ the banner and the sidebar's always-checking "Check for updates…" button in
 `App.tsx`'s app-menu cluster). Settings → Updates holds the auto-check toggle.
 The swap itself is verified manually against real builds; `tests/test_updater.py`
 covers version compare, asset selection, URL pinning, and every refusal.
+
+**Desktop app window** (`add-native-app-window`, `app/desktop.py`): the packaged
+launcher hosts the SPA in a **native window** (WKWebView/WebView2 via `pywebview`,
+in the `package` extra) so the app owns its Dock/taskbar icon and closing the
+window quits it. uvicorn runs in a daemon thread; `webview.start()` owns the main
+thread (returning from it ends the process — that is the quit path).
+`ALLOW_DOWNLOADS=True`, `private_mode=False` + `storage_path` under `DATA_DIR`
+(the SPA's localStorage caches must survive restarts); `target="_blank"` links
+open in the real browser (pywebview default). Any webview import/start failure
+falls back to the old `webbrowser.open()` path (plus `AllocConsole` on Windows,
+where `console=False` removed the quit affordance); `tests/test_desktop.py`
+covers the fallback selection, the window is verified manually per release.
+CV **PDF download is a plain link** to `/api/cv/pdf/...` (already
+`Content-Disposition: attachment`) — never a blob/object URL, which platform web
+views can't download.
 
 **Goal**: Deploy so non-technical users can access the app from any browser.
 
@@ -925,6 +945,13 @@ scanner reads the page directly.
   still hiding real bugs (this happened on the `add-agpl-license` change: a
   code review after 12/12 found two real bugs and two broken tests). Task
   completion is necessary, not sufficient.
+- **A behaviour fix that contradicts an archived spec updates that spec in the
+  same commit.** Small fixes skip the proposal, but they do not skip the spec:
+  archiving is not the end of a spec's life. The release chain drifted exactly
+  this way — four `fix(ci):` commits made the release PR self-merge, put the whole
+  chain on a PAT, and added the back-merge, while `release-versioning/spec.md`
+  still described a human merging it. `openspec validate` cannot see this; only
+  the commit that changes the behaviour can.
 - **License**: the project is AGPL-3.0-or-later (see `LICENSE`). Every tracked
   `.py`/`.ts`/`.tsx`/`.sh` file carries a 2-line SPDX header
   (`SPDX-License-Identifier: AGPL-3.0-or-later` + copyright); this is

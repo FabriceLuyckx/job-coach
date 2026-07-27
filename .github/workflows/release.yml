@@ -44,8 +44,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest
+          # The unsuffixed macos name is Apple Silicon — keeping it means apps
+          # already installed there keep matching it (see updater.ASSET_NAMES).
+          - os: macos-latest # arm64
             artifact: MyJobCoach-macos
+          - os: macos-15-intel # x86_64
+            artifact: MyJobCoach-macos-intel
           - os: windows-latest
             artifact: MyJobCoach-windows
     runs-on: ${{ matrix.os }}
@@ -76,16 +80,50 @@ jobs:
       #  - Windows: signtool / Azure Trusted Signing on dist/MyJobCoach/MyJobCoach.exe.
 
       - name: Package (macOS .dmg)
-        # Stage the .app next to an /Applications symlink so the mounted DMG
-        # shows both icons side by side — the standard drag-to-install cue,
-        # instead of a bare Finder window with just the app.
+        # Stage the .app next to an /Applications symlink, laid out with a
+        # background image (packaging/dmg-background.tiff) that arrows
+        # app -> Applications and spells out the right-click-to-open step for
+        # this unsigned build — a bare Finder window left both unclear. The
+        # background is a HiDPI TIFF (1x+2x reps via tiffutil -cathidpicheck)
+        # — a plain 1x PNG renders blurry on Retina displays.
+        # Recipe: build a writable dmg, let Finder position the icons and set
+        # the background via AppleScript, then compress. Verified locally,
+        # screenshotted by the user on a real Retina display.
         if: runner.os == 'macOS'
         run: |
-          mkdir dist/dmg-root
+          mkdir dist/dmg-root dist/dmg-root/.background
           mv "dist/MyJobCoach.app" dist/dmg-root/
           ln -s /Applications dist/dmg-root/Applications
+          cp packaging/dmg-background.tiff dist/dmg-root/.background/background.tiff
+
           hdiutil create -volname "MyJobCoach" -srcfolder dist/dmg-root \
-            -ov -format UDZO "dist/MyJobCoach-macos.dmg"
+            -ov -format UDRW -fs HFS+ dist/rw.dmg
+          hdiutil attach dist/rw.dmg -readwrite -noverify -noautoopen
+
+          osascript \
+            -e 'tell application "Finder"' \
+            -e 'tell disk "MyJobCoach"' \
+            -e 'open' \
+            -e 'set current view of container window to icon view' \
+            -e 'set toolbar visible of container window to false' \
+            -e 'set statusbar visible of container window to false' \
+            -e 'set the bounds of container window to {400, 100, 1060, 600}' \
+            -e 'set theViewOptions to the icon view options of container window' \
+            -e 'set arrangement of theViewOptions to not arranged' \
+            -e 'set icon size of theViewOptions to 128' \
+            -e 'set background picture of theViewOptions to file ".background:background.tiff"' \
+            -e 'set position of item "MyJobCoach.app" of container window to {180, 190}' \
+            -e 'set position of item "Applications" of container window to {480, 190}' \
+            -e 'close' \
+            -e 'open' \
+            -e 'update without registering applications' \
+            -e 'delay 2' \
+            -e 'end tell' \
+            -e 'end tell'
+
+          hdiutil detach "/Volumes/MyJobCoach" -force
+          hdiutil convert dist/rw.dmg -format UDZO -ov -o "dist/${{ matrix.artifact }}.dmg"
+          rm -f dist/rw.dmg
 
       - name: Package (Windows .zip)
         # Zip the MyJobCoach folder itself (not just its contents) so

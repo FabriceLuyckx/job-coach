@@ -1,19 +1,31 @@
+## Purpose
+
+Defines the first-run setup wizard's behaviour: the visual vocabulary it borrows
+from the rest of the app, its accessibility contract as a non-dismissable modal,
+and how it reports long-running work (model download, on-device translation) so a
+user is never told setup succeeded when it did not.
+
 ## Requirements
 
 ### Requirement: One selection vocabulary across the wizard
 
-The first-run wizard SHALL indicate the currently-selected option with the same visual treatment on every step — the app's ink-fill selection (a filled ink background with cream text on the chosen option, mirroring `EngineCard`, `ModelRow`, and the `.seg` control) — and SHALL NOT use a colored accent border to convey selection. Vermilion SHALL remain rationed to the single primary action per step (the **Next**/**Finish** button), never spent on a selected choice.
+The first-run wizard SHALL indicate the currently-selected option with the same visual treatment on every step, and that treatment SHALL be the app's shared selected-fill state — the one used by `EngineCard`, `ModelRow`, and the `.seg` control, whose fill token is owned by the shell visual system (see the `app-shell-visual-system` spec, which reserves the accent for the primary action, the current selection, and the deadline signal). The wizard SHALL NOT invent a bespoke selection treatment such as a coloured selection border. Within a step, the accent SHALL NOT be spent on anything beyond the selected option and the single primary action (**Next**/**Finish**).
 
 #### Scenario: Language option is selected
 
 - **WHEN** the user picks a language on step 0
-- **THEN** the chosen language button renders with the ink-fill selected state (ink background, cream text), not a 2px accent border
-- **AND** the only vermilion element on that step is the primary **Next** button
+- **THEN** the chosen language button renders with the shared selected-fill state, not a coloured selection border
+- **AND** no element on that step besides the selection and the primary **Next** button is drawn in the accent
 
 #### Scenario: Selection looks identical on the engine step
 
 - **WHEN** the user compares a selected language (step 0) with a selected engine card (step 1)
-- **THEN** both use the same ink-fill selected treatment, so "selected" reads the same way throughout the wizard
+- **THEN** both use the same selected-fill treatment, so "selected" reads the same way throughout the wizard
+
+#### Scenario: A shell palette change does not fork the wizard
+
+- **WHEN** the shell's selected-fill token changes (as in a redesign)
+- **THEN** the wizard's selected options change with it, because it reuses the shared controls rather than restating a colour of its own
 
 ### Requirement: Accessible, non-dismissable dialog
 

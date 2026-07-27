@@ -23,6 +23,13 @@ context: |
     restating token values here, they drift otherwise. Shared primitives
     (Button, Toast, Modal, Collapsible, EmptyState, Badge) — never reimplement
     them inline
+  - The same rule binds specs: a requirement states the RULE and points at the
+    single source of truth, it never copies a value that lives in code. A spec
+    that says "the shared selected-fill state" survives a redesign; one that
+    says "ink background with cream text" is a contradiction waiting to happen
+    (onboarding-wizard was exactly that after the Atelier redesign). When a
+    change alters a shared vocabulary, grep the OTHER specs for the retired
+    words before archiving.
   - NEVER run scripts/translate_locales.py — a pre-commit hook owns locale
     translation; only edit en.json. The i18n parity test failing after an en.json
     edit is expected, not a regression.
