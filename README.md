@@ -13,8 +13,9 @@ For non-technical users. Grab the latest build from the
 
 - **macOS** — download `MyJobCoach-macos.dmg` (Apple Silicon — M1 and newer) or
   `MyJobCoach-macos-intel.dmg` (older Intel Macs), open it, drag **MyJobCoach**
-  into Applications, then launch it. Not sure which? Apple menu → *About This
-  Mac*: a "Chip" starting with **Apple** means the first one.
+  into Applications, then launch it — the first launch is blocked by macOS (see
+  the *first-launch security warning* below). Not sure which? Apple menu →
+  *About This Mac*: a "Chip" starting with **Apple** means the first one.
 - **Windows** — download `MyJobCoach-windows.zip`, unzip it anywhere (you'll get a
   `MyJobCoach` folder — keep it together), then open the folder and run
   `MyJobCoach.exe`.
@@ -75,8 +76,11 @@ Restoring **replaces** your profile, job history and generated CVs on the new ma
 (it doesn't merge). Any API key already set there is left untouched.
 
 > **First-launch security warning (unsigned app):** because the app isn't code-signed
-> yet, the OS will warn the first time. On **macOS**, right-click the app → **Open** →
-> **Open** (or run `xattr -dr com.apple.quarantine "/Applications/MyJobCoach.app"`).
+> yet, the OS will warn the first time. On **macOS**, launching shows *"MyJobCoach"
+> Not Opened* — click **Done** (not Move to Trash), then open **System Settings →
+> Privacy & Security**, scroll down, and click **Open Anyway** (the old
+> right-click → Open trick no longer works on macOS 15+; terminal alternative:
+> `xattr -dr com.apple.quarantine "/Applications/MyJobCoach.app"`).
 > On **Windows**, click **More info** → **Run anyway** on the SmartScreen prompt.
 
 The **About** button in the sidebar footer opens a dialog with the app version,

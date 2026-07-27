@@ -81,9 +81,11 @@ jobs:
 
       - name: Package (macOS .dmg)
         # Stage the .app next to an /Applications symlink, laid out with a
-        # background image (packaging/dmg-background.tiff) that arrows
-        # app -> Applications and spells out the right-click-to-open step for
-        # this unsigned build — a bare Finder window left both unclear. The
+        # background image (packaging/dmg-background.tiff, source + regen
+        # recipe in packaging/dmg-background.html) that arrows
+        # app -> Applications and spells out the Gatekeeper "Open Anyway"
+        # steps for this unsigned build — a bare Finder window left both
+        # unclear. The
         # background is a HiDPI TIFF (1x+2x reps via tiffutil -cathidpicheck)
         # — a plain 1x PNG renders blurry on Retina displays.
         # Recipe: build a writable dmg, let Finder position the icons and set
