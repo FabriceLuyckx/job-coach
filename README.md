@@ -11,8 +11,10 @@ Free software under the [GNU AGPL v3 or later](LICENSE) — see [License](#licen
 For non-technical users. Grab the latest build from the
 [Releases](../../releases) page:
 
-- **macOS** — download `MyJobCoach-macos.dmg`, open it, drag **MyJobCoach** into
-  Applications, then launch it.
+- **macOS** — download `MyJobCoach-macos.dmg` (Apple Silicon — M1 and newer) or
+  `MyJobCoach-macos-intel.dmg` (older Intel Macs), open it, drag **MyJobCoach**
+  into Applications, then launch it. Not sure which? Apple menu → *About This
+  Mac*: a "Chip" starting with **Apple** means the first one.
 - **Windows** — download `MyJobCoach-windows.zip`, unzip it anywhere (you'll get a
   `MyJobCoach` folder — keep it together), then open the folder and run
   `MyJobCoach.exe` (keep the small window it opens — closing it quits the app).
@@ -558,8 +560,8 @@ tag by hand.
   (`.github/workflows/release-please.yml`) reads the commits, computes the SemVer
   bump, and opens a **release PR** that updates `pyproject.toml` + `CHANGELOG.md`.
 - Merging the release PR tags `vX.Y.Z` and creates the GitHub Release; the tag then
-  triggers `.github/workflows/release.yml`, which builds both platforms and attaches
-  the `.dmg`/`.zip` to that same release.
+  triggers `.github/workflows/release.yml`, which builds all three targets (macOS
+  arm64, macOS Intel, Windows) and attaches the `.dmg`s/`.zip` to that same release.
 
 **Local build** (produces `dist/MyJobCoach.app` on macOS, `dist/MyJobCoach/` on Windows):
 
