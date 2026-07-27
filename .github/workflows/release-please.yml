@@ -3,10 +3,18 @@ name: Release Please
 # Owns versioning: on merge to `stable`, release-please reads the Conventional
 # Commits since the last release, computes the SemVer bump, and maintains a
 # rolling release PR that bumps pyproject.toml + CHANGELOG.md. That PR
-# auto-merges itself (below) as soon as it's mergeable, which tags vX.Y.Z and
-# creates the GitHub Release with notes. release.yml then attaches the
-# binaries to that tag's release. Promoting main -> stable stays a manual,
-# reviewed PR — only the version-bump bookkeeping PR is unattended.
+# auto-merges itself (below), and the resulting push re-runs this workflow to
+# tag vX.Y.Z and create the GitHub Release. The tag then triggers release.yml,
+# which attaches the binaries. Promoting main -> stable stays a manual, reviewed
+# PR — only the version-bump bookkeeping PR is unattended.
+#
+# Everything here runs on RELEASE_TOKEN, never the default GITHUB_TOKEN, and
+# that is the whole reason this workflow is as short as it is: GitHub does not
+# start a workflow run for any event created by GITHUB_TOKEN. With the default
+# token, both handoffs in the chain break silently — the release PR merge never
+# re-triggers this workflow (so no tag is ever cut: v0.4.0 stalled exactly
+# there), and the tag push never triggers release.yml (so v0.3.1 shipped with
+# no binaries). A user-owned token makes both fire natively.
 
 on:
   push:
@@ -15,41 +23,44 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  actions: write
 
 jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
+      - name: Require the release token
+        # Fail loudly rather than half-release. Without this secret the run
+        # still "succeeds" while quietly cutting nothing — the exact failure
+        # mode that hid two broken releases.
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          if [ -z "$RELEASE_TOKEN" ]; then
+            echo "::error::RELEASE_TOKEN secret is missing. See CLAUDE.md, Phase 7 — Release versioning."
+            exit 1
+          fi
+
       - uses: googleapis/release-please-action@v4
         id: release
         with:
+          token: ${{ secrets.RELEASE_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
           target-branch: stable
 
-      - name: Build the binaries for the new tag
-        # The tag above is pushed with GITHUB_TOKEN, and GitHub never fires a
-        # `push` workflow trigger for token-made events — so release.yml's
-        # `on: push: tags` cannot see it (v0.3.1 shipped with no binaries this
-        # way). workflow_dispatch is one of the two events exempt from that
-        # rule, so dispatch it explicitly against the tag ref.
-        if: steps.release.outputs.release_created == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh workflow run release.yml --repo "$GITHUB_REPOSITORY" \
-            --ref "${{ steps.release.outputs.tag_name }}"
-
       - name: Auto-merge the release PR
+        # The push from this merge re-runs the workflow, and that second pass is
+        # what creates the tag. `--merge` rather than `--auto`: stable has no
+        # required checks, so there is nothing to wait for, and a synchronous
+        # merge keeps the handoff easy to follow in the run log.
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
           pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --base stable \
             --head release-please--branches--stable --state open \
             --json number --jq '.[0].number')
           if [ -n "$pr" ]; then
-            gh pr merge "$pr" --repo "$GITHUB_REPOSITORY" --auto --merge
+            gh pr merge "$pr" --repo "$GITHUB_REPOSITORY" --merge
           fi
 
       - name: Sync the version bump back to main
@@ -60,7 +71,7 @@ jobs:
         # `gh pr create` fails harmlessly when last release's PR is still open.
         if: steps.release.outputs.release_created == 'true'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
           gh pr create --repo "$GITHUB_REPOSITORY" --base main --head stable \
             --title "chore: sync ${{ steps.release.outputs.tag_name }} back to main" \
