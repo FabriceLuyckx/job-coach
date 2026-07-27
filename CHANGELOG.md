@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.5.1](https://github.com/FabriceLuyckx/job-coach/compare/v0.5.0...v0.5.1) (2026-07-27)
+
+
+### Bug Fixes
+
+* **ci:** bump artifact actions to Node 24 majors (upload v6, download v7) ([3ae9e52](https://github.com/FabriceLuyckx/job-coach/commit/3ae9e52323dba8acaf507c26e8b8f9e08c4768dc))
+
+
+### Performance Improvements
+
+* **frontend:** cache Jobs/Applications/CreditChip data across page visits ([571b8b6](https://github.com/FabriceLuyckx/job-coach/commit/571b8b6d251299e75ab5c5261d1fc0b36ff76db3))
+
+
+### Documentation
+
+* **release:** update macOS first-launch instructions for macOS 15+ Gatekeeper ([a09e9c0](https://github.com/FabriceLuyckx/job-coach/commit/a09e9c0e8cb6babb06bcfe2f70bbb1b9670e2765))
+
 ## [0.5.0](https://github.com/FabriceLuyckx/job-coach/compare/v0.4.1...v0.5.0) (2026-07-27)
 
 
