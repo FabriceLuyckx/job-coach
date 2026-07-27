@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.4.1](https://github.com/FabriceLuyckx/job-coach/compare/v0.4.0...v0.4.1) (2026-07-27)
+
+
+### Bug Fixes
+
+* **ci:** dispatch the tagging pass after auto-merging the release PR ([ffdd508](https://github.com/FabriceLuyckx/job-coach/commit/ffdd508eae92fc9a5675786b1b6143860aa8ad7e))
+* **ci:** dispatch the tagging pass after auto-merging the release PR ([02c45f9](https://github.com/FabriceLuyckx/job-coach/commit/02c45f9169ddaffc64e4155257ba038b83a20d83))
+* **ci:** run the release chain on a PAT instead of GITHUB_TOKEN ([6e12250](https://github.com/FabriceLuyckx/job-coach/commit/6e12250011500128873566c79cbe969b38a851de))
+* **ci:** run the release chain on a PAT instead of GITHUB_TOKEN ([410a0c1](https://github.com/FabriceLuyckx/job-coach/commit/410a0c1cfd7a951aff9c8a1683131b03fc296442))
+
 ## [0.4.0](https://github.com/FabriceLuyckx/job-coach/compare/v0.3.1...v0.4.0) (2026-07-26)
 
 
