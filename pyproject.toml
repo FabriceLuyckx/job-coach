@@ -1,6 +1,6 @@
 [project]
 name = "myjobcoach"
-version = "0.3.1"
+version = "0.4.1"
 description = "AI-powered career assistant: tailored CV generation and job matching"
 license = "AGPL-3.0-or-later"
 requires-python = ">=3.11"

@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.4.1](https://github.com/FabriceLuyckx/job-coach/compare/v0.4.0...v0.4.1) (2026-07-27)
+
+
+### Bug Fixes
+
+* **ci:** dispatch the tagging pass after auto-merging the release PR ([ffdd508](https://github.com/FabriceLuyckx/job-coach/commit/ffdd508eae92fc9a5675786b1b6143860aa8ad7e))
+* **ci:** dispatch the tagging pass after auto-merging the release PR ([02c45f9](https://github.com/FabriceLuyckx/job-coach/commit/02c45f9169ddaffc64e4155257ba038b83a20d83))
+* **ci:** run the release chain on a PAT instead of GITHUB_TOKEN ([6e12250](https://github.com/FabriceLuyckx/job-coach/commit/6e12250011500128873566c79cbe969b38a851de))
+* **ci:** run the release chain on a PAT instead of GITHUB_TOKEN ([410a0c1](https://github.com/FabriceLuyckx/job-coach/commit/410a0c1cfd7a951aff9c8a1683131b03fc296442))
+
+## [0.4.0](https://github.com/FabriceLuyckx/job-coach/compare/v0.3.1...v0.4.0) (2026-07-26)
+
+
+### Features
+
+* **release:** auto-merge the release-please version-bump PR ([4cba174](https://github.com/FabriceLuyckx/job-coach/commit/4cba174c176a60d125befbe22a5347b567e97306))
+
+
+### Bug Fixes
+
+* **ci:** dispatch the binaries build and back-merge the version bump ([0222d6b](https://github.com/FabriceLuyckx/job-coach/commit/0222d6bd1db266e32e73e900a1cce7440d0b77c3))
+* **ci:** dispatch the binaries build and back-merge the version bump ([5a6a0c2](https://github.com/FabriceLuyckx/job-coach/commit/5a6a0c2a98c0397d4629d42c4998c845994b87d0))
+* **update:** serve real dist files before the SPA fallback, tweak update copy ([d17e596](https://github.com/FabriceLuyckx/job-coach/commit/d17e5962a0652a0dbc6ef451213e9fd2d2ac6d2d))
+
 ## [0.3.1](https://github.com/FabriceLuyckx/job-coach/compare/v0.3.0...v0.3.1) (2026-07-26)
 
 
