@@ -643,25 +643,29 @@ Commits](https://www.conventionalcommits.org) since the last release, computes t
 SemVer bump (`feat:`→minor, `fix:`/`chore:`→patch, `!`/`BREAKING CHANGE:`→major),
 and maintains a rolling **release PR** that bumps `pyproject.toml` + `CHANGELOG.md`.
 That PR **auto-merges itself** — a second step in the same workflow finds the open
-`release-please--branches--stable` PR, merges it, and then **dispatches this same
-workflow again** to do the tagging pass. So promoting `main` → `stable` (still a
-manual, reviewed PR) is the only human step in the whole release; the version bump
-is never a separate click. The self-dispatch is load-bearing for the same reason as
-the one below: a token-made merge doesn't fire the `push` trigger, so without it the
-tagging pass never runs and the release stalls half-done — merged bump, no tag
-(exactly how v0.4.0 stalled the first time auto-merge ran). It uses a plain
-`--merge`, not `--auto`, because an async merge races the dispatch; and it sits
-inside the "a PR was open" branch, which is what stops the workflow dispatching
-itself forever. That pass tags `vX.Y.Z` and
-creates the GitHub Release with notes; release-please then **dispatches** the
-binaries-only `release.yml` against that tag, whose `action-gh-release` step
-**upserts** the `.dmg`/`.zip` onto that same release (no duplicate). The dispatch
-is not decoration: `release.yml`'s `on: push: tags` **cannot** fire here, because
-GitHub never triggers a `push` workflow for a tag pushed with `GITHUB_TOKEN` — so
-every automated release shipped with zero binaries until v0.3.1 made it obvious.
-`workflow_dispatch` is one of the two events exempt from that rule, hence
-`gh workflow run release.yml --ref <tag>` (the tag trigger stays for hand-pushed
-tags). A final step **back-merges `stable` → `main`** via PR, because
+`release-please--branches--stable` PR and merges it; that push re-runs the workflow,
+and *that* pass tags `vX.Y.Z` and creates the GitHub Release with notes. The tag
+triggers the binaries-only `release.yml`, whose `action-gh-release` step **upserts**
+the `.dmg`/`.zip` onto that same release (no duplicate). So promoting `main` →
+`stable` (still a manual, reviewed PR) is the only human step in the whole release;
+the version bump is never a separate click.
+
+**The whole chain runs on a `RELEASE_TOKEN` secret, never the default
+`GITHUB_TOKEN`, and that is not incidental** — GitHub does not start a workflow run
+for any event created by `GITHUB_TOKEN`, so with the default token *both* handoffs
+break silently and a "successful" green run cuts nothing. Both failures were shipped
+before this was understood: the tag push never triggered `release.yml`, so every
+automated release had **zero binaries** (v0.3.1); and once auto-merge was added, the
+release-PR merge never re-triggered the tagging pass, so v0.4.0 stalled with its
+bump, changelog and manifest merged and **no tag** — a state release-please will not
+retry, since it considers that version done. A user-owned token makes both fire
+natively, which is why there is no `workflow_dispatch` plumbing here. Setup: a
+fine-grained PAT scoped to this repo (**Contents**, **Pull requests**, **Workflows**
+= read+write), **no expiration**, saved as the `RELEASE_TOKEN` repo secret; the
+workflow's first step fails loudly if it is missing, because a half-release that
+still reports success is exactly the failure mode above. The merge uses a plain
+`--merge`, not `--auto` — `stable` has no required checks, so there is nothing to
+wait for. A final step **back-merges `stable` → `main`** via PR, because
 release-please bumps `pyproject.toml` on `stable` only and nothing carried it
 back — leaving `main` (and its `GET /api/version`) a release behind. `uv.lock`'s
 root-package version is deliberately *not* synced by CI; uv re-locks it on the
