@@ -11,15 +11,26 @@ import { useKeyStatus } from './KeyStatus'
  * spend credits (Generate CV, Find new listings) so cost is visible where it
  * happens, not only in Settings.
  */
+// Module-side cache: the balance is fetched from openrouter.ai (slow, remote),
+// so page switches show the last value instantly and only refresh when stale.
+let cachedBalance: number | null = null
+let cachedAt = 0
+const BALANCE_TTL_MS = 60_000
+
 export default function CreditChip() {
   const { keySet, provider } = useKeyStatus()
-  const [balance, setBalance] = useState<number | null>(null)
+  const [balance, setBalance] = useState<number | null>(cachedBalance)
 
   useEffect(() => {
     if (!keySet || provider !== 'openrouter') return
+    if (Date.now() - cachedAt < BALANCE_TTL_MS) return
     let active = true
     api.getOpenrouterUsage()
-      .then(u => { if (active) setBalance(u.balance ?? u.remaining) })
+      .then(u => {
+        cachedBalance = u.balance ?? u.remaining
+        cachedAt = Date.now()
+        if (active) setBalance(cachedBalance)
+      })
       .catch(() => {})
     return () => { active = false }
   }, [keySet, provider])
