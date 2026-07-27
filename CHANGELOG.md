@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.5.0](https://github.com/FabriceLuyckx/job-coach/compare/v0.4.1...v0.5.0) (2026-07-27)
+
+
+### Features
+
+* **desktop:** host the SPA in a native window instead of the browser ([7d3c963](https://github.com/FabriceLuyckx/job-coach/commit/7d3c9632b394bfa66d92a39ff9de82c54f76da16))
+* **packaging:** add background image and layout to macOS dmg ([ed36a1f](https://github.com/FabriceLuyckx/job-coach/commit/ed36a1ff76999adec7ed5e8d8ea89bf6d69e74ec))
+* **updater:** add Intel macOS release build and asset selection ([0918878](https://github.com/FabriceLuyckx/job-coach/commit/0918878a796834282b3afebe55404e9360d78057))
+
 ## [0.4.1](https://github.com/FabriceLuyckx/job-coach/compare/v0.4.0...v0.4.1) (2026-07-27)
 
 
