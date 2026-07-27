@@ -95,19 +95,35 @@ function Verdict({ digest, reason, userNote, fallbackReason }: {
 // ponytail: in-memory only — swap to localStorage if reload-persistence is wanted.
 let activeScan: { id: string; kind: 'scan' | 'recheck' } | null = null
 
+// Last-loaded page data, same module-side lifetime: shown instantly on return
+// to this page while load() revalidates in the background (stale-while-revalidate).
+const pageCache: {
+  sources?: JobSource[]; suggestions?: JobOpening[]
+  filtered?: OpeningPage; history?: OpeningPage
+  lastScan?: string | null; profileChanged?: boolean; recheckableCount?: number
+} = {}
+
 export default function JobsPage() {
   const navigate = useNavigate()
   const toast = useToast()
   const { t } = useTranslation()
   const { keySet } = useKeyStatus()
-  const [sources, setSources] = useState<JobSource[]>([])
-  const [suggestions, setSuggestions] = useState<JobOpening[]>([])
+  const [sources, setSources] = useState<JobSource[]>(pageCache.sources ?? [])
+  const [suggestions, setSuggestions] = useState<JobOpening[]>(pageCache.suggestions ?? [])
   // Filtered-out and history are paged server-side; each holds one page.
-  const [filtered, setFiltered] = useState<OpeningPage>(EMPTY_PAGE)
-  const [history, setHistory] = useState<OpeningPage>(EMPTY_PAGE)
-  const [lastScan, setLastScan] = useState<string | null>(null)
-  const [profileChanged, setProfileChanged] = useState(false)
-  const [recheckableCount, setRecheckableCount] = useState(0)
+  const [filtered, setFiltered] = useState<OpeningPage>(pageCache.filtered ?? EMPTY_PAGE)
+  const [history, setHistory] = useState<OpeningPage>(pageCache.history ?? EMPTY_PAGE)
+  const [lastScan, setLastScan] = useState<string | null>(pageCache.lastScan ?? null)
+  const [profileChanged, setProfileChanged] = useState(pageCache.profileChanged ?? false)
+  const [recheckableCount, setRecheckableCount] = useState(pageCache.recheckableCount ?? 0)
+  // Keep the cache mirroring live state, so local mutations (accept/reject,
+  // scan results) don't flash stale data on the next visit.
+  useEffect(() => {
+    pageCache.sources = sources; pageCache.suggestions = suggestions
+    pageCache.filtered = filtered; pageCache.history = history
+    pageCache.lastScan = lastScan; pageCache.profileChanged = profileChanged
+    pageCache.recheckableCount = recheckableCount
+  })
   const [newUrl, setNewUrl] = useState('')
   const [checkUrl, setCheckUrl] = useState('')
   const [checking, setChecking] = useState(false)

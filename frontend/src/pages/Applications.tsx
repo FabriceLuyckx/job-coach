@@ -287,6 +287,13 @@ function NewApplicationSlot({ pending, onCvGenerated, onLetterGenerated, onClose
 const expandedRows = new Set<string>()
 const rowTabs = new Map<string, 'cv' | 'letter'>()
 
+// Last-loaded page data, same module-side lifetime: shown instantly on return
+// to this page while load() revalidates in the background (stale-while-revalidate).
+const pageCache: {
+  cvs?: CvHistoryEntry[]; letters?: LetterHistoryEntry[]
+  hasPhoto?: boolean; profile?: Profile | null
+} = {}
+
 // ─── One application row (collapsible, CV | Letter tabs) ──────────────────────
 
 function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenerated, onLetterGenerated, initialExpanded }: {
@@ -688,10 +695,16 @@ function GenericCreateCard({ profile, onCvGenerated, onLetterGenerated, onRunnin
 export default function ApplicationsPage() {
   const toast = useToast()
   const { t } = useTranslation()
-  const [cvHistory, setCvHistory] = useState<CvHistoryEntry[]>([])
-  const [letterHistory, setLetterHistory] = useState<LetterHistoryEntry[]>([])
-  const [hasPhoto, setHasPhoto] = useState(false)
-  const [profile, setProfile] = useState<Profile | null>(null)
+  const [cvHistory, setCvHistory] = useState<CvHistoryEntry[]>(pageCache.cvs ?? [])
+  const [letterHistory, setLetterHistory] = useState<LetterHistoryEntry[]>(pageCache.letters ?? [])
+  const [hasPhoto, setHasPhoto] = useState(pageCache.hasPhoto ?? false)
+  const [profile, setProfile] = useState<Profile | null>(pageCache.profile ?? null)
+  // Keep the cache mirroring live state, so local mutations (delete + Undo,
+  // freshly generated artifacts) don't flash stale data on the next visit.
+  useEffect(() => {
+    pageCache.cvs = cvHistory; pageCache.letters = letterHistory
+    pageCache.hasPhoto = hasPhoto; pageCache.profile = profile
+  })
   const [genericRunning, setGenericRunning] = useState(false)
   const [showNew, setShowNew] = useState(false)
   const [pending, setPending] = useState<Pending | null>(null)

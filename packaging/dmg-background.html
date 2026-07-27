@@ -1,0 +1,56 @@
+<!--
+SPDX-License-Identifier: AGPL-3.0-or-later
+Copyright (C) 2026 Fabrice Luyckx
+
+Source for packaging/dmg-background.tiff (the macOS dmg Finder-window
+background). The Finder window is 660x500 pt (release.yml bounds
+{400,100,1060,600}); icons sit at y=190, 128px, centred on x=180 (app)
+and x=480 (/Applications). Regenerate after editing:
+
+  uv run python - <<'EOF'
+  from playwright.sync_api import sync_playwright
+  with sync_playwright() as p:
+      b = p.chromium.launch()
+      for scale, out in [(1, "bg1x.png"), (2, "bg2x.png")]:
+          pg = b.new_page(viewport={"width": 660, "height": 500}, device_scale_factor=scale)
+          pg.goto("file://" + __import__("os").path.abspath("packaging/dmg-background.html"))
+          pg.screenshot(path=out)
+      b.close()
+  EOF
+  tiffutil -cathidpicheck bg1x.png bg2x.png -out packaging/dmg-background.tiff
+  rm bg1x.png bg2x.png
+-->
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  html, body { width: 660px; height: 500px; }
+  body {
+    background: #CCD4CD; /* --ground */
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    color: #1E332D; /* --ink */
+    position: relative;
+  }
+  /* arrow between the two icon slots (icons at x=180 and x=480, y=190) */
+  .arrow { position: absolute; top: 178px; left: 250px; }
+  .headline {
+    position: absolute; top: 298px; width: 100%;
+    text-align: center; font-size: 20px; font-weight: 700;
+  }
+  .note {
+    position: absolute; top: 396px; width: 100%;
+    text-align: center; font-size: 13px; line-height: 1.65;
+    color: #3A4B43; /* --muted */
+  }
+  .note b { color: #1E332D; }
+  .note .go { color: #963618; font-weight: 700; } /* --accent-text */
+</style>
+<svg class="arrow" width="164" height="26" viewBox="0 0 164 26">
+  <line x1="0" y1="13" x2="140" y2="13" stroke="#BC4A26" stroke-width="9"/>
+  <path d="M136 0 L164 13 L136 26 Z" fill="#BC4A26"/>
+</svg>
+<div class="headline">Drag MyJobCoach into Applications</div>
+<div class="note">
+  First launch: macOS will block the unsigned app (&ldquo;Not&nbsp;Opened&rdquo;).<br>
+  Click <b>Done</b> (not Move to Trash), then open
+  <b>System&nbsp;Settings &rarr; Privacy&nbsp;&amp;&nbsp;Security</b>,<br>
+  scroll down, and click <span class="go">Open&nbsp;Anyway</span>.
+</div>
