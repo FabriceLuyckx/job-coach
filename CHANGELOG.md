@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.6.0](https://github.com/FabriceLuyckx/job-coach/compare/v0.5.1...v0.6.0) (2026-07-28)
+
+
+### Features
+
+* **cv:** let users control which skills appear on a tailored CV ([3232ddb](https://github.com/FabriceLuyckx/job-coach/commit/3232ddb097b102d7c140ddcef0fff15fa069541b))
+
+
+### Bug Fixes
+
+* **ci:** bump softprops/action-gh-release to v3 (node24) ([8618832](https://github.com/FabriceLuyckx/job-coach/commit/86188324537b322b707c8b0b2348ef60c410c900))
+* **windows:** survive a slow cold start and guide the first-run unzip ([5ad5ff2](https://github.com/FabriceLuyckx/job-coach/commit/5ad5ff2d2a55010a876a2b1a85cdf51fa8bcb4a1))
+
 ## [0.5.1](https://github.com/FabriceLuyckx/job-coach/compare/v0.5.0...v0.5.1) (2026-07-27)
 
 
