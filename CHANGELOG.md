@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/FabriceLuyckx/job-coach/compare/v0.6.0...v0.6.1) (2026-07-28)
+
+
+### Bug Fixes
+
+* **windows:** log stdio and report failed startup instead of claiming success ([d84be52](https://github.com/FabriceLuyckx/job-coach/commit/d84be52a1fe3c868cf8682d5d2d3c4f056fc8f95))
+
 ## [0.6.0](https://github.com/FabriceLuyckx/job-coach/compare/v0.5.1...v0.6.0) (2026-07-28)
 
 
