@@ -29,6 +29,7 @@ from app import paths
 HOST = "127.0.0.1"
 PREFERRED_PORT = 8756
 WINDOW_TITLE = "MyJobCoach"
+LOG_PATH = paths.DATA_DIR / "myjobcoach.log"
 
 
 def _port_in_use(port: int) -> bool:
@@ -70,11 +71,32 @@ def _wait_ready(port: int, timeout: float = 90.0) -> bool:
     return False
 
 
+def _redirect_stdio() -> None:
+    """Give the process real stdout/stderr, and a log file to keep them in.
+
+    A windowed build (``console=False``) leaves both as ``None`` on Windows.
+    uvicorn's log formatter calls ``sys.stdout.isatty()`` while configuring
+    logging, so ``uvicorn.run()`` died on AttributeError before it ever bound —
+    and the thread excepthook had nowhere to print it either. That is the whole
+    of the "console says running, browser says ERR_CONNECTION_REFUSED" report:
+    not a slow start, a server that never existed. The log file means the next
+    startup failure is readable instead of guessed at.
+    """
+    if sys.stdout and sys.stderr:
+        return
+    try:
+        f = open(LOG_PATH, "a", buffering=1, encoding="utf-8", errors="replace")
+    except OSError:
+        f = open(os.devnull, "w")
+    sys.stdout = sys.stdout or f
+    sys.stderr = sys.stderr or f
+
+
 def _serve_forever() -> None:
     threading.Event().wait()
 
 
-def _browser_fallback(url: str) -> None:
+def _browser_fallback(url: str, ready: bool = True) -> None:
     """No usable web view — today's pre-window behaviour: browser + a console."""
     if sys.platform == "win32":
         # ponytail: console=False removed the quit window; restore it only on
@@ -83,9 +105,16 @@ def _browser_fallback(url: str) -> None:
 
         ctypes.windll.kernel32.AllocConsole()
         sys.stdout = sys.stderr = open("CONOUT$", "w")
-    print(f"MyJobCoach is running at {url}")
-    print("Keep this window open. Close it to quit MyJobCoach.")
-    print("If your browser says it cannot connect, wait a moment and refresh.")
+    if ready:
+        print(f"MyJobCoach is running at {url}")
+        print("Keep this window open. Close it to quit MyJobCoach.")
+        print("If your browser says it cannot connect, wait a moment and refresh.")
+    else:
+        # Never claim it is running when it demonstrably is not — that is what
+        # sent the last report chasing a browser problem for a dead server.
+        print("MyJobCoach failed to start: nothing is listening on", url)
+        print(f"Details were written to: {LOG_PATH}")
+        print("Please send that file along with your bug report.")
     webbrowser.open(url)
     _serve_forever()  # the server is a daemon thread; hold the process open
 
@@ -108,6 +137,7 @@ def _open_ui(url: str) -> None:
 
 
 def main() -> None:
+    _redirect_stdio()
     # In the packaged app, keep the downloaded Chromium in the writable data dir.
     if paths.FROZEN:
         os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", str(paths.BROWSERS_DIR))
@@ -133,8 +163,11 @@ def main() -> None:
         kwargs={"host": HOST, "port": port, "log_level": "warning"},
         daemon=True,
     ).start()
-    _wait_ready(port)
-    _open_ui(f"http://{HOST}:{port}")
+    url = f"http://{HOST}:{port}"
+    if _wait_ready(port):
+        _open_ui(url)
+    else:
+        _browser_fallback(url, ready=False)
 
 
 if __name__ == "__main__":

@@ -33,3 +33,7 @@ MyJobCoach — read this first
 
 
 Problems? Open an issue: https://github.com/FabriceLuyckx/job-coach/issues
+
+If the app fails to start, attach the log file:
+%LOCALAPPDATA%\MyJobCoach\MyJobCoach\myjobcoach.log
+(paste that into the Explorer address bar)

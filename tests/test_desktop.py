@@ -57,6 +57,33 @@ def test_wait_ready_reports_failure_instead_of_returning_none(monkeypatch):
     assert desktop._wait_ready(1234, timeout=0.5) is False
 
 
+def test_windowed_build_gets_real_stdio_so_uvicorn_can_configure_logging(monkeypatch):
+    """PyInstaller's console=False leaves sys.stdout/stderr as None on Windows.
+    uvicorn's ColourizedFormatter calls sys.stdout.isatty() while configuring
+    logging, so uvicorn.run() died before binding and the server thread went
+    down silently — the app printed "running" at a port nothing listened on."""
+    import uvicorn.logging
+
+    monkeypatch.setattr(sys, "stdout", None)
+    monkeypatch.setattr(sys, "stderr", None)
+
+    desktop._redirect_stdio()
+
+    assert sys.stdout is not None and sys.stderr is not None
+    uvicorn.logging.DefaultFormatter()  # raised AttributeError before the fix
+    uvicorn.logging.AccessFormatter()
+
+
+def test_startup_failure_is_reported_instead_of_claiming_success(monkeypatch, capsys):
+    monkeypatch.setattr(desktop, "_serve_forever", lambda: None)
+    monkeypatch.setattr(desktop.webbrowser, "open", lambda url: None)
+
+    desktop._browser_fallback("http://127.0.0.1:8756", ready=False)
+
+    out = capsys.readouterr().out
+    assert "failed to start" in out and str(desktop.LOG_PATH) in out
+
+
 def test_second_launch_opens_browser_without_second_server(monkeypatch):
     opened = []
     monkeypatch.setattr(desktop, "_port_in_use", lambda port: True)
