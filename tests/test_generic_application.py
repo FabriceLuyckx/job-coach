@@ -109,7 +109,7 @@ def _stub_retailor_io(monkeypatch, fetch):
         from app.services.cv_generator import TailoringPlan
         return TailoringPlan(job_title="T", employer="E", slug="general", summary="S",
                              selected_experience_ids=[], adjusted_responsibilities={},
-                             highlighted_skills=[], tailoring_notes="")
+                             tailoring_notes="")
 
     monkeypatch.setattr(cv_api, "tailor", fake_tailor)
     return seen

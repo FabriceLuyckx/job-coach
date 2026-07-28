@@ -52,11 +52,22 @@ def _is_our_app(port: int) -> bool:
         return False
 
 
-def _wait_ready(port: int) -> None:
-    for _ in range(100):  # wait up to ~10s for the server to answer
+def _wait_ready(port: int, timeout: float = 90.0) -> bool:
+    """Block until the server answers. True if it did, False on timeout.
+
+    The budget is generous on purpose: a cold first launch on a slow 2-core
+    laptop spends most of a minute unpacking the onedir bundle and importing
+    fastapi/llama_cpp/playwright before uvicorn ever binds. The old 10s gave
+    up silently and the caller opened the UI anyway, so the user got a console
+    claiming "running at http://..." next to a browser saying
+    ERR_CONNECTION_REFUSED — a working app that looks broken.
+    """
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
         if _is_our_app(port):
-            return
-        time.sleep(0.1)
+            return True
+        time.sleep(0.2)
+    return False
 
 
 def _serve_forever() -> None:
@@ -74,6 +85,7 @@ def _browser_fallback(url: str) -> None:
         sys.stdout = sys.stderr = open("CONOUT$", "w")
     print(f"MyJobCoach is running at {url}")
     print("Keep this window open. Close it to quit MyJobCoach.")
+    print("If your browser says it cannot connect, wait a moment and refresh.")
     webbrowser.open(url)
     _serve_forever()  # the server is a daemon thread; hold the process open
 

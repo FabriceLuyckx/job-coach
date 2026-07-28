@@ -50,7 +50,7 @@ def test_every_offered_string_is_applied(profile):
     plan = TailoringPlan(
         job_title="T", employer="E", slug="s", summary="S",
         selected_experience_ids=[], adjusted_responsibilities={},
-        highlighted_skills=[], tailoring_notes="",
+        tailoring_notes="",
         sidebar_translations={s: f"NL::{s}" for s in offered},
     )
     out = apply_tailoring(profile, plan)
@@ -70,7 +70,7 @@ def test_untranslated_strings_are_left_alone(profile):
     out = apply_tailoring(profile, TailoringPlan(
         job_title="T", employer="E", slug="s", summary="S",
         selected_experience_ids=[], adjusted_responsibilities={},
-        highlighted_skills=[], tailoring_notes="",
+        tailoring_notes="",
         sidebar_translations={profile["skills"]["groups"][0]["label"]: "Vaardigheden"},
     ))
     assert out["skills"]["groups"][0]["label"] == "Vaardigheden"

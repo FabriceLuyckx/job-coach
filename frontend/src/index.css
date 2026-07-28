@@ -269,6 +269,11 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: var(--r
 /* Firefox draws the swatch via its own pseudo with a default grey border (reads
    as a stray inset frame) — the -webkit rules above don't touch it. */
 input[type="color"]::-moz-color-swatch { border: none; border-radius: var(--radius-xs); }
+/* A ticked box is "the current selection", which the Rationed Accent Rule spends
+   terracotta on — left to the UA it paints the OS blue, the one generic-SaaS
+   colour this world doesn't contain. One property, both engines. */
+input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
+
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--accent);
@@ -623,11 +628,11 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   font-size: var(--fs-xs); font-weight: 600; color: var(--muted);
   text-transform: uppercase; letter-spacing: 0.06em;
 }
-/* Read-only AI-decision chip (emphasised skills). */
-.chip-readonly {
-  display: inline-flex; align-items: center; margin: 2px 4px 2px 0;
-  font-size: var(--fs-sm); padding: 2px 8px;
-  border: 1px solid var(--border); border-radius: var(--chip-radius); color: var(--ink);
+/* A count beside a cluster label is data, not label text: mono, mixed case, so
+   it doesn't inherit the label's uppercase (The Data Voice Rule). */
+.cluster-count {
+  font-family: var(--data-font); font-size: var(--fs-xs); color: var(--muted);
+  text-transform: none; letter-spacing: 0; font-weight: 400;
 }
 /* AI-excluded section chip with a one-tap restore. */
 .chip-restore {
@@ -834,6 +839,58 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   font-weight: 400; margin-bottom: 0;
 }
 .chip-check input { width: auto; }
+
+/* ── CV editor decision clusters (sections + skills) ─────────────────────────
+   One tonal board split by hairlines, not two bare rows floating on the ground:
+   the disclosures were stacked flush and read as one cramped block. */
+.editor-clusters {
+  background: var(--board);
+  border: 1px solid var(--line);
+  border-radius: var(--r-panel);
+  padding: 0 var(--space-5);
+}
+.editor-clusters > .collapsible { padding: var(--space-4) 0; }
+.editor-clusters > .collapsible + .collapsible { border-top: 1px solid var(--line); }
+.chip-row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+/* Skills: one row per group — a label column that is itself the group's on/off
+   control, and the skills as flowing toggles. 40+ skills as checkbox pills was a
+   wall; a tag is the shape they already have on the CV. */
+.skill-group {
+  display: grid;
+  grid-template-columns: minmax(0, 150px) 1fr;
+  gap: var(--space-2) var(--space-5);
+  align-items: start;
+  padding: var(--space-3) 0;
+}
+.skill-group + .skill-group { border-top: 1px solid var(--line); }
+.skill-group-name {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  font-size: var(--fs-sm); font-weight: 600; color: var(--ink);
+  cursor: pointer; margin: 0; padding-top: 2px;
+}
+.skill-group-name input { width: auto; flex-shrink: 0; }
+.skill-group.masked .skill-group-name { color: var(--muted); }
+.skill-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.skill-toggle {
+  font-size: var(--fs-sm); line-height: 1.35; padding: 3px 11px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: var(--r-btn);
+  background: var(--surface); color: var(--ink);
+}
+.skill-toggle:hover { border-color: var(--ink); }
+/* Off the CV. Two states, one vocabulary: the AI's leftovers keep the dashed
+   outline the section restore-chips already use, the user's own removals are
+   struck through — so "what did the AI drop?" is answerable at a glance. */
+.skill-toggle.off {
+  background: transparent; color: var(--muted); text-decoration: line-through;
+}
+.skill-toggle.ai-off {
+  background: transparent; color: var(--muted); text-decoration: none;
+  border-style: dashed; border-color: color-mix(in srgb, var(--ink) 45%, transparent);
+}
+@media (max-width: 700px) {
+  .skill-group { grid-template-columns: 1fr; }
+}
 
 /* Inline "I currently work here" style checkbox row on entry forms. */
 .checkbox-row {

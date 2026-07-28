@@ -187,9 +187,10 @@ def test_crop_params_reach_every_template(tpl, profile):
 
 def _plan(**kw):
     from app.services.cv_generator import TailoringPlan
-    return TailoringPlan(job_title="T", employer="E", slug="test-slug", summary="S",
-                         selected_experience_ids=[], adjusted_responsibilities={},
-                         highlighted_skills=[], tailoring_notes="", **kw)
+    return TailoringPlan(**{
+        "job_title": "T", "employer": "E", "slug": "test-slug", "summary": "S",
+        "selected_experience_ids": [], "adjusted_responsibilities": {},
+        "tailoring_notes": "", **kw})
 
 
 def test_render_html_photo_is_per_cv_not_global(monkeypatch, profile):
@@ -228,3 +229,73 @@ def test_render_survives_a_blank_profile(tpl):
     """A brand-new user has no data yet; the picker must still preview safely."""
     from app.services.cv_renderer import blank_profile
     assert render(tpl, blank_profile())
+
+
+# ── Section content rules (shared by every template via _sections.html) ──────
+
+SINGLE_COLUMN = ["classic", "banner", "minimal"]
+
+
+def test_sort_by_year_puts_newest_first_and_undated_last():
+    from app.services.cv_renderer import sort_by_year
+    items = [{"years": ""}, {"years": "2019–2021"}, {"year": 2024}, {"years": "2022"}]
+    assert [i.get("years", i.get("year")) for i in sort_by_year(items)] == \
+        [2024, "2022", "2019–2021", ""]
+
+
+@pytest.mark.parametrize("tpl", sorted(template_ids()))
+def test_dated_entries_render_newest_first(tpl, profile):
+    """Free-text years ("2019–2021") sort on the last year they mention, and an
+    entry with no year at all goes last instead of wherever it was typed."""
+    p = dict(profile)
+    p["teaching"] = {"entries": [
+        {"type": "other", "type_other": "Undated talk", "years": ""},
+        {"type": "other", "type_other": "Older course", "years": "2015–2016"},
+        {"type": "other", "type_other": "Newer course", "years": "2021"},
+    ]}
+    html = render(tpl, p)
+    order = [html.index(x) for x in ("Newer course", "Older course", "Undated talk")]
+    assert order == sorted(order), "teaching entries are not newest-first"
+
+
+@pytest.mark.parametrize("tpl", SINGLE_COLUMN)
+def test_single_column_links_sit_in_the_header(tpl, profile):
+    """Without a sidebar, a links *section* lands at the foot of the CV — the
+    last place anyone looks for a profile URL. They belong on the contact line."""
+    html = render(tpl, profile)
+    assert html.index("linkedin.com/in/janedoe") < html.index('class="section"')
+    assert 'data-section="links"' in html          # still editor-toggleable
+    assert html.count('data-section="links"') == 1  # header only, no bottom section
+
+
+@pytest.mark.parametrize("tpl", SINGLE_COLUMN)
+def test_links_section_can_still_be_hidden(tpl, profile):
+    assert "linkedin.com/in/janedoe" not in render(tpl, profile, hidden=["links"])
+
+
+# ── Per-CV skill selection (composed by apply_tailoring, rendered as given) ──
+
+def _tailored(tpl, profile, **plan_kw):
+    from app.services.cv_generator import apply_tailoring
+    return render(tpl, apply_tailoring(profile, _plan(**plan_kw)))
+
+
+@pytest.mark.parametrize("tpl", sorted(template_ids()))
+def test_excluded_skills_do_not_render(tpl, profile):
+    html = _tailored(tpl, profile, excluded_skills=["Docker"], hidden_skills=["Python"])
+    assert ">Docker<" not in html and ">Python<" not in html
+    assert ">git<" in html and ">SQL<" in html  # their groups survive
+
+
+@pytest.mark.parametrize("tpl", sorted(template_ids()))
+def test_an_emptied_group_prints_no_heading(tpl, profile):
+    html = _tailored(tpl, profile, excluded_skills=["Communication", "Team leadership"])
+    assert "Soft skills" not in html
+    assert "Programming" in html
+
+
+@pytest.mark.parametrize("tpl", sorted(template_ids()))
+def test_the_skills_section_disappears_when_nothing_is_visible(tpl, profile):
+    every = [t for g in profile["skills"]["groups"] for t in g["items"]]
+    html = _tailored(tpl, profile, hidden_skills=every)
+    assert 'data-section="skills"' not in html

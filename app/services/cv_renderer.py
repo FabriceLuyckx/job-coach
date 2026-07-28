@@ -898,6 +898,16 @@ def strip_scheme(url: str) -> str:
     return re.sub(r"^https?://(www\.)?", "", url).rstrip("/")
 
 
+def sort_by_year(items: list) -> list:
+    """Newest first by the last year mentioned in `years`/`year` (free text, so
+    "2019–2021" sorts on 2021); entries without a year keep their own order at
+    the end. Stable, so same-year entries stay as the user typed them."""
+    def key(item):
+        found = re.findall(r"(?:19|20)\d{2}", str(item.get("years") or item.get("year") or ""))
+        return -int(max(found)) if found else 1  # undated → after every dated one
+    return sorted(items or [], key=key)
+
+
 def richtext(value: str) -> Markup:
     """Render lightweight inline markup: **bold** and *italic*. HTML-escapes the
     text first, so user content can't inject markup, then adds <strong>/<em>."""
@@ -940,4 +950,5 @@ def build_env() -> Environment:
     env.filters["format_date"] = format_date
     env.filters["strip_scheme"] = strip_scheme
     env.filters["richtext"] = richtext
+    env.filters["sort_by_year"] = sort_by_year
     return env

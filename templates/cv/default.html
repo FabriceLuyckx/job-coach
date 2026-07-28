@@ -114,7 +114,9 @@
   .header-name h2 {
     font-size: 10.5pt;
     font-weight: 300;
-    opacity: 0.85;
+    /* Not opacity: it makes Chromium rasterize this text into the PDF, where a
+       CV parser can no longer read it. A colour mix keeps it selectable. */
+    color: color-mix(in srgb, var(--white) 85%, var(--blue));
     margin-top: 5px;
     letter-spacing: 0.2px;
   }
@@ -122,7 +124,7 @@
   .header-contact {
     text-align: right;
     font-size: 8pt;
-    opacity: 0.9;
+    color: color-mix(in srgb, var(--white) 90%, var(--blue));
     line-height: 2;
     white-space: nowrap;
   }
@@ -233,6 +235,10 @@
     white-space: nowrap;
     overflow-wrap: anywhere;
   }
+
+  /* Skills the tailoring plan picked out for this job (they also lead their
+     group). Weight only — these chips are already filled, and lightening the
+     rest would put white text on a pale fill. */
 
   /* ── LANGUAGE BARS ── */
   .lang-row {
