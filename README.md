@@ -16,9 +16,12 @@ For non-technical users. Grab the latest build from the
   into Applications, then launch it — the first launch is blocked by macOS (see
   the *first-launch security warning* below). Not sure which? Apple menu →
   *About This Mac*: a "Chip" starting with **Apple** means the first one.
-- **Windows** — download `MyJobCoach-windows.zip`, unzip it anywhere (you'll get a
-  `MyJobCoach` folder — keep it together), then open the folder and run
-  `MyJobCoach.exe`.
+- **Windows** — download `MyJobCoach-windows.zip`, **unzip it first** (right-click
+  → *Extract All…*; you'll get a `MyJobCoach` folder — keep it together), then open
+  the folder and run `MyJobCoach.exe`. Running the `.exe` straight from inside the
+  zip looks like it does nothing — Windows only extracts that one file, and the app
+  needs the whole folder. The zip carries a `!READ-ME-FIRST.txt` saying the same,
+  plus the SmartScreen step below.
 
 The app opens in its own window — no console, no browser tab — and closing that
 window quits it. (If your machine has no usable web view — e.g. a very old

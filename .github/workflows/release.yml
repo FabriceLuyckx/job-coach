@@ -131,8 +131,18 @@ jobs:
         # Zip the MyJobCoach folder itself (not just its contents) so
         # extracting anywhere yields one clearly-named folder to keep, mirroring
         # the macOS .app bundle instead of scattering loose files.
+        #
+        # The instructions file is the Windows counterpart of the .dmg's
+        # background image: a bare zip has nowhere to say "extract me first,
+        # and SmartScreen will warn you". Running the exe from *inside* the zip
+        # extracts only that one file to a temp dir, so this onedir build dies
+        # on missing DLLs and looks like nothing happened. The "!" prefix is
+        # load-bearing — Explorer sorts it above MyJobCoach.exe, so it is read
+        # before the mistake, not after.
         if: runner.os == 'Windows'
-        run: Compress-Archive -Path dist/MyJobCoach -DestinationPath dist/MyJobCoach-windows.zip
+        run: |
+          Copy-Item packaging/windows-README.txt "dist/MyJobCoach/!READ-ME-FIRST.txt"
+          Compress-Archive -Path dist/MyJobCoach -DestinationPath dist/MyJobCoach-windows.zip
 
       - uses: actions/upload-artifact@v6
         with:
