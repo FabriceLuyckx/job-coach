@@ -27,12 +27,12 @@ back to the default template rather than failing.
 
 Every built-in template SHALL consume the same rendering context (profile
 sections, labels, language, photo, hidden sections, and the tailoring plan's
-highlighted skills) and SHALL: tag each section root with its `data-section` key,
-omit sections listed in `hidden_sections`, render the photo only when provided
-and not hidden, mark the highlighted skills, and contain its own print CSS so
-multi-page PDF export paginates cleanly — including keeping every rendered
-string extractable as text from the PDF. Templates SHALL render without error
-for a complete example profile.
+per-CV skill choices) and SHALL: tag each section root with its `data-section`
+key, omit sections listed in `hidden_sections`, render the photo only when
+provided and not hidden, show skills as the `cv-skills` capability defines, and
+contain its own print CSS so multi-page PDF export paginates
+cleanly — including keeping every rendered string extractable as text from the
+PDF. Templates SHALL render without error for a complete example profile.
 
 #### Scenario: Hidden sections stay hidden across templates
 
@@ -40,12 +40,17 @@ for a complete example profile.
   built-in template
 - **THEN** the output contains no publications section
 
-#### Scenario: Highlighted skills are visible, and nothing is dropped
+#### Scenario: Skills left off the CV do not print
 
-- **WHEN** a CV whose tailoring plan highlights a skill is rendered with any
-  built-in template
-- **THEN** that skill leads its skill group and is visually marked
-- **AND** the skills the plan did not name are still rendered
+- **WHEN** a CV whose plan excludes two skills is rendered with any built-in
+  template
+- **THEN** neither appears, and a group left empty by them prints no heading
+
+#### Scenario: No skill is marked as emphasised
+
+- **WHEN** a CV is rendered with any built-in template
+- **THEN** the visible skills of a group all render alike, with no emphasis mark
+  on any of them
 
 #### Scenario: The PDF's text is machine-readable
 
