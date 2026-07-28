@@ -98,15 +98,17 @@
   .photo-frame img { display: block; width: 100%; height: 100%; }
 
   /* ── SECTIONS ── letter-spaced label, no rule, no fill */
-  .section { margin-bottom: 16px; }
+  .section { margin-bottom: 18px; }
 
   .section-title {
-    font-size: 7.5pt;
-    font-weight: 500;
-    letter-spacing: 2.4px;
+    font-size: 9pt;
+    font-weight: 600;
+    letter-spacing: 1.8px;
     text-transform: uppercase;
     color: var(--accent);
-    margin-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 4px;
+    margin-bottom: 9px;
   }
 
   /* ── SUMMARY ── plain lead paragraph, no tint block */
@@ -153,17 +155,10 @@
     color: var(--accent);
   }
 
-  /* ── LINKS ── inline row */
-  .link-item { display: inline-block; margin-right: 14px; font-size: 8.5pt; }
-
-  .link-label {
-    color: var(--muted);
-    text-transform: uppercase;
-    font-size: 7pt;
-    letter-spacing: 0.6px;
-    margin-right: 4px;
-  }
-
+  /* ── LINKS ── extra items on the header's contact row (display:contents so
+     they take that flex row's own gap, and an inline display:none still hides
+     them) */
+  .links-inline { display: contents; }
   .link-item a { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--rule); }
 
   /* ── SKILLS ── plain text runs, separated by rules — nothing filled */
@@ -175,6 +170,7 @@
   }
 
   .skills-group:last-child { border-bottom: 1px solid var(--rule); }
+  .section-title + .skills-group { border-top: none; }
 
   .skills-group-label {
     flex: 0 0 32mm;
@@ -194,6 +190,17 @@
   }
 
   .tag + .tag::before { content: ' · '; color: var(--muted); white-space: pre; }
+
+  /* Skills the tailoring plan picked out for this job. */
+
+  /* ── COMPACT ZONE ── two-up one-liner sections (see _sections.html) */
+  .compact > .section {
+    display: inline-block;
+    vertical-align: top;
+    width: 48%;
+    padding-right: 8mm;
+    break-inside: avoid;
+  }
 
   /* ── LANGUAGES ── level spelled out; dots would be a filled block */
   .lang-row {
@@ -277,6 +284,7 @@
         <span>{{ personal.location.city }}, {{ personal.location.country }}</span>
         <span><a href="mailto:{{ personal.email }}">{{ personal.email }}</a></span>
         {% if personal.phone %}<span>{{ personal.phone }}</span>{% endif %}
+        {{ S.links_inline() }}
       </div>
     </div>
     {{ S.photo_frame() }}

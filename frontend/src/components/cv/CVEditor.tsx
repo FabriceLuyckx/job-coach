@@ -54,6 +54,8 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
     roles: p.roles.map(({ id, bullets }) => ({ id, bullets })),
     hidden_sections: p.hidden_sections,
     excluded_sections: p.excluded_sections,
+    hidden_skills: p.hidden_skills,
+    excluded_skills: p.excluded_skills,
   })
 
   const runSave = useCallback(async () => {
@@ -190,6 +192,20 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
     editPlan(p => ({ ...p, excluded_sections: p.excluded_sections.filter(k => k !== key) }))
   }
 
+  // ── Skills ──
+  // One control per skill in its own group: on the CV → off (the user's call,
+  // hidden_skills), off → back on (clearing whichever list holds it, so putting
+  // back something the AI dropped is the same single tap). Never the profile.
+  function setSkills(names: string[], show: boolean) {
+    editPlan(p => show
+      ? {
+        ...p,
+        hidden_skills: p.hidden_skills.filter(s => !names.includes(s)),
+        excluded_skills: p.excluded_skills.filter(s => !names.includes(s)),
+      }
+      : { ...p, hidden_skills: [...new Set([...p.hidden_skills, ...names])] })
+  }
+
   // ── AI actions (async, polled) ──
   async function regenerate(keepEdits: boolean) {
     setShowRegen(false); setError(''); setRegenerating(true); setStage(undefined)
@@ -234,6 +250,14 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
   const stageText = stage ? t(`cv.stage.${stage}`) : ''
   const hidden = new Set(plan?.hidden_sections ?? [])
   const shownCount = sections.filter(k => !hidden.has(k)).length
+
+  const excludedSkills = new Set(plan?.excluded_skills ?? [])
+  const hiddenSkills = new Set(plan?.hidden_skills ?? [])
+  const onCV = (s: string) => !excludedSkills.has(s) && !hiddenSkills.has(s)
+  const skillGroups = plan?.skill_groups ?? []
+  const skillTotal = skillGroups.reduce((n, g) => n + g.items.length, 0)
+  const skillShown = skillGroups.reduce((n, g) => n + g.items.filter(onCV).length, 0)
+  const aiLeftOutCount = excludedSkills.size
 
   const saveLabel = saveState === 'saving' || saveState === 'pending' ? t('cveditor.saving')
     : saveState === 'saved' ? t('cveditor.saved')
@@ -367,14 +391,18 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
       {/* Section controls behind one disclosure — header names the payoff with a
           live count, so the CV tab opens on preview + actions + editor, not a wall. */}
       {plan && (
-        <div style={{ marginBottom: 'var(--space-4)' }}>
+        <div className="editor-clusters" style={{ marginBottom: 'var(--space-4)' }}>
           <Collapsible flat title={
             <span className="editor-cluster-label">
               {t('cveditor.sectionsTitle')}
-              {sections.length > 0 && ` — ${t('cveditor.sectionsShownCount', { shown: shownCount, total: sections.length })}`}
+              {sections.length > 0 && <>
+                {' '}<span className="cluster-count">
+                  {t('cveditor.sectionsShownCount', { shown: shownCount, total: sections.length })}
+                </span>
+              </>}
             </span>
           }>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+            <div className="chip-row">
               {sections.map(key => (
                 <label key={key} className="chip-check">
                   <input
@@ -387,7 +415,7 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
             </div>
 
             {plan.excluded_sections.length > 0 && (
-              <div style={{ marginTop: 'var(--space-3)' }}>
+              <div style={{ marginTop: 'var(--space-4)' }}>
                 <span className="muted-sm">{t('cveditor.aiLeftOut')}: </span>
                 {plan.excluded_sections.map(key => (
                   <button key={key} type="button" className="chip-restore" onClick={() => restoreSection(key)}
@@ -399,6 +427,56 @@ export default function CVEditor({ result: initialResult, hasPhoto, onSummaryUpd
             )}
 
           </Collapsible>
+
+          {skillTotal > 0 && (
+            <Collapsible flat title={
+              <span className="editor-cluster-label">
+                {t('cveditor.skillsTitle')}
+                {' '}<span className="cluster-count">
+                  {t('cveditor.skillsShownCount', { shown: skillShown, total: skillTotal })}
+                  {aiLeftOutCount > 0 && ` · ${t('cveditor.skillsAiLeftOut', { count: aiLeftOutCount })}`}
+                </span>
+              </span>
+            }>
+              <p className="muted-sm" style={{ marginTop: 0, marginBottom: 'var(--space-2)', maxWidth: '70ch' }}>
+                {t('cveditor.skillsHelp')}
+              </p>
+              {skillGroups.map(g => {
+                const shown = g.items.filter(onCV)
+                return (
+                  <div key={g.label} className={`skill-group${shown.length ? '' : ' masked'}`}>
+                    {/* The group name is itself the group's control: unticking it
+                        takes the whole group off the CV in one action, and ticking
+                        it back brings every skill in it back (including the AI's). */}
+                    <label className="skill-group-name" title={t('cveditor.skillsGroupTip')}>
+                      <input
+                        type="checkbox" checked={shown.length > 0}
+                        onChange={e => setSkills(g.items, e.target.checked)}
+                      />
+                      {g.label}
+                    </label>
+                    <div className="skill-tags">
+                      {g.items.map(s => {
+                        const ai = excludedSkills.has(s)
+                        const off = !onCV(s)
+                        return (
+                          <button
+                            key={s} type="button" aria-pressed={!off}
+                            className={`skill-toggle${off ? (ai ? ' ai-off' : ' off') : ''}`}
+                            title={t(off ? (ai ? 'cveditor.restoreAiSkillTip' : 'cveditor.restoreSkillTip')
+                              : 'cveditor.hideSkillTip')}
+                            onClick={() => setSkills([s], off)}
+                          >
+                            {s}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+            </Collapsible>
+          )}
         </div>
       )}
 

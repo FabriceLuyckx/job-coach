@@ -141,34 +141,23 @@
   .entry-body ul { padding-left: 15px; }
   .entry-body li { margin-bottom: 2px; }
 
-  /* ── LINKS ── inline row, not a stacked sidebar list */
-  .link-item {
-    display: inline-block;
-    margin-right: 14px;
-    font-size: 8.5pt;
-  }
-
-  .link-label {
-    color: var(--muted);
-    text-transform: uppercase;
-    font-size: 7pt;
-    letter-spacing: 0.6px;
-    margin-right: 4px;
-  }
-
+  /* ── LINKS ── part of the contact line under the name */
+  .links-inline .link-item + .link-item::before { content: ' · '; color: var(--muted); }
   .link-item a { color: var(--accent); text-decoration: none; }
 
   /* ── SKILLS ── comma-free tag row, outlined not filled */
-  .skills-group { margin-bottom: 7px; }
+  .skills-group { display: flex; gap: 8px; margin-bottom: 4px; }
 
   .skills-group-label {
+    flex: 0 0 30mm;
     font-size: 8pt;
     color: var(--muted);
     font-style: italic;
-    margin-bottom: 3px;
+    padding-top: 1px;
   }
 
-  .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  /* flex-start: a two-line group label must not stretch its chips. */
+  .tags { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px; }
 
   .tag {
     border: 1px solid var(--rule);
@@ -178,6 +167,17 @@
     max-width: 100%;
     white-space: nowrap;
     overflow-wrap: anywhere;
+  }
+
+  /* Skills the tailoring plan picked out for this job. */
+
+  /* ── COMPACT ZONE ── two-up one-liner sections (see _sections.html) */
+  .compact > .section {
+    display: inline-block;
+    vertical-align: top;
+    width: 48%;
+    padding-right: 8mm;
+    break-inside: avoid;
   }
 
   /* ── LANGUAGES ── two-per-row grid; dots keep the CV scannable */
@@ -256,6 +256,7 @@
       <span>{{ personal.location.city }}, {{ personal.location.country }}</span>
       <span><a href="mailto:{{ personal.email }}">{{ personal.email }}</a></span>
       {% if personal.phone %}<span>{{ personal.phone }}</span>{% endif %}
+      {{ S.links_inline() }}
     </div>
   </header>
 

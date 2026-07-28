@@ -200,7 +200,6 @@ output/
   "adjusted_responsibilities": {
     "realo-immoweb-em": ["Rewritten bullet matching job language..."]
   },
-  "highlighted_skills": ["Python", "Data analysis"],
   "slug": "ugent-data-scientist",
   "tailoring_notes": "Why this role matches and what was emphasised",
   "sidebar_translations": {"Programming": "Programmeren", "Dutch": "Nederlands"}
@@ -424,6 +423,28 @@ currently-hidden ones, which the server omits) — so a section can never render
 without a way to remove it, and a new one needs no frontend change beyond a
 `cveditor.sections.<key>` label. A hardcoded list is what left Teaching (and every
 other optional section) un-removable until 2026-07.
+
+Four rules the shared macros enforce for **every** template (2026-07-28, from user
+feedback on the sidebar-less layouts): (a) sections whose date is free text
+(`teaching`, `grants`, `certifications`, `awards`, `courses`, `memberships`) render
+through the `sort_by_year` filter — newest first on the *last* year the string
+mentions ("2019–2021" → 2021), undated entries last, stable within a year;
+(b) a group's skills all render alike, in profile order — there is **no** emphasis
+mark (`highlighted_skills` and every template's `.tag.key` were removed 2026-07-28:
+AI-chosen emphasis the user couldn't see the reason for or change had no place on
+a CV going out over their name; selection, which the user controls, is the whole of
+what the model decides about skills); (c) single-column templates call `links_inline()` from their header
+instead of `sec_links()` — a sidebar can afford a titled link list, a single column
+put it at the foot of the CV, the last place anyone looks for a profile URL (the
+one wrapper still carries `data-section="links"`, so the editor toggle is
+unchanged); (d) `main_sections()` wraps the one-line tail sections (grants,
+certifications, awards, courses, memberships) in `<div class="compact">`, which the
+single-column templates lay out **two-up as inline-blocks** — a full-width title
+band per one-liner is what made them sprawl, and inline-block is the layout that
+paginates (grid/flex does not). Header text never uses `opacity`: Chromium
+rasterizes the transparency layer into the PDF, so the name/title/contact line
+stopped being extractable by any CV parser — same look via `color-mix()`.
+
 `manifest.json` is the registry — `{templates: [ids], palettes: [...]}` with **one
 shared palette list** (same set and order for every template, so the swatch row
 never reorders when switching templates; includes a `myjobcoach` palette echoing the
@@ -924,6 +945,44 @@ can drop sections irrelevant to a given job; `apply_tailoring` empties those key
 (teaching to `{entries: []}`, everything else to `[]`). This is the single
 exclusion mechanism — there are no more dedicated `include_publications`/
 `include_teaching` flags.
+
+**Skill selection** (`controllable-cv-skills`): the same pair one level down, for
+individual skills. `excluded_skills` is the model's relevance call,
+`hidden_skills` the user's display choice, and the CV shows
+`profile skills − excluded − hidden`; `apply_tailoring` composes that via
+`visible_skills()` into `skills.groups`, so **the template renders what it is
+given and matches nothing itself** — a group left empty disappears, and so does
+the whole section when nothing survives. The profile is never written to: it stays
+the superset every CV is drawn from.
+
+`excluded_skills` is built **per call** by `_tool_for()` as an `enum` of the
+profile's exact skill strings (like `sidebar_translations`), so the local engine's
+grammar makes a hallucinated or near-miss name unrepresentable. That matters more
+here than anywhere else in the plan: a name that misses would delete a real skill. It **fails open twice** — a name that
+doesn't resolve is ignored (its skill stays), and a response excluding *every*
+skill is discarded whole. `resolve_skills()` (casefold/whitespace, plus the
+profile side with any parenthetical stripped) is a safety net for a
+non-conforming provider, deliberately narrow: `"R"` must never match `"React"`.
+Both lists are resolved again on `PUT /api/cv/plan/{id}`, so only real skills are
+ever stored, and composing against the *current* profile means a deleted skill
+just stops matching — no migration, no cleanup pass.
+
+The choices **carry into a new language's plan** (`_retailor`): they describe the
+application, not its prose, and skill names are never translated. Keep-edits
+preserves them; regenerate-all on the same language re-selects.
+
+`CVEditor` renders the cluster as **one hairline-split row per profile group**
+(`.skill-group`, groups from the plan endpoint's `skill_groups`): the group name is
+itself a checkbox that takes the **whole group** off the CV or puts it back (all its
+items in/out of `hidden_skills` — no third list; turning a group back on also clears
+the AI's exclusions for it, which is the one-action group restore), and each skill is
+a tap-to-toggle `.skill-toggle` tag. A tag off the CV is **struck through** when the
+user removed it and **dashed** when the AI left it out, so provenance is legible
+without a second list; the header carries the mono `N of M on this CV · K left out by
+the AI` count. The first cut used `chip-check` per skill plus a separate restore row —
+at 40+ skills that was a wall of checkbox pills with no group-level control. Both
+disclosures sit on **one `--board` panel split by a hairline** (`.editor-clusters`),
+per DESIGN.md's one-tonal-board rule.
 
 ### Job sources
 

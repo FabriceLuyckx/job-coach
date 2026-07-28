@@ -29,8 +29,11 @@ class TailoringPlan:
     summary: str
     selected_experience_ids: list[str]
     adjusted_responsibilities: dict[str, list[str]]
-    highlighted_skills: list[str]
     tailoring_notes: str
+    # Deprecated: skill highlighting is gone — the AI marked skills the user had
+    # no control over, on a CV going out over their name. Kept so older stored
+    # plans still deserialize; never requested, never rendered.
+    highlighted_skills: list[str] = field(default_factory=list)
     # Deprecated: achievements are now folded into adjusted_responsibilities
     # (one combined bullet list per role). Kept so older stored plans that still
     # carry this key continue to deserialize; it is no longer rendered.
@@ -51,6 +54,12 @@ class TailoringPlan:
     # from excluded_sections (the AI's relevance call): this is a pure display
     # choice, applied via the template so preview, PDF, and next session agree.
     hidden_sections: list[str] = field(default_factory=list)
+    # The same pair one level down, for individual skills: the model's relevance
+    # call and the user's display choice. visible = profile skills − both lists.
+    # Two lists rather than one merged set because "what did the AI leave out?"
+    # is exactly what the editor has to answer.
+    excluded_skills: list[str] = field(default_factory=list)
+    hidden_skills: list[str] = field(default_factory=list)
 
 
 _TOOL = {
@@ -63,8 +72,7 @@ _TOOL = {
             "required": [
                 "job_title", "employer", "slug", "summary",
                 "selected_experience_ids", "adjusted_responsibilities",
-                "sidebar_translations",
-                "highlighted_skills", "tailoring_notes",
+                "sidebar_translations", "tailoring_notes",
             ],
             "properties": {
                 "job_title": {
@@ -99,11 +107,6 @@ _TOOL = {
                     "type": "object",
                     "description": "For non-English CVs only: translations of the CV's static sidebar text.",
                     "additionalProperties": {"type": "string"},
-                },
-                "highlighted_skills": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "description": "Skills to emphasise, drawn from the candidate's existing skill set",
                 },
                 "tailoring_notes": {
                     "type": "string",
@@ -150,12 +153,36 @@ def _translatable(profile: dict) -> list[str]:
     return list({v: None for v in values if isinstance(v, str) and v.strip()})
 
 
+def skill_items(profile: dict) -> list[str]:
+    """Every skill string in the profile, in CV order. dict, not set: a stable
+    order keeps the tool schema (and the grammar it compiles to) reproducible."""
+    groups = ((profile.get("skills") or {}).get("groups")) or []
+    return list({t: None for g in groups for t in (g.get("items") or [])
+                 if isinstance(t, str) and t.strip()})
+
+
 def _tool_for(profile: dict, lang: str) -> dict:
     """The tailoring tool with sidebar_translations pinned to this profile's
     strings — or dropped entirely for an English CV, where there is nothing to
-    translate and an empty object is just one more thing to get wrong."""
+    translate and an empty object is just one more thing to get wrong.
+    excluded_skills is pinned the same way, for the same reason: the local engine
+    grammars on the schema, so a hallucinated or near-miss skill name is
+    unrepresentable — a name that misses would otherwise delete a real skill."""
     tool = copy.deepcopy(_TOOL)
     params = tool["function"]["parameters"]
+    skills = skill_items(profile)
+    if skills:
+        params["properties"]["excluded_skills"] = {
+            "type": "array",
+            "items": {"type": "string", "enum": skills},
+            "description": (
+                "Skills from the profile that are NOT relevant to this role and "
+                "should be left off the CV. Each entry must be one exact string "
+                "from this profile. Keep transferable skills that support the "
+                "role even when the posting doesn't name them; omit or leave "
+                "empty to keep everything."
+            ),
+        }
     strings = _translatable(profile) if lang != "en" else []
     if strings:
         params["properties"]["sidebar_translations"] = {
@@ -190,7 +217,43 @@ Rules:
 - Do not invent skills or experience not present in the profile
 - Keep bullets concise (one line each); never more than 4 per role, and fewer when fewer are directly applicable
 - Optional sections (projects, volunteering, certifications, courses, awards, memberships, grants, custom_sections, publications, teaching): list in excluded_sections any that are clearly irrelevant to this role so they are dropped; keep publications and teaching only for academic, research, or training-heavy roles; keep the rest
+- Skills: list in excluded_skills any profile skills that are clearly irrelevant to this role so they are left off the CV — each entry must be one exact skill string from the profile. Keep transferable skills (communication, project management) that support the role even when the posting doesn't name them; leave it empty to keep everything
 - Use each role's ai_notes field in the profile to decide which entries best match the role type"""
+
+
+def _norm(s: str) -> str:
+    return re.sub(r"\s+", " ", str(s)).strip().casefold()
+
+
+def resolve_skills(profile: dict, names) -> list[str]:
+    """Map names to the profile's own skill strings, dropping what doesn't match.
+
+    ponytail: the per-call enum in _tool_for is the mechanism; this is a safety
+    net for a provider that ignores it, so it stays narrow on purpose — case,
+    whitespace and a parenthetical qualifier on the profile side, nothing more.
+    "R" must never resolve to "React".
+    """
+    canon: dict[str, str] = {}
+    for item in skill_items(profile):
+        canon.setdefault(_norm(item), item)
+        bare = _norm(re.sub(r"\([^)]*\)", "", item))
+        if bare:
+            canon.setdefault(bare, item)
+    return list({canon[k]: None for n in (names or [])
+                 if (k := _norm(n)) in canon})
+
+
+def visible_skills(profile: dict, plan: "TailoringPlan") -> list[dict]:
+    """The profile's skill groups minus both exclusion lists, with a group left
+    with nothing dropped entirely — so "drop the whole group" needs no second
+    field, and no template ever prints an empty heading."""
+    off = {_norm(s) for s in (*plan.excluded_skills, *plan.hidden_skills)}
+    out = []
+    for g in ((profile.get("skills") or {}).get("groups")) or []:
+        items = [t for t in (g.get("items") or []) if _norm(t) not in off]
+        if items:
+            out.append({**g, "items": items})
+    return out
 
 
 def fetch_job_description(url: str) -> str:
@@ -287,26 +350,31 @@ def tailor(
 
     d = tool_args(response, required=(
         "job_title", "employer", "slug", "summary",
-        "selected_experience_ids", "adjusted_responsibilities",
-        "highlighted_skills", "tailoring_notes",
+        "selected_experience_ids", "adjusted_responsibilities", "tailoring_notes",
     ))
     slug = re.sub(r"[^a-z0-9]+", "-", str(d["slug"]).lower()).strip("-")
 
     # Hard cap at 4 bullets per role regardless of what the model returns.
     bullets = {eid: list(b)[:4] for eid, b in dict(d["adjusted_responsibilities"]).items()}
 
-    return TailoringPlan(
+    plan = TailoringPlan(
         job_title=d["job_title"],
         employer=d["employer"],
         slug=slug,
         summary=d["summary"],
         selected_experience_ids=d["selected_experience_ids"],
         adjusted_responsibilities=bullets,
-        highlighted_skills=d["highlighted_skills"],
         tailoring_notes=d["tailoring_notes"],
         sidebar_translations=d.get("sidebar_translations", {}) or {},
         excluded_sections=list(d.get("excluded_sections", []) or []),
+        excluded_skills=resolve_skills(profile, d.get("excluded_skills")),
     )
+    # Fail open, twice: a name that didn't resolve is already gone (leaving its
+    # skill on the CV), and a selection that would leave no skills at all is
+    # discarded whole rather than silently emptying the section.
+    if plan.excluded_skills and not visible_skills(profile, plan):
+        plan.excluded_skills = []
+    return plan
 
 
 def _is_active(entry: dict) -> bool:
@@ -371,6 +439,12 @@ def apply_tailoring(profile: dict, plan: TailoringPlan) -> dict:
     if "teaching" in plan.excluded_sections:
         p["teaching"] = {"entries": []}
 
+    # The template renders the skills it is given and does no matching of its
+    # own; composing against the *current* profile means a stale name in either
+    # list simply matches nothing after a profile edit — no cleanup pass.
+    if p.get("skills"):
+        p["skills"]["groups"] = visible_skills(p, plan)
+
     # Translate static sidebar text for non-English CVs. Substitution is by exact
     # string match, and the keys offered to the model are built from these very
     # fields (_translatable) — the two lists must stay in step, or a string gets
@@ -411,11 +485,11 @@ if __name__ == "__main__":
         {"id": "c", "start_date": "2020-04", "end_date": "2021-11"},
     ]
     prof = {"experience": exp, "publications": [1]}
-    plan = TailoringPlan("t", "e", "s", "sum", ["a", "b", "c"], {}, [], "n")
+    plan = TailoringPlan("t", "e", "s", "sum", ["a", "b", "c"], {}, "n")
     order = [e["id"] for e in apply_tailoring(prof, plan)["experience"]]
     assert order == ["b", "c", "a"], order  # active first, then newest start
     # The full history always shows, even when the AI selected nothing.
-    empty = TailoringPlan("t", "e", "s", "sum", [], {}, [], "n")
+    empty = TailoringPlan("t", "e", "s", "sum", [], {}, "n")
     assert [e["id"] for e in apply_tailoring(prof, empty)["experience"]] == ["b", "c", "a"]
     # An untailored role caps its own bullets at 4 (full path ≠ all bullets).
     prof2 = {"experience": [{"id": "a", "responsibilities": [1, 2, 3, 4, 5, 6]}]}

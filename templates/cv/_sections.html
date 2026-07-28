@@ -55,11 +55,31 @@
   {% endif %}
 {% endmacro %}
 
+{# Links as contact details rather than a section: a sidebar can afford a titled
+   list, a single column can't — there it landed at the foot of the CV, the last
+   place a reader looks for a profile URL. Single-column templates call this from
+   their header. One wrapper carries data-section so the editor toggle still
+   hides the lot. #}
+{% macro links_inline() %}
+  {% if personal.links and 'links' not in hidden %}
+  <span class="links-inline" data-section="links">
+    {%- for link in personal.links %}{% if link.url %}
+    <span class="link-item"><a href="{{ link.url }}">{{ link.url | strip_scheme }}</a></span>
+    {%- endif %}{% endfor %}
+  </span>
+  {% endif %}
+{% endmacro %}
+
 {% macro sec_skills() %}
-  {% if 'skills' not in hidden %}
+  {# skills.groups is already the CV's *visible* set: apply_tailoring composed it
+     from the plan's excluded_skills (the AI's call) + hidden_skills (the user's),
+     dropping any group left with nothing. The template does no matching of its
+     own — including the section itself, which goes when no group survives. #}
+  {% set groups = skills.groups | selectattr('items') | list %}
+  {% if 'skills' not in hidden and groups %}
   <div class="section" data-section="skills">
     <div class="section-title">{{ labels.skills }}</div>
-    {% for g in skills.groups %}{% if g['items'] %}
+    {% for g in groups %}{% if g['items'] %}
     <div class="skills-group">
       <div class="skills-group-label">{{ g['label'] }}</div>
       <div class="tags">
@@ -116,7 +136,7 @@
   {% if grants and 'grants' not in hidden %}
   <div class="section" data-section="grants">
     <div class="section-title">{{ labels.grants }}</div>
-    {% for grant in grants %}
+    {% for grant in grants | sort_by_year %}
     <div class="grant-entry">
       <span class="grant-year">{{ grant.years }}</span>
       &nbsp;{{ grant.name }}{% if grant.funder %} — {{ grant.funder }}{% endif %}{% if grant.amount %} ({{ grant.amount }}){% endif %}
@@ -189,7 +209,7 @@
   {% if teaching.entries and 'teaching' not in hidden %}
   <div class="section" data-section="teaching">
     <div class="section-title">{{ labels.teaching }}</div>
-    {% for te in teaching.entries %}
+    {% for te in teaching.entries | sort_by_year %}
     <div class="entry">
       <div class="entry-header">
         <span class="entry-title">
@@ -212,7 +232,7 @@
   {% if certifications and 'certifications' not in hidden %}
   <div class="section" data-section="certifications">
     <div class="section-title">{{ labels.certifications }}</div>
-    {% for cert in certifications %}
+    {% for cert in certifications | sort_by_year %}
     <div class="pub-entry">
       {{ cert.name }}{% if cert.issuer %} — <span class="pub-journal">{{ cert.issuer }}</span>{% endif %}{% if cert.year %}, {{ cert.year }}{% endif %}
     </div>
@@ -225,7 +245,7 @@
   {% if awards and 'awards' not in hidden %}
   <div class="section" data-section="awards">
     <div class="section-title">{{ labels.awards }}</div>
-    {% for award in awards %}
+    {% for award in awards | sort_by_year %}
     <div class="pub-entry">
       {% if award.year %}<span class="grant-year">{{ award.year }}</span>&nbsp;{% endif %}{{ award.name }}{% if award.description %} — {{ award.description }}{% endif %}
     </div>
@@ -259,7 +279,7 @@
   {% if courses and 'courses' not in hidden %}
   <div class="section" data-section="courses">
     <div class="section-title">{{ labels.courses }}</div>
-    {% for course in courses %}
+    {% for course in courses | sort_by_year %}
     <div class="pub-entry">
       {{ course.name }}{% if course.provider %} — <span class="pub-journal">{{ course.provider }}</span>{% endif %}{% if course.year %}, {{ course.year }}{% endif %}
     </div>
@@ -272,7 +292,7 @@
   {% if memberships and 'memberships' not in hidden %}
   <div class="section" data-section="memberships">
     <div class="section-title">{{ labels.memberships }}</div>
-    {% for m in memberships %}
+    {% for m in memberships | sort_by_year %}
     <div class="pub-entry">
       {{ m.name }}{% if m.role %} — {{ m.role }}{% endif %}{% if m.year %}, {{ m.year }}{% endif %}
     </div>
@@ -299,7 +319,14 @@
   {% endif %}{% endfor %}
 {% endmacro %}
 
-{# Everything a single-column template stacks below its header, in CV order. #}
+{# Everything a single-column template stacks below its header, in CV order.
+   Links are NOT here — they go in the header via links_inline().
+
+   .compact is the answer to what a sidebar does for free: grouping. The tail
+   sections (grants, certifications, awards, courses, memberships) are usually
+   one line each, and a full-width title band per one-liner is what made these
+   templates sprawl. Inside .compact the templates lay them out two-up — as
+   inline-blocks, not grid/flex, because this zone has to paginate. #}
 {% macro main_sections() %}
   {{ sec_summary() }}
   {{ sec_experience() }}
@@ -309,13 +336,14 @@
   {{ sec_projects() }}
   {{ sec_publications() }}
   {{ sec_teaching_entries() }}
-  {{ sec_grants() }}
-  {{ sec_certifications() }}
-  {{ sec_awards() }}
   {{ sec_volunteering() }}
-  {{ sec_courses() }}
-  {{ sec_memberships() }}
-  {{ sec_links() }}
+  <div class="compact">
+    {{ sec_grants() }}
+    {{ sec_certifications() }}
+    {{ sec_awards() }}
+    {{ sec_courses() }}
+    {{ sec_memberships() }}
+  </div>
   {{ sec_custom() }}
 {% endmacro %}
 

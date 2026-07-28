@@ -26,17 +26,32 @@ back to the default template rather than failing.
 ### Requirement: Every template honors the rendering contract
 
 Every built-in template SHALL consume the same rendering context (profile
-sections, labels, language, photo, hidden sections) and SHALL: tag each section
-root with its `data-section` key, omit sections listed in `hidden_sections`,
-render the photo only when provided and not hidden, and contain its own print
-CSS so multi-page PDF export paginates cleanly. Templates SHALL render without
-error for a complete example profile.
+sections, labels, language, photo, hidden sections, and the tailoring plan's
+highlighted skills) and SHALL: tag each section root with its `data-section` key,
+omit sections listed in `hidden_sections`, render the photo only when provided
+and not hidden, mark the highlighted skills, and contain its own print CSS so
+multi-page PDF export paginates cleanly — including keeping every rendered
+string extractable as text from the PDF. Templates SHALL render without error
+for a complete example profile.
 
 #### Scenario: Hidden sections stay hidden across templates
 
 - **WHEN** a CV whose plan hides the publications section is rendered with any
   built-in template
 - **THEN** the output contains no publications section
+
+#### Scenario: Highlighted skills are visible, and nothing is dropped
+
+- **WHEN** a CV whose tailoring plan highlights a skill is rendered with any
+  built-in template
+- **THEN** that skill leads its skill group and is visually marked
+- **AND** the skills the plan did not name are still rendered
+
+#### Scenario: The PDF's text is machine-readable
+
+- **WHEN** any built-in template is exported to PDF
+- **THEN** every rendered string — including the name, title and contact line in
+  a coloured header — can be extracted as text rather than raster
 
 #### Scenario: Example profile smoke render
 

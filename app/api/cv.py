@@ -18,7 +18,7 @@ from pydantic import BaseModel
 from app import config, db
 from app.services.cv_generator import (
     DEFAULT_CV_PROMPT, TailoringPlan, apply_tailoring, detect_language,
-    fetch_job_description, tailor, ordered_experience,
+    fetch_job_description, resolve_skills, tailor, ordered_experience,
 )
 from app.api.i18n import ensure_cv_labels
 from app.i18n.languages import is_valid_code, lang_name
@@ -148,9 +148,11 @@ class RoleEdit(BaseModel):
 class PlanEdit(BaseModel):
     summary: str
     roles: list[RoleEdit]
-    # None = leave unchanged (older clients). The editor always sends both.
+    # None = leave unchanged (older clients). The editor always sends all four.
     hidden_sections: list[str] | None = None
     excluded_sections: list[str] | None = None
+    hidden_skills: list[str] | None = None
+    excluded_skills: list[str] | None = None
 
 
 def _load_plans(row: dict) -> dict[str, dict]:
@@ -516,6 +518,16 @@ def _retailor(history_id: str, row: dict, lang: str, keep_edits: bool = False,
         plan.hidden_sections = old.get("hidden_sections", plan.hidden_sections)
         plan.job_title = old.get("job_title", plan.job_title)
         plan.employer = old.get("employer", plan.employer)
+        plan.excluded_skills = old.get("excluded_skills", plan.excluded_skills)
+        plan.hidden_skills = old.get("hidden_skills", plan.hidden_skills)
+    elif lang not in plans and plans:
+        # A new language for this CV: the skill choices describe the application,
+        # not its prose, and skill names aren't translated — so they carry over
+        # instead of resetting to a fresh model selection. (Regenerate-all on an
+        # existing language deliberately falls through and re-selects.)
+        src = plans.get(row.get("lang")) or next(iter(plans.values()))
+        plan.excluded_skills = src.get("excluded_skills", plan.excluded_skills)
+        plan.hidden_skills = src.get("hidden_skills", plan.hidden_skills)
 
     _render_and_save(plan, profile, lang)
     plans[lang] = asdict(plan)
@@ -604,7 +616,12 @@ def get_plan(history_id: str):
         "lang": lang, "summary": plan.summary, "roles": roles,
         "hidden_sections": plan.hidden_sections,
         "excluded_sections": plan.excluded_sections,
-        "highlighted_skills": plan.highlighted_skills,
+        # The full profile set the editor's chips are drawn from — the CV shows
+        # it minus the two lists below, which the editor edits in both directions.
+        "skill_groups": [{"label": g.get("label", ""), "items": list(g.get("items") or [])}
+                         for g in (profile.get("skills") or {}).get("groups") or []],
+        "hidden_skills": plan.hidden_skills,
+        "excluded_skills": plan.excluded_skills,
     }
 
 
@@ -632,10 +649,15 @@ def put_plan(history_id: str, body: PlanEdit):
         plan.hidden_sections = body.hidden_sections
     if body.excluded_sections is not None:
         plan.excluded_sections = body.excluded_sections
+    profile = load_profile()
+    # Resolved against the profile, so only real skills are ever stored.
+    if body.hidden_skills is not None:
+        plan.hidden_skills = resolve_skills(profile, body.hidden_skills)
+    if body.excluded_skills is not None:
+        plan.excluded_skills = resolve_skills(profile, body.excluded_skills)
     plans[lang] = asdict(plan)
     _persist_plans(history_id, lang, plans)
 
-    profile = load_profile()
     plan.slug = row["slug"]
     _render_and_save(plan, profile, lang)
     return {"ok": True, "summary": plan.summary}

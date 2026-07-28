@@ -54,13 +54,20 @@ export interface CVPlanRole {
   bullets: string[]
 }
 
+export interface CVSkillGroup {
+  label: string
+  items: string[]
+}
+
 export interface CVPlan {
   lang: string
   summary: string
   roles: CVPlanRole[]
   hidden_sections: string[]       // sections the user toggled off
   excluded_sections: string[]     // sections the AI judged irrelevant and dropped
-  highlighted_skills: string[]    // skills the AI chose to emphasise (read-only)
+  skill_groups: CVSkillGroup[]    // the profile's full skill set (read-only)
+  hidden_skills: string[]         // skills the user unticked
+  excluded_skills: string[]       // skills the AI judged irrelevant and dropped
 }
 
 /** Coarse progress stage reported by async CV jobs. */
@@ -72,6 +79,8 @@ export interface PlanEdit {
   roles: { id: string; bullets: string[] }[]
   hidden_sections: string[]
   excluded_sections: string[]
+  hidden_skills: string[]
+  excluded_skills: string[]
 }
 
 export interface CvHistoryEntry {

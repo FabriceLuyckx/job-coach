@@ -248,9 +248,20 @@ forth (the selector above the tabs) keeps each language's edits intact.
 one checkbox per section actually on this CV — teaching, projects, awards, your own
 custom sections, all of them — and the choice is **real**: it applies to the preview,
 the PDF, "open in new tab", and the next time you open the CV. It is also **per CV**:
-hiding a section here never touches your other applications. The same cluster shows the AI's decisions
-— which **skills it emphasised**, and any sections it **left out** as irrelevant
-(each with a one-tap **restore**).
+hiding a section here never touches your other applications. The same cluster shows any
+sections the AI **left out** as irrelevant, each with a one-tap **restore**.
+
+**Skills.** Your profile holds every skill you have; a CV shouldn't. The AI picks
+the ones that fit *this* job and leaves the rest off — and the **Skills** cluster
+under the preview shows exactly what it did, group by group. Tap any skill to take
+it off this CV or put it back: struck through means you removed it, dashed means the
+AI judged it irrelevant here. Tick a group's name off to drop the whole group at
+once (ticking it back brings all of it back, the AI's leftovers included). The
+header counts what's on this CV out of your profile total, so a shrunken list is
+visible without opening anything. Nothing here touches your profile, and the choices
+are per CV, per application — they even follow the CV when you switch its language,
+since skill names don't get translated. The AI never marks or emphasises a skill;
+which ones appear is the only call it makes, and you have the last word on it.
 
 ### Update an existing CV
 
@@ -351,6 +362,11 @@ credits, and every change applies to **all** your CVs — open one under
   serif header), **Banner** (full-width colour band), **Compact** (right sidebar,
   denser — for long CVs), and **Minimal** (typographic, nothing filled in — the
   friendliest to a black-and-white office printer).
+  The three single-column layouts put your profile links on the contact line
+  under your name (not in a section at the very bottom) and pair up the short
+  sections — grants, certifications, awards, courses, memberships — two per row.
+  In every layout, the skills the AI picked out for that job lead their group and
+  are marked; the rest still print.
 - **Colour palette** — curated palettes (including one in MyJobCoach's own
   colours); tapping one recolours the previews straight away.
 - **Colours** — the selected palette's accent, text, and background colours,

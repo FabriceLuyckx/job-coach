@@ -71,20 +71,22 @@
   .band h2 {
     font-size: 11pt;
     font-weight: 300;
-    opacity: 0.9;
+    /* Not opacity: it makes Chromium rasterize this text into the PDF, where a
+       CV parser can no longer read it. A colour mix keeps it selectable. */
+    color: color-mix(in srgb, var(--on-accent) 88%, var(--accent));
     margin-top: 4px;
   }
 
   .band-contact {
     font-size: 8.5pt;
-    opacity: 0.9;
+    color: color-mix(in srgb, var(--on-accent) 88%, var(--accent));
     margin-top: 8px;
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
   }
 
-  .band-contact a { color: var(--on-accent); text-decoration: none; }
+  .band-contact a { color: inherit; text-decoration: none; }
 
   /* ── PHOTO ── circle inside the band, right-aligned */
   .photo-frame {
@@ -101,17 +103,17 @@
   .main { padding: 10mm 18mm 14mm; }
 
   /* ── SECTIONS ── accent bar to the left of each title */
-  .section { margin-bottom: 14px; }
+  .section { margin-bottom: 16px; }
 
   .section-title {
-    font-size: 8.5pt;
+    font-size: 11pt;
     font-weight: 700;
-    letter-spacing: 1.6px;
+    letter-spacing: 1.2px;
     text-transform: uppercase;
     color: var(--accent);
-    border-left: 3px solid var(--accent);
-    padding-left: 7px;
-    margin-bottom: 8px;
+    border-left: 4px solid var(--accent);
+    padding-left: 8px;
+    margin-bottom: 9px;
   }
 
   .summary {
@@ -146,41 +148,48 @@
   .entry-body ul { padding-left: 15px; }
   .entry-body li { margin-bottom: 2px; }
 
-  /* ── LINKS ── inline row */
-  .link-item { display: inline-block; margin-right: 14px; font-size: 8.5pt; }
-
-  .link-label {
-    color: var(--muted);
-    text-transform: uppercase;
-    font-size: 7pt;
-    letter-spacing: 0.6px;
-    margin-right: 4px;
-  }
-
-  .link-item a { color: var(--accent); text-decoration: none; }
+  /* ── LINKS ── extra items on the band's contact row (display:contents so they
+     take that flex row's own gap, and an inline display:none still hides them) */
+  .links-inline { display: contents; }
+  .link-item a { color: inherit; text-decoration: none; }
 
   /* ── SKILLS ── filled tags echo the band */
-  .skills-group { margin-bottom: 7px; }
+  .skills-group { display: flex; gap: 8px; margin-bottom: 4px; }
 
   .skills-group-label {
+    flex: 0 0 30mm;
     font-size: 7.5pt;
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.7px;
-    margin-bottom: 3px;
+    padding-top: 2px;
   }
 
-  .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  /* flex-start: a two-line group label must not stretch its chips. */
+  .tags { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 3px 4px; }
 
+  /* Tinted by default, filled only for the skills the tailoring plan picked —
+     the band already carries this template's weight, thirteen solid chips
+     under it just competed with it. */
   .tag {
-    background: var(--accent);
-    color: var(--on-accent);
+    background: var(--tint);
+    color: var(--accent);
     font-size: 8pt;
     font-weight: 500;
-    padding: 2px 7px;
+    padding: 1px 6px;
     max-width: 100%;
     white-space: nowrap;
     overflow-wrap: anywhere;
+  }
+
+
+  /* ── COMPACT ZONE ── two-up one-liner sections (see _sections.html) */
+  .compact > .section {
+    display: inline-block;
+    vertical-align: top;
+    width: 48%;
+    padding-right: 8mm;
+    break-inside: avoid;
   }
 
   /* ── LANGUAGES ── */
@@ -259,6 +268,7 @@
         <span>{{ personal.location.city }}, {{ personal.location.country }}</span>
         <span><a href="mailto:{{ personal.email }}">{{ personal.email }}</a></span>
         {% if personal.phone %}<span>{{ personal.phone }}</span>{% endif %}
+        {{ S.links_inline() }}
       </div>
     </div>
     {{ S.photo_frame() }}
