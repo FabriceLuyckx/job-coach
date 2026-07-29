@@ -65,6 +65,11 @@ jobs:
         with:
           enable-cache: true
           python-version: "3.11"
+          # Key the cache on uv.lock only. The default glob includes
+          # pyproject.toml, whose version release-please bumps every release —
+          # so every release missed the cache and recompiled llama-cpp-python
+          # from source (~7.5 min on Windows, the whole run's critical path).
+          cache-dependency-glob: uv.lock
 
       - name: Install Python deps
         # [local] bundles the free in-process AI engine (llama-cpp-python) that

@@ -62,8 +62,8 @@
   },
   "banner": {
     "engineNotReady": "Benvenuto! Per generare CV e scansionare offerte di lavoro, configura un motore IA nelle <settings>Impostazioni</settings> — scarica il modello locale gratuito oppure aggiungi una chiave API OpenRouter.",
-    "setupInstalling": "Configurazione del motore PDF in corso (operazione unica, ~150 MB). Nel frattempo tutto funziona normalmente, tranne l'esportazione PDF.",
-    "setupError": "Impossibile configurare il motore PDF: {{error}}. L'esportazione PDF non sarà disponibile finché il problema non sarà risolto."
+    "setupInstalling": "Sto configurando l'engine del browser (una volta, ~150 MB). La lettura delle pagine dei lavori e l'esportazione in PDF potrebbero non funzionare fino a quando questo non è completato.",
+    "setupError": "L'engine del browser non può essere configurato: {{error}}. La lettura delle pagine dei lavori e l'esportazione in PDF non funzionerà fino a quando questo problema non è risolto."
   },
   "settings": {
     "title": "Impostazioni",
@@ -627,7 +627,8 @@
     "rejectModalLabel": "Perché la stai rifiutando? (opzionale)",
     "rejectModalPlaceholder": "ad es. troppo esperto, località sbagliata, poco lavoro pratico…",
     "match": "Corrispondenza",
-    "reasonLabel": "Motivo:"
+    "reasonLabel": "Motivo:",
+    "foundOn": "Trovato il {{date}}"
   },
   "cveditor": {
     "sections": {
@@ -766,7 +767,7 @@
     "deleteApp": "Elimina l'applicazione per {{title}}",
     "deleteLetter": "Elimina questa guida alla lettera",
     "deletedToast": "Eliminata l'applicazione per \"{{title}}\"",
-    "noneForJob": "Nulla trovato ancora per questo lavoro — la generazione potrebbe essere fallita. Riprova dalla pagina Suggerimenti di lavoro.",
+    "noneForJob": "Niente trovato per questo lavoro ancora — la sua generazione potrebbe essere fallita. Il lavoro è stato inserito qui sotto, quindi puoi riprovarci.",
     "emptyTitle": "Nessuna applicazione ancora",
     "emptyBody": "Incolla l'URL del lavoro e l'IA genera un CV personalizzato e una guida alla scrittura della lettera — pronto per la visione, la modifica e il download.",
     "searchPlaceholder": "Cerca le tue applicazioni…",

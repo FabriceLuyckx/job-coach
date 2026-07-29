@@ -229,6 +229,19 @@ def test_review_posting_builds_digest_and_verdict(monkeypatch):
     assert r["digest"] == {"employer": "Acme", "requirements": ["Python"]}
 
 
+def test_review_posting_drops_junk_reason(monkeypatch):
+    """A 'reason' that's just the language code (or a couple of characters) is
+    stored as empty, so the UI shows no Reason line rather than 'Reason: en'."""
+    import app.services.job_scanner as js
+
+    def fake_complete(messages, **kw):
+        return _fake_response(json.dumps({"match": True, "reason": "en", "lang": "en"}))
+
+    monkeypatch.setattr(js, "complete", fake_complete)
+    r = js.review_posting({"title": "X", "url": "http://x"}, "text", {}, {})
+    assert r["reason"] == ""
+
+
 # ---------- job suggestions: review / recheck / check ----------
 
 def test_review_one_keeps_reason_for_non_match(monkeypatch):

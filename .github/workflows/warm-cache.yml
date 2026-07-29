@@ -1,0 +1,34 @@
+name: Warm build cache
+
+# Seeds the uv cache on `main` so release builds hit it. Two facts make this
+# necessary: (1) Actions caches are only restorable from the same ref or the
+# default branch, and release.yml runs on tag refs — so a cache saved by one
+# tag's run is invisible to the next tag's run; (2) llama-cpp-python compiles
+# from source (~7.5 min on Windows), which was the release run's critical path.
+# Runs only when uv.lock changes; the cache key here must stay identical to
+# release.yml's (same setup-uv version, python-version, cache-dependency-glob).
+
+on:
+  push:
+    branches: ["main"]
+    paths: ["uv.lock"]
+  workflow_dispatch:
+
+jobs:
+  warm:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, macos-15-intel, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+          python-version: "3.11"
+          cache-dependency-glob: uv.lock
+
+      - name: Install Python deps
+        run: uv sync --extra package --extra local

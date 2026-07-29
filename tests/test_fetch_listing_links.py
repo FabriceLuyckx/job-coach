@@ -63,3 +63,24 @@ def test_extract_sends_late_job_links_to_the_llm(monkeypatch):
     monkeypatch.setattr(job_scanner, "tool_args", lambda resp, **kw: {"openings": []})
     job_scanner.extract_openings("https://x/jobs", {}, links=links)
     assert "https://x/jobs/999" in sent["content"]  # the job link reached the model
+
+def test_textless_anchors_fall_back_to_label_alt_or_slug():
+    # Regression: 11.be advertised its one vacancy as an image-only banner link
+    # (<a><img></a>, no text/alt/aria-label) — dropped entirely, so the job was
+    # invisible to the extractor. Fallback chain: aria-label → img alt → URL slug.
+    html = (
+        '<a href="/a" aria-label="Data Analyst"></a>'
+        '<a href="/vacatures/datamanager-mvx-0?utm=x"><img src="/banner.png"/></a>'
+        '<a href="/b"><img src="/i.png" alt="Project Officer"/></a>'
+        '<a href="/icon"><svg></svg></a>'  # icon link: still dropped
+        '<a href="https://ads.example.com/promo"><img src="/ad.png"/></a>'  # external ad banner: dropped
+    )
+    links = job_scanner._links_from_html(html, "https://11.be/vacatures")
+    by_href = {l["href"]: l["text"] for l in links}
+    assert by_href["https://11.be/a"] == "Data Analyst"
+    assert by_href["https://11.be/vacatures/datamanager-mvx-0?utm=x"] == "datamanager mvx 0"
+    assert by_href["https://11.be/b"] == "Project Officer"
+    assert "https://11.be/icon" not in by_href
+    # The slug fallback is same-host only: a textless, alt-less image link to
+    # another domain is an ad, not one of this site's postings.
+    assert "https://ads.example.com/promo" not in by_href

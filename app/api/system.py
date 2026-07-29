@@ -66,19 +66,25 @@ def _run_install() -> None:
     Uses the bundled node driver directly so it also works inside a frozen app,
     where ``sys.executable`` is the app binary rather than a Python interpreter.
     Falls back to ``python -m playwright`` for a normal source checkout.
-    """
-    try:
-        from playwright._impl._driver import compute_driver_executable
 
-        driver = compute_driver_executable()
-        cmd = list(driver) if isinstance(driver, (list, tuple)) else [driver]
-        subprocess.run([*cmd, "install", "chromium"], check=True, env=os.environ.copy())
-    except Exception:
-        subprocess.run(
-            [sys.executable, "-m", "playwright", "install", "chromium"],
-            check=True,
-            env=os.environ.copy(),
-        )
+    The child must not inherit our stdio: a windowed (console=False) build has
+    no console handles, which kills the installer. Detach stdin and send output
+    to the app log so a failed download leaves a diagnosable trace.
+    """
+    with open(paths.DATA_DIR / "myjobcoach.log", "ab") as log:
+        run_kwargs = dict(check=True, env=os.environ.copy(),
+                          stdin=subprocess.DEVNULL, stdout=log, stderr=log)
+        try:
+            from playwright._impl._driver import compute_driver_executable
+
+            driver = compute_driver_executable()
+            cmd = list(driver) if isinstance(driver, (list, tuple)) else [driver]
+            subprocess.run([*cmd, "install", "chromium"], **run_kwargs)
+        except Exception:
+            subprocess.run(
+                [sys.executable, "-m", "playwright", "install", "chromium"],
+                **run_kwargs,
+            )
 
 
 def _install_worker() -> None:

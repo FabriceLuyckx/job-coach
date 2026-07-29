@@ -62,8 +62,8 @@
   },
   "banner": {
     "engineNotReady": "¡Bienvenido! Para generar CVs y analizar ofertas de empleo, configura un motor de IA en <settings>Configuración</settings>: descarga el modelo local gratuito o añade una clave API de OpenRouter.",
-    "setupInstalling": "Configurando el motor de PDF (única vez, ~150 MB). Todo excepto la exportación a PDF funciona mientras se completa.",
-    "setupError": "No se pudo configurar el motor de PDF: {{error}}. La exportación a PDF no estará disponible hasta que se resuelva."
+    "setupInstalling": "Estableciendo el motor del navegador (una vez, ~150 MB). La lectura de páginas de empleo y la exportación en PDF podrían no funcionar hasta que esto termine.",
+    "setupError": "No se pudo establecer el motor del navegador: {{error}}. La lectura de páginas de empleo y la exportación en PDF no funcionarán hasta que se resuelva esto."
   },
   "settings": {
     "title": "Configuración",
@@ -627,7 +627,8 @@
     "rejectModalLabel": "¿Por qué la estás rechazando? (opcional)",
     "rejectModalPlaceholder": "por ejemplo: demasiado senior, ubicación incorrecta, poca actividad práctica…",
     "match": "Coincidencia",
-    "reasonLabel": "Razón:"
+    "reasonLabel": "Razón:",
+    "foundOn": "Encontrado {{date}}"
   },
   "cveditor": {
     "sections": {
@@ -766,7 +767,7 @@
     "deleteApp": "Eliminar aplicación para {{title}}",
     "deleteLetter": "Eliminar esta guía de carta",
     "deletedToast": "Eliminada la aplicación para \"{{title}}\"",
-    "noneForJob": "No se encontró nada para ese puesto todavía — su generación puede haber fallado. Inténtalo de nuevo desde la página de sugerencias de puestos.",
+    "noneForJob": "No resultados encontrados para ese trabajo aún — su generación pudo haber fallado. El trabajo está cargado a continuación, así que puedes generarlo de nuevo.",
     "emptyTitle": "Aún no hay aplicaciones",
     "emptyBody": "Pega la URL de un anuncio de empleo y la IA generará un CV adaptado y una guía para escribir tu carta de presentación — listo para previsualizar, editar y descargar.",
     "searchPlaceholder": "Busca tus aplicaciones…",

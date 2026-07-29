@@ -46,7 +46,7 @@
     "changeLangConfirm": "Change language",
     "slowLocalHint": "On the free local model this can take a few minutes. Cancel stops the generation and frees the AI for other work.",
     "deletedToast": "Deleted the application for “{{title}}”",
-    "noneForJob": "Nothing found for that job yet — its generation may have failed. Try again from the Job Suggestions page.",
+    "noneForJob": "Nothing found for that job yet — its generation may have failed. The job is filled in below, so you can generate it again.",
     "emptyTitle": "No applications yet",
     "emptyBody": "Paste a job listing URL and the AI builds a tailored CV and a cover-letter writing guide for it — ready to preview, edit, and download.",
     "searchPlaceholder": "Search your applications…",
@@ -117,8 +117,8 @@
   },
   "banner": {
     "engineNotReady": "Welcome! To generate CVs and scan job listings, set up an AI engine in <settings>Settings</settings> — download the free local model, or add an OpenRouter API key.",
-    "setupInstalling": "Setting up the PDF engine (one-time, ~150 MB). Everything except PDF export works while this finishes.",
-    "setupError": "The PDF engine couldn't be set up: {{error}}. PDF export won't work until this is resolved."
+    "setupInstalling": "Setting up the browser engine (one-time, ~150 MB). Reading job pages and PDF export may not work until this finishes.",
+    "setupError": "The browser engine couldn't be set up: {{error}}. Reading job pages and PDF export won't work until this is resolved."
   },
   "updates": {
     "banner": {
@@ -683,6 +683,7 @@
     "acceptHint": "Accepting builds a tailored CV and a cover-letter guide for that job — this uses AI credit.",
     "aiCaveat": "Written by AI from the posting — read the original before you decide.",
     "filteredOutLabel": "Filtered out",
+    "foundOn": "Found {{date}}",
     "filteredOutNone": "Nothing has been filtered out yet.",
     "acceptedToast": "Accepted “{{title}}” — building your CV and cover-letter guide",
     "acceptedQueued": "Accepted — see it on Applications",

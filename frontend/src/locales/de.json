@@ -62,8 +62,8 @@
   },
   "banner": {
     "engineNotReady": "Willkommen! Um Lebensläufe zu erstellen und Stellenanzeigen zu scannen, richten Sie eine KI-Engine in den <settings>Einstellungen</settings> ein – laden Sie das kostenlose lokale Modell herunter oder fügen Sie einen OpenRouter-API-Schlüssel hinzu.",
-    "setupInstalling": "Die PDF-Engine wird eingerichtet (einmalig, ca. 150 MB). Alles außer dem PDF-Export funktioniert bereits während dieses Vorgangs.",
-    "setupError": "Die PDF-Engine konnte nicht eingerichtet werden: {{error}}. Der PDF-Export ist erst verfügbar, wenn das Problem behoben ist."
+    "setupInstalling": "Browser-Engine wird eingerichtet (einmalig, ~150 MB). Das Lesen von Stellenanzeigen und PDF-Export funktioniert noch nicht, bis dies abgeschlossen ist.",
+    "setupError": "Die Browser-Engine konnte nicht eingerichtet werden: {{error}}. Das Lesen von Stellenanzeigen und PDF-Export funktioniert nicht, bis dies behoben ist."
   },
   "settings": {
     "title": "Einstellungen",
@@ -627,7 +627,8 @@
     "rejectModalLabel": "Warum lehnen Sie es ab? (optional)",
     "rejectModalPlaceholder": "z. B. zu senior, falsche Location, zu wenig praktische Arbeit…",
     "match": "Passen",
-    "reasonLabel": "Grund:"
+    "reasonLabel": "Grund:",
+    "foundOn": "Gefunden am {{date}}"
   },
   "cveditor": {
     "sections": {
@@ -766,7 +767,7 @@
     "deleteApp": "Bewerbung für {{title}} löschen",
     "deleteLetter": "Diese Briefanleitung löschen",
     "deletedToast": "Bewerbung für „{{title}}“ gelöscht",
-    "noneForJob": "Für diese Stelle wurde bisher nichts gefunden — die Erstellung ist möglicherweise fehlgeschlagen. Bitte erneut von der Seite „Jobvorschläge“ aus versuchen.",
+    "noneForJob": "No Ergebnisse für diese Stelle gefunden — die Erstellung konnte fehlen. Die Stelle ist unten ausgefüllt, sodass Sie sie erneut generieren können.",
     "emptyTitle": "Noch keine Bewerbungen",
     "emptyBody": "Fügen Sie eine Stellenanzeige-URL ein, und die KI erstellt einen angepassten Lebenslauf sowie eine Briefanleitung dafür — bereit zur Vorschau, Bearbeitung und zum Download.",
     "searchPlaceholder": "Suchen Sie Ihre Bewerbungen…",
