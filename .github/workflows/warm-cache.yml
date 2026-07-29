@@ -24,11 +24,17 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # Must stay identical to release.yml's normalize step: the hashed file
+      # is the cache key both workflows share.
+      - name: Normalize lockfile for cache key
+        shell: bash
+        run: sed -e '/^name = "myjobcoach"$/{' -e 'n' -e 's/^version = .*/version = "0"/' -e '}' uv.lock > uv.lock.cachekey
+
       - uses: astral-sh/setup-uv@v9.0.0
         with:
           enable-cache: true
           python-version: "3.11"
-          cache-dependency-glob: uv.lock
+          cache-dependency-glob: uv.lock.cachekey
 
       - name: Install Python deps
         run: uv sync --extra package --extra local

@@ -61,15 +61,26 @@ jobs:
           name: frontend-dist
           path: frontend/dist
 
+      - name: Normalize lockfile for cache key
+        # uv.lock pins the app's own version too, which relocks after every
+        # release — hashing it verbatim churned the cache key each cycle (the
+        # same bug as keying on pyproject.toml, one file over). Hash a copy
+        # with the root package's version pinned to a constant instead: the
+        # key then only changes when real dependencies change. Must stay
+        # identical to warm-cache.yml's step.
+        shell: bash
+        run: sed -e '/^name = "myjobcoach"$/{' -e 'n' -e 's/^version = .*/version = "0"/' -e '}' uv.lock > uv.lock.cachekey
+
       - uses: astral-sh/setup-uv@v9.0.0
         with:
           enable-cache: true
           python-version: "3.11"
-          # Key the cache on uv.lock only. The default glob includes
-          # pyproject.toml, whose version release-please bumps every release —
-          # so every release missed the cache and recompiled llama-cpp-python
-          # from source (~7.5 min on Windows, the whole run's critical path).
-          cache-dependency-glob: uv.lock
+          # Not uv.lock itself — see the normalize step above. (The default
+          # glob was worse still: it includes pyproject.toml, bumped by
+          # release-please every release, so every release recompiled
+          # llama-cpp-python from source — ~7.5 min on Windows, the whole
+          # run's critical path.)
+          cache-dependency-glob: uv.lock.cachekey
 
       - name: Install Python deps
         # [local] bundles the free in-process AI engine (llama-cpp-python) that
@@ -103,8 +114,17 @@ jobs:
           ln -s /Applications dist/dmg-root/Applications
           cp packaging/dmg-background.tiff dist/dmg-root/.background/background.tiff
 
-          hdiutil create -volname "MyJobCoach" -srcfolder dist/dmg-root \
-            -ov -format UDRW -fs HFS+ dist/rw.dmg
+          # XProtect/Spotlight can briefly hold dmg-root on GitHub runners,
+          # failing hdiutil create with "Resource busy" (killed v0.6.2's
+          # Intel build) — retry a few times before giving up.
+          created=
+          for i in 1 2 3 4 5; do
+            hdiutil create -volname "MyJobCoach" -srcfolder dist/dmg-root \
+              -ov -format UDRW -fs HFS+ dist/rw.dmg && { created=1; break; }
+            echo "hdiutil create failed (attempt $i); retrying in 10s"
+            sleep 10
+          done
+          [ -n "$created" ]
           hdiutil attach dist/rw.dmg -readwrite -noverify -noautoopen
 
           osascript \
