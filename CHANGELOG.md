@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.2](https://github.com/FabriceLuyckx/job-coach/compare/v0.6.1...v0.6.2) (2026-07-29)
+
+
+### Bug Fixes
+
+* **ci:** stop release builds recompiling llama-cpp-python every run ([53d374c](https://github.com/FabriceLuyckx/job-coach/commit/53d374c3664fad78a7a2c6d8d56179da23ab48d9))
+* **scan:** read job pages reliably and surface scan failures ([a375039](https://github.com/FabriceLuyckx/job-coach/commit/a375039fac1efde0ae97db980556cc1ed1b860ab))
+
 ## [0.6.1](https://github.com/FabriceLuyckx/job-coach/compare/v0.6.0...v0.6.1) (2026-07-28)
 
 
