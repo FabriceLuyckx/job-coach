@@ -157,6 +157,13 @@ function NewApplicationSlot({ pending, onCvGenerated, onLetterGenerated, onClose
     cancelRunRef.current = c.cancel
     if (opts.cvJobId) c.track(opts.cvJobId)
     if (opts.letterJobId) c.track(opts.letterJobId)
+    // Persist the job ids as they're created (the accept flow already does):
+    // navigating away unmounts this slot and its polls, and without the handoff
+    // key the still-running generation is invisible until it lands in history.
+    // With it, the mount-time resume re-attaches to the same jobs.
+    const saved: Pending = { jobUrl: opts.url, cvJobId: opts.cvJobId, letterJobId: opts.letterJobId }
+    const trackCv = (id: string) => { c.track(id); saved.cvJobId = id; handoff.setPending(saved) }
+    const trackLetter = (id: string) => { c.track(id); saved.letterJobId = id; handoff.setPending(saved) }
     let ok = true
     let aborted = false
     const onErr = (e: unknown) => { if (e instanceof PollAbortedError) aborted = true; else { ok = false; setError(errMsg(e)) } }
@@ -164,7 +171,7 @@ function NewApplicationSlot({ pending, onCvGenerated, onLetterGenerated, onClose
     if (opts.doCv) {
       setCvStage('')
       const p = (opts.cvJobId ? pollCvToEntry(opts.cvJobId, s => setCvStage(stage(s)), c.signal)
-        : runCV(opts.url, opts.lang, s => setCvStage(stage(s)), c.signal, c.track))
+        : runCV(opts.url, opts.lang, s => setCvStage(stage(s)), c.signal, trackCv))
         .then(e => { cbRef.current.onCvGenerated(e); setCvDone(true) })
         .catch(onErr)
       tasks.push(p)
@@ -172,7 +179,7 @@ function NewApplicationSlot({ pending, onCvGenerated, onLetterGenerated, onClose
     if (opts.doLetter) {
       setLetterStage('')
       const p = (opts.letterJobId ? pollCVJob<LetterHistoryEntry>(opts.letterJobId, s => setLetterStage(stage(s)), c.signal)
-        : runLetter(opts.url, opts.lang, s => setLetterStage(stage(s)), c.signal, c.track))
+        : runLetter(opts.url, opts.lang, s => setLetterStage(stage(s)), c.signal, trackLetter))
         .then(e => { cbRef.current.onLetterGenerated(e); setLetterDone(true) })
         .catch(onErr)
       tasks.push(p)
@@ -723,6 +730,10 @@ export default function ApplicationsPage() {
       .then(([cvs, letters]) => {
         setCvHistory(cvs); setLetterHistory(letters)
         if (openUrl && !cvs.some(e => e.job_url === openUrl) && !letters.some(e => e.job_url === openUrl)) {
+          // The generation this link promised never landed (it may have failed).
+          // A toast alone is a dead end — open the New slot prefilled with the
+          // URL so retrying is one click. No job ids ⇒ nothing auto-launches.
+          setPending({ jobUrl: openUrl })
           toast.info(t('applications.noneForJob'))
         }
       })

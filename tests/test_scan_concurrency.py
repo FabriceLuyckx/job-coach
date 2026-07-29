@@ -12,6 +12,8 @@ two scans just take turns and double the cost. Run with: uv run pytest
 import threading
 import time
 
+import pytest
+
 from app.api import jobs
 
 
@@ -87,3 +89,25 @@ def test_concurrent_starts_yield_one_job():
     started = [r for r in results if not r["already_running"]]
     assert len(started) == 1, f"expected exactly one real start, got {len(started)}"
     assert len({r["scan_id"] for r in results}) == 1
+
+
+@pytest.mark.parametrize("worker", [jobs._run_scan, jobs._run_recheck])
+def test_broken_engine_fails_the_run_once_not_per_source(monkeypatch, worker):
+    """A dead AI engine must fail the run with the engine's own message — never
+    be misattributed as N per-source 'the page couldn't be read' errors."""
+    _reset()
+
+    def broken_engine(cfg=None):
+        raise ValueError("Local AI model not downloaded yet — finish setup in Settings.")
+
+    monkeypatch.setattr(jobs.config, "require_engine", broken_engine)
+    scan_id = "engine-test"
+    with jobs._scans_lock:
+        jobs._scans[scan_id] = {"status": "pending", "created": time.time(),
+                                "kind": "scan", "cancel": threading.Event()}
+    worker(scan_id)
+
+    s = jobs._scans[scan_id]
+    assert s["status"] == "error"
+    assert s["error"] == "Local AI model not downloaded yet — finish setup in Settings."
+    assert not s.get("errors"), "engine failure must not produce per-source errors"

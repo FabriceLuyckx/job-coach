@@ -62,8 +62,8 @@
   },
   "banner": {
     "engineNotReady": "Bienvenue ! Pour générer des CV et analyser des offres d'emploi, configurez un moteur IA dans <settings>Paramètres</settings> — téléchargez le modèle local gratuit ou ajoutez une clé API OpenRouter.",
-    "setupInstalling": "Installation du moteur PDF en cours (opération unique, ~150 Mo). Tout fonctionne sauf l'export PDF pendant ce temps.",
-    "setupError": "Le moteur PDF n'a pas pu être installé : {{error}}. L'export PDF ne fonctionnera pas tant que ce problème n'est pas résolu."
+    "setupInstalling": "Mise en place du moteur de navigateur (une fois, ~150 Mo). La lecture des pages de poste et l'export PDF ne fonctionneront pas avant que cela ne soit terminé.",
+    "setupError": "Le moteur de navigateur ne peut pas être mis en place : {{error}}. La lecture des pages de poste et l'export PDF ne fonctionneront pas jusqu'à ce que ce problème soit résolu."
   },
   "settings": {
     "title": "Paramètres",
@@ -627,7 +627,8 @@
     "rejectModalLabel": "Pourquoi la rejetez-vous ? (optionnel)",
     "rejectModalPlaceholder": "par exemple : trop senior, mauvaise localisation, pas assez de travail en pratique…",
     "match": "Correspondance",
-    "reasonLabel": "Motif :"
+    "reasonLabel": "Motif :",
+    "foundOn": "Trouvé le {{date}}"
   },
   "cveditor": {
     "sections": {
@@ -766,7 +767,7 @@
     "deleteApp": "Supprimer la candidature pour {{title}}",
     "deleteLetter": "Supprimer ce guide de lettre",
     "deletedToast": "La candidature pour « {{title}} » a été supprimée",
-    "noneForJob": "Aucun résultat pour ce poste — la génération a peut-être échoué. Réessayez depuis la page Suggestions d'emploi.",
+    "noneForJob": "Rien trouvé pour ce poste jusqu'ici — la génération a peut-être échoué. Le poste est indiqué ci-dessous, vous pouvez donc le régénérer.",
     "emptyTitle": "Aucune candidature pour l'instant",
     "emptyBody": "Collez l'URL d'un poste et l'IA construit un CV adapté et un guide de rédaction de lettre — prêt à être consulté, édité et téléchargé.",
     "searchPlaceholder": "Rechercher vos applications…",

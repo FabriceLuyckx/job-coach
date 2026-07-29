@@ -62,8 +62,8 @@
   },
   "banner": {
     "engineNotReady": "Witaj! Aby generować CV i skanować oferty pracy, skonfiguruj silnik AI w <settings>Ustawieniach</settings> — pobierz darmowy model lokalny lub dodaj klucz API OpenRouter.",
-    "setupInstalling": "Trwa konfiguracja silnika PDF (jednorazowo, ~150 MB). W tym czasie wszystko oprócz eksportu PDF działa normalnie.",
-    "setupError": "Nie udało się skonfigurować silnika PDF: {{error}}. Eksport PDF będzie niedostępny do czasu rozwiązania problemu."
+    "setupInstalling": "Instalacja silnika przeglądarki (jednorazowa, ~150 MB). Odczyt stron ofert pracy i eksport PDF może nie działać, dopóki to nie zostanie ukończony.",
+    "setupError": "Silnik przeglądarki nie mógł zostać zainstalowany: {{error}}. Odczyt stron ofert pracy i eksport PDF nie będzie działał, dopóki to nie zostanie rozwiązane."
   },
   "settings": {
     "title": "Ustawienia",
@@ -627,7 +627,8 @@
     "rejectModalLabel": "Dlaczego odrzucasz to ogłoszenie? (opcjonalnie)",
     "rejectModalPlaceholder": "np. stanowisko zbyt seniorskie, zła lokalizacja, za mało pracy praktycznej…",
     "match": "Zgodność",
-    "reasonLabel": "Powód:"
+    "reasonLabel": "Powód:",
+    "foundOn": "Znaleziono {{date}}"
   },
   "cveditor": {
     "sections": {
@@ -766,7 +767,7 @@
     "deleteApp": "Usuń aplikację dla {{title}}",
     "deleteLetter": "Usuń ten przewodnik listu motywacyjnego",
     "deletedToast": "Usunięto aplikację dla „{{title}}”",
-    "noneForJob": "Nie znaleziono nic dla tego stanowiska — generowanie mogło się nie powieść. Spróbuj ponownie ze strony Sugestii ofert pracy.",
+    "noneForJob": "Nie znaleziono jeszcze żadnych zastosowań do tego stanowiska — generacja może być nieudana. Stanowisko jest wypełnione poniżej, więc możesz je ponownie wygenerować.",
     "emptyTitle": "Brak aplikacji",
     "emptyBody": "Wklej URL ogłoszenia o pracę, a AI stworzy dopasowane CV oraz przewodnik do napisania listu motywacyjnego — gotowe do przeglądu, edycji i pobrania.",
     "searchPlaceholder": "Szukaj swoich aplikacji…",

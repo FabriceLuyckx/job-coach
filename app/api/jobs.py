@@ -4,6 +4,7 @@
 """Phase 5 — job sources, scanning, and suggestion accept/reject."""
 
 import json
+import logging
 import threading
 import time
 import uuid
@@ -26,6 +27,7 @@ from app.services.job_scanner import (
 from app.services.llm import GenerationCancelled, current_cancel
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
+logger = logging.getLogger(__name__)
 
 _FETCH_CAVEAT = "Matched by title — couldn't read the posting page."
 
@@ -272,6 +274,8 @@ def _run_scan(scan_id: str) -> None:
             except GenerationCancelled:
                 raise  # cancel — stop the whole scan, don't record it as a source error
             except Exception as e:
+                # The UI gets flattened words; the log keeps the real exception.
+                logger.warning("scan: source %s failed: %r", name, e, exc_info=e)
                 errors[src["id"]] = _source_error(e)
                 continue
 

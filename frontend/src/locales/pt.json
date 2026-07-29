@@ -62,8 +62,8 @@
   },
   "banner": {
     "engineNotReady": "Bem-vindo! Para gerar CVs e analisar ofertas de emprego, configure um motor de IA em <settings>Configurações</settings> — transfira o modelo local gratuito ou adicione uma chave de API do OpenRouter.",
-    "setupInstalling": "A configurar o motor de PDF (única vez, ~150 MB). Tudo exceto a exportação para PDF funciona enquanto este processo termina.",
-    "setupError": "O motor de PDF não pôde ser configurado: {{error}}. A exportação para PDF não funcionará até que isto seja resolvido."
+    "setupInstalling": "Configurando o motor do navegador (uma vez, ~150 MB). A leitura de páginas de emprego e exportação em PDF podem não funcionar até que isso termine.",
+    "setupError": "O motor do navegador não pôde ser configurado: {{error}}. A leitura de páginas de emprego e exportação em PDF não funcionarão até que isso seja resolvido."
   },
   "settings": {
     "title": "Configurações",
@@ -627,7 +627,8 @@
     "rejectModalLabel": "Por que está rejeitando? (opcional)",
     "rejectModalPlaceholder": "por exemplo: demasiado sénior, localização errada, pouca atividade prática…",
     "match": "Correspondência",
-    "reasonLabel": "Motivo:"
+    "reasonLabel": "Motivo:",
+    "foundOn": "Encontrado {{date}}"
   },
   "cveditor": {
     "sections": {
@@ -766,7 +767,7 @@
     "deleteApp": "Excluir candidatura de {{title}}",
     "deleteLetter": "Excluir este guia de carta",
     "deletedToast": "Candidatura excluída para \"{{title}}\"",
-    "noneForJob": "Nada encontrado para este emprego ainda — a geração pode ter falhado. Tente novamente a partir da página de sugestões de empregos.",
+    "noneForJob": "Nada encontrado para esse emprego ainda — a geração pode ter falhado. O emprego está preenchido abaixo, então você pode gerá-lo novamente.",
     "emptyTitle": "Nenhuma candidatura ainda",
     "emptyBody": "Cole o URL de um anúncio de emprego e a IA cria um CV personalizado e um guia para escrever a carta de apresentação — pronto para pré-visualizar, editar e transferir.",
     "searchPlaceholder": "Pesquisar as suas candidaturas…",

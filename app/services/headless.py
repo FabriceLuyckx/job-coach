@@ -19,6 +19,11 @@ _UA = "Mozilla/5.0 (compatible; myjobcoach/1.0)"
 # with a headless browser.
 _MIN_TEXT = 500
 
+# Bounded best-effort wait for the network to go idle after the document loads.
+# Chatty SPAs (analytics, polling) never go idle — the settle is a grace period
+# for their data fetches, never a success condition.
+_SETTLE_MS = 8000
+
 
 def text_from_html(html: str) -> str:
     """Readable body text, with nav/header/footer/script/style/aside stripped."""
@@ -42,9 +47,14 @@ def render_html(url: str, browser=None) -> str:
     """Headless-render a page → HTML. Pass a live Playwright browser to reuse it
     across many pages (one launch per scan); otherwise launch a throwaway one."""
     if browser is not None:
+        from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
         page = browser.new_page()
         try:
-            page.goto(url, wait_until="networkidle", timeout=30000)
+            page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            try:
+                page.wait_for_load_state("networkidle", timeout=_SETTLE_MS)
+            except PlaywrightTimeoutError:
+                pass  # page never went idle — keep whatever content loaded
             return page.content()
         finally:
             page.close()

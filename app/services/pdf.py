@@ -9,7 +9,7 @@ layout (@page size/margins, fixed sidebar, web fonts, colour backgrounds)
 comes out exactly as designed — unlike the old "Cmd+P → Save as PDF" flow.
 """
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_playwright
 
 
 def html_to_pdf(html: str) -> bytes:
@@ -19,8 +19,13 @@ def html_to_pdf(html: str) -> bytes:
         try:
             page = browser.new_page()
             # wait_until="networkidle" lets the Google Fonts request finish so
-            # the PDF uses Inter rather than a fallback face.
-            page.set_content(html, wait_until="networkidle")
+            # the PDF uses Inter rather than a fallback face. A proxy that
+            # blackholes the font CDN must cost the timeout once, not the PDF:
+            # render with whatever fonts arrived.
+            try:
+                page.set_content(html, wait_until="networkidle")
+            except PlaywrightTimeoutError:
+                pass
             page.emulate_media(media="print")
             return page.pdf(
                 format="A4",

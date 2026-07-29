@@ -62,8 +62,8 @@
   },
   "banner": {
     "engineNotReady": "Welkom! Om cv's te genereren en vacatures te scannen, stel een AI-engine in via <settings>Instellingen</settings> — download het gratis lokale model of voeg een OpenRouter API-sleutel toe.",
-    "setupInstalling": "De PDF-engine wordt ingesteld (eenmalig, ~150 MB). Alles behalve PDF-export werkt terwijl dit wordt voltooid.",
-    "setupError": "De PDF-engine kon niet worden ingesteld: {{error}}. PDF-export werkt niet totdat dit is opgelost."
+    "setupInstalling": "Instellingen van de browser-engine (één keer, ~150 MB). Lezen van functiepagina's en PDF-export werkt niet tot deze stap is voltooid.",
+    "setupError": "De browser-engine kon niet worden geïnstalleerd: {{error}}. Lezen van functiepagina's en PDF-export werkt niet tot dit is opgelost."
   },
   "settings": {
     "title": "Instellingen",
@@ -627,7 +627,8 @@
     "rejectModalLabel": "Waarom weiger je het? (optioneel)",
     "rejectModalPlaceholder": "bijv. te senior, verkeerde locatie, te weinig praktijkwerk…",
     "match": "Match",
-    "reasonLabel": "Reden:"
+    "reasonLabel": "Reden:",
+    "foundOn": "Gevonden op {{date}}"
   },
   "cveditor": {
     "sections": {
@@ -766,7 +767,7 @@
     "deleteApp": "Sollicitatie verwijderen voor {{title}}",
     "deleteLetter": "Deze briefgids verwijderen",
     "deletedToast": "Sollicitatie verwijderd voor ‘{{title}}’",
-    "noneForJob": "Nog niets gevonden voor deze functie — de generatie is mogelijk mislukt. Probeer het opnieuw via de pagina Vacaturesuggesties.",
+    "noneForJob": "Geen resultaten gevonden voor deze functie — de generatie is mogelijk mislukt. De functie is hieronder ingevuld, dus je kunt deze opnieuw genereren.",
     "emptyTitle": "Nog geen sollicitaties",
     "emptyBody": "Plak een functie-URL en de AI maakt een aangepast cv en een briefgids voor het schrijven van je brief — klaar om te bekijken, te bewerken en te downloaden.",
     "searchPlaceholder": "Zoek je sollicitaties…",

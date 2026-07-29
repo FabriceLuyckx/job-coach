@@ -25,7 +25,7 @@ headless Playwright render — both for listing pages (here) and posting pages
 """
 
 import json
-from urllib.parse import urljoin
+from urllib.parse import unquote, urljoin, urlsplit
 
 from bs4 import BeautifulSoup
 
@@ -181,13 +181,28 @@ _DIGEST_FIELDS = ("employer", "location", "remote", "contract",
 
 
 def _links_from_html(html: str, page_url: str) -> list[dict]:
-    """All <a> with non-empty text + href, absolute-resolved and deduped by url."""
+    """All <a> with usable text + href, absolute-resolved and deduped by url.
+
+    A textless anchor falls back to its aria-label; an image-only anchor
+    (<a><img></a>) falls back to the img's alt, then the URL's last path
+    segment — 11.be advertised its one vacancy as exactly such a banner
+    (no text, no alt, no aria-label), so dropping textless anchors dropped
+    the job. Anchors with neither text, label, nor an img (icon links) are
+    still dropped."""
     soup = BeautifulSoup(html, "html.parser")
     out, seen = [], set()
     for a in soup.find_all("a", href=True):
-        text = a.get_text(" ", strip=True)
         href = urljoin(page_url, a["href"].strip())
-        if not text or not href.startswith("http") or href in seen:
+        if not href.startswith("http") or href in seen:
+            continue
+        text = a.get_text(" ", strip=True) or (a.get("aria-label") or "").strip()
+        if not text and (img := a.find("img")) is not None:
+            text = (img.get("alt") or "").strip()
+            if not text and urlsplit(href).netloc == urlsplit(page_url).netloc:
+                # Last resort, same-host only: an external image link with no
+                # text anywhere is an ad/promo tile, not one of this site's jobs.
+                text = unquote(urlsplit(href).path).rstrip("/").rsplit("/", 1)[-1].replace("-", " ")
+        if not text:
             continue
         seen.add(href)
         out.append({"text": text[:200], "href": href})
@@ -354,11 +369,17 @@ def review_posting(opening: dict, posting_text: str, profile: dict, cfg: dict,
     )
     args = tool_args(resp, required=("match", "reason", "lang"))
     code = str(args.get("lang") or "").lower()[:2]
+    reason = str(args.get("reason") or "").strip()
+    # Small models sometimes echo the language code (or similar junk) into
+    # 'reason'. A junk reason is worse than none: empty means the UI shows no
+    # Reason line at all instead of "Reason: en".
+    if len(reason) < 3 or reason.lower() == code:
+        reason = ""
     digest = {k: args[k] for k in _DIGEST_FIELDS
               if args.get(k) not in (None, "", [], "unknown")}
     return {
         "match": bool(args.get("match")),
-        "reason": args.get("reason", ""),
+        "reason": reason,
         "lang": code if len(code) == 2 and code.isalpha() else "en",
         "digest": digest,
     }

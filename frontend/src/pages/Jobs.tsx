@@ -19,7 +19,7 @@ import { useToast } from '../components/Toast'
 import { useKeyStatus } from '../components/KeyStatus'
 import { handoff } from '../lib/handoff'
 import { errMsg } from '../lib/errors'
-import { formatDateTime } from '../lib/format'
+import { formatDate, formatDateTime } from '../lib/format'
 import { usePoller } from '../lib/usePoller'
 
 const PAGE_LIMIT = 10  // filtered-out / history rows per page
@@ -231,11 +231,15 @@ export default function JobsPage() {
           onDone(s.found ?? 0)
           reloadOpenings()
           api.getLastScan().then(r => { setLastScan(r.last_scan); setProfileChanged(r.profile_changed); setRecheckableCount(r.recheckable) }).catch(() => {})
+          // Per-source last_scanned times were stamped server-side during the
+          // scan — without this reload they stay stale until a page refresh.
+          api.getJobSources().then(setSources).catch(() => {})
           return true
         }
         if (s.status === 'cancelled') {
           setBusyFlag(false); setScanProgress(''); activeScan = null
           reloadOpenings()  // work stored before the cancel may exist
+          api.getJobSources().then(setSources).catch(() => {})  // sources finished pre-cancel were stamped
           return true
         }
         if (s.status === 'error') {
@@ -634,7 +638,7 @@ export default function JobsPage() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap', marginTop: 2 }}>
               <span className="match-flag">{t('jobs.match')}</span>
-              <span className="muted-sm">{host(o.source_url)}</span>
+              <span className="muted-sm">{host(o.source_url)} · {t('jobs.foundOn', { date: formatDate(o.created_at) })}</span>
             </div>
             <Verdict digest={o.digest} reason={o.reason} />
           </div>
@@ -697,14 +701,16 @@ export default function JobsPage() {
                     <Filter size={14} color="var(--muted)" aria-hidden />
                     <a href={o.url} target="_blank" rel="noreferrer">{o.title || host(o.url)}</a>
                   </div>
-                  <div className="muted-sm">{host(o.source_url)} · {t('jobs.filteredOutLabel')}</div>
+                  <div className="muted-sm">{host(o.source_url)} · {t('jobs.filteredOutLabel')} · {t('jobs.foundOn', { date: formatDate(o.created_at) })}</div>
                   {/* Same evidence as a suggestion: you're being asked to
                       second-guess this row, so don't give it less to go on.
-                      A missing reason means the title prescreen dropped it
-                      before the posting was ever fetched — fallbackReason
+                      No reason AND no digest means the title prescreen dropped
+                      it before the posting was ever fetched — fallbackReason
                       says so, rather than leaving the row silent under help
-                      text that promises a reason. */}
-                  <Verdict digest={o.digest} reason={o.reason} fallbackReason={t('jobs.filteredByTitle')} />
+                      text that promises a reason. A row WITH a digest was read;
+                      its reason may just have been dropped as junk. */}
+                  <Verdict digest={o.digest} reason={o.reason}
+                    fallbackReason={o.digest ? undefined : t('jobs.filteredByTitle')} />
                 </div>
                 <Button variant="ghost" onClick={() => suggestAnyway(o)} disabled={busy === o.id}
                   title={t('jobs.suggestAnywayTitle')} style={{ flexShrink: 0 }}>
@@ -758,7 +764,7 @@ export default function JobsPage() {
                     <a href={o.url} target="_blank" rel="noreferrer">{o.title || host(o.url)}</a>
                   </div>
                   <div className="muted-sm">
-                    {host(o.source_url)} · {rejected ? t('jobs.rejected') : t('jobs.accepted')}
+                    {host(o.source_url)} · {rejected ? t('jobs.rejected') : t('jobs.accepted')} · {t('jobs.foundOn', { date: formatDate(o.created_at) })}
                   </div>
                   {/* The user's own reject reason (when given) is why THEY
                       decided, and takes priority over the AI's verdict reason. */}
