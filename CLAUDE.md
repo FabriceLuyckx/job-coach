@@ -667,8 +667,8 @@ That PR **auto-merges itself** — a second step in the same workflow finds the 
 `release-please--branches--stable` PR and merges it; that push re-runs the workflow,
 and *that* pass tags `vX.Y.Z` and creates the GitHub Release with notes. The tag
 triggers the binaries-only `release.yml`, whose `action-gh-release` step **upserts**
-the three bundles (macOS arm64 + Intel `.dmg`, Windows `.zip`) onto that same
-release (no duplicate). The macOS jobs share one packaging step — the `.dmg` is
+the four bundles (macOS arm64 + Intel `.dmg`, Windows `.zip`, Linux `.tar.gz` — tar
+so the executable bit survives) onto that same release (no duplicate). The macOS jobs share one packaging step — the `.dmg` is
 named from `matrix.artifact`, so a target is one matrix entry, not a code path. So promoting `main` →
 `stable` (still a manual, reviewed PR) is the only human step in the whole release;
 the version bump is never a separate click.
@@ -702,11 +702,12 @@ app checks `api.github.com/repos/FabriceLuyckx/job-coach/releases/latest` (stric
 `vX.Y.Z` 3-tuple compare; "unknown" ⇒ no update), selects the platform asset by
 its **stable, versionless name** (`asset_name()`: `MyJobCoach-macos.dmg` for Apple
 Silicon, `MyJobCoach-macos-intel.dmg` when `platform.machine() == "x86_64"`,
-`MyJobCoach-windows.zip` — the release-versioning naming contract; the plain macOS
+`MyJobCoach-windows.zip`, `MyJobCoach-linux.tar.gz` — the release-versioning naming
+contract; the plain macOS
 name stays arm64 so already-installed Apple Silicon apps keep matching it, and a
 Rosetta'd x86_64 build correctly stays on the Intel track) and, on explicit approval, streams it to
 `DATA_DIR/updates/`, verifies the byte size, stages it (macOS `hdiutil`+`ditto`,
-Windows `unpack_archive`), then launches a detached helper script that waits for
+Windows/Linux `unpack_archive`), then launches a detached helper script that waits for
 the app's PID, moves the install aside (never deletes first), copies the staged
 bundle in, restores on failure, clears macOS quarantine, and relaunches; the app
 exits via a delayed `os._exit(0)`. Download URLs are pinned to
@@ -725,9 +726,16 @@ The swap itself is verified manually against real builds; `tests/test_updater.py
 covers version compare, asset selection, URL pinning, and every refusal.
 
 **Desktop app window** (`add-native-app-window`, `app/desktop.py`): the packaged
-launcher hosts the SPA in a **native window** (WKWebView/WebView2 via `pywebview`,
-in the `package` extra) so the app owns its Dock/taskbar icon and closing the
-window quits it. uvicorn runs in a daemon thread; `webview.start()` owns the main
+launcher hosts the SPA in a **native window** (WKWebView/WebView2/QtWebEngine on
+Linux via `pywebview`, in the `package` extra — the Linux Qt deps are
+`sys_platform`-marked there, since GTK would need system webkit2gtk) so the app
+owns its Dock/taskbar icon and closing the
+window quits it. On Linux the launcher forces `gui="qt"`, passes the bundled
+`packaging/icon-1024.png` as the window icon, and each launch (re)writes
+`~/.local/share/applications/MyJobCoach.desktop` (+ copied icon) with Exec
+pointing at the current binary — the file name matches the binary name because
+Wayland compositors pick the taskbar icon by app-id ↔ .desktop-name matching,
+ignoring window icons. uvicorn runs in a daemon thread; `webview.start()` owns the main
 thread (returning from it ends the process — that is the quit path).
 `ALLOW_DOWNLOADS=True`, `private_mode=False` + `storage_path` under `DATA_DIR`
 (the SPA's localStorage caches must survive restarts); `target="_blank"` links

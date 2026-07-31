@@ -32,7 +32,11 @@ DOWNLOAD_PREFIX = f"https://github.com/{REPO}/releases/download/"
 # macOS ships two builds; the plain name stays **arm64** so apps already installed
 # on Apple Silicon keep matching it, and Intel gets the suffixed one. An x86_64
 # build running under Rosetta reports x86_64 and so correctly stays on Intel.
-ASSET_NAMES = {"darwin": "MyJobCoach-macos.dmg", "win32": "MyJobCoach-windows.zip"}
+ASSET_NAMES = {
+    "darwin": "MyJobCoach-macos.dmg",
+    "win32": "MyJobCoach-windows.zip",
+    "linux": "MyJobCoach-linux.tar.gz",
+}
 MACOS_INTEL_ASSET = "MyJobCoach-macos-intel.dmg"
 _UA = "MyJobCoach-updater"
 
@@ -134,7 +138,7 @@ def install_root() -> Path | None:
     exe = Path(sys.executable)
     if sys.platform == "darwin":
         return next((p for p in exe.parents if p.suffix == ".app"), None)
-    if sys.platform == "win32":
+    if sys.platform in ("win32", "linux"):
         return exe.parent
     return None
 
@@ -270,15 +274,18 @@ def _stage(archive: Path) -> Path:
         if not (target / "Contents" / "MacOS").is_dir():
             raise RuntimeError("The staged app bundle is incomplete — update abandoned.")
         return target
-    # Windows: the zip wraps a single "MyJobCoach" folder (matches what a user
-    # unzipping the release manually gets — see release.yml).
+    # Windows/Linux: the archive wraps a single "MyJobCoach" folder (matches
+    # what a user extracting the release manually gets — see release.yml).
+    # is_file(), not exists(): on Linux the binary and the wrapper folder are
+    # both named "MyJobCoach", so exists() would match the directory.
+    exe = "MyJobCoach.exe" if sys.platform == "win32" else "MyJobCoach"
     shutil.unpack_archive(str(archive), str(staged))
-    if (staged / "MyJobCoach.exe").exists():
+    if (staged / exe).is_file():
         return staged
     wrapped = staged / "MyJobCoach"
-    if (wrapped / "MyJobCoach.exe").exists():
+    if (wrapped / exe).is_file():
         return wrapped
-    raise RuntimeError("The staged update is missing MyJobCoach.exe — update abandoned.")
+    raise RuntimeError(f"The staged update is missing {exe} — update abandoned.")
 
 
 def _launch_swap(staged: Path) -> None:
@@ -290,19 +297,24 @@ def _launch_swap(staged: Path) -> None:
     """
     root = install_root()
     pid = os.getpid()
-    if sys.platform == "darwin":
+    if sys.platform != "win32":
+        if sys.platform == "darwin":
+            copy = f'ditto "{staged}" "{root}"'
+            finish = f'xattr -dr com.apple.quarantine "{root}" 2>/dev/null\nopen "{root}"'
+        else:  # linux
+            copy = f'cp -a "{staged}" "{root}"'
+            finish = f'"{root}/MyJobCoach" >/dev/null 2>&1 &'
         script = UPDATES_DIR / "swap.sh"
         script.write_text(f"""#!/bin/sh
 while kill -0 {pid} 2>/dev/null; do sleep 0.5; done
 mv "{root}" "{root}.old" || exit 1
-if ditto "{staged}" "{root}"; then
+if {copy}; then
   rm -rf "{root}.old"
 else
   rm -rf "{root}"
   mv "{root}.old" "{root}"
 fi
-xattr -dr com.apple.quarantine "{root}" 2>/dev/null
-open "{root}"
+{finish}
 """)
         script.chmod(0o755)
         subprocess.Popen(

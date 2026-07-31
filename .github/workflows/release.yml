@@ -52,6 +52,8 @@ jobs:
             artifact: MyJobCoach-macos-intel
           - os: windows-latest
             artifact: MyJobCoach-windows
+          - os: ubuntu-latest
+            artifact: MyJobCoach-linux
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
@@ -169,12 +171,20 @@ jobs:
           Copy-Item packaging/windows-README.txt "dist/MyJobCoach/!READ-ME-FIRST.txt"
           Compress-Archive -Path dist/MyJobCoach -DestinationPath dist/MyJobCoach-windows.zip
 
+      - name: Package (Linux .tar.gz)
+        # tar, not zip — the zip route would drop the executable bit on
+        # MyJobCoach and the bundled shared libs. Wraps the folder itself,
+        # mirroring the Windows zip: extracting yields one MyJobCoach/ dir.
+        if: runner.os == 'Linux'
+        run: tar -C dist -czf dist/MyJobCoach-linux.tar.gz MyJobCoach
+
       - uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.artifact }}
           path: |
             dist/*.dmg
             dist/*.zip
+            dist/*.tar.gz
 
   release:
     needs: build

@@ -5,8 +5,8 @@
 
 Starts the FastAPI app on a local port in a background thread, then hosts the
 UI in a native application window (WKWebView on macOS, WebView2 on Windows,
-via pywebview) so the running app has its own Dock/taskbar icon and closing
-the window quits it. The GUI event loop must own the main thread — that is why
+QtWebEngine on Linux, via pywebview) so the running app has its own
+Dock/taskbar icon and closing the window quits it. The GUI event loop must own the main thread — that is why
 the *server* is the one in a thread: ``webview.start()`` blocks until the last
 window closes, and when it returns, ``main()`` ends and the daemon server
 thread dies with the process. Closing the window *is* the quit path.
@@ -17,11 +17,13 @@ the local address and keep the process alive until the user kills it.
 """
 
 import os
+import shutil
 import socket
 import sys
 import threading
 import time
 import webbrowser
+from pathlib import Path
 from urllib.request import urlopen
 
 from app import paths
@@ -30,6 +32,9 @@ HOST = "127.0.0.1"
 PREFERRED_PORT = 8756
 WINDOW_TITLE = "MyJobCoach"
 LOG_PATH = paths.DATA_DIR / "myjobcoach.log"
+# Bundled by the spec on Linux only — the window/taskbar icon and the source
+# of the installed .desktop entry's icon.
+ICON_PATH = paths.RESOURCE_DIR / "packaging" / "icon-1024.png"
 
 
 def _port_in_use(port: int) -> bool:
@@ -129,11 +134,47 @@ def _open_ui(url: str) -> None:
         # size the window un-zooms back to.
         webview.create_window(WINDOW_TITLE, url, width=1280, height=860,
                               min_size=(900, 600), maximized=True)
+        kwargs = {}
+        if sys.platform == "linux":
+            # Qt is the backend we bundle (see the `package` extra) — name it
+            # so pywebview doesn't probe for GTK first. `icon` is only
+            # honoured on GTK/Qt, hence Linux-only.
+            kwargs["gui"] = "qt"
+            if ICON_PATH.is_file():
+                kwargs["icon"] = str(ICON_PATH)
         # private_mode defaults to True, which discards localStorage between
         # runs — and the SPA keeps its UI-language and suggested-titles caches there.
-        webview.start(private_mode=False, storage_path=str(paths.DATA_DIR / "webview"))
+        webview.start(private_mode=False, storage_path=str(paths.DATA_DIR / "webview"), **kwargs)
     except Exception:
         _browser_fallback(url)
+
+
+def _install_desktop_entry() -> None:
+    """Linux app-menu/taskbar integration: copy the icon into the user's icon
+    dir and (re)write a .desktop entry pointing at the current binary.
+
+    Rewritten on every launch so Exec stays correct if the user moves the
+    install. The file is named after the binary ("MyJobCoach") because Wayland
+    compositors pick the taskbar icon by matching the window's app id — the
+    binary name for Qt apps — against the .desktop file name; a window icon
+    alone is ignored there.
+    """
+    data_home = Path(os.environ.get("XDG_DATA_HOME") or Path.home() / ".local" / "share")
+    icon = data_home / "icons" / "MyJobCoach.png"
+    icon.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(ICON_PATH, icon)
+    apps = data_home / "applications"
+    apps.mkdir(parents=True, exist_ok=True)
+    (apps / "MyJobCoach.desktop").write_text(f"""[Desktop Entry]
+Type=Application
+Name=MyJobCoach
+Comment=AI-powered career assistant
+Exec="{sys.executable}"
+Icon={icon}
+Terminal=false
+Categories=Office;
+StartupWMClass=MyJobCoach
+""")
 
 
 def main() -> None:
@@ -141,6 +182,11 @@ def main() -> None:
     # In the packaged app, keep the downloaded Chromium in the writable data dir.
     if paths.FROZEN:
         os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", str(paths.BROWSERS_DIR))
+        if sys.platform == "linux" and ICON_PATH.is_file():
+            try:
+                _install_desktop_entry()
+            except Exception:
+                pass  # menu integration is cosmetic — never block launch on it
 
     # Single-instance: if it's already running on the preferred port, just focus
     # a browser tab on it and exit instead of starting a second server.

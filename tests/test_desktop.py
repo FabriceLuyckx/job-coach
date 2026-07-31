@@ -98,3 +98,19 @@ def test_second_launch_opens_browser_without_second_server(monkeypatch):
 
     assert opened == [f"http://{desktop.HOST}:{desktop.PREFERRED_PORT}"]
     assert not started  # no server thread was created
+
+
+def test_desktop_entry_written_with_current_exec_and_icon(monkeypatch, tmp_path):
+    """The Linux .desktop entry must point Exec at the running binary and Icon
+    at a copied file — a stale Exec after the user moves the install is why it
+    is rewritten every launch."""
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path))
+
+    desktop._install_desktop_entry()
+
+    icon = tmp_path / "icons" / "MyJobCoach.png"
+    entry = (tmp_path / "applications" / "MyJobCoach.desktop").read_text()
+    assert icon.is_file()
+    assert f'Exec="{sys.executable}"' in entry
+    assert f"Icon={icon}" in entry
+    assert "StartupWMClass=MyJobCoach" in entry

@@ -22,6 +22,11 @@ For non-technical users. Grab the latest build from the
   zip looks like it does nothing — Windows only extracts that one file, and the app
   needs the whole folder. The zip carries a `!READ-ME-FIRST.txt` saying the same,
   plus the SmartScreen step below.
+- **Linux** — download `MyJobCoach-linux.tar.gz`, extract it
+  (`tar xzf MyJobCoach-linux.tar.gz`), then run `MyJobCoach/MyJobCoach`. The app
+  opens in its own window with its own icon, and the first launch adds a
+  MyJobCoach entry to your app menu. Built on the current Ubuntu LTS; needs a
+  comparable or newer glibc.
 
 The app opens in its own window — no console, no browser tab — and closing that
 window quits it. (If your machine has no usable web view — e.g. a very old
@@ -42,6 +47,7 @@ Then pick how the AI runs (Settings → **AI Engine**, or the first-run prompt):
 All your data stays on your machine, in a standard per-user folder:
 - macOS: `~/Library/Application Support/MyJobCoach/`
 - Windows: `%APPDATA%\MyJobCoach\`
+- Linux: `~/.local/share/MyJobCoach/`
 
 ### Updating
 
@@ -587,8 +593,9 @@ tag by hand.
   (`.github/workflows/release-please.yml`) reads the commits, computes the SemVer
   bump, and opens a **release PR** that updates `pyproject.toml` + `CHANGELOG.md`.
 - Merging the release PR tags `vX.Y.Z` and creates the GitHub Release; the tag then
-  triggers `.github/workflows/release.yml`, which builds all three targets (macOS
-  arm64, macOS Intel, Windows) and attaches the `.dmg`s/`.zip` to that same release.
+  triggers `.github/workflows/release.yml`, which builds all four targets (macOS
+  arm64, macOS Intel, Windows, Linux) and attaches the `.dmg`s/`.zip`/`.tar.gz`
+  to that same release.
 
 **Local build** (produces `dist/MyJobCoach.app` on macOS, `dist/MyJobCoach/` on Windows):
 

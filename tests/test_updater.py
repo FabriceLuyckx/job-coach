@@ -48,6 +48,7 @@ _ASSETS = [
     {"name": "MyJobCoach-macos.dmg", "size": 1},
     {"name": "MyJobCoach-macos-intel.dmg", "size": 3},
     {"name": "MyJobCoach-windows.zip", "size": 2},
+    {"name": "MyJobCoach-linux.tar.gz", "size": 4},
 ]
 
 
@@ -55,6 +56,7 @@ _ASSETS = [
     ("darwin", "arm64", "MyJobCoach-macos.dmg"),
     ("darwin", "x86_64", "MyJobCoach-macos-intel.dmg"),
     ("win32", "AMD64", "MyJobCoach-windows.zip"),
+    ("linux", "x86_64", "MyJobCoach-linux.tar.gz"),
 ])
 def test_asset_for_platform(monkeypatch, platform, machine, name):
     monkeypatch.setattr(sys, "platform", platform)
@@ -64,7 +66,7 @@ def test_asset_for_platform(monkeypatch, platform, machine, name):
 
 
 def test_asset_for_unsupported_platform(monkeypatch):
-    monkeypatch.setattr(sys, "platform", "linux")
+    monkeypatch.setattr(sys, "platform", "freebsd14")
     assert updater.asset_for_platform(_ASSETS) is None
 
 
@@ -86,7 +88,8 @@ def test_asset_names_match_what_the_release_workflow_publishes():
                 / ".github/workflows/release.yml").read_text()
     published = {line.split("artifact:", 1)[1].strip()
                  for line in workflow.splitlines() if line.strip().startswith("artifact:")}
-    expected = {Path(n).stem for n in (*updater.ASSET_NAMES.values(), updater.MACOS_INTEL_ASSET)}
+    # split, not Path.stem — .stem leaves "MyJobCoach-linux.tar" for .tar.gz
+    expected = {n.split(".", 1)[0] for n in (*updater.ASSET_NAMES.values(), updater.MACOS_INTEL_ASSET)}
     assert published == expected
 
 
