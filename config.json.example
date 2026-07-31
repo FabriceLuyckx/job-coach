@@ -1,4 +1,4 @@
 {
   "openrouter_api_key": "sk-or-...",
-  "openrouter_model": "anthropic/claude-sonnet-4-6"
+  "openrouter_model": "anthropic/claude-sonnet-5"
 }

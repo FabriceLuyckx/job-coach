@@ -23,6 +23,7 @@ from pydantic import BaseModel
 from app import config
 from app.paths import MODELS_DIR
 from app.services.engines.registry import all_models, get_model, local_model_path
+from app.services.engines.remote import PRESETS
 
 router = APIRouter(prefix="/api/engine", tags=["engine"])
 
@@ -55,18 +56,59 @@ def _engine_status(cfg: dict) -> dict:
                       "size_bytes": entry["size_bytes"] if entry else None,
                       "min_ram_gb": entry["min_ram_gb"] if entry else None},
         }
-    ready = bool(cfg.get("openrouter_api_key"))
-    return {
-        "provider": "openrouter",
-        "ready": ready,
-        "detail": "API key set" if ready else "No API key",
-        "model": None,
-    }
+    # Remote provider: readiness is exactly "require_engine() wouldn't raise", so
+    # the check can't drift from what an actual AI call needs, and the not-ready
+    # detail already names the selected provider.
+    try:
+        config.require_engine(cfg)
+    except ValueError as e:
+        return {"provider": provider, "ready": False, "detail": str(e), "model": None}
+    return {"provider": provider, "ready": True, "detail": "Ready", "model": None}
 
 
 @router.get("")
 def engine_status():
     return _engine_status(config.load())
+
+
+@router.get("/remote-models")
+def remote_models(provider: str | None = None):
+    """Model ids the selected remote provider will accept, for the model field's
+    suggestions. Read live from that provider's own `/models` (the endpoint we
+    already use to verify a key) — zero tokens, and it can't go stale the way a
+    curated list does. Never raises: an unreachable or `/models`-less server just
+    means no suggestions, and the field stays plain free text.
+    """
+    cfg = config.load()
+    pid = provider or cfg.get("llm_provider") or "openrouter"
+    preset = PRESETS.get(pid)
+    if preset is None:
+        return {"models": []}
+    base_url = cfg.get("custom_base_url", "") if pid == "custom" else preset["base_url"]
+    if not base_url:
+        return {"models": []}
+
+    key = cfg.get(f"{pid}_api_key", "")
+    # Sent only when we have one: an empty Bearer is worse than no header, and
+    # some lists (OpenRouter's) are public — useful before a key is entered.
+    headers = {"Authorization": f"Bearer {key}", "x-api-key": key,
+               "anthropic-version": "2023-06-01"} if key else {}
+    try:
+        r = httpx.get(f"{base_url}/models", headers=headers, timeout=10)
+        r.raise_for_status()
+        data = r.json().get("data") or []
+    except Exception:
+        return {"models": []}
+
+    ids = []
+    for m in data:
+        mid = (m or {}).get("id") if isinstance(m, dict) else None
+        if isinstance(mid, str) and mid:
+            # Gemini lists ids as "models/gemini-…" but takes the bare name in a
+            # request, so a name copied straight from its list would 404.
+            ids.append(mid.removeprefix("models/"))
+    # Sorted, which also groups OpenRouter's ids by their vendor prefix.
+    return {"models": sorted(set(ids))}
 
 
 @router.get("/models")

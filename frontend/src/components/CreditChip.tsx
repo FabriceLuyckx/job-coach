@@ -35,7 +35,8 @@ export default function CreditChip() {
     return () => { active = false }
   }, [keySet, provider])
 
-  // Balance is an OpenRouter concept; the local engine has no cost to show.
+  // Balance is an OpenRouter concept: the local engine costs nothing, and the
+  // other providers bill on their own dashboards with no cheap balance endpoint.
   if (provider !== 'openrouter' || !keySet || balance == null) return null
   return (
     <span className={`credit-chip${balance < 1 ? ' credit-chip-low' : ''}`}

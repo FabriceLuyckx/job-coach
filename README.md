@@ -41,8 +41,16 @@ Then pick how the AI runs (Settings → **AI Engine**, or the first-run prompt):
 - **Free local model** — download a model (2.5–5 GB, your choice) that runs on your own
   computer. No account, no cost, fully private/offline. Good results; on a slower machine
   a CV can take a few minutes.
-- **OpenRouter** — paste an [OpenRouter](https://openrouter.ai) API key for the best
-  quality (pay a few cents per CV).
+- **Your own API key** — best quality (pay a few cents per CV). Pick the provider you
+  already have an account with — [OpenRouter](https://openrouter.ai),
+  [Anthropic](https://console.anthropic.com/settings/keys),
+  [OpenAI](https://platform.openai.com/api-keys) or
+  [Google Gemini](https://aistudio.google.com/apikey) — and paste its key. **Custom**
+  accepts any other server that speaks the OpenAI API, including one running on your own
+  machine (Ollama, LM Studio). Keys are stored per provider, so switching between them
+  never loses one you entered earlier. The model box suggests the models your provider
+  actually offers (typed straight from its own list, so it's never out of date) and
+  warns if you mistype one — leave it blank to use that provider's default.
 
 All your data stays on your machine, in a standard per-user folder:
 - macOS: `~/Library/Application Support/MyJobCoach/`
@@ -76,7 +84,7 @@ manually instead.
 **Settings → Backup & Restore** lets you carry everything over in one file:
 
 - **Export backup** downloads a single `.zip` with your profile and photo, settings,
-  job sources and history, and every generated CV. Your OpenRouter API key is **not**
+  job sources and history, and every generated CV. Your API keys are **not**
   included, so the file is safe to email or store in the cloud.
 - On the new machine, install MyJobCoach, open **Settings → Backup & Restore**,
   **Restore from backup** — pick that `.zip` — then re-enter your API key.
@@ -153,14 +161,15 @@ Open **http://localhost:5173** in your browser.
 
 On first run, a banner guides you to **Settings → AI Engine** to set up the AI. Choose
 either the **free local model** (downloaded and run on your machine — no key needed) or
-**OpenRouter** (paste an [OpenRouter](https://openrouter.ai) API key, saved locally to
-`config.json`, gitignored). Until an engine is ready, the Generate/Scan buttons are
+**your own API key** — pick a provider (OpenRouter, Anthropic, OpenAI, Google Gemini, or
+Custom for any other OpenAI-compatible server) and paste its key, saved locally to
+`config.json` (gitignored). Until an engine is ready, the Generate/Scan buttons are
 disabled with an explanation. On OpenRouter, your credit balance shows next to the
 buttons that spend it.
 
 > **Local engine (development):** the local model runs via `llama-cpp-python`, a heavy
 > platform-specific dependency kept out of the default install. Enable it with
-> `uv sync --extra local`. Without it, use the OpenRouter engine.
+> `uv sync --extra local`. Without it, use an API key.
 
 ### Testing a fresh install (development)
 
@@ -195,7 +204,7 @@ laptop without a dedicated graphics card. Bigger writes better and runs slower:
 | Qwen3 8B | ~5.0 GB | 16 GB | Better writing, but ~twice the memory and about half the speed. |
 
 Larger models (12B+) are deliberately not offered: without a GPU they swap and crawl.
-If you have the hardware for one, add it yourself by URL (see below) — or use OpenRouter.
+If you have the hardware for one, add it yourself by URL (see below) — or use an API key.
 
 In **Settings → AI Engine**, pick a model to make it active; if it isn't downloaded yet,
 the button below the list downloads it (resumable, with progress). Several models can sit
@@ -309,14 +318,20 @@ uv run python scripts/generate_cv.py --lang nl --job "UGent Data Scientist"
 
 ## AI-tailor a CV for a specific job (CLI)
 
-Requires a configured AI engine (a downloaded local model, or an OpenRouter API key). Set
-it via the Settings page (preferred), or create `config.json` manually:
+Requires a configured AI engine (a downloaded local model, or an API key). Set it via the
+Settings page (preferred), or create `config.json` manually — the key and model are named
+after the provider, and `llm_provider` picks which one is used:
 
 ```json
 {
+  "llm_provider": "openrouter",
   "openrouter_api_key": "sk-or-..."
 }
 ```
+
+Swap in `"llm_provider": "anthropic"` (+ `anthropic_api_key`), `"openai"`, `"gemini"`, or
+`"custom"` (which also needs `custom_base_url`). Leave the matching `<provider>_model`
+out to use that provider's default.
 
 Then run:
 
@@ -446,7 +461,7 @@ extracts your details into the profile for you to review and edit. Nothing is sa
 until you've checked it, and importing over an existing profile warns you first.
 Requires a configured AI engine. CV import is the most demanding AI task, so on the free
 local model it may be slower and less accurate — the import dialog says so, and for a
-long or complex CV an OpenRouter key gives noticeably better results.
+long or complex CV an API key gives noticeably better results.
 
 **Experience** entries keep just what a CV needs — title, employer, dates (an *I
 currently work here* checkbox handles current roles), and the bullet points that become
@@ -544,7 +559,8 @@ Covers backend hardening (upload validation, backup-import safety, slug
 sanitisation, LLM-config and AI-response guards, profile/prompt validation) plus
 functional coverage across the app — CV template rendering, profile schema
 migration, the job scanner (link-hash skip, cancellation, concurrency guards),
-i18n, cover-letter guides, and the local/OpenRouter engines. Tests isolate
+i18n, cover-letter guides, and the local/remote engines (provider presets, per-provider
+keys, request shaping). Tests isolate
 their own files via `tmp_path`/monkeypatching, so they never touch your local
 `profile.json` or `jobs.db`.
 

@@ -48,10 +48,7 @@
     "engineHelp": "Die KI passt Ihre Lebensläufe an und scannt Stellenanzeigen. Wählen Sie, wie sie arbeiten soll.",
     "engineLocalCta": "Kostenloses Modell herunterladen",
     "engineLocalReady": "Kostenloses Modell bereit.",
-    "engineKeyPlaceholder": "OpenRouter-API-Schlüssel einfügen (sk-or-…)",
-    "engineSaveKey": "Schlüssel speichern",
-    "engineKeySaved": "API-Schlüssel gespeichert.",
-    "engineGetKey": "Schlüssel auf openrouter.ai holen",
+    "engineKeySaved": "AI-Anbieter bereit.",
     "doneTitle": "Alles erledigt",
     "doneBody": "Weiter: Erstellen Sie Ihr Profil (importieren Sie einen vorhandenen Lebenslauf für einen schnellen Start) und fügen Sie dann Jobquellen unter Jobvorschläge hinzu.",
     "finish": "Beginnen Sie mit MyJobCoach",
@@ -61,7 +58,7 @@
     "engineDownloadWait": "Das kann einige Minuten dauern."
   },
   "banner": {
-    "engineNotReady": "Willkommen! Um Lebensläufe zu erstellen und Stellenanzeigen zu scannen, richten Sie eine KI-Engine in den <settings>Einstellungen</settings> ein – laden Sie das kostenlose lokale Modell herunter oder fügen Sie einen OpenRouter-API-Schlüssel hinzu.",
+    "engineNotReady": "Willkommen! Um CVs zu erstellen und Stellenanzeigen zu scannen, stellen Sie einen AI-Engine in <settings>Einrichtungen</settings> ein — laden Sie den kostenlosen lokalen Modell herunter oder fügen Sie eine API-Schlüssel von einem Anbieter hinzu, den Sie bereits verwenden.",
     "setupInstalling": "Browser-Engine wird eingerichtet (einmalig, ~150 MB). Das Lesen von Stellenanzeigen und PDF-Export funktioniert noch nicht, bis dies abgeschlossen ist.",
     "setupError": "Die Browser-Engine konnte nicht eingerichtet werden: {{error}}. Das Lesen von Stellenanzeigen und PDF-Export funktioniert nicht, bis dies behoben ist."
   },
@@ -69,22 +66,11 @@
     "title": "Einstellungen",
     "loadError": "Einstellungen konnten nicht geladen werden: {{error}}",
     "openrouter": {
-      "help": "OpenRouter leitet Anfragen über einen einzigen API-Schlüssel an Claude, GPT-4 und andere Modelle weiter. Ihren Schlüssel erhalten Sie unter <link>openrouter.ai/keys</link>.",
       "balance": "Guthaben",
       "used": "Verbraucht",
       "balanceUnavailable": "Guthaben nicht verfügbar — {{error}}",
       "loadingBalance": "Guthaben wird geladen…",
-      "manageCredits": "Guthaben verwalten ↗",
-      "apiKey": "API-Schlüssel",
-      "currentlySet": "Aktuell gesetzt (endet auf {{preview}}). Neuen Schlüssel eingeben, um ihn zu ersetzen.",
-      "newKeyPlaceholder": "Neuen Schlüssel zum Ersetzen eingeben…",
-      "keyPlaceholder": "sk-or-…",
-      "model": "Modell",
-      "customModel": "Benutzerdefinierte Modell-ID…",
-      "customModelLabel": "Benutzerdefinierte Modell-ID",
-      "customModelPlaceholder": "anbieter/modell-name",
-      "active": "Aktiv",
-      "saveConnection": "Verbindung speichern"
+      "manageCredits": "Guthaben verwalten ↗"
     },
     "photo": {
       "title": "Profilfoto",
@@ -181,6 +167,33 @@
       "title": "Aktualisierungen",
       "autoCheck": "Aktualisierungen beim Start der App prüfen",
       "help": "Wenn eine neue Version veröffentlicht wird, erscheint eine Mitteilung in der App. Kein Download oder Install wird ohne Ihre Zustimmung durchgeführt. Sie können jederzeit manuell über „Aktualisierungen prüfen…“ in der Seitenleiste prüfen."
+    },
+    "provider": {
+      "label": "AI-Anbieter",
+      "help": "Wählen Sie den Anbieter aus, für den Sie bereits einen API-Schlüssel haben. Jeder Schlüssel wird getrennt gespeichert, sodass Sie jederzeit zurückkehren können.",
+      "names": {
+        "openrouter": "OpenRouter",
+        "anthropic": "Anthropic (Claude)",
+        "openai": "OpenAI (ChatGPT)",
+        "gemini": "Google Gemini",
+        "custom": "Custom / self-hosted"
+      },
+      "apiKey": "API-Schlüssel",
+      "currentlySet": "Aktuell gesetzt (endet bei {{preview}}). Geben Sie einen neuen Schlüssel ein, um ihn zu ersetzen.",
+      "keyPlaceholder": "Fügen Sie Ihren API-Schlüssel ein",
+      "newKeyPlaceholder": "Geben Sie einen neuen Schlüssel ein, um ihn zu ersetzen…",
+      "getKey": "API-Schlüssel erhalten ↗",
+      "billing": "Ihre Nutzung prüfen ↗",
+      "keyOptional": "Lassen Sie es leer, wenn Ihr Server keinen Schlüssel benötigt.",
+      "model": "Modell",
+      "modelPlaceholder": "Modellname",
+      "modelHint": "Lassen Sie es leer, um {{model}} zu verwenden.",
+      "modelUnknown": "Das Modell sehen wir nicht auf Ihrem Konto — überprüfen Sie die Schreibweise oder wählen Sie eines aus der Liste.",
+      "modelDefaultGone": "Unser Standardmodell ({{model}}) ist auf Ihrem Konto nicht verfügbar — wählen Sie ein Modell aus der Liste.",
+      "baseUrl": "Serveradresse",
+      "baseUrlPlaceholder": "http://localhost:11434/v1",
+      "baseUrlHelp": "Jeder Server, der die OpenAI-API spricht — beispielsweise Ollama oder LM Studio auf Ihrem eigenen Gerät.",
+      "save": "Verbindung speichern"
     }
   },
   "profile": {
@@ -727,10 +740,6 @@
       "customHelp": "Erweitert: Geben Sie einen direkten Link zu einer .gguf-Datei ein. Mit dieser Methode hinzugefügte Modelle werden nicht mit dieser Anwendung getestet, sodass die Ergebnisse variieren können.",
       "customBrowse": "GGUF-Modelle auf Hugging Face durchsuchen"
     },
-    "openrouter": {
-      "title": "OpenRouter",
-      "desc": "Beste Qualität – benötigt einen API-Schlüssel, kostet wenige Cent pro Nutzung."
-    },
     "models": {
       "qwen3-4b-instruct": {
         "name": "Qwen3 4B",
@@ -744,6 +753,10 @@
         "name": "Gemma 3 4B",
         "desc": "Gleiche Größe und Geschwindigkeit wie der Standard, aus einer anderen Modellfamilie. Probieren Sie es aus, wenn Sie ihren Schreibstil bevorzugen."
       }
+    },
+    "remote": {
+      "title": "Ihr eigener API-Schlüssel",
+      "desc": "Beste Qualität — verwenden Sie einen Schlüssel, den Sie bereits bei OpenRouter, Anthropic, OpenAI oder Gemini haben. Kostet einige Cent pro Nutzung."
     }
   },
   "footer": {

@@ -92,10 +92,12 @@ def test_require_engine_raises_without_key():
 
 
 def test_require_engine_returns_openrouter_defaults():
+    from app.services.engines.remote import PRESETS
     eng = config.require_engine({"openrouter_api_key": "sk-or-x", "openrouter_model": ""})
     assert eng.provider == "openrouter"
     assert eng.api_key == "sk-or-x"
-    assert eng.model == config.DEFAULT_MODEL
+    assert eng.model == PRESETS["openrouter"]["default_model"]
+    assert eng.base_url == PRESETS["openrouter"]["base_url"]
 
 
 def test_require_engine_local_not_downloaded_raises(monkeypatch):

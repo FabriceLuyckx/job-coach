@@ -5,7 +5,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Cpu, Cloud, Check } from 'lucide-react'
 import { api } from '../api'
-import type { LocalModel, DownloadStatus } from '../api'
+import type { LocalModel, DownloadStatus, RemoteProvider } from '../api'
 import { SHIPPED_LOCALES, LANGUAGE_NAMES, loadLanguage } from '../i18n'
 import Button from './Button'
 import Modal from './Modal'
@@ -16,6 +16,8 @@ import { useKeyStatus } from './KeyStatus'
 import { errMsg } from '../lib/errors'
 import { radioGroup } from '../lib/radiogroup'
 import { EngineCard, ModelRow, fmtGb } from './EngineSettings'
+import type { EngineKind } from './EngineSettings'
+import ProviderFields from './ProviderFields'
 
 // One heading per step is rendered at a time, so a single shared id both labels
 // the dialog (Modal's aria-labelledby) and is the focus target on step change.
@@ -145,13 +147,15 @@ function EngineStep({ onBack, onNext }: { onBack: () => void; onNext: () => void
   const { t } = useTranslation()
   const { refresh: refreshEngine } = useKeyStatus()
   const poller = usePoller(1000)
-  const [choice, setChoice] = useState<'local' | 'openrouter' | null>(null)
+  const [choice, setChoice] = useState<EngineKind | null>(null)
   const [models, setModels] = useState<LocalModel[]>([])
   const [modelId, setModelId] = useState<string | null>(null)
   const [dl, setDl] = useState<DownloadStatus | null>(null)
   const [ready, setReady] = useState(false)
-  const [key, setKey] = useState('')
-  const [savingKey, setSavingKey] = useState(false)
+  // The API-key half of the step is the same component Settings uses, so the
+  // wizard can't end up offering a different set of providers or fields.
+  const [provider, setProvider] = useState<RemoteProvider>('openrouter')
+  const [settings, setSettings] = useState<Awaited<ReturnType<typeof api.getSettings>> | null>(null)
   const [keySaved, setKeySaved] = useState(false)
   const [err, setErr] = useState('')
   const [confirmForce, setConfirmForce] = useState<string | null>(null)
@@ -170,6 +174,10 @@ function EngineStep({ onBack, onNext }: { onBack: () => void; onNext: () => void
     // override showing the wizard over a configured app) — reflect that so Next
     // is enabled without forcing a redundant download.
     api.getEngine().then(e => { if (e.ready) setReady(true) }).catch(() => {})
+    api.getSettings().then(s => {
+      setSettings(s)
+      if (s.llm_provider !== 'local') setProvider(s.llm_provider)
+    }).catch(() => {})
   }, [])
 
   /** Point the engine at an already-downloaded model without re-downloading it. */
@@ -212,20 +220,29 @@ function EngineStep({ onBack, onNext }: { onBack: () => void; onNext: () => void
     }
   }
 
-  async function saveKey() {
-    if (!key.trim()) return
-    setSavingKey(true); setErr('')
+  /** ProviderFields just saved a key/model — re-read it and the engine status. */
+  async function keySaveDone() {
+    setErr('')
+    const [s, e] = await Promise.all([api.getSettings(), api.getEngine()])
+    setSettings(s)
+    setKeySaved(e.ready)
+    refreshEngine()
+  }
+
+  /** Selecting a provider takes effect immediately, like it does in Settings. */
+  async function pickProvider(p: RemoteProvider) {
+    setProvider(p)
     try {
-      await api.putSettings({ llm_provider: 'openrouter', openrouter_api_key: key.trim() })
-      setKeySaved(true); refreshEngine()
-    } catch (e) { setErr(errMsg(e)) } finally { setSavingKey(false) }
+      await api.putSettings({ llm_provider: p })
+      await keySaveDone()
+    } catch (e) { setErr(errMsg(e)) }
   }
 
   const canContinue = ready || keySaved
   const selectedModel = models.find(m => m.id === modelId) ?? null
   const modelRadio = radioGroup(models.map(m => m.id), modelId, id => setModelId(id))
-  const providers: ('local' | 'openrouter')[] = ['local', 'openrouter']
-  const providerRadio = radioGroup(providers, choice, setChoice)
+  const kinds: EngineKind[] = ['local', 'remote']
+  const providerRadio = radioGroup(kinds, choice, setChoice)
   const downloading = dl && dl.state !== 'done'
   const pct = dl?.bytes_total ? Math.min(100, Math.round((dl.bytes_done ?? 0) / dl.bytes_total * 100)) : 0
 
@@ -248,9 +265,9 @@ function EngineStep({ onBack, onNext }: { onBack: () => void; onNext: () => void
         <EngineCard
           {...providerRadio.item(1)}
           icon={<Cloud size={18} aria-hidden />}
-          title={t('engine.openrouter.title')}
-          desc={t('engine.openrouter.desc')}
-          onClick={() => setChoice('openrouter')}
+          title={t('engine.remote.title')}
+          desc={t('engine.remote.desc')}
+          onClick={() => setChoice('remote')}
         />
       </div>
 
@@ -310,19 +327,18 @@ function EngineStep({ onBack, onNext }: { onBack: () => void; onNext: () => void
         </div>
       )}
 
-      {choice === 'openrouter' && (
+      {choice === 'remote' && settings && (
         <div style={{ marginBottom: 'var(--space-3)' }}>
-          {keySaved ? (
+          {keySaved && (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--accent-text)' }}><Check size={16} aria-hidden /> {t('onboarding.engineKeySaved')}</span>
-          ) : (
-            <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
-              <input type="password" value={key} onChange={e => setKey(e.target.value)} placeholder={t('onboarding.engineKeyPlaceholder')} style={{ flex: 1, minWidth: 220 }} />
-              <Button onClick={saveKey} busy={savingKey}>{t('onboarding.engineSaveKey')}</Button>
-            </div>
           )}
-          <p className="muted-sm" style={{ marginTop: 6 }}>
-            <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">{t('onboarding.engineGetKey')}</a>
-          </p>
+          <ProviderFields
+            provider={provider}
+            providers={settings.providers}
+            customBaseUrl={settings.custom_base_url}
+            onProviderChange={p => { void pickProvider(p) }}
+            onSaved={keySaveDone}
+          />
         </div>
       )}
 

@@ -128,7 +128,22 @@ export interface JobOpening {
   decided_at: string | null
 }
 
-export type EngineProvider = 'openrouter' | 'local'
+/** Remote AI providers, in the order they're offered. Mirrors PRESETS in
+ *  app/services/engines/remote.py — the server is the source of truth. */
+export const REMOTE_PROVIDERS = ['openrouter', 'anthropic', 'openai', 'gemini', 'custom'] as const
+export type RemoteProvider = typeof REMOTE_PROVIDERS[number]
+export type EngineProvider = RemoteProvider | 'local'
+
+/** What the server knows about one remote provider (key masked, never sent back). */
+export interface ProviderSettings {
+  key_set: boolean
+  key_preview: string
+  model: string
+  default_model: string
+  key_url: string
+  /** That provider's usage/spend dashboard; empty for a self-hosted server. */
+  billing_url: string
+}
 
 export interface EngineStatus {
   provider: EngineProvider
@@ -360,9 +375,8 @@ export const api = {
   // Settings
   getSettings: () =>
     request<{
-      openrouter_api_key_set: boolean
-      openrouter_api_key_preview: string
-      openrouter_model: string
+      providers: Record<RemoteProvider, ProviderSettings>
+      custom_base_url: string
       cv_prompt: string
       cv_prompt_default: string
       letter_prompt: string
@@ -377,7 +391,9 @@ export const api = {
       onboarding_done: boolean
       auto_update_check: boolean
     }>('/settings'),
-  putSettings: (data: { openrouter_api_key?: string; openrouter_model?: string; cv_prompt?: string; letter_prompt?: string; scan_extract_prompt?: string; scan_filter_prompt?: string; llm_provider?: EngineProvider; local_model_id?: string; app_language?: string; onboarding_done?: boolean; auto_update_check?: boolean }) =>
+  // Per-provider key/model fields are keyed by provider id (`${p}_api_key`), so
+  // adding a preset server-side needs no change here.
+  putSettings: (data: Partial<Record<`${RemoteProvider}_api_key` | `${RemoteProvider}_model`, string>> & { custom_base_url?: string; cv_prompt?: string; letter_prompt?: string; scan_extract_prompt?: string; scan_filter_prompt?: string; llm_provider?: EngineProvider; local_model_id?: string; app_language?: string; onboarding_done?: boolean; auto_update_check?: boolean }) =>
     request<{ ok: boolean }>('/settings', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -414,6 +430,9 @@ export const api = {
 
   // AI engine (OpenRouter key vs local model)
   getEngine: () => request<EngineStatus>('/engine'),
+  /** Model ids the given provider accepts, read live from its own /models. */
+  getRemoteModels: (provider: RemoteProvider) =>
+    request<{ models: string[] }>(`/engine/remote-models?provider=${encodeURIComponent(provider)}`),
   listLocalModels: () => request<LocalModel[]>('/engine/models'),
   startModelDownload: (opts?: { model_id?: string; url?: string; force?: boolean }) =>
     request<{ download_id: string }>('/engine/download', {

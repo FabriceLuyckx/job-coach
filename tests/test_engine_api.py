@@ -19,6 +19,116 @@ def test_engine_status_openrouter_no_key():
     assert s["ready"] is False
 
 
+def test_engine_status_follows_the_selected_provider():
+    # A stored OpenRouter key must not make Anthropic report ready, and the
+    # not-ready detail has to name the provider the user actually picked.
+    cfg = {"llm_provider": "anthropic", "openrouter_api_key": "sk-or-x"}
+    s = engine._engine_status(cfg)
+    assert s["provider"] == "anthropic" and s["ready"] is False
+    assert "Anthropic" in s["detail"]
+    assert engine._engine_status({**cfg, "anthropic_api_key": "sk-ant-x"})["ready"] is True
+
+
+def test_engine_status_custom_ready_without_a_key():
+    s = engine._engine_status({"llm_provider": "custom",
+                               "custom_base_url": "http://localhost:11434/v1"})
+    assert s["provider"] == "custom" and s["ready"] is True
+
+
+def test_settings_masks_every_stored_api_key(monkeypatch):
+    from fastapi.testclient import TestClient
+    from app.main import app
+    from app.api import settings as settings_api
+
+    cfg = {"openrouter_api_key": "sk-or-abcd1234", "anthropic_api_key": "sk-ant-wxyz",
+           "openai_api_key": "", "openai_model": "gpt-x"}
+    monkeypatch.setattr(settings_api.config, "load", lambda: {**config._DEFAULTS, **cfg})
+
+    providers = TestClient(app).get("/api/settings").json()["providers"]
+    blob = TestClient(app).get("/api/settings").text
+    for secret in ("sk-or-abcd1234", "sk-ant-wxyz"):
+        assert secret not in blob
+    assert providers["openrouter"] == {**providers["openrouter"],
+                                       "key_set": True, "key_preview": "...1234"}
+    assert providers["anthropic"]["key_set"] is True
+    assert providers["openai"]["key_set"] is False and providers["openai"]["model"] == "gpt-x"
+    # Every preset is offered, each with somewhere to get a key and a default model.
+    assert providers["gemini"]["key_url"] and providers["gemini"]["default_model"]
+
+
+def test_every_paid_preset_links_to_its_own_billing_page():
+    """Only OpenRouter reports a balance to the key we hold, so for the others the
+    link to their dashboard is the only cost signal the user gets — a preset that
+    forgets it leaves that provider with no way to see what it is spending."""
+    from app.services.engines.remote import PRESETS
+    for pid, preset in PRESETS.items():
+        # 'custom' is the user's own server: no key page, no bill.
+        expected = pid != "custom"
+        assert bool(preset["billing_url"]) is expected, pid
+        assert bool(preset["key_url"]) is expected, pid
+        assert preset["billing_url"].startswith("https://") or not expected
+
+
+class _Resp:
+    def __init__(self, payload): self._p = payload
+    def raise_for_status(self): pass
+    def json(self): return self._p
+
+
+def test_remote_models_reads_the_providers_own_list(monkeypatch):
+    calls = {}
+
+    def fake_get(url, headers=None, timeout=None):
+        calls["url"] = url
+        calls["auth"] = (headers or {}).get("Authorization")
+        return _Resp({"data": [{"id": "gpt-4o"}, {"id": "gpt-4o-mini"}, {"id": "gpt-4o"}]})
+
+    monkeypatch.setattr(engine.config, "load", lambda: {"llm_provider": "openai",
+                                                        "openai_api_key": "sk-x"})
+    monkeypatch.setattr(engine.httpx, "get", fake_get)
+    out = engine.remote_models()
+    assert out == {"models": ["gpt-4o", "gpt-4o-mini"]}  # deduped + sorted
+    assert calls["url"] == "https://api.openai.com/v1/models"
+    assert calls["auth"] == "Bearer sk-x"
+
+
+def test_remote_models_strips_geminis_models_prefix(monkeypatch):
+    # Gemini lists "models/gemini-2.5-flash" but 404s unless the request names
+    # the bare id, so a name copied from its own list must still work.
+    monkeypatch.setattr(engine.config, "load", lambda: {"gemini_api_key": "k"})
+    monkeypatch.setattr(engine.httpx, "get",
+                        lambda *a, **k: _Resp({"data": [{"id": "models/gemini-2.5-flash"}]}))
+    assert engine.remote_models(provider="gemini") == {"models": ["gemini-2.5-flash"]}
+
+
+def test_remote_models_sends_no_auth_header_without_a_key(monkeypatch):
+    # OpenRouter's list is public — useful before a key exists — and an empty
+    # Bearer would get it rejected.
+    seen = {}
+
+    def fake_get(url, headers=None, timeout=None):
+        seen["headers"] = headers
+        return _Resp({"data": [{"id": "anthropic/claude-sonnet-5"}]})
+
+    monkeypatch.setattr(engine.config, "load", lambda: {"openrouter_api_key": ""})
+    monkeypatch.setattr(engine.httpx, "get", fake_get)
+    assert engine.remote_models(provider="openrouter")["models"]
+    assert seen["headers"] == {}
+
+
+def test_remote_models_never_raises(monkeypatch):
+    """A server with no /models (or one that's down) must leave the field usable."""
+    monkeypatch.setattr(engine.config, "load",
+                        lambda: {"llm_provider": "custom", "custom_base_url": "http://x/v1"})
+    monkeypatch.setattr(engine.httpx, "get",
+                        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom")))
+    assert engine.remote_models() == {"models": []}
+    # Same for a provider with nowhere to ask.
+    monkeypatch.setattr(engine.config, "load", lambda: {"llm_provider": "custom"})
+    assert engine.remote_models() == {"models": []}
+    assert engine.remote_models(provider="nope") == {"models": []}
+
+
 def test_engine_status_local_not_downloaded(monkeypatch):
     monkeypatch.setattr(engine, "local_model_path", lambda mid: None)
     s = engine._engine_status({"llm_provider": "local", "local_model_id": "qwen3-4b-instruct"})

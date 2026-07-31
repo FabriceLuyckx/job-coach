@@ -48,10 +48,7 @@
     "engineHelp": "L'IA personalizza i tuoi CV e analizza le offerte di lavoro. Scegli come eseguirla.",
     "engineLocalCta": "Scarica il modello gratuito",
     "engineLocalReady": "Modello gratuito pronto.",
-    "engineKeyPlaceholder": "Incolla la tua chiave API OpenRouter (sk-or-…)",
-    "engineSaveKey": "Salva chiave",
-    "engineKeySaved": "Chiave API salvata.",
-    "engineGetKey": "Ottieni una chiave su openrouter.ai",
+    "engineKeySaved": "Fornitore AI pronto.",
     "doneTitle": "Sei pronto",
     "doneBody": "Prossimo passo: crea il tuo Profilo (importa un CV esistente per iniziare rapidamente), poi aggiungi fonti di lavoro in Suggerimenti di lavoro.",
     "finish": "Inizia a utilizzare MyJobCoach",
@@ -61,7 +58,7 @@
     "engineDownloadWait": "Questo può richiedere alcuni minuti."
   },
   "banner": {
-    "engineNotReady": "Benvenuto! Per generare CV e scansionare offerte di lavoro, configura un motore IA nelle <settings>Impostazioni</settings> — scarica il modello locale gratuito oppure aggiungi una chiave API OpenRouter.",
+    "engineNotReady": "Benvenuto! Per generare CV e analizzare annunci di lavoro, configura un motore AI in <settings>Impostazioni</settings> — scarica il modello locale gratuito, o aggiungi una chiave API da un fornitore che già utilizzi.",
     "setupInstalling": "Sto configurando l'engine del browser (una volta, ~150 MB). La lettura delle pagine dei lavori e l'esportazione in PDF potrebbero non funzionare fino a quando questo non è completato.",
     "setupError": "L'engine del browser non può essere configurato: {{error}}. La lettura delle pagine dei lavori e l'esportazione in PDF non funzionerà fino a quando questo problema non è risolto."
   },
@@ -69,22 +66,11 @@
     "title": "Impostazioni",
     "loadError": "Impossibile caricare le impostazioni: {{error}}",
     "openrouter": {
-      "help": "OpenRouter instrada le richieste a Claude, GPT-4 e altri modelli tramite un'unica chiave API. Ottieni la tua su <link>openrouter.ai/keys</link>.",
       "balance": "Saldo",
       "used": "Utilizzato",
       "balanceUnavailable": "Saldo non disponibile — {{error}}",
       "loadingBalance": "Caricamento saldo…",
-      "manageCredits": "Gestisci crediti ↗",
-      "apiKey": "Chiave API",
-      "currentlySet": "Attualmente impostata (termina con {{preview}}). Inserisci una nuova chiave per sostituirla.",
-      "newKeyPlaceholder": "Inserisci la nuova chiave per sostituirla…",
-      "keyPlaceholder": "sk-or-…",
-      "model": "Modello",
-      "customModel": "ID modello personalizzato…",
-      "customModelLabel": "ID modello personalizzato",
-      "customModelPlaceholder": "provider/nome-modello",
-      "active": "Attivo",
-      "saveConnection": "Salva connessione"
+      "manageCredits": "Gestisci crediti ↗"
     },
     "photo": {
       "title": "Foto profilo",
@@ -181,6 +167,33 @@
       "title": "Aggiornamenti",
       "autoCheck": "Controlla gli aggiornamenti quando l'applicazione si avvia",
       "help": "Quando viene pubblicata una nuova versione, appare una notifica nell'app — nulla viene mai scaricato o installato senza il tuo consenso. Puoi sempre controllare manualmente tramite \"Controlla aggiornamenti…\" nel menu laterale."
+    },
+    "provider": {
+      "label": "Fornitore AI",
+      "help": "Scegli il fornitore per cui hai già una chiave API. Ogni chiave viene memorizzata separatamente, quindi puoi passare indietro in qualsiasi momento.",
+      "names": {
+        "openrouter": "OpenRouter",
+        "anthropic": "Anthropic (Claude)",
+        "openai": "OpenAI (ChatGPT)",
+        "gemini": "Google Gemini",
+        "custom": "Personalizzato / auto-hostato"
+      },
+      "apiKey": "Chiave API",
+      "currentlySet": "Attualmente impostato (scade in {{preview}}). Inserisci una nuova chiave per sostituirlo.",
+      "keyPlaceholder": "Incolla la tua chiave API",
+      "newKeyPlaceholder": "Inserisci nuova chiave per sostituirla…",
+      "getKey": "Ottieni una chiave API ↗",
+      "billing": "Verifica l'uso ↗",
+      "keyOptional": "Lascia vuoto se il tuo server non richiede una chiave.",
+      "model": "Modello",
+      "modelPlaceholder": "Nome del modello",
+      "modelHint": "Lascia vuoto per usare {{model}}.",
+      "modelUnknown": "Non vediamo quel modello sul tuo account — controlla la grafia, o scegli uno dalla lista.",
+      "modelDefaultGone": "Il modello predefinito ({{model}}) non è disponibile sul tuo account — scegli un modello dalla lista.",
+      "baseUrl": "Indirizzo del server",
+      "baseUrlPlaceholder": "http://localhost:11434/v1",
+      "baseUrlHelp": "Qualsiasi server che parla l'API OpenAI — ad esempio Ollama o LM Studio sulla tua macchina.",
+      "save": "Salva la connessione"
     }
   },
   "profile": {
@@ -727,10 +740,6 @@
       "customHelp": "Avanzato: incolla un link diretto a un file .gguf. I modelli aggiunti in questo modo non sono testati con questa app, quindi i risultati variano.",
       "customBrowse": "Esplora i modelli GGUF su Hugging Face"
     },
-    "openrouter": {
-      "title": "OpenRouter",
-      "desc": "Qualità migliore — richiede una chiave API, a pochi centesimi per utilizzo."
-    },
     "models": {
       "qwen3-4b-instruct": {
         "name": "Qwen3 4B",
@@ -744,6 +753,10 @@
         "name": "Gemma 3 4B",
         "desc": "Stessa dimensione e velocità della versione predefinita, ma appartenente a una famiglia di modelli diversa. Provala se preferisci il suo stile di scrittura."
       }
+    },
+    "remote": {
+      "title": "La tua chiave API personalizzata",
+      "desc": "Migliore qualità — usa una chiave che già possiedi con OpenRouter, Anthropic, OpenAI o Gemini. Costo di pochi centesimi ogni uso."
     }
   },
   "footer": {

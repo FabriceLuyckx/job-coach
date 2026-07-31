@@ -5,7 +5,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Cpu, Cloud, Download, Trash2, CheckCircle2 } from 'lucide-react'
 import { api } from '../api'
-import type { EngineProvider, LocalModel, DownloadStatus } from '../api'
+import type { EngineProvider, LocalModel, DownloadStatus, RemoteProvider } from '../api'
 import Button from './Button'
 import ConfirmModal from './ConfirmModal'
 import { useToast } from './Toast'
@@ -16,15 +16,23 @@ import { radioGroup } from '../lib/radiogroup'
 
 export const fmtGb = (b: number | null | undefined) => (b == null ? '—' : `${(b / 1e9).toFixed(1)} GB`)
 
+/** The engine choice a user makes: run it here, or call a provider you pay. */
+export type EngineKind = 'local' | 'remote'
+export const engineKind = (p: EngineProvider): EngineKind => (p === 'local' ? 'local' : 'remote')
+
 /**
- * AI-engine chooser: the free local model vs OpenRouter. Handles downloading and
- * deleting the local GGUF with live progress. The OpenRouter key/model fields
- * live in the parent Settings page and show only when OpenRouter is selected.
+ * AI-engine chooser: the free local model vs a provider you hold an API key for.
+ * Handles downloading and deleting the local GGUF with live progress. The
+ * provider/key/model fields live in the parent Settings page (ProviderFields)
+ * and show only when the API-key engine is selected.
  */
-export default function EngineSettings({ provider, onProviderChange, children }: {
+export default function EngineSettings({ provider, remoteProvider, onProviderChange, children }: {
   provider: EngineProvider
+  /** Which provider to return to when leaving the local engine, so switching
+   *  away and back doesn't silently reset the choice to OpenRouter. */
+  remoteProvider: RemoteProvider
   onProviderChange: (p: EngineProvider) => void
-  /** The active provider's own settings (OpenRouter key/model), rendered inside
+  /** The active engine's own settings (provider, key, model), rendered inside
    *  this card — picking an engine and configuring it is one decision. */
   children?: React.ReactNode
 }) {
@@ -144,8 +152,12 @@ export default function EngineSettings({ provider, onProviderChange, children }:
   }
 
   const pct = dl.bytes_total ? Math.min(100, Math.round((dl.bytes_done ?? 0) / dl.bytes_total * 100)) : 0
-  const providers: EngineProvider[] = ['local', 'openrouter']
-  const radio = radioGroup(providers, provider, onProviderChange)
+  // The choice here is local vs. an API key — *which* provider is the dropdown
+  // below, not a card each: five cards would bury the one decision that changes
+  // what the app costs and where the data goes.
+  const kinds: EngineKind[] = ['local', 'remote']
+  const radio = radioGroup(kinds, engineKind(provider), k =>
+    onProviderChange(k === 'local' ? 'local' : remoteProvider))
   const sel = models.find(m => m.id === selected) ?? null
   const modelRadio = radioGroup(models.map(m => m.id), selected, id => { if (id) setSelected(id) })
   // A custom model's label is the filename the user supplied — untranslatable.
@@ -176,9 +188,9 @@ export default function EngineSettings({ provider, onProviderChange, children }:
         <EngineCard
           {...radio.item(1)}
           icon={<Cloud size={18} aria-hidden />}
-          title={t('engine.openrouter.title')}
-          desc={t('engine.openrouter.desc')}
-          onClick={() => onProviderChange('openrouter')}
+          title={t('engine.remote.title')}
+          desc={t('engine.remote.desc')}
+          onClick={() => onProviderChange(remoteProvider)}
         />
       </div>
 

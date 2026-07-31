@@ -12,27 +12,18 @@ import SaveStatus from '../components/SaveStatus'
 import Collapsible from '../components/Collapsible'
 import ConfirmModal from '../components/ConfirmModal'
 import EngineSettings from '../components/EngineSettings'
+import ProviderFields from '../components/ProviderFields'
 import TemplateThumb from '../components/TemplateThumb'
 import PhotoCropModal, { DEFAULT_CROP } from '../components/PhotoCropModal'
 import { useToast } from '../components/Toast'
 import { useKeyStatus } from '../components/KeyStatus'
 import LanguageSettings from '../components/LanguageSettings'
-import type { CVTemplateRegistry, EngineProvider } from '../api'
+import type { CVTemplateRegistry, EngineProvider, ProviderSettings, RemoteProvider } from '../api'
 import { errMsg } from '../lib/errors'
 import { radioGroup } from '../lib/radiogroup'
 import { useProfileAutosave } from '../lib/useProfileAutosave'
 
 const HEX_RE = /^#[0-9a-fA-F]{6}$/
-
-const OPENROUTER_MODELS = [
-  'anthropic/claude-sonnet-4-6',
-  'anthropic/claude-opus-4',
-  'anthropic/claude-haiku-4-5',
-  'openai/gpt-4o',
-  'openai/gpt-4o-mini',
-  'google/gemini-2.0-flash-001',
-  'mistralai/mistral-large',
-]
 
 const fmtUsd = (n: number | null | undefined) => (n == null ? '—' : `$${n.toFixed(2)}`)
 
@@ -123,15 +114,14 @@ function ColorRow({ name, value, onChange }: {
 export default function SettingsPage() {
   const toast = useToast()
   const { t } = useTranslation()
-  const { refresh: refreshKeyStatus } = useKeyStatus()
+  const { keySet, provider: engineProvider, refresh: refreshKeyStatus } = useKeyStatus()
   // The design prefs live in profile.json, so they save the way every other
   // profile field does — debounced, no button. This card used to be the one
   // place in the app that still asked you to press Save.
   const { profile, error: profileError, saveState, saveError, runSave, set } = useProfileAutosave()
   const [settings, setSettings] = useState<{
-    openrouter_api_key_set: boolean
-    openrouter_api_key_preview: string
-    openrouter_model: string
+    providers: Record<RemoteProvider, ProviderSettings>
+    custom_base_url: string
     cv_prompt: string
     cv_prompt_default: string
     letter_prompt: string
@@ -147,14 +137,13 @@ export default function SettingsPage() {
     auto_update_check: boolean
   } | null>(null)
   const [provider, setProvider] = useState<EngineProvider>('openrouter')
+  // The provider to come back to when the local engine is switched off again.
+  const [remoteProvider, setRemoteProvider] = useState<RemoteProvider>('openrouter')
   const [photo, setPhoto] = useState<{ exists: boolean; data_uri: string | null } | null>(null)
   const [usage, setUsage] = useState<Usage | null>(null)
   const [usageErr, setUsageErr] = useState('')
   const [loadError, setLoadError] = useState('')
 
-  const [apiKey, setApiKey] = useState('')
-  const [model, setModel] = useState('')
-  const [customModel, setCustomModel] = useState('')
   const [cvPrompt, setCvPrompt] = useState('')
   const [letterPrompt, setLetterPrompt] = useState('')
   const [scanExtract, setScanExtract] = useState('')
@@ -181,24 +170,41 @@ export default function SettingsPage() {
       setPhoto(ph)
       setRegistry(tpl)
       setProvider(s.llm_provider)
-      setModel(s.openrouter_model)
+      if (s.llm_provider !== 'local') setRemoteProvider(s.llm_provider)
       setCvPrompt(s.cv_prompt)
       setLetterPrompt(s.letter_prompt)
       setScanExtract(s.scan_extract_prompt)
       setScanFilter(s.scan_filter_prompt)
-      if (!OPENROUTER_MODELS.includes(s.openrouter_model)) setCustomModel(s.openrouter_model)
-      if (s.openrouter_api_key_set) loadUsage()
+      if (s.llm_provider === 'openrouter' && s.providers.openrouter.key_set) loadUsage()
     }).catch(e => setLoadError(errMsg(e)))
   }, [])
+
+  // The engine can also be configured from outside this page — the first-run
+  // wizard renders over it and saves a provider, key and model of its own. Both
+  // signals matter: the provider identity, and readiness flipping once a key
+  // lands, which is the point the *fields* changed without the provider doing so.
+  // Without the second, the card sat there showing an empty key and model for an
+  // engine the app was already running on.
+  useEffect(() => {
+    if (!engineProvider || !settings) return
+    if (engineProvider !== provider) {
+      setProvider(engineProvider)
+      if (engineProvider !== 'local') setRemoteProvider(engineProvider)
+    }
+    api.getSettings().then(setSettings).catch(() => { /* the page keeps what it has */ })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [engineProvider, keySet])
 
   // Switching engine takes effect immediately (next AI request uses it).
   async function changeProvider(p: EngineProvider) {
     const previous = provider
     setProvider(p)
+    if (p !== 'local') setRemoteProvider(p)
     try {
       await api.putSettings({ llm_provider: p })
       setSettings(await api.getSettings())
       refreshKeyStatus()
+      if (p === 'openrouter') loadUsage()
     } catch (e) {
       // Optimistic, so a failure has to roll back: leaving the new engine's
       // fields on screen meant the card claimed a switch the server refused.
@@ -207,14 +213,11 @@ export default function SettingsPage() {
     }
   }
 
-  // Save handlers throw on error so the SaveButton surfaces it.
-  async function saveOpenRouter() {
-    const effectiveModel = model === '__custom__' ? customModel : model
-    await api.putSettings({ ...(apiKey ? { openrouter_api_key: apiKey } : {}), openrouter_model: effectiveModel })
+  /** After ProviderFields saves: re-read the (masked) settings and readiness. */
+  async function reloadConnection() {
     setSettings(await api.getSettings())
-    setApiKey('')
     refreshKeyStatus()
-    loadUsage()
+    if (provider === 'openrouter') loadUsage()
   }
 
   async function savePrompt(data: { cv_prompt?: string; letter_prompt?: string; scan_extract_prompt?: string; scan_filter_prompt?: string }) {
@@ -299,10 +302,6 @@ export default function SettingsPage() {
   }
   if (!settings || !profile) return <div style={{ padding: 32, color: 'var(--muted)' }}>{t('common.loading')}</div>
 
-  const isCustomModel = !OPENROUTER_MODELS.includes(settings.openrouter_model)
-  const pendingModel = model !== '__custom__' ? model : customModel
-  const connectionDirty = !!apiKey || pendingModel !== settings.openrouter_model
-
   const design = profile.cv_design_preferences
   // An unknown/legacy template id renders as 'default', mirroring the server.
   const templates = registry?.templates ?? []
@@ -340,16 +339,14 @@ export default function SettingsPage() {
       {/* UI language */}
       <LanguageSettings current={settings.app_language} />
 
-      {/* AI engine. The OpenRouter key/model live inside it: one decision, one card. */}
-      <EngineSettings provider={provider} onProviderChange={changeProvider}>
-        {provider === 'openrouter' && (
-          <div className="field" style={{ marginTop: 'var(--space-4)', marginBottom: 0 }}>
-            <p className="help-text" style={{ marginBottom: 'var(--space-3)' }}>
-              <Trans i18nKey="settings.openrouter.help"
-                components={{ link: <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer" /> }} />
-            </p>
-            {settings.openrouter_api_key_set && (
-              <div className="credit-line">
+      {/* AI engine. The provider/key/model live inside it: one decision, one card. */}
+      <EngineSettings provider={provider} remoteProvider={remoteProvider} onProviderChange={changeProvider}>
+        {provider !== 'local' && (
+          <>
+            {/* Credits are an OpenRouter concept — the other providers bill
+                their own way, so this line only belongs to that one. */}
+            {provider === 'openrouter' && settings.providers.openrouter.key_set && (
+              <div className="credit-line" style={{ marginTop: 'var(--space-4)' }}>
                 {usage ? (
                   <>
                     <span>{t('settings.openrouter.balance')}: <strong>{fmtUsd(usage.balance ?? usage.remaining)}</strong></span>
@@ -361,53 +358,14 @@ export default function SettingsPage() {
                 <a href="https://openrouter.ai/settings/credits" target="_blank" rel="noreferrer">{t('settings.openrouter.manageCredits')}</a>
               </div>
             )}
-            <div className="field">
-              <label htmlFor="or-key">{t('settings.openrouter.apiKey')}</label>
-              {settings.openrouter_api_key_set && (
-                <p className="muted-sm" style={{ marginBottom: 6 }}>
-                  {t('settings.openrouter.currentlySet', { preview: settings.openrouter_api_key_preview })}
-                </p>
-              )}
-              <input
-                id="or-key"
-                type="password"
-                value={apiKey}
-                onChange={e => setApiKey(e.target.value)}
-                placeholder={settings.openrouter_api_key_set ? t('settings.openrouter.newKeyPlaceholder') : t('settings.openrouter.keyPlaceholder')}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="or-model">{t('settings.openrouter.model')}</label>
-              <select
-                id="or-model"
-                value={model === '__custom__' || isCustomModel ? '__custom__' : model}
-                onChange={e => setModel(e.target.value)}
-              >
-                {OPENROUTER_MODELS.map(m => <option key={m} value={m}>{m}</option>)}
-                <option value="__custom__">{t('settings.openrouter.customModel')}</option>
-              </select>
-              <p className="field-hint">
-                {t('settings.openrouter.active')}: <strong>{settings.openrouter_model}</strong>
-                {connectionDirty && <span style={{ color: 'var(--highlight)', marginLeft: 8 }}>● {t('common.unsavedChange')}</span>}
-              </p>
-            </div>
-            {(model === '__custom__' || isCustomModel) && (
-              <div className="field">
-                <label htmlFor="or-custom">{t('settings.openrouter.customModelLabel')}</label>
-                <input
-                  id="or-custom"
-                  type="text"
-                  // Bound to the draft, not the saved value: reading from
-                  // settings made the field ignore every keystroke once a
-                  // custom model was already active.
-                  value={customModel}
-                  onChange={e => setCustomModel(e.target.value)}
-                  placeholder={t('settings.openrouter.customModelPlaceholder')}
-                />
-              </div>
-            )}
-            <SaveButton dirty={connectionDirty} onSave={saveOpenRouter} idleLabel={t('settings.openrouter.saveConnection')} />
-          </div>
+            <ProviderFields
+              provider={provider}
+              providers={settings.providers}
+              customBaseUrl={settings.custom_base_url}
+              onProviderChange={changeProvider}
+              onSaved={reloadConnection}
+            />
+          </>
         )}
       </EngineSettings>
 
