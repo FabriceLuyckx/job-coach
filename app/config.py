@@ -10,17 +10,28 @@ from dataclasses import dataclass
 
 from app.paths import CONFIG_PATH
 
-# The one place the default OpenRouter model is defined.
-DEFAULT_MODEL = "anthropic/claude-sonnet-4-6"
-
 # Default local model registry key (see app/services/engines/registry.py).
 DEFAULT_LOCAL_MODEL = "qwen3-4b-instruct"
 
 _DEFAULTS = {
+    # One API key + model per remote provider, so switching provider doesn't
+    # erase the key you entered for the previous one. An empty model resolves to
+    # that provider's default from engines/remote.py PRESETS.
     "openrouter_api_key": "",
-    "openrouter_model": DEFAULT_MODEL,
-    # AI engine selection. "openrouter" keeps existing installs working unchanged;
-    # "local" runs a downloaded GGUF model via llama-cpp-python.
+    "openrouter_model": "",
+    "anthropic_api_key": "",
+    "anthropic_model": "",
+    "openai_api_key": "",
+    "openai_model": "",
+    "gemini_api_key": "",
+    "gemini_model": "",
+    # "custom" is any other OpenAI-compatible server (Ollama, LM Studio, …).
+    "custom_api_key": "",
+    "custom_model": "",
+    "custom_base_url": "",
+    # AI engine selection: a preset id from engines/remote.py, or "local" for a
+    # downloaded GGUF run via llama-cpp-python. "openrouter" keeps existing
+    # installs working unchanged.
     "llm_provider": "openrouter",
     "local_model_id": DEFAULT_LOCAL_MODEL,
     # User-added local models, {id: registry entry} — see engines/registry.py.
@@ -57,10 +68,25 @@ def save(data: dict) -> None:
 @dataclass
 class EngineConfig:
     """Resolved, ready-to-use AI engine settings for a single run."""
-    provider: str  # "openrouter" | "local"
-    api_key: str = ""       # openrouter
-    model: str = ""         # openrouter model string
+    provider: str  # a remote preset id ("openrouter", "anthropic", …) or "local"
+    api_key: str = ""       # remote
+    model: str = ""         # remote model string
+    base_url: str = ""      # remote endpoint (preset's, or custom_base_url)
     local_model_id: str = ""  # registry key (local)
+
+
+# Display names for error messages — the provider ids are not what a user typed.
+PROVIDER_LABELS = {
+    "openrouter": "OpenRouter",
+    "anthropic": "Anthropic",
+    "openai": "OpenAI",
+    "gemini": "Google Gemini",
+    "custom": "Custom",
+}
+
+
+def provider_label(provider: str) -> str:
+    return PROVIDER_LABELS.get(provider, provider)
 
 
 def require_engine(cfg: dict | None = None) -> EngineConfig:
@@ -83,23 +109,25 @@ def require_engine(cfg: dict | None = None) -> EngineConfig:
             )
         return EngineConfig(provider="local", local_model_id=model_id)
 
-    key = cfg.get("openrouter_api_key", "")
-    if not key:
-        raise ValueError("OpenRouter API key not configured. Set it in Settings.")
+    # Local import: keeps the OpenAI SDK out of a plain config load.
+    from app.services.engines.remote import PRESETS
+    preset = PRESETS.get(provider)
+    if preset is None:
+        raise ValueError(f"Unknown AI provider '{provider}'. Pick one in Settings.")
+
+    label = provider_label(provider)
+    base_url = cfg.get("custom_base_url", "") if provider == "custom" else preset["base_url"]
+    if not base_url:
+        raise ValueError("No server address configured for the custom AI provider. Set it in Settings.")
+
+    key = cfg.get(f"{provider}_api_key", "")
+    # Custom servers (Ollama, LM Studio) often need no key; presets always do.
+    if not key and provider != "custom":
+        raise ValueError(f"{label} API key not configured. Set it in Settings.")
+
     return EngineConfig(
-        provider="openrouter",
+        provider=provider,
         api_key=key,
-        model=cfg.get("openrouter_model") or DEFAULT_MODEL,
+        model=cfg.get(f"{provider}_model") or preset["default_model"],
+        base_url=base_url,
     )
-
-
-def require_llm(cfg: dict | None = None) -> tuple[str, str]:
-    """Deprecated shim — returns (api_key, model) for OpenRouter.
-
-    Retained only for any callers not yet migrated to require_engine(); raises for
-    the local provider since it has no (key, model) pair.
-    """
-    engine = require_engine(cfg)
-    if engine.provider != "openrouter":
-        raise ValueError("This action requires the OpenRouter engine.")
-    return engine.api_key, engine.model

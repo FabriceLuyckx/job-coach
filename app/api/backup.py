@@ -48,8 +48,10 @@ MAX_EXTRACTED_BYTES = 500 * 1024 * 1024
 
 # Settings we deliberately strip from an exported config.json — secrets that
 # shouldn't travel in a file the user may email or store in the cloud. The user
-# re-enters their key on the new machine.
-SENSITIVE_CONFIG_KEYS = {"openrouter_api_key"}
+# re-enters their key on the new machine. Matched by suffix, not by a list, so a
+# provider added to config.py can't ship its key in a backup by omission.
+def is_secret_key(name: str) -> bool:
+    return name.endswith("_api_key")
 
 
 def _backup_files() -> list[tuple[object, str]]:
@@ -97,7 +99,7 @@ def export_backup():
             ),
         )
         # Settings, minus any secrets (the API key never leaves this machine).
-        safe_config = {k: v for k, v in config.load().items() if k not in SENSITIVE_CONFIG_KEYS}
+        safe_config = {k: v for k, v in config.load().items() if not is_secret_key(k)}
         zf.writestr("config.json", json.dumps(safe_config, indent=2))
         for src, arcname in _backup_files():
             zf.write(src, arcname)
@@ -175,7 +177,7 @@ def import_backup(file: UploadFile = File(...)):
                     incoming = json.loads(zf.read(name))
                 except Exception:
                     incoming = {}
-                incoming = {k: v for k, v in incoming.items() if k not in SENSITIVE_CONFIG_KEYS}
+                incoming = {k: v for k, v in incoming.items() if not is_secret_key(k)}
                 config.save(incoming)
                 continue
             dest = paths.DATA_DIR / name

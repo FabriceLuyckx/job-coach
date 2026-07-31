@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from app import config
 from app.services.cv_generator import DEFAULT_CV_PROMPT
 from app.services.cv_renderer import PHOTO_EXTS, load_photo
+from app.services.engines.remote import PRESETS
 from app.services.job_scanner import DEFAULT_EXTRACT_PROMPT, DEFAULT_SCAN_PROMPT
 from app.services.letter_guide import DEFAULT_LETTER_PROMPT
 from app.paths import PHOTO_DIR
@@ -39,6 +40,15 @@ def _looks_like_image(suffix: str, head: bytes) -> bool:
 class SettingsIn(BaseModel):
     openrouter_api_key: str | None = None
     openrouter_model: str | None = None
+    anthropic_api_key: str | None = None
+    anthropic_model: str | None = None
+    openai_api_key: str | None = None
+    openai_model: str | None = None
+    gemini_api_key: str | None = None
+    gemini_model: str | None = None
+    custom_api_key: str | None = None
+    custom_model: str | None = None
+    custom_base_url: str | None = None
     cv_prompt: str | None = None
     letter_prompt: str | None = None
     scan_extract_prompt: str | None = None
@@ -51,14 +61,28 @@ class SettingsIn(BaseModel):
     auto_update_check: bool | None = None
 
 
+def _mask(key: str) -> str:
+    return f"...{key[-4:]}" if len(key) > 4 else ("set" if key else "")
+
+
 @router.get("")
 def get_settings():
     cfg = config.load()
-    key = cfg.get("openrouter_api_key", "")
     return {
-        "openrouter_api_key_set": bool(key),
-        "openrouter_api_key_preview": f"...{key[-4:]}" if len(key) > 4 else ("set" if key else ""),
-        "openrouter_model": cfg.get("openrouter_model", ""),
+        # One entry per remote provider, so a key entered for one survives a
+        # switch to another and comes back masked, never in the clear.
+        "providers": {
+            pid: {
+                "key_set": bool(cfg.get(f"{pid}_api_key")),
+                "key_preview": _mask(cfg.get(f"{pid}_api_key", "")),
+                "model": cfg.get(f"{pid}_model", ""),
+                "default_model": preset["default_model"],
+                "key_url": preset["key_url"],
+                "billing_url": preset["billing_url"],
+            }
+            for pid, preset in PRESETS.items()
+        },
+        "custom_base_url": cfg.get("custom_base_url", ""),
         "cv_prompt": cfg.get("cv_prompt") or DEFAULT_CV_PROMPT,
         "cv_prompt_default": DEFAULT_CV_PROMPT,
         "letter_prompt": cfg.get("letter_prompt") or DEFAULT_LETTER_PROMPT,
@@ -75,21 +99,33 @@ def get_settings():
     }
 
 
-def _verify_openrouter_key(key: str) -> None:
-    """Zero-cost validity check: GET /api/v1/key returns the key's metadata
-    without spending any tokens. Raises HTTPException on a bad/unreachable key."""
+def _verify_key(provider: str, key: str) -> None:
+    """Zero-cost validity check before a key is persisted, so a bad key is caught
+    here rather than on the first CV generation / job scan. Spends no tokens:
+    OpenRouter's /key returns the key's metadata, every other preset answers
+    GET {base_url}/models. Raises HTTPException on a bad/unreachable key."""
+    preset = PRESETS.get(provider)
+    if preset is None or not preset["base_url"]:
+        # Custom: the server address is the user's own and may not exist yet, so
+        # a bad key surfaces as the normal AI-call error instead.
+        return
+    if provider == "openrouter":
+        url = "https://openrouter.ai/api/v1/key"
+    else:
+        url = f"{preset['base_url']}/models"
+    # Bearer is the OpenAI-compatible scheme; Anthropic authenticates its own
+    # endpoints with x-api-key, and sending both costs nothing.
+    headers = {"Authorization": f"Bearer {key}", "x-api-key": key,
+               "anthropic-version": "2023-06-01"}
+    label = config.provider_label(provider)
     try:
-        r = httpx.get(
-            "https://openrouter.ai/api/v1/key",
-            headers={"Authorization": f"Bearer {key}"},
-            timeout=10,
-        )
+        r = httpx.get(url, headers=headers, timeout=10)
     except httpx.HTTPError as e:
-        raise HTTPException(502, f"Could not reach OpenRouter to validate the key: {e}")
+        raise HTTPException(502, f"Could not reach {label} to validate the key: {e}")
     if r.status_code in (401, 403):
-        raise HTTPException(400, "OpenRouter rejected this API key (invalid or revoked).")
+        raise HTTPException(400, f"{label} rejected this API key (invalid or revoked).")
     if r.status_code != 200:
-        raise HTTPException(400, f"OpenRouter key check failed (HTTP {r.status_code}).")
+        raise HTTPException(400, f"{label} key check failed (HTTP {r.status_code}).")
 
 
 @router.get("/openrouter-usage")
@@ -127,10 +163,9 @@ def openrouter_usage():
 @router.put("")
 def put_settings(body: SettingsIn):
     updates = {k: v for k, v in body.model_dump().items() if v is not None}
-    # Validate a newly supplied key before persisting it, so a bad key is
-    # caught here rather than on the first CV generation / job scan.
-    if updates.get("openrouter_api_key"):
-        _verify_openrouter_key(updates["openrouter_api_key"])
+    for pid in PRESETS:
+        if updates.get(f"{pid}_api_key"):
+            _verify_key(pid, updates[f"{pid}_api_key"])
     # The tailoring prompt must keep its language placeholder, or every CV would
     # silently come out in English regardless of the requested language.
     if updates.get("cv_prompt") and "{lang_name}" not in updates["cv_prompt"]:

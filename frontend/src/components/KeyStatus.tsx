@@ -12,8 +12,9 @@ import type { EngineProvider } from '../api'
 /**
  * App-wide "is the AI engine ready?" state. Drives the first-run banner and lets
  * the CV Generator / Jobs / Profile pages disable their AI actions with an
- * explanation instead of failing with a raw error. Ready means: an OpenRouter key
- * is set, or the selected local model is downloaded.
+ * explanation instead of failing with a raw error. Ready means: the *selected*
+ * provider has what it needs (its own API key — a key stored for a different
+ * provider doesn't count), or the selected local model is downloaded.
  */
 
 interface EngineState {

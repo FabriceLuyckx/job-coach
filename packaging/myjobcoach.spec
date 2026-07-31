@@ -67,6 +67,18 @@ try:
     hiddenimports += wv_hidden
     if sys.platform == "win32":
         hiddenimports += ["clr_loader", "pythonnet"]
+    if sys.platform.startswith("linux"):
+        # pywebview's Qt backend imports these through qtpy at runtime, so name
+        # them to trigger PyInstaller's Qt hooks (which also bundle
+        # QtWebEngineProcess + its resources).
+        hiddenimports += [
+            "PyQt6.QtWebEngineWidgets",
+            "PyQt6.QtWebChannel",
+            "PyQt6.QtPrintSupport",
+        ]
+        # Window/taskbar icon + the .desktop entry the launcher installs
+        # (app/desktop.py reads it from RESOURCE_DIR/packaging/).
+        datas += [(str(ROOT / "packaging" / "icon-1024.png"), "packaging")]
 except Exception:
     print("pywebview not installed — building with the browser launcher only.")
 

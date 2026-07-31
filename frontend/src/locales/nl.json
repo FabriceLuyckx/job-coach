@@ -48,10 +48,7 @@
     "engineHelp": "De AI past je cv's aan en scant vacatures. Kies hoe het werkt.",
     "engineLocalCta": "Gratis model downloaden",
     "engineLocalReady": "Gratis model klaar.",
-    "engineKeyPlaceholder": "Plak je OpenRouter API-sleutel (sk-or-…)",
-    "engineSaveKey": "Sleutel opslaan",
-    "engineKeySaved": "API-sleutel opgeslagen.",
-    "engineGetKey": "Vraag een sleutel aan op openrouter.ai",
+    "engineKeySaved": "AI provider ready.",
     "doneTitle": "Je bent helemaal klaar",
     "doneBody": "Volgende stap: maak je Profiel aan (importeer een bestaand cv om snel te beginnen) en voeg vacaturebronnen toe via Vacaturesuggesties.",
     "finish": "Begin nu met MijnJobCoach",
@@ -61,7 +58,7 @@
     "engineDownloadWait": "This can take a few minutes."
   },
   "banner": {
-    "engineNotReady": "Welkom! Om cv's te genereren en vacatures te scannen, stel een AI-engine in via <settings>Instellingen</settings> — download het gratis lokale model of voeg een OpenRouter API-sleutel toe.",
+    "engineNotReady": "Welkom! Om CV's te genereren en jobaanbiedingen te scannen, stel een AI-engine in in <settings>Instellingen</settings> — download de gratis lokale model, of voeg een API-sleutel toe van een provider die je gebruikt.",
     "setupInstalling": "Instellingen van de browser-engine (één keer, ~150 MB). Lezen van functiepagina's en PDF-export werkt niet tot deze stap is voltooid.",
     "setupError": "De browser-engine kon niet worden geïnstalleerd: {{error}}. Lezen van functiepagina's en PDF-export werkt niet tot dit is opgelost."
   },
@@ -69,22 +66,11 @@
     "title": "Instellingen",
     "loadError": "Instellingen konden niet worden geladen: {{error}}",
     "openrouter": {
-      "help": "OpenRouter stuurt verzoeken door naar Claude, GPT-4 en andere modellen via één API-sleutel. Haal de jouwe op via <link>openrouter.ai/keys</link>.",
       "balance": "Saldo",
       "used": "Gebruikt",
       "balanceUnavailable": "Saldo niet beschikbaar — {{error}}",
       "loadingBalance": "Saldo laden…",
-      "manageCredits": "Tegoed beheren ↗",
-      "apiKey": "API-sleutel",
-      "currentlySet": "Momenteel ingesteld (eindigend op {{preview}}). Voer een nieuwe sleutel in om deze te vervangen.",
-      "newKeyPlaceholder": "Voer nieuwe sleutel in ter vervanging…",
-      "keyPlaceholder": "sk-or-…",
-      "model": "Model",
-      "customModel": "Aangepast model-ID…",
-      "customModelLabel": "Aangepast model-ID",
-      "customModelPlaceholder": "provider/model-naam",
-      "active": "Actief",
-      "saveConnection": "Verbinding opslaan"
+      "manageCredits": "Tegoed beheren ↗"
     },
     "photo": {
       "title": "Profielfoto",
@@ -181,6 +167,33 @@
       "title": "Updates",
       "autoCheck": "Controleer op updates wanneer de app start",
       "help": "Wanneer een nieuwere versie wordt gepubliceerd, verschijnt een melding in de app — niets wordt ooit gedownload of geïnstalleerd zonder uw toestemming. U kunt altijd handmatig controleren via 'Controleer op updates...' in de zijbalk."
+    },
+    "provider": {
+      "label": "AI provider",
+      "help": "Kies de provider waarvoor je al een API-sleutel hebt. Elke sleutel wordt apart opgeslagen, dus je kunt er altijd terug naar kiezen.",
+      "names": {
+        "openrouter": "OpenRouter",
+        "anthropic": "Anthropic (Claude)",
+        "openai": "OpenAI (ChatGPT)",
+        "gemini": "Google Gemini",
+        "custom": "Aanpasbaar / zelf-hosted"
+      },
+      "apiKey": "API-sleutel",
+      "currentlySet": "Op dit moment ingesteld (eindigt {{preview}}). Voer een nieuwe sleutel in om deze te vervangen.",
+      "keyPlaceholder": "Plak je API-sleutel",
+      "newKeyPlaceholder": "Voer een nieuwe sleutel in om te vervangen…",
+      "getKey": "API-sleutel ophalen ↗",
+      "billing": "Gebruik bekijken ↗",
+      "keyOptional": "Laat leeg als je server geen sleutel nodig heeft.",
+      "model": "Model",
+      "modelPlaceholder": "Modelnaam",
+      "modelHint": "Laat leeg om {{model}} te gebruiken.",
+      "modelUnknown": "We zien dat model niet op je account — controleer de spelling, of kies één uit de lijst.",
+      "modelDefaultGone": "Ons standaardmodel ({{model}}) is niet beschikbaar op je account — kies een model uit de lijst.",
+      "baseUrl": "Serveradres",
+      "baseUrlPlaceholder": "http://localhost:11434/v1",
+      "baseUrlHelp": "Elke server die de OpenAI-API spreekt — bijvoorbeeld Ollama of LM Studio op je eigen machine.",
+      "save": "Verbinding opslaan"
     }
   },
   "profile": {
@@ -727,10 +740,6 @@
       "customHelp": "Geavanceerd: plak een directe link naar een .gguf-bestand. Modellen die op deze manier worden toegevoegd worden niet getest met deze app, dus resultaten variëren.",
       "customBrowse": "Blader door GGUF-modellen op Hugging Face"
     },
-    "openrouter": {
-      "title": "OpenRouter",
-      "desc": "Beste kwaliteit — vereist een API-sleutel, betaal een paar cent per gebruik."
-    },
     "models": {
       "qwen3-4b-instruct": {
         "name": "Qwen3 4B",
@@ -744,6 +753,10 @@
         "name": "Gemma 3 4B",
         "desc": "Identieke grootte en snelheid als de standaard, maar uit een andere modelfamilie. Probeer het als je liever zijn schrijfstijl wilt."
       }
+    },
+    "remote": {
+      "title": "Je eigen API-sleutel",
+      "desc": "Beste kwaliteit — gebruik een sleutel die je al hebt met OpenRouter, Anthropic, OpenAI of Gemini. Kost een paar cent per gebruik."
     }
   },
   "footer": {

@@ -4,9 +4,10 @@
 """Provider-neutral LLM interface.
 
 Every AI feature in the app calls :func:`complete`, which resolves the configured
-engine (OpenRouter or a local GGUF model) and dispatches to the matching provider
-in ``app/services/engines/``. Providers return a uniform :class:`LLMResponse` so
-the rest of the app never sees provider-specific response shapes.
+engine (a remote OpenAI-compatible provider, or a local GGUF model) and dispatches
+to the matching provider in ``app/services/engines/``. Providers return a uniform
+:class:`LLMResponse` so the rest of the app never sees provider-specific response
+shapes.
 
 ``tool_args`` / ``message_text`` defensively parse that uniform response: the model
 occasionally returns no tool call or malformed JSON; that should surface as a clear,
@@ -77,8 +78,8 @@ def complete(
         return local.complete(
             engine, messages, tools=tools, tool_choice=tool_choice, max_tokens=max_tokens, cancel=cancel
         )
-    from app.services.engines import openrouter
-    return openrouter.complete(
+    from app.services.engines import remote
+    return remote.complete(
         engine, messages, tools=tools, tool_choice=tool_choice, max_tokens=max_tokens, cancel=cancel
     )
 

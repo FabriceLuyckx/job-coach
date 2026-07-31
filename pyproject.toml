@@ -22,11 +22,18 @@ dependencies = [
 
 [project.optional-dependencies]
 # Tooling for building the downloadable desktop bundle (see packaging/), plus
-# pywebview — the packaged launcher's native window (WKWebView/WebView2).
+# pywebview — the packaged launcher's native window (WKWebView on macOS,
+# WebView2 on Windows, QtWebEngine on Linux).
 package = [
     "pyinstaller>=6.0.0",
     "pyinstaller-hooks-contrib>=2024.0",
     "pywebview>=5.0",
+    # Linux web-view backend: Qt ships self-contained manylinux wheels that
+    # PyInstaller bundles cleanly; pywebview's GTK backend would need system
+    # webkit2gtk + PyGObject on every user machine.
+    "qtpy; sys_platform == 'linux'",
+    "PyQt6; sys_platform == 'linux'",
+    "PyQt6-WebEngine; sys_platform == 'linux'",
 ]
 # Local (free) AI engine. Heavy, platform-specific native build; installed for
 # source use with `uv sync --extra local` and bundled by the packager. The app

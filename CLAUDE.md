@@ -7,7 +7,7 @@ An AI-powered career assistant with two main pipelines:
 1. **CV Generator** — Build tailored CVs from a career profile, targeted at specific job openings
 2. **Job Suggestions** — Scan user-added job-listing pages, AI-filter new openings against the profile, and accept/reject them (accept generates a tailored CV)
 
-The app runs locally first, designed for easy cloud deployment. AI is powered via OpenRouter (routing to Anthropic Claude models). The UI is browser-based and should be usable by non-technical people.
+The app runs locally first, designed for easy cloud deployment. AI is powered by whichever engine the user picks — a remote provider they hold an API key for (OpenRouter, Anthropic, OpenAI, Gemini, or any OpenAI-compatible server) or a free local model. The UI is browser-based and should be usable by non-technical people.
 
 ---
 
@@ -43,7 +43,7 @@ The app runs locally first, designed for easy cloud deployment. AI is powered vi
 | Frontend | React (TypeScript) | Simple SPA, served by FastAPI locally. Fully internationalized via react-i18next (English source catalog `frontend/src/locales/en.json`; shipped locales nl/fr/de/es/it/pt/pl) |
 | Profile data | `profile/profile.json` | Human-readable, version-controllable |
 | Jobs data | SQLite → PostgreSQL | SQLite locally, Postgres for cloud |
-| AI | Pluggable engine (`app/services/llm.py` → `engines/`) | **OpenRouter** (Claude, default) or a **free local GGUF** run in-process via llama-cpp-python. Every call goes through `complete()`; provider chosen by `llm_provider` in `config.json` |
+| AI | Pluggable engine (`app/services/llm.py` → `engines/`) | A **remote OpenAI-compatible provider** (OpenRouter — the default — Anthropic, OpenAI, Gemini, or `custom`) or a **free local GGUF** run in-process via llama-cpp-python. Every call goes through `complete()`; engine chosen by `llm_provider` in `config.json` |
 | CV output | HTML → PDF (headless Chromium) | Jinja2 templates; PDF rendered server-side via Playwright |
 | Local run | uvicorn | `uvicorn app.main:app --reload` |
 | Cloud (future) | Railway (backend) + Vercel (frontend) | Phase 6 |
@@ -87,8 +87,8 @@ job-coach/
 │   │   └── jobs.py               # Job sources, scan, accept/reject (Phase 5)
 │   └── services/
 │       ├── llm.py                # Provider-neutral complete() + LLMResponse/ToolCall + response validation
-│       ├── engines/              # AI providers: openrouter.py, local.py (llama.cpp), registry.py
-│       ├── cv_generator.py       # OpenRouter-powered tailored CV generation
+│       ├── engines/              # AI providers: remote.py (PRESETS), local.py (llama.cpp), registry.py
+│       ├── cv_generator.py       # AI-powered tailored CV generation
 │       ├── letter_guide.py       # Posting URL → cover-letter writing guide (not a letter)
 │       ├── cv_renderer.py        # Shared Jinja2 utilities (+ PHOTO_EXTS, load_profile)
 │       ├── job_scanner.py        # Extract openings from a page + profile-filter (Phase 5)
@@ -102,7 +102,7 @@ job-coach/
 │       │   ├── Preferences.tsx   # Five-question job-matching form (flat, no collapsibles)
 │       │   ├── Applications.tsx  # One row per job (CV + cover-letter guide joined on job_url), CV|Letter tabs; replaces the old CVGenerator + Letters pages
 │       │   ├── Jobs.tsx          # Job sources, AI suggestions, accept/reject (Phase 5)
-│       │   └── Settings.tsx      # OpenRouter API key, model, photo; Advanced → AI prompts
+│       │   └── Settings.tsx      # AI provider + key + model, photo; Advanced → AI prompts
 │       ├── components/           # Shared UI: Button/SaveButton/RemoveButton, Toast,
 │       │   │                     #   Modal, Collapsible, Badge, EmptyState, ErrorBoundary,
 │       │   │                     #   KeyStatus (API-key onboarding), CreditChip, About
@@ -221,15 +221,15 @@ deliberately never offered.
 
 **CLI**:
 ```bash
-# Set openrouter_api_key via the Settings page (saved to config.json) or:
+# Set the provider's API key via the Settings page (saved to config.json) or:
 #   echo '{"openrouter_api_key":"sk-or-..."}' > config.json
 uv run python scripts/tailor_cv.py --url https://example.com/jobs/123
 uv run python scripts/tailor_cv.py --url https://... --lang nl
 # → output/<slug>/cv_<lang>.html
 ```
 
-**AI provider**: OpenRouter (`https://openrouter.ai/api/v1`), using OpenAI SDK.  
-**Default model**: `anthropic/claude-sonnet-4-6` (configurable via Settings page or `config.json`).
+**AI provider**: any preset in `engines/remote.py` (default OpenRouter, `https://openrouter.ai/api/v1`), all through the OpenAI SDK.  
+**Default model**: the selected preset's `default_model` (OpenRouter: `anthropic/claude-sonnet-5`) — overridable per provider via the Settings page or `config.json`.
 
 ---
 
@@ -276,7 +276,7 @@ uv run python scripts/tailor_cv.py --url https://... --lang nl
 - Inline editing of any field (text, lists, dates) with **auto-save** (debounced
   ~1.5s, single-flight; status shown in the page header; item removals get a 5s
   Undo toast) — there are no manual Save buttons on the Profile or Preferences page
-- Configure OpenRouter API key (stored in `config.json`, shown masked in UI);
+- Configure the AI provider + its API key (stored per provider in `config.json`, shown masked in UI);
   an app-wide banner guides first-run users to Settings until a key is set
 - Trigger CV generation and preview from the browser
 - History of previously generated CVs (persisted in `jobs/jobs.db`)
@@ -485,7 +485,7 @@ generation (`_unique_slug`) because a slug is a CV's whole identity
 CV immediately. Zero LLM tokens in the whole feature.
 
 **Backup & restore** (`app/api/backup.py`): export bundles the writable data dir —
-`config.json` (with `openrouter_api_key` stripped), `profile/profile.json` + photo,
+`config.json` (with every `*_api_key` stripped), `profile/profile.json` + photo,
 `jobs/jobs.db`, and `output/` — into one `.zip` with a `manifest.json` marker. Import
 validates the marker, guards against path traversal, clears the existing profile photo +
 `output/`, extracts under `DATA_DIR`, and **merges** config (so the destination's API key
@@ -667,8 +667,8 @@ That PR **auto-merges itself** — a second step in the same workflow finds the 
 `release-please--branches--stable` PR and merges it; that push re-runs the workflow,
 and *that* pass tags `vX.Y.Z` and creates the GitHub Release with notes. The tag
 triggers the binaries-only `release.yml`, whose `action-gh-release` step **upserts**
-the three bundles (macOS arm64 + Intel `.dmg`, Windows `.zip`) onto that same
-release (no duplicate). The macOS jobs share one packaging step — the `.dmg` is
+the four bundles (macOS arm64 + Intel `.dmg`, Windows `.zip`, Linux `.tar.gz` — tar
+so the executable bit survives) onto that same release (no duplicate). The macOS jobs share one packaging step — the `.dmg` is
 named from `matrix.artifact`, so a target is one matrix entry, not a code path. So promoting `main` →
 `stable` (still a manual, reviewed PR) is the only human step in the whole release;
 the version bump is never a separate click.
@@ -702,11 +702,12 @@ app checks `api.github.com/repos/FabriceLuyckx/job-coach/releases/latest` (stric
 `vX.Y.Z` 3-tuple compare; "unknown" ⇒ no update), selects the platform asset by
 its **stable, versionless name** (`asset_name()`: `MyJobCoach-macos.dmg` for Apple
 Silicon, `MyJobCoach-macos-intel.dmg` when `platform.machine() == "x86_64"`,
-`MyJobCoach-windows.zip` — the release-versioning naming contract; the plain macOS
+`MyJobCoach-windows.zip`, `MyJobCoach-linux.tar.gz` — the release-versioning naming
+contract; the plain macOS
 name stays arm64 so already-installed Apple Silicon apps keep matching it, and a
 Rosetta'd x86_64 build correctly stays on the Intel track) and, on explicit approval, streams it to
 `DATA_DIR/updates/`, verifies the byte size, stages it (macOS `hdiutil`+`ditto`,
-Windows `unpack_archive`), then launches a detached helper script that waits for
+Windows/Linux `unpack_archive`), then launches a detached helper script that waits for
 the app's PID, moves the install aside (never deletes first), copies the staged
 bundle in, restores on failure, clears macOS quarantine, and relaunches; the app
 exits via a delayed `os._exit(0)`. Download URLs are pinned to
@@ -725,9 +726,16 @@ The swap itself is verified manually against real builds; `tests/test_updater.py
 covers version compare, asset selection, URL pinning, and every refusal.
 
 **Desktop app window** (`add-native-app-window`, `app/desktop.py`): the packaged
-launcher hosts the SPA in a **native window** (WKWebView/WebView2 via `pywebview`,
-in the `package` extra) so the app owns its Dock/taskbar icon and closing the
-window quits it. uvicorn runs in a daemon thread; `webview.start()` owns the main
+launcher hosts the SPA in a **native window** (WKWebView/WebView2/QtWebEngine on
+Linux via `pywebview`, in the `package` extra — the Linux Qt deps are
+`sys_platform`-marked there, since GTK would need system webkit2gtk) so the app
+owns its Dock/taskbar icon and closing the
+window quits it. On Linux the launcher forces `gui="qt"`, passes the bundled
+`packaging/icon-1024.png` as the window icon, and each launch (re)writes
+`~/.local/share/applications/MyJobCoach.desktop` (+ copied icon) with Exec
+pointing at the current binary — the file name matches the binary name because
+Wayland compositors pick the taskbar icon by app-id ↔ .desktop-name matching,
+ignoring window icons. uvicorn runs in a daemon thread; `webview.start()` owns the main
 thread (returning from it ends the process — that is the quit path).
 `ALLOW_DOWNLOADS=True`, `private_mode=False` + `storage_path` under `DATA_DIR`
 (the SPA's localStorage caches must survive restarts); `target="_blank"` links
@@ -774,7 +782,9 @@ they are exploitable:
    (`169.254.169.254`). The same applies to the custom-model URL —
    `register_custom_model()` (`app/api/engine.py`) HEADs and then streams a
    user-supplied HTTPS URL with redirects; it validates the scheme and sanitizes
-   the filename, but does **not** resolve the host.
+   the filename, but does **not** resolve the host. `custom_base_url` is the same
+   class of risk — a user-supplied endpoint every AI call is sent to, stored and
+   used unvalidated.
 3. **Real CORS policy** — `app/main.py` currently allows only the Vite dev origin.
 4. **Untrusted-content note in LLM prompts** — scraped page text goes into model
    calls; keep tool schemas forced (`tool_choice`) and never let scraped content
@@ -800,16 +810,55 @@ wizard):
   `register_custom_model()` (`app/api/engine.py`) validates it, HEADs it for its size and
   stores the entry under `local_custom_models` — `registry.all_models()` merges those over
   the curated set, so download, delete, status and engine load need no custom-model case.
-* **OpenRouter** — best quality; paste an API key (saved to `config.json`, gitignored).
+* **Your own API key** — best quality. One generic engine
+  (`engines/remote.py`) serves every provider: `PRESETS` is the single source of truth
+  for provider ids, base URLs, key pages and default models, and the two known request
+  quirks live there as fields (`default_max_tokens` — Anthropic rejects a request
+  without it; `max_tokens_param` — newer OpenAI models renamed it), never as an
+  `if provider ==` at a call site. Presets: `openrouter`, `anthropic`, `openai`,
+  `gemini`, plus `custom`, which takes `custom_base_url` and so covers any other
+  OpenAI-compatible server (Ollama, LM Studio, a provider we didn't preset) — it is the
+  only preset that may run without an API key. Keys and models are stored **per
+  provider** (`<provider>_api_key` / `<provider>_model`), so switching provider never
+  erases the previous one's key and existing `openrouter_*` configs keep working with
+  **no migration**. An empty model resolves to the preset's `default_model`.
+  `require_engine()` is the one resolver (readiness = "it wouldn't raise", which is what
+  `GET /api/engine` reports, naming the *selected* provider), and settings-save
+  verification is a zero-cost `GET {base_url}/models` per preset (OpenRouter keeps its
+  richer `/key` check; `custom` is saved unverified — the server may not exist yet).
+  The **model field is free text with live suggestions**: `GET /api/engine/remote-models`
+  reads the selected provider's own `/models` (the endpoint the key check already uses)
+  into a `datalist`, and warns — never blocks — when the **effective** model (the typed
+  name, or the default a blank field resolves to) isn't in that list. The check runs
+  when the list arrives as well as on blur: the value most likely to be dead is a
+  stored one the user set once and would never re-type, which is what every existing
+  install carries. A catalog in our code would go stale, and it did: the repo's long-standing
+  `anthropic/claude-sonnet-4-6` default was a **typo** (OpenRouter separates versions
+  with dots — `claude-sonnet-4.6`), so a fresh install's first generation 404'd, and
+  nothing surfaced it until this list existed. The endpoint never raises (no list ⇒
+  plain text field), sends no auth header when there's no key (OpenRouter's list is
+  public), and strips Gemini's `models/` id prefix, which requests must not carry.
+  Each preset also carries a `billing_url`, linked beside its `key_url`: **only
+  OpenRouter reports a balance to the key the user pastes** (`/credits` + `/key`,
+  zero-cost — which is why the credit chip and balance line stay OpenRouter-only).
+  Anthropic and OpenAI put spend behind a separate *admin* credential and report
+  spend-to-date rather than credit remaining, and Gemini's lives in Google Cloud
+  billing — asking for that credential would widen the blast radius for a worse
+  number, so a link to the provider's own dashboard is the honest substitute.
+  The frontend renders the whole choice through one shared `ProviderFields` component
+  (Settings → AI Engine and the onboarding wizard), and provider-specific UI — the
+  OpenRouter credit chip and balance line — shows only while that provider is selected.
 
 For CLI use without the web UI, create `config.json` manually:
 ```json
 {
+  "llm_provider": "openrouter",
   "openrouter_api_key": "sk-or-...",
-  "openrouter_model": "anthropic/claude-sonnet-4-6"
+  "openrouter_model": "anthropic/claude-sonnet-5"
 }
 ```
-(Or set `"llm_provider": "local"` after downloading the model via the UI.)
+(Or set `"llm_provider": "local"` after downloading the model via the UI, or e.g.
+`"anthropic"` + `anthropic_api_key`.)
 
 ### Language / i18n
 The UI is fully internationalized. English is the source catalog
@@ -841,9 +890,10 @@ language is generated on-device by the engine (Phase D).
 ### config.json reference
 | Key | Description | Default |
 |-----|-------------|---------|
-| `llm_provider` | AI engine: `openrouter` or `local` (free, downloaded GGUF via llama.cpp) | `openrouter` |
-| `openrouter_api_key` | OpenRouter API key (get one at openrouter.ai) | Required when provider is `openrouter` |
-| `openrouter_model` | Model string passed to OpenRouter | `anthropic/claude-sonnet-4-6` |
+| `llm_provider` | AI engine: a `PRESETS` id (`openrouter`, `anthropic`, `openai`, `gemini`, `custom`) or `local` (free, downloaded GGUF via llama.cpp) | `openrouter` |
+| `<provider>_api_key` | That provider's API key — one per provider, so switching keeps both | Required for every preset except `custom` |
+| `<provider>_model` | Model string passed to that provider; empty → the preset's `default_model` | `""` |
+| `custom_base_url` | Endpoint for the `custom` provider (any OpenAI-compatible server) | `""` — required when provider is `custom` |
 | `local_model_id` | Registry key of the local model (see `engines/registry.py`) | `qwen3-4b-instruct` |
 | `local_custom_models` | User-added local models by URL, `{id: registry entry}` — merged over the curated set by `registry.all_models()` | `{}` |
 | `app_language` | UI language (ISO 639-1); `en` is the native source language | `en` |
@@ -909,7 +959,7 @@ generic/free-form section is (and remains) `custom_sections`, the escape hatch.
 **First-run onboarding** (`frontend/src/components/Onboarding.tsx`): a modal wizard
 shown when `GET /api/engine` reports not-ready **and** config `onboarding_done` is
 false. Three steps — pick a language, set up the AI engine (download the free local
-model or paste an OpenRouter key), done. **Not skippable** — every feature depends
+model or pick a provider and paste its key), done. **Not skippable** — every feature depends
 on an engine, so dismissing it would only hand over a broken install, and the engine
 step's Next stays disabled until one works. `onboarding_done` is written **only on
 completion** (`finish()`), which with no skip means "an engine is working": an

@@ -107,16 +107,13 @@
     "engineLocalCta": "Download free model",
     "engineDownloadWait": "This can take a few minutes.",
     "engineLocalReady": "Free model ready.",
-    "engineKeyPlaceholder": "Paste your OpenRouter API key (sk-or-…)",
-    "engineSaveKey": "Save key",
-    "engineKeySaved": "API key saved.",
-    "engineGetKey": "Get a key at openrouter.ai",
+    "engineKeySaved": "AI provider ready.",
     "doneTitle": "You're all set",
     "doneBody": "Next: build your Profile (import an existing CV to start fast), then add job sources under Job Suggestions.",
     "finish": "Start using MyJobCoach"
   },
   "banner": {
-    "engineNotReady": "Welcome! To generate CVs and scan job listings, set up an AI engine in <settings>Settings</settings> — download the free local model, or add an OpenRouter API key.",
+    "engineNotReady": "Welcome! To generate CVs and scan job listings, set up an AI engine in <settings>Settings</settings> — download the free local model, or add an API key from a provider you use.",
     "setupInstalling": "Setting up the browser engine (one-time, ~150 MB). Reading job pages and PDF export may not work until this finishes.",
     "setupError": "The browser engine couldn't be set up: {{error}}. Reading job pages and PDF export won't work until this is resolved."
   },
@@ -148,23 +145,39 @@
   "settings": {
     "title": "Settings",
     "loadError": "Couldn't load settings: {{error}}",
+    "provider": {
+      "label": "AI provider",
+      "help": "Pick the provider you already have an API key for. Each key is remembered separately, so you can switch back at any time.",
+      "names": {
+        "openrouter": "OpenRouter",
+        "anthropic": "Anthropic (Claude)",
+        "openai": "OpenAI (ChatGPT)",
+        "gemini": "Google Gemini",
+        "custom": "Custom / self-hosted"
+      },
+      "apiKey": "API key",
+      "currentlySet": "Currently set (ending {{preview}}). Enter a new key to replace it.",
+      "keyPlaceholder": "Paste your API key",
+      "newKeyPlaceholder": "Enter new key to replace…",
+      "getKey": "Get an API key ↗",
+      "billing": "Check your usage ↗",
+      "keyOptional": "Leave blank if your server needs no key.",
+      "model": "Model",
+      "modelPlaceholder": "Model name",
+      "modelHint": "Leave blank to use {{model}}.",
+      "modelUnknown": "We don't see that model on your account — check the spelling, or pick one from the list.",
+      "modelDefaultGone": "Our default ({{model}}) isn't available on your account — pick a model from the list.",
+      "baseUrl": "Server address",
+      "baseUrlPlaceholder": "http://localhost:11434/v1",
+      "baseUrlHelp": "Any server that speaks the OpenAI API — for example Ollama or LM Studio on your own machine.",
+      "save": "Save connection"
+    },
     "openrouter": {
-      "help": "OpenRouter routes requests to Claude, GPT-4, and other models via one API key. Get yours at <link>openrouter.ai/keys</link>.",
       "balance": "Balance",
       "used": "Used",
       "balanceUnavailable": "Balance unavailable — {{error}}",
       "loadingBalance": "Loading balance…",
-      "manageCredits": "Manage credits ↗",
-      "apiKey": "API key",
-      "currentlySet": "Currently set (ending {{preview}}). Enter a new key to replace it.",
-      "newKeyPlaceholder": "Enter new key to replace…",
-      "keyPlaceholder": "sk-or-…",
-      "model": "Model",
-      "customModel": "Custom model ID…",
-      "customModelLabel": "Custom model ID",
-      "customModelPlaceholder": "provider/model-name",
-      "active": "Active",
-      "saveConnection": "Save connection"
+      "manageCredits": "Manage credits ↗"
     },
     "photo": {
       "title": "Profile Photo",
@@ -812,9 +825,9 @@
       "customHelp": "Advanced: paste a direct link to a .gguf file. Models added this way aren't tested with this app, so results vary.",
       "customBrowse": "Browse GGUF models on Hugging Face"
     },
-    "openrouter": {
-      "title": "OpenRouter",
-      "desc": "Best quality — needs an API key, pay a few cents per use."
+    "remote": {
+      "title": "Your own API key",
+      "desc": "Best quality — use a key you already have with OpenRouter, Anthropic, OpenAI or Gemini. Costs a few cents per use."
     },
     "models": {
       "qwen3-4b-instruct": {

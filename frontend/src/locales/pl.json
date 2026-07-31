@@ -48,10 +48,7 @@
     "engineHelp": "AI dostosowuje Twoje CV i skanuje oferty pracy. Wybierz sposób działania.",
     "engineLocalCta": "Pobierz darmowy model",
     "engineLocalReady": "Darmowy model gotowy.",
-    "engineKeyPlaceholder": "Wklej swój klucz API OpenRouter (sk-or-…)",
-    "engineSaveKey": "Zapisz klucz",
-    "engineKeySaved": "Klucz API zapisany.",
-    "engineGetKey": "Uzyskaj klucz na openrouter.ai",
+    "engineKeySaved": "Dostęp do AI gotowy.",
     "doneTitle": "Wszystko gotowe",
     "doneBody": "Co dalej: uzupełnij swój Profil (zaimportuj istniejące CV, aby zacząć szybciej), a następnie dodaj źródła ofert w sekcji Sugestie ofert pracy.",
     "finish": "Zacznij korzystać z MyJobCoach",
@@ -61,7 +58,7 @@
     "engineDownloadWait": "To może zająć kilka minut."
   },
   "banner": {
-    "engineNotReady": "Witaj! Aby generować CV i skanować oferty pracy, skonfiguruj silnik AI w <settings>Ustawieniach</settings> — pobierz darmowy model lokalny lub dodaj klucz API OpenRouter.",
+    "engineNotReady": "Witaj! Aby generować CV i analizować oferty pracy, skonfiguruj silnik AI w <settings>Ustawienia</settings> — pobrać darmowy lokalny model lub dodaj klucz API z dostawcy, którego używasz.",
     "setupInstalling": "Instalacja silnika przeglądarki (jednorazowa, ~150 MB). Odczyt stron ofert pracy i eksport PDF może nie działać, dopóki to nie zostanie ukończony.",
     "setupError": "Silnik przeglądarki nie mógł zostać zainstalowany: {{error}}. Odczyt stron ofert pracy i eksport PDF nie będzie działał, dopóki to nie zostanie rozwiązane."
   },
@@ -69,22 +66,11 @@
     "title": "Ustawienia",
     "loadError": "Nie udało się załadować ustawień: {{error}}",
     "openrouter": {
-      "help": "OpenRouter kieruje zapytania do Claude, GPT-4 i innych modeli za pomocą jednego klucza API. Uzyskaj swój na <link>openrouter.ai/keys</link>.",
       "balance": "Saldo",
       "used": "Wykorzystano",
       "balanceUnavailable": "Saldo niedostępne — {{error}}",
       "loadingBalance": "Ładowanie salda…",
-      "manageCredits": "Zarządzaj kredytami ↗",
-      "apiKey": "Klucz API",
-      "currentlySet": "Aktualnie ustawiony (końcówka {{preview}}). Wprowadź nowy klucz, aby go zastąpić.",
-      "newKeyPlaceholder": "Wprowadź nowy klucz, aby zastąpić…",
-      "keyPlaceholder": "sk-or-…",
-      "model": "Model",
-      "customModel": "Własne ID modelu…",
-      "customModelLabel": "Własne ID modelu",
-      "customModelPlaceholder": "provider/model-name",
-      "active": "Aktywny",
-      "saveConnection": "Zapisz połączenie"
+      "manageCredits": "Zarządzaj kredytami ↗"
     },
     "photo": {
       "title": "Zdjęcie profilowe",
@@ -181,6 +167,33 @@
       "title": "Aktualizacje",
       "autoCheck": "Sprawdzaj aktualizacje przy uruchamianiu aplikacji",
       "help": "Gdy wydano nowszą wersję, pojawia się powiadomienie w aplikacji — nic nie jest pobierane ani instalowane bez Twojej zgody. Zawsze możesz sprawdzić ręcznie przez „Sprawdź aktualizacje…” w panelu boczny."
+    },
+    "provider": {
+      "label": "Dostawca AI",
+      "help": "Wybierz dostawcę, który już posiada klucz API. Każdy klucz jest pamiętany osobno, więc możesz go zmienić w dowolnym momencie.",
+      "names": {
+        "openrouter": "OpenRouter",
+        "anthropic": "Anthropic (Claude)",
+        "openai": "OpenAI (ChatGPT)",
+        "gemini": "Google Gemini",
+        "custom": "Dostosowany / samodzielny"
+      },
+      "apiKey": "Klucz API",
+      "currentlySet": "Obecnie ustawiony (wygasa {{preview}}). Wprowadź nowy klucz, aby go zastąpić.",
+      "keyPlaceholder": "Wklej swój klucz API",
+      "newKeyPlaceholder": "Wprowadź nowy klucz, aby go zastąpić…",
+      "getKey": "Pobierz klucz API ↗",
+      "billing": "Sprawdź swój udział ↗",
+      "keyOptional": "Opuść pole, jeśli serwer nie wymaga klucza.",
+      "model": "Model",
+      "modelPlaceholder": "Nazwa modelu",
+      "modelHint": "Pozostaw puste, aby użyć {{model}}.",
+      "modelUnknown": "Nie widzimy tego modelu na Twoim koncie — sprawdź pisownię, albo wybierz z listy.",
+      "modelDefaultGone": "Domyślny model ({{model}}) nie jest dostępny na Twoim koncie — wybierz model z listy.",
+      "baseUrl": "Adres serwera",
+      "baseUrlPlaceholder": "http://localhost:11434/v1",
+      "baseUrlHelp": "Dowolny serwer, który obsługuje interfejs API OpenAI — na przykład Ollama lub LM Studio na Twoim komputerze.",
+      "save": "Zapisz połączenie"
     }
   },
   "profile": {
@@ -727,10 +740,6 @@
       "customHelp": "Zaawansowane: wklej bezpośredni link do pliku .gguf. Modele dodane w ten sposób nie są testowane z tym oprogramowaniem, więc wyniki mogą się różnić.",
       "customBrowse": "Przeglądaj modele GGUF na Hugging Face"
     },
-    "openrouter": {
-      "title": "OpenRouter",
-      "desc": "Najlepsza jakość — wymaga klucza API, koszt kilku centów za użycie."
-    },
     "models": {
       "qwen3-4b-instruct": {
         "name": "Qwen3 4B",
@@ -744,6 +753,10 @@
         "name": "Gemma 3 4B",
         "desc": "Taki sam rozmiar i szybkość jak model domyślny, ale z innej rodziny modeli. Spróbuj, jeśli wolisz jego styl pisania."
       }
+    },
+    "remote": {
+      "title": "Twój własny klucz API",
+      "desc": "Najlepsza jakość — użyj klucza, który już masz z OpenRouter, Anthropic, OpenAI lub Gemini. Kosztuje kilka centów na używanie."
     }
   },
   "footer": {
