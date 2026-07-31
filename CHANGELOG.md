@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.0](https://github.com/FabriceLuyckx/job-coach/compare/v0.6.2...v0.7.0) (2026-07-31)
+
+
+### Features
+
+* add Linux desktop bundle (tar.gz, Qt webview) with self-update support ([9ffef5e](https://github.com/FabriceLuyckx/job-coach/commit/9ffef5e2acdb871729280b9d71161adca84f1228))
+* support multiple AI providers (Anthropic, OpenAI, Gemini, custom) ([ec4026a](https://github.com/FabriceLuyckx/job-coach/commit/ec4026ac012c2eca845c91dc9537ce16ce83935f))
+
+
+### Bug Fixes
+
+* **ci:** stop release-cycle version bumps churning the build cache; retry hdiutil ([ecbfa61](https://github.com/FabriceLuyckx/job-coach/commit/ecbfa61883d3b1cf426c79f33cae320ac7f788e3))
+
 ## [0.6.2](https://github.com/FabriceLuyckx/job-coach/compare/v0.6.1...v0.6.2) (2026-07-29)
 
 
