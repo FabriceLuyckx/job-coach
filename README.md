@@ -1,644 +1,214 @@
 # MyJobCoach
 
-AI-powered career assistant — generate tailored CVs, and discover, filter, and apply to job openings.
+**Your career profile, tailored into a new CV for every job you apply to — automatically.**
 
-Free software under the [GNU AGPL v3 or later](LICENSE) — see [License](#license).
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
+[![Open source](https://img.shields.io/badge/open%20source-100%25-brightgreen)](../../)
 
----
+MyJobCoach is a free, open-source, local-first career assistant. Enter your career
+details once; it tailors a fresh CV and a cover-letter writing guide for every job
+you apply to, and can watch job boards for openings that actually fit you. No
+account, no subscription, no ads — and no company reading your job search over your
+shoulder, because your data never leaves your own computer unless you choose an AI
+provider that needs it to.
 
-## Download & run (no setup)
+*(Screenshots below use a fictional sample profile — "Jane Doe" — not real data.)*
 
-For non-technical users. Grab the latest build from the
-[Releases](../../releases) page:
+<table>
+<tr>
+<td width="50%">
 
-- **macOS** — download `MyJobCoach-macos.dmg` (Apple Silicon — M1 and newer) or
-  `MyJobCoach-macos-intel.dmg` (older Intel Macs), open it, drag **MyJobCoach**
-  into Applications, then launch it — the first launch is blocked by macOS (see
-  the *first-launch security warning* below). Not sure which? Apple menu →
-  *About This Mac*: a "Chip" starting with **Apple** means the first one.
-- **Windows** — download `MyJobCoach-windows.zip`, **unzip it first** (right-click
-  → *Extract All…*; you'll get a `MyJobCoach` folder — keep it together), then open
-  the folder and run `MyJobCoach.exe`. Running the `.exe` straight from inside the
-  zip looks like it does nothing — Windows only extracts that one file, and the app
-  needs the whole folder. The zip carries a `!READ-ME-FIRST.txt` saying the same,
-  plus the SmartScreen step below.
-- **Linux** — download `MyJobCoach-linux.tar.gz`, extract it
-  (`tar xzf MyJobCoach-linux.tar.gz`), then run `MyJobCoach/MyJobCoach`. The app
-  opens in its own window with its own icon, and the first launch adds a
-  MyJobCoach entry to your app menu. Built on the current Ubuntu LTS; needs a
-  comparable or newer glibc.
+**AI-tailored CV, editable in place**
+![Tailored CV editor](docs/screenshots/tailored-cv.png)
 
-The app opens in its own window — no console, no browser tab — and closing that
-window quits it. (If your machine has no usable web view — e.g. a very old
-Windows 10 without the WebView2 runtime — the app falls back to opening in your
-default browser instead, with a small window telling you where it's running and
-how to quit.) On **first launch** it downloads a PDF
-engine one time (~150 MB) — a banner shows the progress and everything except
-PDF export works while it finishes.
+</td>
+<td width="50%">
 
-Then pick how the AI runs (Settings → **AI Engine**, or the first-run prompt):
+**A writing guide, not a fake AI letter**
+![Cover-letter writing guide](docs/screenshots/cover-letter-guide.png)
 
-- **Free local model** — download a model (2.5–5 GB, your choice) that runs on your own
-  computer. No account, no cost, fully private/offline. Good results; on a slower machine
-  a CV can take a few minutes.
-- **Your own API key** — best quality (pay a few cents per CV). Pick the provider you
-  already have an account with — [OpenRouter](https://openrouter.ai),
-  [Anthropic](https://console.anthropic.com/settings/keys),
-  [OpenAI](https://platform.openai.com/api-keys) or
-  [Google Gemini](https://aistudio.google.com/apikey) — and paste its key. **Custom**
-  accepts any other server that speaks the OpenAI API, including one running on your own
-  machine (Ollama, LM Studio). Keys are stored per provider, so switching between them
-  never loses one you entered earlier. The model box suggests the models your provider
-  actually offers (typed straight from its own list, so it's never out of date) and
-  warns if you mistype one — leave it blank to use that provider's default.
+</td>
+</tr>
+<tr>
+<td width="50%">
 
-All your data stays on your machine, in a standard per-user folder:
-- macOS: `~/Library/Application Support/MyJobCoach/`
-- Windows: `%APPDATA%\MyJobCoach\`
-- Linux: `~/.local/share/MyJobCoach/`
+**Job Suggestions, filtered against your preferences**
+![Job Suggestions page](docs/screenshots/job-suggestions.png)
 
-### Updating
+</td>
+<td width="50%">
 
-The packaged app keeps itself up to date:
+**Five CV layouts, any colour palette**
+![CV template picker](docs/screenshots/cv-templates.png)
 
-- **Automatic check** — on start-up the app asks GitHub whether a newer release
-  exists (one small request; nothing is downloaded). If there is one, a banner
-  appears with an **Update now** button and a link to the release notes. Turn
-  the automatic check off in **Settings → Updates**.
-- **Manual check** — **Check for updates…** in the sidebar works any time,
-  regardless of that setting.
-- Nothing installs without your approval. When you confirm, the app downloads
-  the new version with visible progress (cancellable), swaps it into place, and
-  restarts itself. Your profile, CVs, job history and settings all live outside
-  the app and are untouched.
-
-Because the binaries are unsigned, **Windows** antivirus/SmartScreen may warn
-about the newly replaced `MyJobCoach.exe` — same caveat as a fresh install (see
-below). If the app can't update itself (for example it's running straight from
-the macOS disk image, or its folder isn't writable), it says why and links the
-[Releases](../../releases) page so you can download and install the new version
-manually instead.
-
-### Moving to a new computer (backup & restore)
-
-**Settings → Backup & Restore** lets you carry everything over in one file:
-
-- **Export backup** downloads a single `.zip` with your profile and photo, settings,
-  job sources and history, and every generated CV. Your API keys are **not**
-  included, so the file is safe to email or store in the cloud.
-- On the new machine, install MyJobCoach, open **Settings → Backup & Restore**,
-  **Restore from backup** — pick that `.zip` — then re-enter your API key.
-
-Restoring **replaces** your profile, job history and generated CVs on the new machine
-(it doesn't merge). Any API key already set there is left untouched.
-
-> **First-launch security warning (unsigned app):** because the app isn't code-signed
-> yet, the OS will warn the first time. On **macOS**, launching shows *"MyJobCoach"
-> Not Opened* — click **Done** (not Move to Trash), then open **System Settings →
-> Privacy & Security**, scroll down, and click **Open Anyway** (the old
-> right-click → Open trick no longer works on macOS 15+; terminal alternative:
-> `xattr -dr com.apple.quarantine "/Applications/MyJobCoach.app"`).
-> On **Windows**, click **More info** → **Run anyway** on the SmartScreen prompt.
-
-The **About** button in the sidebar footer opens a dialog with the app version,
-license, and a link to the source code.
+</td>
+</tr>
+</table>
 
 ---
 
-## Requirements (for development)
+## Why MyJobCoach
 
-- [uv](https://docs.astral.sh/uv/) — Python package manager
-- Python 3.11+ (uv installs this automatically on first run)
-- Node.js 18+ — for the frontend dev server
+- **One profile, endless tailored CVs.** Fill in your career details once — jobs,
+  skills, education, the rest — and every CV is generated fresh from it, rewritten
+  to match a specific opening's language and priorities. No refilling a form per
+  application, no separate documents to keep in sync.
+- **Finds jobs for you.** Point it at the job-listing pages you care about and it
+  scans them for new openings, reads each one in full, and only surfaces the ones
+  that actually match your preferences — title, location, remote/on-site,
+  dealbreakers, all of it. It **learns from what you accept and reject**, so the
+  suggestions get sharper the more you use it.
+- **Cover-letter guides, not fake AI letters.** Instead of generating a generic
+  letter no recruiter wants to read, it gives you a writing skeleton — which points
+  to make, and which real facts from your profile back each one up. You still write
+  it, in your own voice.
+- **Run the AI your way.** Bring your own API key (OpenRouter, Anthropic, OpenAI,
+  Google Gemini, or any OpenAI-compatible server) for the best results, or download
+  a free local model and run everything on your own machine with no account and no
+  per-generation cost. Your choice, switchable any time.
+- **Genuinely local and private.** Your profile, generated CVs, and job history live
+  in a folder on your own computer — never on a server of ours, because there isn't
+  one. Move to a new machine with one **Export backup** / **Restore backup**, no
+  cloud account required.
+- **Start from a CV you already have.** Upload an existing PDF and the AI extracts
+  your details into a starting profile you review and edit, instead of typing
+  everything from scratch.
+- **Speaks your language.** The whole interface is translated (English, Dutch,
+  French, German, Spanish, Italian, Portuguese, Polish out of the box, more
+  generated on demand), and every CV is written in whatever language the job
+  posting — or you — asks for.
+- **Free and open source, for real.** AGPL-3.0, no commercial angle, no telemetry.
+  Read the code, self-host it, change it.
+- **Built to grow with you.** The project is planned with [OpenSpec](https://github.com/Fission-AI/OpenSpec) —
+  every non-trivial change starts as a written proposal — which makes it
+  straightforward for anyone to read *why* something works the way it does, or
+  propose and build a new feature themselves.
 
 ---
 
-## Setup
+## Get started (no coding required)
 
-**macOS — one command:**
+Grab the latest build for your OS from the [Releases](../../releases) page:
+
+- **macOS** — download the `.dmg` (Apple Silicon or Intel — see the release notes
+  for which one), open it, drag **MyJobCoach** into Applications, and launch it.
+- **Windows** — download the `.zip`, **extract the whole folder** (not just the
+  `.exe`), then run `MyJobCoach.exe` from inside it.
+- **Linux** — download the `.tar.gz`, extract it, and run `MyJobCoach/MyJobCoach`.
+
+The app opens in its own window, no browser tab needed. Because the builds aren't
+code-signed yet, macOS and Windows will show a one-time security warning on first
+launch — click through it (**System Settings → Privacy & Security → Open Anyway**
+on macOS, **More info → Run anyway** on Windows). It also downloads a small PDF
+engine on first launch.
+
+Then choose how the AI runs, in **Settings → AI Engine**:
+
+- **Free & local** — download a model (2.5–5 GB) that runs entirely on your own
+  machine. No account, no cost, fully offline.
+- **Your own API key** — best quality, pay a few cents per CV. Any of OpenRouter,
+  Anthropic, OpenAI, Google Gemini, or a custom OpenAI-compatible server (e.g.
+  Ollama running locally).
+
+All your data lives in a normal per-user folder (`~/Library/Application
+Support/MyJobCoach` on macOS, `%APPDATA%\MyJobCoach` on Windows,
+`~/.local/share/MyJobCoach` on Linux) and the app keeps itself updated — a banner
+appears when a new version is available, and updating never touches your data.
+Moving to a new computer is one file: **Settings → Backup & Restore**.
+
+---
+
+## For developers
+
+### Requirements
+
+- [uv](https://docs.astral.sh/uv/) (installs Python 3.11+ for you)
+- Node.js 18+
+
+### Setup & run
 
 ```bash
-git clone <repo>
+git clone git@github.com:FabriceLuyckx/job-coach.git
 cd job-coach
-./setup.sh
-```
+./setup.sh              # macOS: installs deps, seeds config.json (profile stays empty)
 
-`setup.sh` installs Homebrew, uv, and Node if they're missing, then installs all
-backend and frontend dependencies, the headless browser for PDF export, and
-seeds your local `config.json` from the committed example. Your profile is
-deliberately *not* seeded — the app opens on an empty Profile you fill in
-yourself or import from an existing CV. (Linux/Windows aren't scripted yet — use the manual steps below.)
-
-**Manual setup (or non-macOS)** — what `setup.sh` does, step by step:
-
-```bash
-uv sync                              # backend deps (installs Python 3.11 too)
-uv run playwright install chromium   # one-time: headless browser for PDF export
-cd frontend && npm install && cd ..  # frontend deps
-cp config.json.example config.json    # local config (the profile stays empty)
-```
-
-> `profile/profile.json` and `config.json` are gitignored — they hold your
-> personal data and API key. `config.json` is seeded from the committed example;
-> `profile.json` is written the first time you edit your Profile in the app.
-> `profile/profile.example.json` is a schema reference only — copy it over your
-> profile if you want sample data to play with. See `CLAUDE.md` for the full
-> profile schema.
-
----
-
-## Run the web app
-
-```bash
-# Terminal 1 — backend API
+# Terminal 1
 uv run uvicorn app.main:app --reload
 
-# Terminal 2 — frontend dev server
+# Terminal 2
 cd frontend && npm run dev
 ```
 
-Open **http://localhost:5173** in your browser.
+Open **http://localhost:5173**. On first run, a banner points you to **Settings →
+AI Engine** to configure a local model or an API key.
 
-On first run, a banner guides you to **Settings → AI Engine** to set up the AI. Choose
-either the **free local model** (downloaded and run on your machine — no key needed) or
-**your own API key** — pick a provider (OpenRouter, Anthropic, OpenAI, Google Gemini, or
-Custom for any other OpenAI-compatible server) and paste its key, saved locally to
-`config.json` (gitignored). Until an engine is ready, the Generate/Scan buttons are
-disabled with an explanation. On OpenRouter, your credit balance shows next to the
-buttons that spend it.
+Not on macOS, or want the manual steps `setup.sh` runs?
 
-> **Local engine (development):** the local model runs via `llama-cpp-python`, a heavy
-> platform-specific dependency kept out of the default install. Enable it with
-> `uv sync --extra local`. Without it, use an API key.
+```bash
+uv sync                              # backend deps
+uv run playwright install chromium   # headless browser, needed for PDF export
+cd frontend && npm install && cd ..
+cp config.json.example config.json
+```
 
-### Testing a fresh install (development)
+`profile/profile.json` and `config.json` are gitignored (personal data + API keys).
+Want the local free AI engine in dev too? `uv sync --extra local` (heavy,
+platform-specific — off by default).
 
-In a source checkout your data lives in the repo, so you always start with a
-configured app. To see what a new user sees — the onboarding wizard, an empty
-profile, every empty state — point the writable data dir somewhere else:
+To see a brand-new user's empty state instead of your own dev data:
 
 ```bash
 MYJOBCOACH_DATA_DIR=$(mktemp -d) uv run uvicorn app.main:app --reload
 ```
 
-That directory gets its own `config.json`, `profile/`, `jobs/jobs.db`, `output/`,
-`models/` and `locales/`; your real data is untouched. Delete it to start over.
-Two things to know:
+### CLI scripts
 
-- **The frontend keeps a little state in the browser** (chosen UI language,
-  suggested job titles, a pending hand-off from Job Suggestions). Use a private
-  window for a truly clean run.
-- **A downloaded local model lives under the data dir too**, so a fresh one means
-  downloading it again. To reuse the one you have:
-  `ln -s "$PWD/models" "$FRESH_DIR/models"` before starting.
-
-#### Choosing a local model
-
-Three models are offered, all Q4_K_M quantised and all sized to run on an ordinary
-laptop without a dedicated graphics card. Bigger writes better and runs slower:
-
-| Model | Download | Recommended RAM | Good for |
-|-------|----------|-----------------|----------|
-| **Qwen3 4B** (default) | ~2.5 GB | 8 GB | The one to start with. Multilingual, and quick enough on CPU. |
-| Gemma 3 4B | ~2.5 GB | 8 GB | Same size and speed, different model family — try it if you prefer its writing. |
-| Qwen3 8B | ~5.0 GB | 16 GB | Better writing, but ~twice the memory and about half the speed. |
-
-Larger models (12B+) are deliberately not offered: without a GPU they swap and crawl.
-If you have the hardware for one, add it yourself by URL (see below) — or use an API key.
-
-In **Settings → AI Engine**, pick a model to make it active; if it isn't downloaded yet,
-the button below the list downloads it (resumable, with progress). Several models can sit
-on disk at once — **Delete model** removes the selected one and frees its space. The
-download warns before starting if your machine has less RAM than recommended, and lets
-you proceed anyway.
-
-**Adding your own model (advanced).** The same panel takes a direct HTTPS link to a
-`.gguf` file — for example from
-[Hugging Face's GGUF catalogue](https://huggingface.co/models?library=gguf&sort=trending).
-Paste the link to the file itself (on Hugging Face use the download link, not the `blob`
-page — the app corrects that one for you). Models added this way are not tested with this
-app: some won't load, and some produce worse results. Delete removes both the file and
-the entry.
-
-### Language
-
-The app is English by default and can run in other languages — pick one under
-**Settings → Language**. Seven European languages (Dutch, French, German, Spanish,
-Italian, Portuguese, Polish) ship translated and reviewed. Job postings themselves are
-never translated: the AI reads them in whatever language they're in and writes your CV in
-the language you ask for. Some backend error messages remain in English.
-
-> **Maintainers:** UI strings live in `frontend/src/locales/en.json`. A pre-commit hook
-> (`scripts/hooks/pre-commit`, wired up by `setup.sh`) auto-translates any new or changed
-> keys into the shipped locales whenever `en.json` is part of the commit — just edit and
-> commit, nothing to run by hand. (`uv run python scripts/translate_locales.py --full`
-> exists for an out-of-band full re-translation.) CV section headings are translated
-> separately in `app/i18n/cv_labels.json`.
-
-### Customise the AI prompts (advanced)
-
-**Settings → Advanced — AI prompts** (collapsed by default) holds the four
-editable prompts: the CV tailoring prompt, the cover-letter guide prompt, and the
-two job-scanner prompts (link extraction, relevance filter). Edit and save to
-change tone, rules, or emphasis. The CV and cover-letter prompts must keep the
-`{lang_name}` placeholder (where the output language appears) — saves without it
-are rejected. Your profile and the job
-listing are appended automatically. **Reset to default** restores the built-in
-prompt.
-
-### Edit a generated CV
-
-Every generated CV shows the live preview and an **Edit generated content** panel
-side by side (they stack on a narrow window; the preview scales to fit). You can
-edit the professional summary and each role's bullet points (up to 4 per job — the
-**+ Add** button disappears at 4), drag the handle to reorder bullets, and apply
-formatting by selecting text and pressing **⌘/Ctrl+B** (bold) or **⌘/Ctrl+I**
-(italic). **Edits save automatically** (a *Saving… / Saved* status shows in the
-panel header) and the preview refreshes itself — there is no Save button.
-
-Edits are stored **per language**, so switching the application's **Language** back and
-forth (the selector above the tabs) keeps each language's edits intact.
-
-**Sections.** Under the preview, tick sections on/off to show or hide them. You get
-one checkbox per section actually on this CV — teaching, projects, awards, your own
-custom sections, all of them — and the choice is **real**: it applies to the preview,
-the PDF, "open in new tab", and the next time you open the CV. It is also **per CV**:
-hiding a section here never touches your other applications. The same cluster shows any
-sections the AI **left out** as irrelevant, each with a one-tap **restore**.
-
-**Skills.** Your profile holds every skill you have; a CV shouldn't. The AI picks
-the ones that fit *this* job and leaves the rest off — and the **Skills** cluster
-under the preview shows exactly what it did, group by group. Tap any skill to take
-it off this CV or put it back: struck through means you removed it, dashed means the
-AI judged it irrelevant here. Tick a group's name off to drop the whole group at
-once (ticking it back brings all of it back, the AI's leftovers included). The
-header counts what's on this CV out of your profile total, so a shrunken list is
-visible without opening anything. Nothing here touches your profile, and the choices
-are per CV, per application — they even follow the CV when you switch its language,
-since skill names don't get translated. The AI never marks or emphasises a skill;
-which ones appear is the only call it makes, and you have the last word on it.
-
-### Update an existing CV
-
-The AI actions are:
-
-- **Update with AI…** — re-runs the AI against the job listing (~30 seconds, uses
-  credits). You choose whether to **keep your edits** (summary, role selection,
-  bullets, and section toggles are preserved; the rest is refreshed) or **start
-  fresh**. (For a legacy CV with no editable plan this button reads **Build
-  editable CV from listing**.)
-- The **Language** dropdown re-tailors the CV into the other language; the summary
-  and bullets are written in the CV's language by the AI.
-
-These AI calls, plus generation, all run in the background with a coarse progress
-stage (*reading the listing → tailoring → building*) so a slow local model never
-times out the browser. Design/profile changes appear on the next preview
-automatically; the small **refresh** icon reloads it on demand. **Download PDF**
-saves the file directly and reports any error instead of opening a blank tab.
-
----
-
-## Generate a CV (CLI)
-
-The career profile lives in `profile/profile.json`. Run the script to render it as a print-ready HTML file.
+For scripting outside the web UI:
 
 ```bash
-# English CV (generic, full profile)
-uv run python scripts/generate_cv.py
-
-# Dutch CV
-uv run python scripts/generate_cv.py --lang nl
-
-# CV saved to a dedicated folder for a specific opening
-uv run python scripts/generate_cv.py --job "Company Role Name"
-
-# Both flags
-uv run python scripts/generate_cv.py --lang nl --job "UGent Data Scientist"
+uv run python scripts/generate_cv.py --lang nl --job "Company Role"   # profile → HTML CV, no AI
+uv run python scripts/tailor_cv.py --url https://example.com/jobs/123 # AI-tailored CV from a posting
+uv run python scripts/scan_debug.py --url https://example.com/jobs    # test the job-scanner on one page
 ```
 
-## AI-tailor a CV for a specific job (CLI)
-
-Requires a configured AI engine (a downloaded local model, or an API key). Set it via the
-Settings page (preferred), or create `config.json` manually — the key and model are named
-after the provider, and `llm_provider` picks which one is used:
-
-```json
-{
-  "llm_provider": "openrouter",
-  "openrouter_api_key": "sk-or-..."
-}
-```
-
-Swap in `"llm_provider": "anthropic"` (+ `anthropic_api_key`), `"openai"`, `"gemini"`, or
-`"custom"` (which also needs `custom_base_url`). Leave the matching `<provider>_model`
-out to use that provider's default.
-
-Then run:
+### Tests
 
 ```bash
-uv run python scripts/tailor_cv.py --url https://example.com/jobs/123
-
-# Dutch tailored CV
-uv run python scripts/tailor_cv.py --url https://... --lang nl
-
-# Override the output folder name
-uv run python scripts/tailor_cv.py --url https://... --job "ugent-lecturer"
+uv run pytest                       # backend: hardening, schema migration, scanner, engines, i18n…
+node frontend/scripts/check-tags.mjs  # tag-input parsing
+node scripts/check_contrast.mjs       # WCAG contrast on the app-shell colour tokens
 ```
 
-The AI reads the job posting, selects the most relevant experience from your profile, rewrites the summary and responsibility bullets to match the role's language, and saves the result to `output/<job-slug>/cv_<lang>.html`.
+### Building a release
 
----
-
-## Output structure
-
-```
-output/
-├── cv_en.html                  # Generic English CV
-├── cv_nl.html                  # Generic Dutch CV
-└── <job-slug>/                 # One folder per job opening
-    ├── cv_en.html              # Full-profile or AI-tailored CV
-    └── cv_nl.html
-```
-
-## Export to PDF
-
-In the web app, click **Download PDF** on a generated CV. The PDF is rendered
-server-side with headless Chromium (Playwright), so it comes out correctly
-paginated — full-width header, a repeating sidebar, and the main column flowing
-across pages. This needs the one-time `uv run playwright install chromium` from
-Setup above.
-
-> The old "open the HTML and Cmd+P → Save as PDF" route still works for the CLI
-> output files, but the browser's print dialog handles the two-column layout
-> poorly across pages — prefer the **Download PDF** button.
-
-## Choose how your CV looks
-
-**Settings → Visual preferences** holds the whole design. Nothing here costs AI
-credits, and every change applies to **all** your CVs — open one under
-**Applications** to see it.
-
-- **Template** — five layouts, shown as small previews drawn in your own colours:
-  **Sidebar** (two columns, the default), **Classic** (single column, centered
-  serif header), **Banner** (full-width colour band), **Compact** (right sidebar,
-  denser — for long CVs), and **Minimal** (typographic, nothing filled in — the
-  friendliest to a black-and-white office printer).
-  The three single-column layouts put your profile links on the contact line
-  under your name (not in a section at the very bottom) and pair up the short
-  sections — grants, certifications, awards, courses, memberships — two per row.
-  In every layout, the skills the AI picked out for that job lead their group and
-  are marked; the rest still print.
-- **Colour palette** — curated palettes (including one in MyJobCoach's own
-  colours); tapping one recolours the previews straight away.
-- **Colours** — the selected palette's accent, text, and background colours,
-  each shown with an editable colour picker and hex box. Overwrite any of them
-  to make the palette your own.
-
-## Add a photo
-
-1. Place your photo at `profile/photo.jpg` (`.jpeg`, `.png`, and `.webp` also accepted)
-2. In `profile/profile.json`, set `"include_photo": true` under `cv_design_preferences`
-3. Re-run either script — the photo is embedded directly in the HTML
-
-Alternatively, upload via the **Settings** page in the web UI, where you can also:
-
-- **Adjust the framing** — the editor opens right after an upload (and any time
-  via the pencil on the photo preview): drag to reposition, zoom with the
-  slider, and the circle shows exactly what will appear on the CV. The photo sits
-  on a square canvas painted in your CV's background colour, so you can zoom out
-  past its own edges and place it freely — whatever ends up beside it is simply
-  part of the CV's background. Your uploaded file is never modified, so you can
-  re-adjust any time without losing quality. Each template places the photo where
-  its design wants it (in the sidebar, inside the banner, above your name…),
-  always as a circle.
-- **Include photo on new CVs by default** — saves the moment you toggle it, and
-  each CV keeps its own photo on/off switch in the CV editor.
-
----
-
-## Edit your profile
-
-Use the **Profile** and **Preferences** pages in the web UI, or open
-`profile/profile.json` directly in any text editor — both pages edit the same file,
-just different parts of it.
-
-**Everything on both pages saves automatically as you type** — a status
-indicator in the header shows *Saving… / All changes saved* (with a Retry button
-if a save fails). Removing an item (a job, degree, publication, …) shows a
-5-second **Undo** toast.
-
-**Profile** holds only what can end up on a generated CV. It's organised into
-**core** sections that are always shown — Personal Info, Professional Summary,
-Experience, Skills, Education — and **optional** sections you add on demand via
-**+ Add a section** (Projects, Volunteering, Certifications, Courses & training,
-Awards, Professional memberships, Publications, Grants, Research & academic
-background, Teaching, and **Custom sections** for anything your field needs). The
-add-a-section menu explains what each one does. Each section carries a small badge
-showing where its data goes:
-
-- **On your CV** — printed on the generated CV.
-- **Helps the AI** — not printed; guides how the AI tailors your CV (e.g. Research
-  & academic background).
-
-Every section is career-neutral, so the same page works whether you're a nurse, a
-designer, a lawyer or a researcher. To remove an optional section, use **Hide** in its
-header — this keeps your data (it reappears in **+ Add a section** with a *has content*
-hint); only the per-item ✕ actually deletes anything (with a 5-second Undo).
-
-**Preferences** holds what's *not* on the CV. It's a five-question form: the job
-titles to watch for, where and how you want to work (locations, working style,
-languages), what makes a job a great match, your dealbreakers (with one-tap
-examples), and the practical small print (salary, contract, hours, travel).
-The answers drive Job Suggestions' matching — since the scanner reads each full
-posting, even free-text answers like dealbreakers and salary expectations
-actually take effect — and will power motivational letters in a future phase.
-
-### Start from an existing CV
-
-A brand-new profile starts empty. Use **Import from an existing CV** (on the empty
-state, or the button in the page header) to upload a PDF or paste your CV text — the AI
-extracts your details into the profile for you to review and edit. Nothing is saved
-until you've checked it, and importing over an existing profile warns you first.
-Requires a configured AI engine. CV import is the most demanding AI task, so on the free
-local model it may be slower and less accurate — the import dialog says so, and for a
-long or complex CV an API key gives noticeably better results.
-
-**Experience** entries keep just what a CV needs — title, employer, dates (an *I
-currently work here* checkbox handles current roles), and the bullet points that become
-your CV body. Anything extra for the AI (context, when a role is most relevant) lives
-behind an optional **Notes for the AI** panel. Drag the handle on any Experience,
-Education, Publication or Project entry to reorder it.
-
-**Skills** are organised into named groups you control — add a group with any heading
-that fits your field (e.g. *Technical skills*, *Clinical skills*, *Design tools*) and tag
-it with the relevant skills; each non-empty group is printed on your CV. **Languages** use
-a clickable 1–5 star rating (CEFR scale) instead of a typed level. Older profiles using the
-previous fixed skill categories are migrated automatically on load.
-
-Publications use a single **APA citation** field plus an optional short description.
-See `CLAUDE.md` for the full schema reference.
-
----
-
-## Job Suggestions
-
-The **Job Suggestions** page watches job-listing pages and surfaces openings that fit your profile:
-
-1. **Add sources** — paste the URL of any job-listing page (e.g. a careers or vacancies page) and click **Add**. Add as many as you like.
-2. **Find new listings** — scans each source, showing progress (*Scanning example.com (2 of 5)…*, then *Reading posting 3 of 7…*). It reads the page's actual links (rendering JS-heavy pages in a headless browser when needed) and ignores openings seen on a previous scan. A source whose links haven't changed since the last scan is skipped entirely — no AI cost. For the genuinely new openings, a quick title triage drops the clearly off-target ones, then the AI **reads each remaining posting in full** to decide whether it fits your profile *and* pull out a digest — employer, location, remote, salary, deadline, a short summary and key requirements — shown on the suggestion. Because the whole posting is read (not just its title), preferences like *what to avoid*, remote/on-site and the free-text notes actually take effect. The last-scan time shows next to the button, and each source shows when it was last scanned; if a source can't be read, it's reported by name after the scan instead of failing silently. A scan keeps running if you switch to another page — come back and it's still going — and a **Cancel** button stops it early (which frees the AI engine straight away). Cancelling never wastes work: any postings already judged are kept, so a re-scan only picks up where it left off.
-3. **Accept / Reject** — each suggestion can be rejected (with a 5-second **Undo**) or accepted. When you **reject**, a box lets you optionally say *why* (too senior, wrong location, not hands-on enough…) — this is optional, and rejecting stays one click if you skip it. **Accepting generates both a tailored CV and a cover-letter writing guide from the job URL — in the posting's language, reusing the posting already read during the scan (no re-fetch) — and takes you straight to the Applications page**, which shows both building. Past the fifth suggestion a search box and source filter appear.
-
-Over time the filter **learns from your choices**: your accepts and rejects (and the reasons you give) are distilled into a short standing summary of what you tend to want and avoid, which is fed into every future match decision — so the more you triage, the better the suggestions get. This costs nothing extra on the reject/accept click; the summary is refreshed in the background on your next scan.
-
-Nothing is thrown away silently. Openings the filter *rejected* land in a collapsed **Filtered out** list, each with the reason it was dropped and a **Suggest anyway** button in case it got one wrong. When you improve your Preferences, hit **Re-check filtered jobs** to re-judge those past openings against your new answers — it reuses the postings already read, so it's fast and free of extra scraping (and a hint appears when your profile changed since the last scan). Found a posting somewhere else? Paste its URL under **Check a specific job** to run it through the same review.
-
-Accepted and rejected openings stay in the **History** list, newest first (with **Show more** for long histories). Accepted entries have **Open application** to jump to the generated CV and letter guide; rejected entries can be **Restored** to the suggestions.
-
-You can edit the two scanner prompts under **Settings → Advanced — AI prompts**, and verify a source from the CLI:
-
-```bash
-uv run python scripts/scan_debug.py --url https://example.com/jobs
-```
-
----
-
-## Applications
-
-The **Applications** page is where a job's tailored CV and cover-letter guide live
-together — one row per job, joined automatically. Click **New application**, paste a
-job listing URL, leave the language on **Auto-detect** (or pick one), tick **Tailored
-CV** and/or **Letter guide**, and **Generate**. Auto-detect reads the posting once to
-work out its language, so the CV and letter come out in the posting's language without
-you guessing. Each row expands to a **CV | Letter** tab strip so you work on one at a
-time without either editor getting cluttered; if a row has only one of the two, the
-other tab offers to create it. Accepting a job on the **Job Suggestions** page drops a
-fully-built application here in the posting's detected language.
-
-**No listing yet? Use the general application.** Pinned at the top of the page is a
-**general application** — a CV and cover-letter guide aimed at the roles you're
-targeting rather than at one posting, for networking, speculative approaches, or just
-having something to hand out. It is only built when you click **Create general
-application**, and only once your profile can aim it: you need at least one target role
-(**Preferences**) and one role in your work history (**Profile**). Until then the card
-tells you what's missing and links you there. Once created it behaves like any other
-application — same editor, language selector, PDF, and delete. Regenerating it picks up
-your latest preferences.
-
-**Language is one setting for the whole application.** A single **Language** selector
-sits above the tabs — change it and both the CV and the letter are re-generated in the
-new language (your CV edits are preserved). There is no separate language control inside
-the CV editor.
-
-**Cancelling a generation.** Every generation (creating a CV or letter, a new
-application, or a language change) shows a **Cancel** button while it runs. On the free
-local model this can take a few minutes; cancelling stops the wait **and** interrupts
-the model so it frees up for other work — important on a modest laptop, where the local
-engine runs one job at a time and an unstoppable generation would block everything else.
-
-The **CV** tab is the full CV editor — live preview, editable summary and bullets,
-section toggles, re-tailoring, and **Download PDF** (see *Edit a generated CV* above).
-
-The **Letter** tab is a **tailored writing guide** — **not** a written letter. The AI
-returns an angle, a paragraph-by-paragraph outline (each with a goal and concrete
-pointers), an evidence map (posting requirement → the real profile fact to cite for
-it), honest gaps to address, and a tone/length note. This is deliberate: a cover
-letter only works in your own words, and recruiters increasingly discard AI-written
-ones. The guide tells you *what* to write and *which* parts of your profile to lean
-on; the writing stays yours. **Copy as Markdown** hands the outline to your own
-editor. The guide prompt is editable under **Settings → Advanced — AI prompts**.
-
----
-
-## Run the tests
-
-```bash
-uv run pytest
-```
-
-Covers backend hardening (upload validation, backup-import safety, slug
-sanitisation, LLM-config and AI-response guards, profile/prompt validation) plus
-functional coverage across the app — CV template rendering, profile schema
-migration, the job scanner (link-hash skip, cancellation, concurrency guards),
-i18n, cover-letter guides, and the local/remote engines (provider presets, per-provider
-keys, request shaping). Tests isolate
-their own files via `tmp_path`/monkeypatching, so they never touch your local
-`profile.json` or `jobs.db`.
-
-The frontend has two standalone checks (no test framework needed):
-
-```bash
-node frontend/scripts/check-tags.mjs
-node scripts/check_contrast.mjs
-```
-
-The first covers `parseTags`, the tag-entry logic behind every tag field —
-comma/newline splitting, case-insensitive dedup, and per-entry length caps. The
-second reads the colour tokens straight out of `frontend/src/index.css` and
-`App.css` and fails if any app-shell element (nav links, wordmark, footer, the
-AGPL link, the page-sheet shadow) drops below its WCAG contrast threshold.
-
----
-
-## Spec-driven changes (maintainers)
-
-Non-trivial changes are planned with [OpenSpec](https://github.com/Fission-AI/OpenSpec)
-(`npm install -g @fission-ai/openspec`). Project context lives in
-`openspec/config.yaml`; in Claude Code use `/opsx:propose` to draft a change
-(proposal, design, tasks), `/opsx:apply` to implement it, and `/opsx:archive`
-when done.
-
----
-
-## Building a desktop release (maintainers)
-
-The downloadable apps are built with [PyInstaller](https://pyinstaller.org) from
-`packaging/myjobcoach.spec`, which bundles the FastAPI backend, the built frontend,
-and the Playwright driver into a single double-click app. Chromium itself is
-downloaded on the user's first launch to keep the installer small.
-
-**Automated (recommended):** releases are cut from a dedicated `stable` branch and
-the version is computed automatically — you never bump `pyproject.toml` or push a
-tag by hand.
-
-- **`main`** is the development branch; **`stable`** is the sole release/build source.
-- Write [Conventional Commit](https://www.conventionalcommits.org) subjects
-  (`feat:`, `fix:`, `chore:`, `feat!:`/`BREAKING CHANGE:` …). A `commit-msg` hook
-  warns (never blocks) on a non-conventional subject.
-- To cut a release, merge `main` → `stable`. On that push,
-  [release-please](https://github.com/googleapis/release-please)
-  (`.github/workflows/release-please.yml`) reads the commits, computes the SemVer
-  bump, and opens a **release PR** that updates `pyproject.toml` + `CHANGELOG.md`.
-- Merging the release PR tags `vX.Y.Z` and creates the GitHub Release; the tag then
-  triggers `.github/workflows/release.yml`, which builds all four targets (macOS
-  arm64, macOS Intel, Windows, Linux) and attaches the `.dmg`s/`.zip`/`.tar.gz`
-  to that same release.
-
-**Local build** (produces `dist/MyJobCoach.app` on macOS, `dist/MyJobCoach/` on Windows):
-
-```bash
-cd frontend && npm run build && cd ..   # build the frontend into frontend/dist
-uv sync --extra package                 # installs PyInstaller
-uv run pyinstaller packaging/myjobcoach.spec
-```
-
-You can also run the packaged launcher directly during development — it starts the
-server and opens the app window (or your browser when pywebview isn't installed),
-exactly as the bundle does:
+Desktop builds use [PyInstaller](https://pyinstaller.org)
+(`packaging/myjobcoach.spec`); Chromium downloads on the user's first launch to
+keep the installer small.
 
 ```bash
 cd frontend && npm run build && cd ..
-uv run python -m app.desktop
+uv sync --extra package
+uv run pyinstaller packaging/myjobcoach.spec
 ```
 
-Builds are unsigned for now; see the first-launch security note above. To ship a
-warning-free app, add code-signing/notarization to the CI workflow (macOS
-notarytool, Windows signtool / Azure Trusted Signing).
+Releases are automated: merge `main` → `stable` and
+[release-please](https://github.com/googleapis/release-please) computes the
+version bump from your [Conventional Commits](https://www.conventionalcommits.org)
+subjects, opens a release PR, tags it, and CI attaches the macOS/Windows/Linux
+builds — see `CLAUDE.md` for the full chain.
+
+### Contributing / architecture
+
+Full architecture, phase-by-phase feature history, data schemas, and every design
+decision live in [`CLAUDE.md`](CLAUDE.md) — start there. Non-trivial changes are
+planned with [OpenSpec](https://github.com/Fission-AI/OpenSpec)
+(`npm install -g @fission-ai/openspec`): `/opsx:propose` drafts a proposal, design
+and task list, `/opsx:apply` implements it, `/opsx:archive` closes it out. Small,
+obvious fixes don't need any of that — just open a PR.
 
 ---
 
 ## License
 
-Licensed under the GNU Affero General Public License v3.0 or later
-(AGPL-3.0-or-later). See [LICENSE](LICENSE). If you run a modified version of
-this app as a network service, the AGPL requires you to offer its source to
-users.
+AGPL-3.0-or-later — see [LICENSE](LICENSE). If you run a modified version of this
+app as a network service, the AGPL requires you to offer its source to your users.
