@@ -1,8 +1,8 @@
-import { GENERIC_FONTS, OVERUSED_FONTS } from '../../shared/constants.mjs';
+import { GENERIC_FONTS, OVERUSED_FONTS, EM_DASH_FLOOR, EM_DASH_CHARS_PER_DASH } from '../../shared/constants.mjs';
 import { isNeutralColor } from '../../shared/color.mjs';
 import { extractGoogleFontFamilies } from '../../shared/fonts.mjs';
 import { checkSourceDesignSystem } from '../../design-system.mjs';
-import { scanCssTextForGlow, scanCssTextForGridBackground, scanCssTextForMarquee, scanCssTextForRadialHalo } from '../../rules/checks.mjs';
+import { scanCssTextForGlow, scanCssTextForGridBackground, scanCssTextForMarquee, scanCssTextForPseudoStripe, scanCssTextForRadialHalo } from '../../rules/checks.mjs';
 import { isFullPage } from '../../shared/page.mjs';
 import { applyInlineIgnores } from '../../shared/inline-ignores.mjs';
 import { finding } from '../../findings.mjs';
@@ -12,9 +12,11 @@ import { profileFindings, profileStep } from '../../profile/profiler.mjs';
 // Regex fallback (non-HTML files: CSS, JSX, TSX, etc.)
 // ---------------------------------------------------------------------------
 
-const hasRounded = (line) => /\brounded(?:-\w+)?\b/.test(line);
+const hasRounded = (line) =>
+  /\brounded(?:-\w+)?\b/.test(line.replace(/\brounded-none\b/g, ''));
 const hasBorderRadius = (line) => /border-radius/i.test(line);
 const isSafeElement = (line) => /<(?:blockquote|nav[\s>]|pre[\s>]|code[\s>]|a\s|input[\s>]|span[\s>])/i.test(line);
+
 
 /** Strip HTML to plain text — drops script/style/comments/tags so
  *  content-text analyzers don't false-positive on code or CSS. */
@@ -239,24 +241,6 @@ const REGEX_MATCHERS = [
 ];
 
 const REGEX_ANALYZERS = [
-  // Single font
-  (content, filePath) => {
-    const fontFamilyRe = /font-family\s*:\s*([^;}]+)/gi;
-    const fonts = new Set();
-    let m;
-    while ((m = fontFamilyRe.exec(content)) !== null) {
-      for (const f of m[1].split(',').map(f => f.trim().replace(/^['"]|['"]$/g, '').toLowerCase())) {
-        if (f && !GENERIC_FONTS.has(f)) fonts.add(f);
-      }
-    }
-    for (const f of extractGoogleFontFamilies(content)) fonts.add(f);
-    if (fonts.size !== 1 || content.split('\n').length < 20) return [];
-    const name = [...fonts][0];
-    const lines = content.split('\n');
-    let line = 1;
-    for (let i = 0; i < lines.length; i++) { if (lines[i].toLowerCase().includes(name)) { line = i + 1; break; } }
-    return [finding('single-font', filePath, `only font used is ${name}`, line)];
-  },
   // Flat type hierarchy
   (content, filePath) => {
     const sizes = new Set();
@@ -306,9 +290,16 @@ const REGEX_ANALYZERS = [
     const dominant = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
     return [finding('monotonous-spacing', filePath, `~${dominant}px used ${maxCount}/${rounded.length} times (${Math.round(pct * 100)}%)`)];
   },
-  // Em-dash overuse: 5+ em-dashes or "--" in body text content
-  // (occasional em-dash use in prose is fine; the pattern fires only
-  // when count crosses into AI-cadence territory).
+  // Em-dash overuse (ADVISORY): the AI cadence tell is em-dash *saturation*,
+  // not the occasional dash. Humans use em-dashes legitimately, so this rule is
+  // advisory (surfaced separately, never a failure, hook-skipped by default) and
+  // its threshold is deliberately conservative. Two gates must both hold:
+  //   1. Absolute floor of EM_DASH_FLOOR (8) dashes — a page with a handful
+  //      never fires, no matter how short.
+  //   2. Density: at least one dash per EM_DASH_CHARS_PER_DASH (500) characters
+  //      of body text, so a long article that uses eight across several thousand
+  //      words is left alone while a short, dash-per-clause landing page is not.
+  // Raised from the old flat 5-dash floor, which fired on ordinary long prose.
   //
   // stripHtmlToText drops tags but leaves character-entity escapes intact, so
   // a model that writes `&mdash;`, `&#8212;`, or `&#x2014;` renders an em-dash
@@ -322,7 +313,11 @@ const REGEX_ANALYZERS = [
     let count = 0;
     const re = /[—]|--(?=\S)/g;
     while (re.exec(text) !== null) count++;
-    if (count < 5) return [];
+    if (count < EM_DASH_FLOOR) return [];
+    // Saturation gate: dashes must be dense in the prose, not sprinkled through
+    // a long document. textLength <= count * chars-per-dash means the density is
+    // at or above the threshold.
+    if (text.length > count * EM_DASH_CHARS_PER_DASH) return [];
     return [finding('em-dash-overuse', filePath, `${count} em-dashes in body text`)];
   },
   // Marketing buzzwords: SaaS phrase list
@@ -613,10 +608,11 @@ const TEXT_CONTENT_ANALYZER_IDS = [
 function runTextContentAnalyzers(content, filePath, options = {}) {
   const profile = options?.profile;
   if (!shouldRunPageAnalyzers(content, filePath)) return [];
-  // The 3 text-content analyzers are at indices 3-5 in REGEX_ANALYZERS.
+  // The 3 text-content analyzers are at indices 2-4 in REGEX_ANALYZERS
+  // (single-font's removal on 2026-07-29 shifted every index down one).
   const findings = [];
   for (let i = 0; i < TEXT_CONTENT_ANALYZER_IDS.length; i++) {
-    const analyzer = REGEX_ANALYZERS[3 + i];
+    const analyzer = REGEX_ANALYZERS[2 + i];
     const ruleId = TEXT_CONTENT_ANALYZER_IDS[i];
     findings.push(...profileFindings(profile, {
       engine: 'regex',
@@ -641,7 +637,21 @@ function detectText(content, filePath, options = {}) {
     profile,
     phase: 'source',
   }));
-  if (cssLike.has(ext)) findings.push(...scanInsetStripeCss(content, filePath));
+  // Pseudo-element stripes (::before/::after absolute bars) carry the same
+  // side-tab silhouette without any border token, so the line matchers can't
+  // see them (issue #394). The shared scanner already runs on full HTML pages
+  // via checkHtmlPatterns; give standalone stylesheets, component style
+  // blocks, and CSS-in-JS templates the same coverage. Each hit carries the
+  // rule's source offset, so the finding gets a real line and line-scoped
+  // inline ignores keep working.
+  const pseudoStripeFindings = (text, lineOffset) =>
+    scanCssTextForPseudoStripe(text).map(hit =>
+      finding(hit.id, filePath, hit.snippet, lineOffset + text.slice(0, hit.index).split('\n').length));
+
+  if (cssLike.has(ext)) {
+    findings.push(...scanInsetStripeCss(content, filePath));
+    findings.push(...pseudoStripeFindings(content, 0));
+  }
 
   // Block-level CSS checks that need multiple declarations must run over the
   // complete source, not line-by-line. This covers standalone stylesheets,
@@ -678,6 +688,7 @@ function detectText(content, filePath, options = {}) {
     // reported every selector one line low. runRegexMatchers keeps startLine - 1
     // because it indexes its split lines from zero.
     findings.push(...scanInsetStripeCss(block.content, filePath, block.startLine - 2));
+    findings.push(...pseudoStripeFindings(block.content, block.startLine - 2));
   }
 
   // Extract and scan CSS-in-JS template literals
@@ -696,6 +707,7 @@ function detectText(content, filePath, options = {}) {
       phase: 'css-in-js',
     }));
     findings.push(...scanInsetStripeCss(block.content, filePath, block.startLine - 1));
+    findings.push(...pseudoStripeFindings(block.content, block.startLine - 1));
   }
 
   if (options?.designSystem) {
@@ -721,7 +733,6 @@ function detectText(content, filePath, options = {}) {
   // Page-level analyzers only run on full pages
   if (shouldRunPageAnalyzers(content, filePath)) {
     const analyzerIds = [
-      'single-font',
       'flat-type-hierarchy',
       'monotonous-spacing',
       'em-dash-overuse',

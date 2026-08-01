@@ -398,6 +398,31 @@ the model guessed from the brief, so the UI overrides it with the i18n label
 generic application exists at a time; it is excluded from the search filter and the
 date sort.
 
+**The CV editor is one surface** (`unify-cv-editing`, 2026-08): `CVEditor` renders the
+CV tab as job strip → actions → tailoring notes → AI caveat → photo nudge → **editing
+board** → preview. The board is one `--board` panel (`.cv-board`) split by hairlines
+with **one row per CV section, in CV order**, each row owning both "is this on the CV"
+(a checkbox) and — where there is content — the editor for it, expanded in place:
+Summary → its textarea + the AI-summary action, Career Path → the per-role
+`BulletListEditor`s, Skills → the group/skill controls (`switch` on the key, default no
+body). It is an accordion (one `openRow`, Summary open on load), because the board sits
+*above* the preview so an edit and its effect share a viewport — two tall rows open
+would push the preview off screen. The row is a purpose-built `.cv-row`, **not**
+`Collapsible`: that makes the whole header one `<button>`, and a checkbox cannot live
+inside a button. `setSection(key, show)` is the single control — showing clears the key
+from **both** `hidden_sections` and `excluded_sections`, so the AI's call and the user's
+are undone by the same tick (the `setSkills` shape one level up); the row's mono meta
+cell states *which* of the two took it off, so provenance is never style-only. One save
+state (`role="status"`, settled states only — a per-debounce "Saving…" tick would
+chatter) in the board header covers text, sections and skills alike. The preview
+**keeps the reader's place**: `reloadPreview()` captures `contentWindow.scrollY` and
+restores it `onLoad`, and `editPlan(updater, render)` skips the reload entirely for a
+visibility change already applied to the preview's DOM — the one case that *does* need
+a render is putting back a section the last render omitted, which `setSection` detects
+by the element's absence. `applyScale` measures the unscaled `scrollWidth` once per load
+(`measureAndScale`, where zoom is still 1) instead of write-`zoom:1` → read → write on
+every `ResizeObserver` callback.
+
 Every long generation (create, New slot, language change) shows a **Cancel** that
 both aborts the client poll and calls `POST /api/cv/cancel/{job_id}` to **interrupt the
 engine** — the local provider serializes all AI behind one lock, so a runaway generation
@@ -418,11 +443,12 @@ so the contract — `data-section` tags, `hidden_sections`, the photo guard — 
 one file and a template only decides layout + CSS. Macros are `sec_`-prefixed because
 a bare `education()` would shadow the `education` context variable. **Every** section
 honours `hidden_sections` under its own `data-section` key, and `CVEditor` derives its
-checkbox row from the keys it finds in the rendered preview (union'd with the
-currently-hidden ones, which the server omits) — so a section can never render
-without a way to remove it, and a new one needs no frontend change beyond a
-`cveditor.sections.<key>` label. A hardcoded list is what left Teaching (and every
-other optional section) un-removable until 2026-07.
+**row list** from the keys it finds in the rendered preview (union'd with the ones
+currently off the CV — `hidden_sections` *and* `excluded_sections`, both of which the
+server omits) — so a section can never render without a way to remove it, nothing can
+leave the CV without leaving a way back, and a new section needs no frontend change
+beyond a `cveditor.sections.<key>` label. A hardcoded list is what left Teaching (and
+every other optional section) un-removable until 2026-07.
 
 Four rules the shared macros enforce for **every** template (2026-07-28, from user
 feedback on the sidebar-less layouts): (a) sections whose date is free text
@@ -1021,18 +1047,17 @@ The choices **carry into a new language's plan** (`_retailor`): they describe th
 application, not its prose, and skill names are never translated. Keep-edits
 preserves them; regenerate-all on the same language re-selects.
 
-`CVEditor` renders the cluster as **one hairline-split row per profile group**
-(`.skill-group`, groups from the plan endpoint's `skill_groups`): the group name is
-itself a checkbox that takes the **whole group** off the CV or puts it back (all its
-items in/out of `hidden_skills` — no third list; turning a group back on also clears
-the AI's exclusions for it, which is the one-action group restore), and each skill is
-a tap-to-toggle `.skill-toggle` tag. A tag off the CV is **struck through** when the
-user removed it and **dashed** when the AI left it out, so provenance is legible
-without a second list; the header carries the mono `N of M on this CV · K left out by
-the AI` count. The first cut used `chip-check` per skill plus a separate restore row —
-at 40+ skills that was a wall of checkbox pills with no group-level control. Both
-disclosures sit on **one `--board` panel split by a hairline** (`.editor-clusters`),
-per DESIGN.md's one-tonal-board rule.
+Inside the Skills row, `CVEditor` renders **one hairline-split row per profile
+group** (`.skill-group`, groups from the plan endpoint's `skill_groups`): the group
+name is itself a checkbox that takes the **whole group** off the CV or puts it back
+(all its items in/out of `hidden_skills` — no third list; turning a group back on also
+clears the AI's exclusions for it, which is the one-action group restore), and each
+skill is a tap-to-toggle `.skill-toggle` tag. A tag off the CV is **struck through**
+when the user removed it and **dashed** when the AI left it out, and carries the same
+words as a section row (`offByYou`/`offByAi`) in an `.sr-only` span, so provenance is
+legible without seeing it; the row's meta cell carries the mono `N of M on this CV · K
+left out by the AI` count. The first cut used a checkbox pill per skill plus a separate
+restore row — at 40+ skills that was a wall of pills with no group-level control.
 
 ### Job sources
 

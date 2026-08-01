@@ -505,6 +505,9 @@ function ApplicationRow({ app, hasPhoto, onDeleteApp, onDeleteLetter, onCvGenera
       <div style={{ padding: '11px 16px' }}>
         <Collapsible
           flat open={expanded} onToggle={toggleExpanded}
+          // A real heading here is what the CV editor's own <h3>/<h4> outline
+          // hangs off — without it the editor skips a level from the page title.
+          headingLevel={2}
           title={
             <span className="collapsible-title-sm" style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {title}
