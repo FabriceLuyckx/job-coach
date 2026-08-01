@@ -64,7 +64,10 @@
   {% if personal.links and 'links' not in hidden %}
   <span class="links-inline" data-section="links">
     {%- for link in personal.links %}{% if link.url %}
-    <span class="link-item"><a href="{{ link.url }}">{{ link.url | strip_scheme }}</a></span>
+    {# The label is the readable text; the URL lives in href (clickable in the PDF).
+       Printing the URL put "scholar.google.com/citations?user=…&hl=en" in the
+       contact line, which wrapped the header over two lines and reads as noise. #}
+    <span class="link-item"><a href="{{ link.url }}">{{ link.label or link.url | strip_scheme }}</a></span>
     {%- endif %}{% endfor %}
   </span>
   {% endif %}

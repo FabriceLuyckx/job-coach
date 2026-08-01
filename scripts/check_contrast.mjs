@@ -22,10 +22,12 @@ const tokens = Object.fromEntries(
   [...indexCss.matchAll(/^\s*(--[\w-]+):\s*([^;]+);/gm)].map(([, k, v]) => [k, v.trim()]),
 );
 
-/** The value of `prop` inside the block for `selector` (exact selector text). */
+/** The value of `prop` inside the block for `selector` (exact selector text).
+ * The selector may sit anywhere in a comma group — a leading comma is matched by
+ * the prefix, the rest of the group by the optional tail. */
 function decl(css, selector, prop) {
   const esc = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const block = css.match(new RegExp(`(?:^|[},])\\s*${esc}\\s*\\{([^}]*)\\}`, 'm'));
+  const block = css.match(new RegExp(`(?:^|[},])\\s*${esc}\\s*(?:,[^{}]*)?\\{([^}]*)\\}`, 'm'));
   if (!block) throw new Error(`no rule for "${selector}"`);
   const m = block[1].match(new RegExp(`(?:^|;)\\s*${prop}:\\s*([^;]+)`));
   if (!m) throw new Error(`no "${prop}" in "${selector}"`);

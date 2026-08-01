@@ -634,16 +634,6 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   font-family: var(--data-font); font-size: var(--fs-xs); color: var(--muted);
   text-transform: none; letter-spacing: 0; font-weight: 400;
 }
-/* AI-excluded section chip with a one-tap restore. */
-.chip-restore {
-  display: inline-flex; align-items: center; gap: 4px; margin: 2px 4px 2px 0;
-  font-size: var(--fs-sm); padding: 2px 8px; cursor: pointer;
-  background: transparent; color: var(--muted);
-  border: 1px dashed color-mix(in srgb, var(--ink) 45%, transparent);
-  border-radius: var(--chip-radius);
-}
-.chip-restore:hover { border-style: solid; border-color: var(--ink); color: var(--ink); }
-
 /* Legacy names still used by TagInput */
 .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-1); }
 .tag {
@@ -831,27 +821,84 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
   color: var(--danger);
 }
 
-/* Bordered checkbox chip — CV section toggles. */
-.chip-check {
-  display: inline-flex; align-items: center; gap: var(--space-2);
-  border: 1px solid var(--line); border-radius: var(--r-btn); padding: 5px 12px;
-  cursor: pointer; font-size: var(--fs-sm); color: var(--ink);
-  font-weight: 400; margin-bottom: 0;
-}
-.chip-check input { width: auto; }
-
-/* ── CV editor decision clusters (sections + skills) ─────────────────────────
-   One tonal board split by hairlines, not two bare rows floating on the ground:
-   the disclosures were stacked flush and read as one cramped block. */
-.editor-clusters {
+/* ── CV editing board ────────────────────────────────────────────────────────
+   One tonal board split by hairlines, one row per CV section in CV order: the
+   row carries both "is this on the CV" (checkbox) and, where there's content,
+   the editor for it. Not `Collapsible` — that makes the whole header one
+   <button>, and a checkbox can't live inside a button. */
+.cv-board {
   background: var(--board);
   border: 1px solid var(--line);
   border-radius: var(--r-panel);
-  padding: 0 var(--space-5);
+  overflow: hidden;
 }
-.editor-clusters > .collapsible { padding: var(--space-4) 0; }
-.editor-clusters > .collapsible + .collapsible { border-top: 1px solid var(--line); }
-.chip-row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.cv-board-header {
+  display: flex; align-items: baseline; gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--line);
+}
+.cv-board-header h3 {
+  margin: 0; font-size: var(--fs-xs); font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.cv-board-save {
+  margin-left: auto; font-family: var(--data-font); font-size: var(--fs-xs);
+  color: var(--muted);
+}
+.cv-board-save.failed { color: var(--danger); }
+
+.cv-row + .cv-row { border-top: 1px solid var(--line); }
+.cv-row-head {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding-left: var(--space-5); padding-right: var(--space-5);
+}
+/* 24px minimum target (WCAG 2.2 2.5.8) for a native checkbox sitting in a row. */
+.cv-row-check {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; flex-shrink: 0; margin: 0; cursor: pointer;
+}
+.cv-row-check input { width: auto; margin: 0; }
+.cv-row-heading { flex: 1; min-width: 0; font: inherit; color: inherit; margin: 0; }
+.cv-row-name {
+  display: flex; align-items: center; gap: var(--space-2); width: 100%;
+  background: none; border: none; padding: var(--space-3) 0; cursor: pointer;
+  font: inherit; font-size: var(--fs-base); color: var(--ink); text-align: left;
+}
+.cv-row-name:hover { color: var(--accent-text); }
+/* A row with nothing to expand has no chevron — the left padding stands in for
+   it, so every section label sits in one column whether the row opens or not. */
+.cv-row-static {
+  flex: 1; min-width: 0; padding: var(--space-3) 0 var(--space-3) 24px;
+  font-size: var(--fs-base); color: var(--ink);
+}
+/* Off the CV: step tone, never fade (DESIGN.md). The word in the meta cell is
+   what carries which of the two took it off; the label's decoration reuses the
+   skills vocabulary (dashed = the AI's call, struck = the user's). */
+.cv-row.off { background: var(--surface-dim); }
+.cv-row.off .cv-row-name, .cv-row.off .cv-row-static { color: var(--muted); }
+.cv-row.off-user .cv-row-label { text-decoration: line-through; }
+.cv-row.off-ai .cv-row-label { text-decoration: underline dashed; text-underline-offset: 3px; }
+.cv-row-meta {
+  font-family: var(--data-font); font-size: var(--fs-xs); color: var(--muted);
+  flex-shrink: 0; white-space: nowrap;
+}
+/* Indented to the head's label column (checkbox + gap), so a nested control —
+   the skills group checkboxes above all — can never read as another section. */
+.cv-row-body {
+  padding: 0 var(--space-5) var(--space-4)
+           calc(var(--space-5) + 24px + var(--space-2));
+}
+@media (max-width: 700px) {
+  .cv-row-head { flex-wrap: wrap; padding-left: var(--space-3); padding-right: var(--space-3); }
+  .cv-row-body { padding: 0 var(--space-3) var(--space-3) calc(var(--space-3) + 24px); }
+  /* The meta cell carries the provenance text — too narrow to sit beside the
+     label, it takes its own line under it. It never hides. */
+  .cv-row-meta {
+    flex-basis: 100%; white-space: normal;
+    /* checkbox + gap + chevron slot: the meta lines up under the label. */
+    padding: 0 0 var(--space-3) calc(24px + var(--space-2) + 24px);
+  }
+}
 
 /* Skills: one row per group — a label column that is itself the group's on/off
    control, and the skills as flowing toggles. 40+ skills as checkbox pills was a
@@ -872,8 +919,12 @@ label { font-size: var(--fs-sm); font-weight: 500; color: var(--muted); display:
 .skill-group-name input { width: auto; flex-shrink: 0; }
 .skill-group.masked .skill-group-name { color: var(--muted); }
 .skill-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+/* 24px min height (WCAG 2.2 2.5.8): the 6px .skill-tags gap is nowhere near the
+   24px spacing the exception asks for, so the target has to earn it itself —
+   same reasoning as .tag button. */
 .skill-toggle {
   font-size: var(--fs-sm); line-height: 1.35; padding: 3px 11px; cursor: pointer;
+  min-height: 24px;
   border: 1px solid var(--line); border-radius: var(--r-btn);
   background: var(--surface); color: var(--ink);
 }
