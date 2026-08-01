@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.8.0](https://github.com/FabriceLuyckx/job-coach/compare/v0.7.0...v0.8.0) (2026-08-01)
+
+
+### Features
+
+* **cv-editor:** unify CV editing into one board; bump impeccable skill to 4.0.4 ([acae166](https://github.com/FabriceLuyckx/job-coach/commit/acae166dfcb41072c113f5ca9d05b53d33ff73d3))
+
+
+### Documentation
+
+* archive add-ai-providers OpenSpec change, rewrite README ([9ae5d08](https://github.com/FabriceLuyckx/job-coach/commit/9ae5d08b98c7301078ef6a5050dfac5b1f7d0f21))
+
 ## [0.7.0](https://github.com/FabriceLuyckx/job-coach/compare/v0.6.2...v0.7.0) (2026-07-31)
 
 
