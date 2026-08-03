@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.2](https://github.com/FabriceLuyckx/job-coach/compare/v0.8.1...v0.8.2) (2026-08-03)
+
+
+### Bug Fixes
+
+* **ci:** retry hdiutil detach on Resource busy during macOS packaging ([3bc89fd](https://github.com/FabriceLuyckx/job-coach/commit/3bc89fd219f729821bce494e8828d45a466e2c06))
+
 ## [0.8.1](https://github.com/FabriceLuyckx/job-coach/compare/v0.8.0...v0.8.1) (2026-08-03)
 
 
