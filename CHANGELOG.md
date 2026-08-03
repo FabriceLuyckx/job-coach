@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/FabriceLuyckx/job-coach/compare/v0.8.0...v0.8.1) (2026-08-03)
+
+
+### Bug Fixes
+
+* **desktop:** fix Safari-blank palette swatches, stale post-update frontend, and rate-limited update checks ([e7a0267](https://github.com/FabriceLuyckx/job-coach/commit/e7a02679f2a6696c5774d2b117f6de185737c0e7))
+
 ## [0.8.0](https://github.com/FabriceLuyckx/job-coach/compare/v0.7.0...v0.8.0) (2026-08-01)
 
 
