@@ -313,6 +313,7 @@
       "startDate": "Start date",
       "endDate": "End date",
       "monthPlaceholder": "YYYY-MM",
+      "monthInvalid": "Write the date as YYYY-MM — for example 2023-03.",
       "whatYouDid": "What you did (these become your CV bullets)",
       "responsibilityPlaceholder": "Start with a verb; include measurable results where you can",
       "technologies": "Technologies / tools (optional)",

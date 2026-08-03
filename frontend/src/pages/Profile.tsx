@@ -26,6 +26,7 @@ import { Section, Field } from '../components/ProfileSection'
 import { useToast } from '../components/Toast'
 import { useKeyStatus } from '../components/KeyStatus'
 import { errMsg } from '../lib/errors'
+import { isMonthValue, normalizeMonth } from '../lib/format'
 import { useProfileAutosave } from '../lib/useProfileAutosave'
 import { OPTIONAL_SECTIONS, OPTIONAL_BY_KEY } from '../lib/profileSections'
 
@@ -48,6 +49,46 @@ const TEACHING_TYPES = [
 ] as const
 
 // ── helpers ─────────────────────────────────────────────────────────────────
+
+/** The one month field on this page. `<input type="month">` is only a real
+ *  picker in Chromium; Safari and Firefox render a plain text box, where the
+ *  format is neither offered nor enforced — a typed "March 2023" used to save
+ *  verbatim, print onto the CV as-is and sort the entry to the bottom of the
+ *  career path. So the near-misses are normalised on blur and anything still
+ *  unusable says so, instead of failing silently two screens later. Checked on
+ *  blur, not per keystroke: half-typed input is not wrong yet. */
+function MonthField({ label, value, disabled, onChange }: {
+  label: string
+  value: string
+  disabled?: boolean
+  onChange: (v: string) => void
+}) {
+  const { t } = useTranslation()
+  const [invalid, setInvalid] = useState(false)
+
+  return (
+    <Field label={label} help={invalid ? t('profile.fields.monthInvalid') : undefined}>
+      <input
+        type="month"
+        placeholder={t('profile.fields.monthPlaceholder')}
+        value={value}
+        disabled={disabled}
+        aria-invalid={invalid || undefined}
+        onChange={e => {
+          onChange(e.target.value)
+          // Only ever clears the message — re-raising it mid-edit would flag
+          // every prefix of a value being typed.
+          if (invalid && isMonthValue(e.target.value)) setInvalid(false)
+        }}
+        onBlur={e => {
+          const next = normalizeMonth(e.target.value)
+          if (next !== e.target.value) onChange(next)
+          setInvalid(!!next && !isMonthValue(next))
+        }}
+      />
+    </Field>
+  )
+}
 
 // Reusable collapsible item card (Experience / Education / Publication / …).
 function ItemCard({ summary, italic, open, setOpen, onRemove, handle, children }: {
@@ -102,11 +143,9 @@ function ExperienceCard({
       </div>
       <Field label={t('profile.fields.location')}><input type="text" value={exp.location} onChange={e => set('location', e.target.value)} /></Field>
       <div className="row">
-        <Field label={t('profile.fields.startDate')}><input type="month" placeholder={t('profile.fields.monthPlaceholder')} value={exp.start_date} onChange={e => set('start_date', e.target.value)} /></Field>
-        <Field label={t('profile.fields.endDate')}>
-          <input type="month" placeholder={t('profile.fields.monthPlaceholder')} value={exp.end_date ?? ''} disabled={current}
-            onChange={e => set('end_date', e.target.value || null)} />
-        </Field>
+        <MonthField label={t('profile.fields.startDate')} value={exp.start_date} onChange={v => set('start_date', v)} />
+        <MonthField label={t('profile.fields.endDate')} value={exp.end_date ?? ''} disabled={current}
+          onChange={v => set('end_date', v || null)} />
       </div>
       <label className="checkbox-row">
         <input type="checkbox" checked={current} onChange={e => set('end_date', e.target.checked ? null : '')} />
@@ -209,8 +248,8 @@ function VolunteeringCard({ vol, onChange, onRemove, handle }: { vol: Volunteeri
         <Field label={t('profile.fields.organisation')}><input type="text" value={vol.organisation} onChange={e => set('organisation', e.target.value)} /></Field>
       </div>
       <div className="row">
-        <Field label={t('profile.fields.startDate')}><input type="month" placeholder={t('profile.fields.monthPlaceholder')} value={vol.start_date} onChange={e => set('start_date', e.target.value)} /></Field>
-        <Field label={t('profile.fields.endDate')}><input type="month" placeholder={t('profile.fields.monthPlaceholder')} value={vol.end_date ?? ''} disabled={current} onChange={e => set('end_date', e.target.value || null)} /></Field>
+        <MonthField label={t('profile.fields.startDate')} value={vol.start_date} onChange={v => set('start_date', v)} />
+        <MonthField label={t('profile.fields.endDate')} value={vol.end_date ?? ''} disabled={current} onChange={v => set('end_date', v || null)} />
       </div>
       <label className="checkbox-row">
         <input type="checkbox" checked={current} onChange={e => set('end_date', e.target.checked ? null : '')} />

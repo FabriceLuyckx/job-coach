@@ -279,7 +279,8 @@
       "amountOptional": "Montant (optionnel)",
       "linkLabel": "Nom du lien {{n}}",
       "linkUrl": "Adresse du lien {{n}}",
-      "monthPlaceholder": "YYYY-MM"
+      "monthPlaceholder": "YYYY-MM",
+      "monthInvalid": "Écrivez la date au format YYYY-MM — par exemple 2023-03."
     },
     "help": {
       "personal": "Votre nom, coordonnées et liens — affichés en haut de chaque CV.",

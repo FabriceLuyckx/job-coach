@@ -279,7 +279,8 @@
       "amountOptional": "Importo (opzionale)",
       "linkLabel": "Collega il nome {{n}}",
       "linkUrl": "Collega l'indirizzo {{n}}",
-      "monthPlaceholder": "YYYY-MM"
+      "monthPlaceholder": "YYYY-MM",
+      "monthInvalid": "Scrivi la data nel formato YYYY-MM — ad esempio 2023-03."
     },
     "help": {
       "personal": "Nome, recapiti e link — mostrati in cima a ogni CV.",

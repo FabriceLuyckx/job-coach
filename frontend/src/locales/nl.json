@@ -279,7 +279,8 @@
       "amountOptional": "Bedrag (optioneel)",
       "linkLabel": "Koppel {{n}} naam",
       "linkUrl": "Koppel {{n}} adres",
-      "monthPlaceholder": "JJJJ-MM"
+      "monthPlaceholder": "JJJJ-MM",
+      "monthInvalid": "Schrijf de datum in de vorm YYYY-MM — bijvoorbeeld 2023-03."
     },
     "help": {
       "personal": "Je naam, contactgegevens en links — weergegeven bovenaan elk cv.",

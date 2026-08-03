@@ -279,7 +279,8 @@
       "amountOptional": "Betrag (optional)",
       "linkLabel": "Name von Link {{n}}",
       "linkUrl": "Adresse von Link {{n}}",
-      "monthPlaceholder": "JJJJ-MM"
+      "monthPlaceholder": "JJJJ-MM",
+      "monthInvalid": "Geben Sie das Datum im Format YYYY-MM ein — beispielsweise 2023-03."
     },
     "help": {
       "personal": "Ihr Name, Kontaktdaten und Links – erscheinen oben auf jedem Lebenslauf.",

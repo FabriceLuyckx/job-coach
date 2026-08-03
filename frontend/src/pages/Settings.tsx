@@ -439,10 +439,21 @@ export default function SettingsPage() {
                   // 26px chip 12px is still nearly a full pill.
                   borderRadius: 6,
                   // The palette's slots, in the proportion the CV uses them,
-                  // painted on the button itself. They used to be three flexed
-                  // <span>s, but WebKit wraps a <button>'s children in an
-                  // anonymous block and ignores the flex, so empty spans
-                  // collapsed to nothing and every swatch was blank on Safari.
+                  // painted on the button itself rather than as three flexed
+                  // <span>s — one property instead of four elements that exist
+                  // only to hold a colour each.
+                  //
+                  // These swatches once came up blank on Safari, and this was
+                  // committed as the fix for it, on the theory that WebKit wraps
+                  // a <button>'s children in an anonymous block and ignores the
+                  // flex. That theory is wrong: the flexed-span version measures
+                  // and paints correctly in Safari 26.5, in the packaged app's
+                  // WKWebView and in Playwright's WebKit — and a dozen buttons in
+                  // this app (.btn-icon, .collapsible-toggle, .model-row,
+                  // .engine-card, .nav-item, …) are flex containers that all
+                  // render fine. Flex on <button> is safe; don't avoid it on
+                  // WebKit's account. The real cause was never identified —
+                  // most likely the stale cached bundle fixed in the same commit.
                   background: `linear-gradient(90deg, ${pal.accent_color} 0, ${pal.accent_color} 50%,`
                     + ` ${pal.colors.ink} 50%, ${pal.colors.ink} 75%,`
                     + ` ${pal.colors.paper} 75%, ${pal.colors.paper} 100%)`,
