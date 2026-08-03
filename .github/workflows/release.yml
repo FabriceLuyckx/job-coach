@@ -150,7 +150,16 @@ jobs:
             -e 'end tell' \
             -e 'end tell'
 
-          hdiutil detach "/Volumes/MyJobCoach" -force
+          # Same "Resource busy" flake as hdiutil create above, here from Finder
+          # still holding the volume right after the AppleScript step — retry
+          # the detach too before giving up.
+          detached=
+          for i in 1 2 3 4 5; do
+            hdiutil detach "/Volumes/MyJobCoach" -force && { detached=1; break; }
+            echo "hdiutil detach failed (attempt $i); retrying in 10s"
+            sleep 10
+          done
+          [ -n "$detached" ]
           hdiutil convert dist/rw.dmg -format UDZO -ov -o "dist/${{ matrix.artifact }}.dmg"
           rm -f dist/rw.dmg
 
