@@ -33,7 +33,8 @@ def test_no_webview_falls_back_to_browser_and_server_runs(monkeypatch):
     desktop.main()
 
     assert server_started.wait(timeout=5), "uvicorn was never started"
-    assert opened == [f"http://{desktop.HOST}:{desktop.PREFERRED_PORT}"]
+    # Version-stamped: a fresh cache key per release (see desktop.main).
+    assert opened == [f"http://{desktop.HOST}:{desktop.PREFERRED_PORT}/?v={system.app_version()}"]
 
 
 def test_wait_ready_polls_until_the_server_answers(monkeypatch):

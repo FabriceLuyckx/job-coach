@@ -240,3 +240,28 @@ def test_check_network_failure_is_a_readable_reason(monkeypatch):
     out = updater.check_for_update()
     assert out["available"] is False
     assert "no network" in out["reason"]
+
+
+# --- API-free fallback (403 rate limit exceeded) -------------------------------
+
+def test_fetch_latest_falls_back_to_the_redirect_when_the_api_is_rate_limited(monkeypatch):
+    monkeypatch.setattr(sys, "platform", "darwin")
+    monkeypatch.setattr(updater.platform, "machine", lambda: "arm64")
+
+    class _Resp:
+        headers = {"location": "https://github.com/FabriceLuyckx/job-coach/releases/tag/v9.1.0"}
+
+        def raise_for_status(self):
+            raise AssertionError("the redirect answered — nothing to raise")
+
+    def fake_get(url, **kw):
+        if url.startswith("https://api.github.com"):
+            raise RuntimeError("403 rate limit exceeded")
+        return _Resp()
+
+    monkeypatch.setattr(updater.httpx, "get", fake_get)
+    rel = updater._fetch_latest()
+    assert rel["tag_name"] == "v9.1.0"
+    asset = updater.asset_for_platform(rel["assets"])
+    assert asset["name"] == "MyJobCoach-macos.dmg"
+    assert updater.valid_download_url(asset["browser_download_url"])

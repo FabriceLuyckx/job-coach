@@ -211,7 +211,12 @@ def main() -> None:
     ).start()
     url = f"http://{HOST}:{port}"
     if _wait_ready(port):
-        _open_ui(url)
+        # Version-stamped so a self-update can never boot the previous
+        # frontend out of the web view's persistent cache (same origin, same
+        # port, every run). The server sends no-store now, but a page cached
+        # by an older build is still "fresh" to the web view — a new URL key
+        # is what gets those installs onto the new bundle.
+        _open_ui(f"{url}/?v={system.app_version()}")
     else:
         _browser_fallback(url, ready=False)
 

@@ -76,15 +76,54 @@ def valid_download_url(url: str) -> bool:
     return url.startswith(DOWNLOAD_PREFIX)
 
 
-def _fetch_latest() -> dict:
+def _latest_via_redirect() -> dict:
+    """Latest release without the API: github.com/…/releases/latest redirects to
+    the tag. Rebuilt into the API's shape from the asset naming contract.
+
+    `size` is 0 — the redirect carries no metadata — so `_download` verifies
+    against the response's own Content-Length instead.
+    """
     r = httpx.get(
-        LATEST_URL,
-        headers={"User-Agent": _UA, "Accept": "application/vnd.github+json"},
+        f"https://github.com/{REPO}/releases/latest",
+        headers={"User-Agent": _UA},
         timeout=10,
-        follow_redirects=True,
-    )
-    r.raise_for_status()
-    return r.json()
+    )  # no follow_redirects: the Location header *is* the answer
+    tag = (r.headers.get("location") or "").rsplit("/tag/", 1)[-1]
+    if not parse_version(tag):
+        r.raise_for_status()
+        raise RuntimeError("Could not read the latest release tag.")
+    name = asset_name()
+    return {
+        "tag_name": tag,
+        "html_url": f"https://github.com/{REPO}/releases/tag/{tag}",
+        "assets": [{
+            "name": name,
+            "size": 0,
+            "browser_download_url": f"{DOWNLOAD_PREFIX}{tag}/{name}",
+        }] if name else [],
+    }
+
+
+def _fetch_latest() -> dict:
+    """The latest release. API first, then the API-free redirect.
+
+    api.github.com allows 60 unauthenticated requests per hour *per IP*, so a
+    user behind shared NAT/VPN can get `403 rate limit exceeded` on their very
+    first check — which is exactly what was reported. The redirect on
+    github.com has no such budget, and the asset names are a fixed contract, so
+    the download URL can be reconstructed without the API.
+    """
+    try:
+        r = httpx.get(
+            LATEST_URL,
+            headers={"User-Agent": _UA, "Accept": "application/vnd.github+json"},
+            timeout=10,
+            follow_redirects=True,
+        )
+        r.raise_for_status()
+        return r.json()
+    except Exception:
+        return _latest_via_redirect()
 
 
 def check_for_update() -> dict:
@@ -238,7 +277,9 @@ def _download(url: str, declared_size: int, name: str) -> Path:
         "GET", url, headers={"User-Agent": _UA}, timeout=30, follow_redirects=True
     ) as r:
         r.raise_for_status()
-        _set(bytes_total=int(r.headers.get("Content-Length") or declared_size or 0))
+        # Content-Length first: the redirect fallback has no declared size.
+        expected = int(r.headers.get("Content-Length") or declared_size or 0)
+        _set(bytes_total=expected)
         with open(dest, "wb") as f:
             for chunk in r.iter_bytes(1 << 20):
                 if _cancel.is_set():
@@ -247,7 +288,7 @@ def _download(url: str, declared_size: int, name: str) -> Path:
                 done += len(chunk)
                 _set(bytes_done=done)
     # A truncated stream that ended without an error must not become an app.
-    if declared_size and dest.stat().st_size != declared_size:
+    if expected and dest.stat().st_size != expected:
         raise RuntimeError("The download is incomplete (size mismatch) — update abandoned.")
     return dest
 
