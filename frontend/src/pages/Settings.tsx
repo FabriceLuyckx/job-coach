@@ -433,20 +433,21 @@ export default function SettingsPage() {
                 aria-label={t(`settings.template.palettes.${pal.id}`)}
                 onClick={() => setDesign({ accent_color: pal.accent_color, colors: pal.colors })}
                 style={{
-                  display: 'flex', width: 44, height: 26, padding: 0, cursor: 'pointer',
+                  width: 44, height: 26, padding: 0, cursor: 'pointer',
                   border: `2px solid ${activePalette === pal.id ? 'var(--ink)' : 'var(--border)'}`,
-                  // Reset the global button pill + clip the colour spans to the
-                  // rounded frame — otherwise the swatch is a stadium and the
-                  // square colour blocks poke past its ends. 6px, not --radius-sm:
-                  // on a 26px chip 12px is still nearly a full pill.
-                  borderRadius: 6, overflow: 'hidden',
+                  // Reset the global button pill. 6px, not --radius-sm: on a
+                  // 26px chip 12px is still nearly a full pill.
+                  borderRadius: 6,
+                  // The palette's slots, in the proportion the CV uses them,
+                  // painted on the button itself. They used to be three flexed
+                  // <span>s, but WebKit wraps a <button>'s children in an
+                  // anonymous block and ignores the flex, so empty spans
+                  // collapsed to nothing and every swatch was blank on Safari.
+                  background: `linear-gradient(90deg, ${pal.accent_color} 0, ${pal.accent_color} 50%,`
+                    + ` ${pal.colors.ink} 50%, ${pal.colors.ink} 75%,`
+                    + ` ${pal.colors.paper} 75%, ${pal.colors.paper} 100%)`,
                 }}
-              >
-                {/* the palette's slots, in the proportion the CV uses them */}
-                <span style={{ flex: 2, background: pal.accent_color }} />
-                <span style={{ flex: 1, background: pal.colors.ink }} />
-                <span style={{ flex: 1, background: pal.colors.paper }} />
-              </button>
+              />
             ))}
           </div>
         </div>

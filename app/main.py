@@ -30,6 +30,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def no_store(request, call_next):
+    """Nothing but the hashed bundles may be cached.
+
+    The app always lives at the same origin (127.0.0.1:8756) and the desktop
+    web view keeps a persistent HTTP cache across restarts. `FileResponse`
+    sends Last-Modified with no Cache-Control, which lets a browser *heuristically*
+    treat an old index.html as fresh for days — so after a self-update the
+    packaged app kept booting the previous frontend (an updated 0.8.0 still
+    showing the pre-0.8 Settings copy) while the new backend ran underneath.
+    /assets is content-hashed, so it stays cacheable.
+    """
+    resp = await call_next(request)
+    if not request.url.path.startswith("/assets/"):
+        resp.headers.setdefault("Cache-Control", "no-store")
+    return resp
+
+
 app.include_router(profile.router)
 app.include_router(cv.router)
 app.include_router(letters.router)
